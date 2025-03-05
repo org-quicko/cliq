@@ -36,7 +36,7 @@ export class CreateProgramUserDto {
     @IsEnum(statusEnum)
     status: statusEnum;
 
-    // defaults to member in database
+    // defaults to viewer in database
     @IsOptional()
     @IsEnum(roleEnum)
     role: roleEnum;

@@ -5,6 +5,7 @@ import { CreateUserDto, UpdateUserDto } from '../dtos';
 import { User } from '../entities';
 import { UserConverter } from '../converters/user.converter';
 import { LoggerService } from './logger.service';
+import { roleEnum } from 'src/enums';
 
 @Injectable()
 export class UserService {
@@ -37,7 +38,7 @@ export class UserService {
     const userEntity = this.userRepository.create(body);
 
     if (await this.isFirstUserSignUp()) {
-      userEntity.isSuperAdmin = true;
+      userEntity.role = roleEnum.SUPER_ADMIN;
     }
 
     // has to be saved as an entity otherwise password hashing won't be triggered
@@ -50,29 +51,6 @@ export class UserService {
     this.logger.info('END: userSignUp service');
     return newUser;
   }
-
-  /**
-   * User log in
-   */
-  // async userLogIn(user: UserDto) {
-  //   try {
-  //     const userRes = await this.userRepository.findOne({ where: { email: user.email } });
-
-  //     if (!userRes) {
-  //       throw new Error('User does not exist');
-  //     }
-
-  //     if (user.password !== userRes.password) {
-  //       throw new Error('Incorrect password.');
-  //     }
-
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       this.logger.error(error.message);
-  //       throw error;
-  //     }
-  //   }
-  // }
 
   /**
    * Get user

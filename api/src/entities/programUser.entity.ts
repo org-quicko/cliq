@@ -22,7 +22,7 @@ export class ProgramUser {
   @Column('enum', { enum: statusEnum, default: statusEnum.ACTIVE })
   status: statusEnum;
 
-  @Column('enum', { enum: roleEnum, default: roleEnum.MEMBER })
+  @Column('enum', { enum: roleEnum, default: roleEnum.VIEWER })
   role: roleEnum;
 
   @CreateDateColumn({

@@ -39,7 +39,7 @@ export class Purchase {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Link, (link) => link.purchases)
+  @ManyToOne(() => Link, (link) => link.purchases, { onDelete: 'SET NULL' })
   @JoinColumn({
     name: 'link_id',
     referencedColumnName: 'linkId',

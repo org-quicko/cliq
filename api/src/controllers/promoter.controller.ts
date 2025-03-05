@@ -14,12 +14,12 @@ import { roleEnum, statusEnum, conversionTypeEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 import { UnifiedAuthGuard } from '../guards/auth/auth.guard';
-import { MemberPermissionsGuard } from '../guards/permissions/memberPermissions.guard';
 import { MemberPermissions } from '../decorators/permissions.decorator';
 import { Commission, Contact, Member, Promoter, PromoterMember, Purchase, ReferralView, SignUp } from '../entities';
+import { UnifiedPermissionsGuard } from 'src/guards/permissions/unifiedPermissions.guard';
 
 @ApiTags('Promoter')
-@UseGuards(UnifiedAuthGuard, MemberPermissionsGuard)
+@UseGuards(UnifiedAuthGuard, UnifiedPermissionsGuard)
 @Controller('/programs/:program_id/promoters')
 export class PromoterController {
 

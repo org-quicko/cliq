@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsString, IsEmail, IsDate, IsUUID, IsOptional, IsEnum, IsBoolean } from 'class-validator';
+import { IsString, IsEmail, IsDate, IsUUID, IsOptional, IsEnum } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 import { roleEnum, statusEnum } from 'src/enums';
 
@@ -30,10 +30,6 @@ export class MemberDto {
     @IsEnum(statusEnum)
     status?: statusEnum;
 
-    @Expose({ name: 'is_super_admin' })
-    @IsBoolean()
-    isSuperAdmin: boolean;
-
     @Expose({ name: 'created_at' })
     @IsDate()
     createdAt: Date;
@@ -58,11 +54,6 @@ export class CreateMemberDto {
     @Expose({ name: 'last_name' })
     @IsString()
     lastName: string;
-
-    @IsOptional()
-    @Expose({ name: 'is_super_admin' })
-    @IsBoolean()
-    isSuperAdmin?: boolean;
     
 }
 

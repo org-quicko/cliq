@@ -1,3 +1,5 @@
+import { roleEnum } from "src/enums";
+
 export interface AuthInput {
     email: string;
     password: string;
@@ -9,5 +11,5 @@ export interface AuthResult {
 
 export interface LoginData {
     email: string;
-    is_super_admin: boolean;
+    role?: roleEnum;
 };

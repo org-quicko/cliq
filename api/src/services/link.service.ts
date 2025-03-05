@@ -1,6 +1,4 @@
-import { BadRequestException, Injectable, 
-  // Logger,
-   NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Link } from '../entities';
 import { FindOptionsRelations, Repository } from 'typeorm';
@@ -101,48 +99,6 @@ export class LinkService {
   }
 
   /**
-   * Get all links entity
-   */
-  async getAllLinksEntity(programId: string, promoterId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info('Start getAllLinks service');
-    const whereOptions = {};
-
-    if (queryOptions['source']) {
-      whereOptions['source'] = queryOptions.source;
-      delete queryOptions['source'];
-    }
-    if (queryOptions['medium']) {
-      whereOptions['medium'] = queryOptions.medium;
-      delete queryOptions['medium'];
-    }
-    if (queryOptions['url']) {
-      whereOptions['url'] = queryOptions.url;
-      delete queryOptions['url'];
-    }
-
-    const links = await this.linkRepository.find({
-      where: { 
-        program: { 
-          programId
-        }, 
-        promoter: { 
-          promoterId 
-        },
-        ...whereOptions
-      },
-      ...queryOptions
-    })
-
-    if(!links || links.length == 0) {
-      this.logger.warn('Failed to get link');
-      throw new NotFoundException('Failed to get link');
-    }
-
-    this.logger.info('End getAllLinks service');
-    return links;
-  }
-
-  /**
    * Get link entity by ID
    */
   async getLinkEntity(linkId: string, relations?: FindOptionsRelations<Link>) {
@@ -158,8 +114,8 @@ export class LinkService {
     return linkResult;
   }
 
-  async getRandomLink(programId?: string, promoterId?: string) {
-    this.logger.info('START: getLinkEntity service');
+  async getFirstLink(programId?: string, promoterId?: string) {
+    this.logger.info('START: getRandomLink service');
 
     if (!programId && !promoterId) {
       throw new BadRequestException(`Error. Must provide one of Progrma ID or Promoter ID to get random link.`);
@@ -176,7 +132,7 @@ export class LinkService {
       throw new NotFoundException(`Error. Failed to get random link for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
     }
 
-    this.logger.info('END: getLinkEntity service');
+    this.logger.info('END: getRandomLink service');
     return linkResult;
   }
 

@@ -18,7 +18,7 @@ export class InviteUserDto {
     @IsString()
     lastName: string;
 
-    // defaults to "member" in database
+    // defaults to "viewer" in database
     @IsOptional()
     @IsEnum(roleEnum)
     role: roleEnum;

@@ -73,6 +73,7 @@ export class UnifiedPermissionsGuard implements CanActivate {
             for (let i = 0; i < requiredPermissions.length; i++) {
                 const action = requiredPermissions[i].action;
                 
+                console.log('\n\n', action, subjectObjects[i], '\n\n');
                 ForbiddenError.from(ability).throwUnlessCan(action, subjectObjects[i]);
             }
 

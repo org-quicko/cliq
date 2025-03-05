@@ -79,11 +79,11 @@ export class ProgramService {
       const programEntity = programRepository.create(body);
       const savedProgram = await programRepository.save(programEntity);
 
-      // set creator user to admin
+      // set creator user to super admin
       await programUserRepository.save({
         userId,
         programId: savedProgram.programId,
-        role: roleEnum.ADMIN,
+        role: roleEnum.SUPER_ADMIN,
       });
 
       // create default circle for program
@@ -243,7 +243,7 @@ export class ProgramService {
           // if relation exists but inactive, change status to active and return
           await programUserRepository.update(
             { programId, userId: user.userId },
-            { status: statusEnum.ACTIVE, role: body.role ?? roleEnum.MEMBER, updatedAt: () => `NOW()` }
+            { status: statusEnum.ACTIVE, role: body.role ?? roleEnum.VIEWER, updatedAt: () => `NOW()` }
           );
 
           return;
@@ -264,7 +264,7 @@ export class ProgramService {
       const newProgramUser = programUserRepository.create();
       newProgramUser.program = programResult;
       newProgramUser.user = newUser;
-      newProgramUser.role = body.role ?? roleEnum.MEMBER;
+      newProgramUser.role = body.role ?? roleEnum.VIEWER;
 
       const result = await programUserRepository.save(newProgramUser);
       if (!result) {

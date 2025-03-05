@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PromoterMember } from "src/entities";
-import { EntityNotFoundError, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { LoggerService } from './logger.service';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class PromoterMemberService {
 
     async getPromoterMemberRowEntity(promoterId: string, memberId: string) {
 
-        this.logger.info('START: checkPromoterMember service');
+        this.logger.info('START: getPromoterMemberRowEntity service');
         
         const promoterMember = await this.promoterMemberRepository.findOne({
             where: {
@@ -31,10 +31,11 @@ export class PromoterMemberService {
         })
         
         if(!promoterMember){
-            throw new EntityNotFoundError(PromoterMember, { promoterId, memberId })
+            this.logger.error(`Error. Failed to find promoterMember for Promoter ID ${promoterId} and Member ID ${memberId}.`);
+            throw new NotFoundException(`Error. Failed to find promoterMember for Promoter ID ${promoterId} and Member ID ${memberId}.`);
         }
         
-        this.logger.info('END: checkPromoterMember service');
+        this.logger.info('END: getPromoterMemberRowEntity service');
         return promoterMember;
     }
 }

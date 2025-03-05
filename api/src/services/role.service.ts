@@ -9,6 +9,10 @@ import { LinkService } from "./link.service";
 import { PromoterService } from "./promoter.service";
 import { PromoterMemberService } from "./promoterMember.service";
 import { MemberService } from './member.service';
+import { CircleService } from "./circle.service";
+import { FunctionService } from "./function.service";
+import { ProgramPromoterService } from "./programPromoter.service";
+import { LoggerService } from "./logger.service";
 
 // manage is a keyword in CASL that means the admin can do anything
 export const actions = ['manage', 'create', 'read', 'read_all', 'update', 'delete', 'invite_user', 'invite_member', 'remove_user', 'remove_member', 'include_promoter', 'remove_promoter', 'change_role'] as const;
@@ -36,7 +40,7 @@ export type subjectsType = InferSubjects<
 export type AppAbility = Ability<[actionsType, subjectsType]>;
 export const createAppAbility = createAbility as CreateAbility<AppAbility>;
 
-const userResources = [Program, ProgramUser, Function, Condition, Circle];
+const userResources = [Program, ProgramUser, ProgramPromoter, Function, Condition, Circle];
 const memberResources = [Promoter, Contact, Purchase, SignUp, ReferralView];
 
 
@@ -49,8 +53,12 @@ export class RoleService {
         private programService: ProgramService,
         private promoterService: PromoterService,
         private linkService: LinkService,
+        private circleService: CircleService,
+        private functionService: FunctionService,
+        private programPromoterService: ProgramPromoterService,
         private promoterMemberService: PromoterMemberService,
 
+        private logger: LoggerService,
     ) { }
 
     getProgramUserPermissions(user: User) {
@@ -73,23 +81,26 @@ export class RoleService {
     }
 
     async getSubjects(request: any, requiredPermissions: { action: actionsType; subject: subjectsType }[]) {
-
-        const subjectObjects = await Promise.all( 
+        this.logger.info(`START: getSubjects service`);
+        const subjectObjects = await Promise.all(
             requiredPermissions.map(({ action, subject }) => {
+
+                const subjectUserId = request.params.user_id as string;
+                const subjectProgramId = request.params.program_id as string;
+                const subjectMemberId = request.params.member_id as string;
+                const subjectPromoterId = request.params.promoter_id as string;
 
                 if (subject === User) {
                     if (action === 'read' || action === 'create') return subject;
 
-                    const subjectUserId = request.params.user_id as string;
-
                     if (!subjectUserId) {
                         throw new BadRequestException(`Error. Must provide a ${typeof subject} for performing action on object`);
                     }
-                    return this.userService.getUserEntity(subjectUserId);
+                    const user = new User()
+                    user.userId = subjectUserId;
+                    return user;
                 } else if (subject === Program) {
                     if (action === 'read' || action === 'create') return subject;
-
-                    const subjectProgramId = request.params.program_id as string;
 
                     if (!subjectProgramId) {
                         throw new BadRequestException(`Error. Must provide a ${typeof subject} ID for performing action on object`);
@@ -100,31 +111,42 @@ export class RoleService {
                 } else if (subject === ProgramUser) {
                     if (action === 'read' || action === 'create') return subject;
 
-                    const subjectProgramId = request.params.program_id as string;
-                    const subjectProgramUserId = request.params.user_id as string;
-
-                    if (!subjectProgramId || !subjectProgramUserId) {
+                    if (!subjectProgramId || !subjectUserId) {
                         throw new BadRequestException(`Error. Must provide a ${typeof subject} ID for performing action on object`);
                     }
 
-                    return this.programService.getProgramUserRowEntity(subjectProgramId, subjectProgramUserId);
+                    return this.programService.getProgramUserRowEntity(subjectProgramId, subjectUserId);
 
                 } else if (subject === Member) {
-                    const subjectMemberId = request.params.member_id as string;
 
                     if (!subjectMemberId) {
                         throw new BadRequestException(`Error. Must provide a ${typeof subject} for performing action on object`);
                     }
-                    return this.memberService.getMemberEntity(subjectMemberId);
+
+                    const member = new Member();
+                    member.memberId = subjectMemberId;
+                    return member;
+                    // return this.memberService.getMemberEntity(subjectMemberId);
+
+                } else if (subject === ProgramPromoter) {
+                    const subjectProgramId = request.params.program_id as string;
+
+                    if (!subjectProgramId) {
+                        throw new BadRequestException(`Error. Must provide a ${typeof subject} ID for performing action on object`);
+                    }
+
+                    return this.programPromoterService.getRandomProgramPromoter(subjectProgramId);
 
                 } else if (subject === Promoter) {
-                    const subjectPromoterId = request.params.promoter_id as string;
 
                     if (!subjectPromoterId) {
                         throw new BadRequestException(`Error. Must provide a ${typeof subject} ID for performing action on object`);
                     }
 
-                    return this.promoterService.getPromoterEntity(subjectPromoterId);
+                    const promoter = new Promoter();
+                    promoter.promoterId = subjectPromoterId;
+                    return promoter;
+                    // return this.promoterService.getPromoterEntity(subjectPromoterId);
 
                 } else if (subject === PromoterMember) {
                     const subjectPromoterId = request.params.program_id as string;
@@ -137,21 +159,34 @@ export class RoleService {
                     return this.promoterMemberService.getPromoterMemberRowEntity(subjectPromoterId, subjectPromoterMemberId);
 
                 } else if (subject === Link) {
-                    const subjectProgramId = request.params.program_id as string;
-                    const subjectPromoterId = request.params.promoter_id as string;
 
                     if (!(subjectProgramId && subjectPromoterId)) {
                         throw new BadRequestException(`Error. Must provide one of Program ID and Promoter ID for performing action on object.`);
                     }
 
-                    return this.linkService.getRandomLink(subjectProgramId, subjectPromoterId);
-                } 
+                    return this.linkService.getFirstLink(subjectProgramId, subjectPromoterId);
+
+                } else if (subject === Circle) {
+
+                    if (!subjectProgramId) {
+                        throw new BadRequestException(`Error. Must provide one of Program ID for performing action on object.`);
+                    }
+
+                    return this.circleService.getRandomCircle(subjectProgramId);
+                } else if (subject === Function) {
+                    if (!subjectProgramId) {
+                        throw new BadRequestException(`Error. Must provide one of Program ID for performing action on object.`);
+                    }
+
+                    return this.functionService.getRandomFunction(subjectProgramId);
+                }
                 else {
                     return subject;
                 }
             })
         );
 
+        this.logger.info(`END: getSubjects service`);
         return subjectObjects;
     }
 
@@ -161,47 +196,39 @@ export class RoleService {
 
         const { can, build } = new AbilityBuilder<AppAbility>(createAbility);
         // can manage all if user is super admin (except for the things listed below)
-        if (user.isSuperAdmin) {
+        if (user.role === roleEnum.SUPER_ADMIN) {
             can('manage', userResources);
             can('read', Promoter);
-            can('create', User);
-        } else {
-            can('read', userResources);
         }
-        
+
         for (const [programId, role] of Object.entries(programUserPermissions)) {
-            
-            can('read', Contact, { program: { programId } });
-            can('read', ReferralView, { programId });
-            can('read', ProgramPromoter, { programId });
-            
-            if (role === roleEnum.ADMIN) {
-                
+
+            can('read', [ReferralView, ProgramPromoter, Link, Circle, Program, Function], { programId });
+
+            if (role === roleEnum.ADMIN || role === roleEnum.SUPER_ADMIN) {
                 // can update program or invite other users to the program
                 can(['update', 'invite_user'], Program, { programId });
-                
+
                 // can change other users' role and change other users' permissions from the program, if that user ain't the super admin
-                can(['change_role', 'invite_user'], ProgramUser, { programId, user: { isSuperAdmin: false } });
+                can(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: roleEnum.SUPER_ADMIN } });
 
-                // can only remove users if they aren't the super user
-                can(['remove_user'], ProgramUser, { programId, user: { isSuperAdmin: false } });
-                
-                // can also perform all operations on circle
-                can(['manage'], Circle, { program: { programId } });
+                can('invite_user', ProgramUser, { programId });
 
-                can(['manage'], Link, { programId });
-            } else {
-                can(['read'], Link, { programId });
+                // can also perform all operations on circle, functions and links
+                can('manage', [Link, Circle, Function], { programId });
+
+            } else if (role === roleEnum.EDITOR) {
+                can('manage', [Link, Circle, Function], { programId });
             }
         }
-        
-        
-        
+
         can(['update', 'delete'], User, { userId: user.userId });
-        can(['read'], User);
+
+        can('read', User);
+
         can('read', Purchase);
-        can('read', SignUp);     
-        can('read', Commission);     
+        can('read', SignUp);
+        can('read', Commission);
 
         const ability = build({
             detectSubjectType: item => item.constructor as ExtractSubjectType<subjectsType>
@@ -216,34 +243,27 @@ export class RoleService {
 
         const { can, build } = new AbilityBuilder<AppAbility>(createAppAbility);
 
-        // can manage all if user is super admin (except for the things listed below)
-        if (member.isSuperAdmin) {
-            can('manage', memberResources);
-            can('create', Member);
-        } else {
-            can('read', memberResources);
-        }
-
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
-            
+
             can(['read'], Member, { promoterMembers: { promoterId } });
             can(['read'], ReferralView, { promoterId });
             can(['read'], Purchase, { promoter: { promoterId } });
             can(['read'], SignUp, { promoter: { promoterId } });
-            can(['read'], Link, { promoterId }); 
-            
+            can(['read'], Link, { promoterId });
+
             if (role === roleEnum.ADMIN) {
+                can('manage', memberResources);
                 // can update program or invite other users to the program
                 can(['update', 'invite_member'], Promoter, { promoterId });
 
                 // can remove other members and change other members' permissions from the program, if that user ain't the super admin
-                can(['remove_member', 'change_role'], PromoterMember, { promoterId, member: { isSuperAdmin: false } });
+                can(['remove_member', 'change_role'], PromoterMember, { promoterId, role: roleEnum.VIEWER });
 
                 can(['create', 'delete'], Link, { promoterId });
 
             }
         }
-    
+
         can(['update', 'delete'], Member, { memberId: member.memberId });
 
         const ability = build({
@@ -254,7 +274,7 @@ export class RoleService {
     }
 
     createEmpty() {
-        const { can, build } = new AbilityBuilder<AppAbility>(createAppAbility);
+        const { build } = new AbilityBuilder<AppAbility>(createAppAbility);
         return build();
     }
 } 

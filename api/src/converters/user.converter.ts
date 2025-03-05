@@ -16,7 +16,7 @@ export class UserConverter {
         userDto.lastName = user.lastName;
         userDto.role = programUser?.role;
         userDto.status = programUser?.status;
-        userDto.isSuperAdmin = user.isSuperAdmin;
+        userDto.role = user.role;
         
         userDto.createdAt = user.createdAt;
         userDto.updatedAt = user.updatedAt;

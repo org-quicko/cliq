@@ -193,6 +193,23 @@ export class FunctionService {
     return functionResult;
   }
 
+  async getRandomFunction(programId: string) {
+    this.logger.info('START: getRandomFunction service');
+
+    const functionResult = await this.functionRepository.findOne({
+      where: {
+        programId
+      }
+    });
+
+    if (!functionResult) {
+      throw new NotFoundException(`Error. Failed to get random function for Program ID: ${programId}.`);
+    }
+
+    this.logger.info('END: getRandomFunction service');
+    return functionResult;
+  }
+
   /**
    * Update function
    */
@@ -415,7 +432,7 @@ export class FunctionService {
         payload.promoterId
       )).length;
 
-      
+
       evalResult = condition.evaluate({ numPurchases });
       console.log(payload.promoterId, numPurchases, evalResult);
       // EXTERNAL ID condition

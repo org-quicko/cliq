@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
-import { IsString, IsUUID, IsDate, IsOptional, IsBoolean, IsEnum } from 'class-validator';
+import { IsString, IsUUID, IsDate, IsOptional, IsEnum } from 'class-validator';
 import { roleEnum, statusEnum } from 'src/enums';
 
 export class UserDto {
@@ -31,10 +31,6 @@ export class UserDto {
     @IsEnum(statusEnum)
     status?: statusEnum;
 
-    @Expose({ name: 'is_super_admin' })
-    @IsBoolean()
-    isSuperAdmin: boolean;
-
     @Expose({ name: 'created_at' })
     @IsDate()
     createdAt: Date;
@@ -61,10 +57,6 @@ export class CreateUserDto {
     @IsString()
     lastName: string;
 
-    @IsOptional()
-    @Expose({ name: 'is_super_admin' })
-    @IsBoolean()
-    isSuperAdmin?: boolean;
 }
 
 export class UpdateUserDto extends PartialType(UserDto) { }

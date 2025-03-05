@@ -11,7 +11,7 @@ export interface UserLoginData extends LoginData {
 };
 
 @Injectable()
-export class UserAuthService {
+export class AuthService {
     constructor(
         private userService: UserService,
         private jwtService: JwtService,
@@ -51,6 +51,7 @@ export class UserAuthService {
                 role: entity.role
             };
 
+            return loginData;
         } else loginData = null;
 
         this.logger.info(`END: validateUser service`);

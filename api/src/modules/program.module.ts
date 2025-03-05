@@ -8,6 +8,7 @@ import { ProgramConverter } from 'src/converters/program.converter';
 import { ContactConverter } from 'src/converters/contact.converter';
 import { PurchaseConverter } from 'src/converters/purchase.converter';
 import { SignUpConverter } from 'src/converters/signUp.converter';
+import { ProgramPromoterService } from 'src/services/programPromoter.service';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { SignUpConverter } from 'src/converters/signUp.converter';
     ContactConverter,
     PurchaseConverter,
     SignUpConverter,
+    ProgramPromoterService,
   ],
-  exports: [ProgramService, PromoterModule],
+  exports: [ProgramService, PromoterModule, ProgramPromoterService],
 })
 export class ProgramModule { }

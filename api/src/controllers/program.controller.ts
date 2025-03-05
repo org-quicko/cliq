@@ -6,9 +6,8 @@ import { CreateProgramDto, UpdateProgramDto, UpdateProgramUserDto, InviteUserDto
 import { visibilityEnum, statusEnum, roleEnum, conversionTypeEnum } from '../enums';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 import { Permissions } from '../decorators/permissions.decorator';
-import { Commission, Contact, Program, ProgramPromoter, ProgramUser, Promoter, Purchase, ReferralView, SignUp } from '../entities';
+import { Commission, Contact, Program, ProgramPromoter, ProgramUser, Purchase, ReferralView, SignUp } from '../entities';
 import { UnifiedAuthGuard } from 'src/guards/auth/auth.guard';
-import { UserPermissionsGuard } from 'src/guards/permissions/userPermissions.guard';
 import { UnifiedPermissionsGuard } from 'src/guards/permissions/unifiedPermissions.guard';
 
 @ApiTags('Program')

@@ -51,6 +51,9 @@ export class Circle {
   })
   program: Program;
 
+  @Column('uuid', { name: 'program_id' })
+  programId: string;
+
   @OneToMany(() => CirclePromoter, (circlePromoter) => circlePromoter.circle, { onDelete: 'CASCADE', cascade: ['insert', 'update', 'remove'] })
   circlePromoters: CirclePromoter[];
 }

@@ -2,14 +2,11 @@ import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryGener
 import * as bcrypt from "bcrypt";
 import { SALT_ROUNDS } from 'src/constants';
 import { ProgramUser } from './programUser.entity';
+import { roleEnum } from 'src/enums';
 
 
 @Entity()
 export class User {
-
-    constructor(item: Partial<User>) {
-        Object.assign(this, item);
-    }
 
     @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
     userId: string;
@@ -26,16 +23,14 @@ export class User {
     @Column('varchar', { name: 'last_name' })
     lastName: string;
 
-    @Column('boolean', { name: 'is_super_admin', default: false })
-    isSuperAdmin: boolean;
+    @Column('enum', { enum: roleEnum, default: roleEnum.VIEWER })
+    role: roleEnum;
 
     @CreateDateColumn({ type: 'time with time zone', default: () => `now()`, name: 'created_at' })
     createdAt: Date;
     
     @UpdateDateColumn({ type: 'time with time zone', default: () => `now()`, name: 'updated_at' })
     updatedAt: Date;
-
-
 
     @OneToMany(() => ProgramUser, (programUser) => programUser.user)
     programUsers: ProgramUser[];

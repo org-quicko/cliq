@@ -34,41 +34,32 @@ export class UnifiedAuthGuard implements CanActivate {
             const tokenPayload = await this.jwtService.verifyAsync(token);
 
             // Try authenticating as a user
-            if (tokenPayload.is_user) {
+            if (tokenPayload.aud === 'user') {
                 const user = await this.userService.getUser(tokenPayload.sub as string);
                 if (user) {
                     request.user = {
                         user_id: tokenPayload.sub,
                         email: tokenPayload.email,
-                        is_super_admin: tokenPayload.is_super_admin,
+                        role: tokenPayload.role,
                     };
-
-                    if (tokenPayload.is_super_admin === false) {
-                        this.logger.warn(`SUPER ADMIN PERMISSION CHANGED TO FALSE!`);
-                    }
 
                     this.logger.info(`END: canActivate function- UnifiedAuthGuard guard- authorized user`);
                     return true;
                 }
             } else {
+                // Try authenticating as a member
                 const member = await this.memberService.getMember(tokenPayload.sub as string);
                 if (member) {
                     request.member = {
                         member_id: tokenPayload.sub,
                         email: tokenPayload.email,
-                        is_super_admin: tokenPayload.is_super_admin,
                     };
-
-                    if (tokenPayload.is_super_admin === false) {
-                        this.logger.warn(`SUPER ADMIN PERMISSION CHANGED TO FALSE!`);
-                    }
 
                     this.logger.info(`END: canActivate function- UnifiedAuthGuard guard- authorized member`);
                     return true;
                 }
             }
 
-            // Try authenticating as a member
 
             this.logger.error('Invalid credentials');
             throw new UnauthorizedException('Invalid credentials');

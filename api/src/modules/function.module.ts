@@ -13,5 +13,6 @@ import { ConditionConverter } from 'src/converters/condition.converter';
   imports: [TypeOrmModule.forFeature([Function, Condition]), ProgramModule, CircleModule],
   controllers: [FunctionController],
   providers: [FunctionService, ConditionConverter, FunctionConverter],
+  exports: [FunctionService, ConditionConverter, FunctionConverter],
 })
 export class FunctionModule {}

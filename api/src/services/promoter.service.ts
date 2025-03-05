@@ -1,28 +1,11 @@
 import {
-  ConflictException, Injectable, InternalServerErrorException,
-  // Logger,
-  NotFoundException
-} from '@nestjs/common';
+  ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, Brackets } from 'typeorm';
 import { Parser } from 'json2csv';
 import * as fs from 'fs';
-import {
-  CreatePromoterDto,
-  InviteMemberDto,
-  UpdatePromoterMemberDto,
-} from '../dtos';
-import {
-  Circle,
-  CirclePromoter,
-  Contact,
-  ProgramPromoter,
-  Promoter,
-  PromoterMember,
-  Purchase,
-  ReferralView,
-  SignUp,
-} from '../entities';
+import { CreatePromoterDto, InviteMemberDto, UpdatePromoterMemberDto } from '../dtos';
+import { Circle, CirclePromoter, Contact, ProgramPromoter, Promoter, PromoterMember, Purchase, ReferralView, SignUp } from '../entities';
 import { MemberService } from './member.service';
 import { PromoterConverter } from '../converters/promoter.converter';
 import { PromoterMemberService } from './promoterMember.service';
@@ -134,7 +117,7 @@ export class PromoterService {
    * Get promoter
    */
   async getPromoter(promoterId: string) {
-    this.logger.info('Start getPromoter service');
+    this.logger.info('START: getPromoter service');
     const promoter = await this.promoterRepository.findOne({
       where: {
         promoterId,
@@ -146,7 +129,7 @@ export class PromoterService {
       throw new NotFoundException(`Failed to get promoter for promoter_id: ${promoterId}`);
     }
 
-    this.logger.info('End getPromoter service');
+    this.logger.info('END: getPromoter service');
     return this.promoterConverter.convert(promoter);
   }
   
@@ -154,7 +137,7 @@ export class PromoterService {
    * Get promoter entity
    */
   async getPromoterEntity(promoterId: string) {
-    this.logger.info('Start getPromoterEntity service');
+    this.logger.info('START: getPromoterEntity service');
     const promoter = await this.promoterRepository.findOne({
       where: {
         promoterId,
@@ -166,7 +149,7 @@ export class PromoterService {
       throw new NotFoundException(`Failed to get promoter for promoter_id: ${promoterId}`);
     }
 
-    this.logger.info('End getPromoterEntity service');
+    this.logger.info('END: getPromoterEntity service');
     return promoter;
   }
 
@@ -178,8 +161,9 @@ export class PromoterService {
     promoterId: string,
     body: InviteMemberDto,
   ) {
-    this.logger.info('Start inviteMember service');
     return this.datasource.transaction(async (manager) => {
+      this.logger.info('START: inviteMember service');
+
       // First check if member exists
       const existingMember = await this.memberService.memberExists(
         body.email,
@@ -259,7 +243,7 @@ export class PromoterService {
 
       await manager.save(promoterMember);
 
-      this.logger.info('End inviteMember service');
+      this.logger.info('END: inviteMember service');
 
       return {
         email: newMember.email,
@@ -399,7 +383,7 @@ export class PromoterService {
    * Get contacts for promoter
    */
   async getContactsForPromoter(programId: string, promoterId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info('Start getContactsForPromoter service')
+    this.logger.info('START: getContactsForPromoter service')
 
     const contacts = await this.contactRepository
       .createQueryBuilder('contact')
@@ -413,6 +397,8 @@ export class PromoterService {
             .orWhere('signup.promoter_id = :promoterId', { promoterId });
         }),
       )
+      .skip(queryOptions.skip)
+      .take(queryOptions.take)
       .getMany();
 
 
@@ -423,7 +409,7 @@ export class PromoterService {
 
     const contactDtos = contacts.map((contact) => this.contactConverter.convert(contact));
 
-    this.logger.info('End getContactsForPromoter service');
+    this.logger.info('END: getContactsForPromoter service');
     return contactDtos;
   }
 
@@ -432,7 +418,7 @@ export class PromoterService {
    */
   async getPurchasesForPromoter(programId: string, promoterId: string, queryOptions: QueryOptionsInterface = {}) {
 
-    this.logger.info('Start getPurchasesForPromoter service');
+    this.logger.info('START: getPurchasesForPromoter service');
 
     const whereOptions = {};
 
@@ -473,9 +459,9 @@ export class PromoterService {
       throw new NotFoundException(`No purchases found for ${promoterId}`);
     }
 
-    this.logger.info('End getPurchasesForPromoter service');
-
     const result = purchases.map((purchase) => this.purchaseConverter.convert(purchase));
+    
+    this.logger.info('END: getPurchasesForPromoter service');
     return result;
   }
 
@@ -542,7 +528,7 @@ export class PromoterService {
    * Get purchases report
    */
   async getPurchasesReport(programId: string, promoterId: string) {
-    this.logger.info('Start getPurchasesReport service');
+    this.logger.info('START: getPurchasesReport service');
 
     const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId);
 
@@ -561,7 +547,7 @@ export class PromoterService {
     const filePath = path.join(publicDir, fileName);
     fs.writeFileSync(filePath, csv);
 
-    this.logger.info('End getPurchasesReport service');
+    this.logger.info('END: getPurchasesReport service');
     return filePath;
 
   }
@@ -570,7 +556,7 @@ export class PromoterService {
    * Get referrals report
    */
   async getReferralsReport(programId: string, promoterId: string) {
-    this.logger.info('Start getPurchasesReport service');
+    this.logger.info('START: getPurchasesReport service');
 
     const purchasesResult = await this.getPromoterReferrals(programId, promoterId);
 
@@ -589,7 +575,7 @@ export class PromoterService {
     const filePath = path.join(publicDir, fileName);
     fs.writeFileSync(filePath, csv);
 
-    this.logger.info('End getPurchasesReport service');
+    this.logger.info('END: getPurchasesReport service');
     return filePath;
 
   }

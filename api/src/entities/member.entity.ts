@@ -13,16 +13,13 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { Program } from './program.entity';
-import { PromoterMember } from './promoterMember.entity';
+import { PromoterMember } from './promoterMember.entity'; 
 
 @Entity()
 @Unique('program_id_email_unique', ['program', 'email'])
 export class Member {
   @PrimaryGeneratedColumn('uuid', { name: 'member_id' })
   memberId: string;
-
-  @Column('boolean', { name: 'is_super_admin', default: false })
-  isSuperAdmin: boolean;
 
   @Column('varchar')
   email: string;

@@ -50,10 +50,9 @@ export class MemberAuthService {
             logInData = {
                 member_id: entity.memberId,
                 email: entity.email,
-                is_super_admin: entity.isSuperAdmin,
+                // role: TODO: find appropriate value for the role of member
             };
 
-            return logInData;
         } else logInData = null;
 
         this.logger.info(`END: validateMember service`);
@@ -66,8 +65,7 @@ export class MemberAuthService {
         const tokenPayload = {
             sub: entity.member_id,
             email: entity.email,
-            is_super_admin: entity.is_super_admin,
-            is_user: false,
+            aud: 'member'
         };
 
         const accessToken = await this.jwtService.signAsync(tokenPayload);

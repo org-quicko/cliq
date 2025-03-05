@@ -66,10 +66,16 @@ export class Function {
   })
   circle: Circle;
 
+  @Column('uuid', { name: 'circle_id' })
+  circleId: string;
+
   @ManyToOne(() => Program, (program) => program.functions, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'program_id',
     referencedColumnName: 'programId',
   })
   program: Program;
+
+  @Column('uuid', { name: 'program_id' })
+  programId: string;
 }

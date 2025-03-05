@@ -61,6 +61,9 @@ export class Contact {
   })
   program: Program;
 
+  @Column('uuid', { name: 'program_id' })
+  programId: string;
+
   @OneToOne(() => SignUp, (signup) => signup.contact)
   signup: SignUp;
 
