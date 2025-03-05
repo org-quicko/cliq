@@ -1,0 +1,4979 @@
+{
+	"info": {
+		"_postman_id": "607428ca-52a4-4082-ba9a-11c85d8ac880",
+		"name": "org-quicko-cliq",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27391447",
+		"_collection_link": "https://org-quicko.postman.co/workspace/org-quicko-cliq~4c4004ae-3dc4-4e08-8b99-97086c69755b/collection/27391447-607428ca-52a4-4082-ba9a-11c85d8ac880?action=share&source=collection_link&creator=27391447"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "User sign up",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"user\" },\r",
+									"        \"user_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"nice\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Doe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"signup"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/signup",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"signup"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully signed up user.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "User log in",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"user\" },\r",
+									"        \"user_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"nice\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully logged in user.\",\r\n    \"data\": {\r\n        \"token\": \"ehf23ghf2ndwhn%^82ewh\"\r\n    }\r\n}"
+						},
+						{
+							"name": "failure- incorrect credentials",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"Incorrect credentials. Please try again.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got user information.\",\r\n    \"data\": {\r\n        \"user\": {\r\n            \"user_id\": \"123\",\r\n            \"email\": \"john@mail.com\",\r\n            \"first_name\": \"John\",\r\n            \"last_name\": \"Bennington\"\r\n        }\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"user\" },\r",
+									"        \"user_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMWYwOTM4NC1iZTIzLTRkZDgtYmQ0Zi1mNjIyZmQ0YzI3YmEiLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJpYXQiOjE3Mzk4NzIyMDIsImV4cCI6MTczOTk1ODYwMn0.1ybcFSojtCmQ3y6838bq8Y7owjOKJr5vojGR0lgG1Vw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"last_name\": \"Doe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully deleted user.\"\r\n}"
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Program",
+			"item": [
+				{
+					"name": "Create program",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"program\" },\r",
+									"        \"program_id\": { \"type\": \"string\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"currency\": { \"type\": \"string\" },\r",
+									"        \"website\": { \"type\": \"string\" },\r",
+									"        \"visibility\": { \"type\": \"string\", \"enum\": [\"public\", \"private\"] }\r",
+									"    },\r",
+									"    \"required\": [\"name\", \"currency\", \"website\", \"visibility\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Beginners\",\r\n    \"currency\": \"USD\",\r\n    \"visibility\": \"PUBLIC\",\r\n    \"website\": \"www.example.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Influencer program\",\r\n    \"currency\": \"USD\",\r\n    \"visibility\": \"public\",\r\n    \"website\": \"www.example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created program.\",\r\n    \"data\": {\r\n        \"program_id\": \"ewvkj2n73c8-=3=-h91bjb*^#@678$2\"\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get program",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got program data.\",\r\n    \"data\": {\r\n        \"program\": {\r\n            \"program_id\": \"ewvkj2n73c8-=3=-h91bjb*^#@678$2\",\r\n            \"name\": \"Influencer program\",\r\n            \"website\": \"www.example.com\",\r\n            \"visibility\": \"public\",\r\n            \"currency\": \"USD\"\r\n        }\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Update program",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"program\" },\r",
+									"        \"program_id\": { \"type\": \"string\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"currency\": { \"type\": \"string\" },\r",
+									"        \"website\": { \"type\": \"string\" },\r",
+									"        \"visibility\": { \"type\": \"string\", \"enum\": [\"public\", \"private\"] }\r",
+									"    },\r",
+									"    \"required\": [\"name\", \"currency\", \"website\", \"visibility\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"\",\r\n    \"name\": \"\",\r\n    \"currency\": \"\",\r\n    \"visibility\": \"\",\r\n    \"website\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"StockBroker program\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"website\": \"www.example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully updated program.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"\",\r\n    \"name\": \"\",\r\n    \"currency\": \"\",\r\n    \"visibility\": \"\",\r\n    \"website\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all programs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpbnRlbnQiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3MzY5MjIyNDYsImV4cCI6MTczNzAwODY0NiwiYXVkIjoiXCJtb3ZpZS1zcGFjZS11c2VyXCIiLCJpc3MiOiJvcmcucXVpY2tvLm1vdmllc3BhY2UiLCJzdWIiOiI1ZTRiZTg4My02MWMzLTQyYmQtOWMzMi1jNjFiNTU3NmY3M2QifQ.MBEI6zgMcEWFp5MYdrOf-uRYdr9zpnhHUHstxPqy_Eif_Pr78Moq0hTbrvm1UGL1YKdyiKW3BB9vC_WuSOksQQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "{{program_name}}",
+									"disabled": true
+								},
+								{
+									"key": "visibility",
+									"value": "{{program_visibility}}",
+									"description": "PUBLIC / PRIVATE",
+									"disabled": true
+								},
+								{
+									"key": "skip",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "take",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all programs.\",\r\n    \"data\": {\r\n        \"programs\": [\r\n            {\r\n                \"name\": \"StockBroker program\",\r\n                \"currency\": \"INR\",\r\n                \"visibility\": \"public\",\r\n                \"website\": \"www.example.com\"\r\n            },\r\n            {\r\n                \"name\": \"Bankers program\",\r\n                \"currency\": \"EUR\",\r\n                \"visibility\": \"public\",\r\n                \"website\": \"www.mockXplain.com\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete program",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpbnRlbnQiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3MzY5MjIyNDYsImV4cCI6MTczNzAwODY0NiwiYXVkIjoiXCJtb3ZpZS1zcGFjZS11c2VyXCIiLCJpc3MiOiJvcmcucXVpY2tvLm1vdmllc3BhY2UiLCJzdWIiOiI1ZTRiZTg4My02MWMzLTQyYmQtOWMzMi1jNjFiNTU3NmY3M2QifQ.MBEI6zgMcEWFp5MYdrOf-uRYdr9zpnhHUHstxPqy_Eif_Pr78Moq0hTbrvm1UGL1YKdyiKW3BB9vC_WuSOksQQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully deleted program.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Invite user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"user\" },\r",
+									"        \"user_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpbnRlbnQiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3MzY5MjIyNDYsImV4cCI6MTczNzAwODY0NiwiYXVkIjoiXCJtb3ZpZS1zcGFjZS11c2VyXCIiLCJpc3MiOiJvcmcucXVpY2tvLm1vdmllc3BhY2UiLCJzdWIiOiI1ZTRiZTg4My02MWMzLTQyYmQtOWMzMi1jNjFiNTU3NmY3M2QifQ.MBEI6zgMcEWFp5MYdrOf-uRYdr9zpnhHUHstxPqy_Eif_Pr78Moq0hTbrvm1UGL1YKdyiKW3BB9vC_WuSOksQQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\",\r\n    \"role\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/invite",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"invite"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"knw97890un\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Bennington\",\r\n    \"role\": \"MEMBER\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/invite",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"invite"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully invited user to program\",\r\n    \"data\": {\r\n        \"user_id\": \"r3y10jij&78=-=-%^&%%\"\r\n    }\r\n}"
+						},
+						{
+							"name": "failure- user already part of program",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"knw97890un\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Bennington\",\r\n    \"role\": \"MEMBER\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/invite",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"invite"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"Invalid request. User is already part of the program.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"users"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter users by status: active/inactive/pending",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "{{user_role}}",
+									"description": "ADMIN / MEMBER",
+									"disabled": true
+								},
+								{
+									"key": "skip",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "take",
+									"value": "",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/users",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"users"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "active",
+											"description": "Filter users by status: active/inactive/pending",
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all program users.\",\r\n    \"data\": {\r\n        \"users\": [\r\n            {\r\n                \"user_id\": \"123\",\r\n                \"email\": \"john@mail.com\",\r\n                \"first_name\": \"John\",\r\n                \"last_name\": \"Bennington\"\r\n            },\r\n            {\r\n                \"user_id\": \"456\",\r\n                \"email\": \"jane@mail.com\",\r\n                \"first_name\": \"Jane\",\r\n                \"last_name\": \"Doe\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Update role",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpbnRlbnQiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3MzY5MjIyNDYsImV4cCI6MTczNzAwODY0NiwiYXVkIjoiXCJtb3ZpZS1zcGFjZS11c2VyXCIiLCJpc3MiOiJvcmcucXVpY2tvLm1vdmllc3BhY2UiLCJzdWIiOiI1ZTRiZTg4My02MWMzLTQyYmQtOWMzMi1jNjFiNTU3NmY3M2QifQ.MBEI6zgMcEWFp5MYdrOf-uRYdr9zpnhHUHstxPqy_Eif_Pr78Moq0hTbrvm1UGL1YKdyiKW3BB9vC_WuSOksQQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"role\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"role\": \"ADMIN\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully changed user role.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"role\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						},
+						"description": "Mark user status as inactive"
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully removed user from program.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get contacts in workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"contacts"
+							],
+							"query": [
+								{
+									"key": "promoter_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "phone",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/contacts",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"contacts"
+									],
+									"query": [
+										{
+											"key": "promoter_id",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully listed all contacts of program.\",\r\n    \"data\": {\r\n        \"contacts\": [\r\n            {\r\n                \"contact_id\": \"wdhfueiwhortiewwyur8923y\",\r\n                \"email\": \"beethoven@mail.com\",\r\n                \"first_name\": \"Ludwig\",\r\n                \"last_name\": \"Van Beethoven\",\r\n                \"phone\": \"1234567899\"\r\n            },\r\n            {\r\n                \"contact_id\": \"wdhfueiwhortiewwyur8923y\",\r\n                \"email\": \"leonardo@mail.com\",\r\n                \"first_name\": \"Leonardo\",\r\n                \"last_name\": \"Da Vinci\",\r\n                \"phone\": \"1234567890\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get purchases in workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/purchases",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"purchases"
+							],
+							"query": [
+								{
+									"key": "external_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "promoter_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "contact_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "skip",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "take",
+									"value": "",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/purchases",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"purchases"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all purchases of program.\",\r\n    \"data\": {\r\n        \"purchases\": [\r\n            {\r\n                \"purchase_id\": \"dunewcdf8927yr8ikh\",\r\n                \"email\": \"beethoven@mail.com\",\r\n                \"first_name\": \"Ludwig\",\r\n                \"last_name\": \"Van Beethoven\",\r\n                \"phone\": \"1234567899\"\r\n            },\r\n            {\r\n                \"purchase_id\": \"dunewcdf8927yr8ikh\",\r\n                \"email\": \"leonardo@mail.com\",\r\n                \"first_name\": \"Leonardo\",\r\n                \"last_name\": \"Da Vinci\",\r\n                \"phone\": \"1234567890\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all commissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/commissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"commissions"
+							],
+							"query": [
+								{
+									"key": "conversion_type",
+									"value": "",
+									"description": "CONTACT / PURCHASE",
+									"disabled": true
+								},
+								{
+									"key": "conversion_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "take",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "skip",
+									"value": "",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/commissions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"commissions"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all commissions for program.\",\r\n    \"data\": [\r\n        \"commissions\": [\r\n            {\r\n                \"commission_id\": \"123\",\r\n                \"conversion_id\": \"233v4g23f\",\r\n                \"conversion_type\": \"CONTACT\",\r\n                \"amount\": 50\r\n            },\r\n            {\r\n                \"commission_id\": \"457\",\r\n                \"conversion_id\": \"23983hc9cn\",\r\n                \"conversion_type\": \"PURCHASE\",\r\n                \"amount\": 80\r\n            }\r\n        ]\r\n    ]\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Function",
+			"item": [
+				{
+					"name": "Create function",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"function\" },\r",
+									"        \"function_id\": { \"type\": \"string\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"trigger\": { \"type\": \"string\", \"enum\": [\"signup\", \"purchase\"] },\r",
+									"        \"commission_type\": { \"type\": \"string\", \"enum\": [\"fixed\", \"percentage\"] },\r",
+									"        \"commission_value\": { \"type\": \"number\" },\r",
+									"        \"effect\": { \"type\": \"string\" },\r",
+									"        \"conditions\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"parameter\": { \"type\": \"string\" },\r",
+									"                    \"operator\": { \"type\": \"string\" },\r",
+									"                    \"value\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"parameter\", \"operator\", \"value\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"circle\": { \"type\": \"string\" }\r",
+									"    },\r",
+									"    \"required\": [\"name\", \"trigger\", \"commission_type\", \"commission_value\"]\r",
+									"};\r",
+									"//@endschema\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"trigger\": \"\",\r\n    \"commission_type\": \"\",\r\n    \"commission_value\": 50,\r\n    \"effect\": \"\",\r\n    \"conditions\": [\r\n        {\r\n            \"parameter\": \"\",\r\n            \"operator\": \"\",\r\n            \"value\": \"\"\r\n        }\r\n    ],\r\n    \"circle\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/functions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"functions"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Beginner function\",\r\n    \"trigger\": \"PURCHASE\",\r\n    \"commission_type\": \"FIXED\",\r\n    \"commission_value\": 50,\r\n    \"effect\": \"SWITCH_TO_DIFF_CIRCLE\",\r\n    \"conditions\": [\r\n        {\r\n            \"parameter\": \"purchase amount\",\r\n            \"operator\": \"greater than\",\r\n            \"value\": 3000\r\n        }\r\n    ],\r\n    \"circle\": \"DEFAULT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created function.\",\r\n    \"data\": {\r\n        \"function_id\": \"23kjnf982n3cuibn1\"\r\n    }\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Beginner function\",\r\n    \"trigger\": \"PURCHASE\",\r\n    \"commission_type\": \"FIXED\",\r\n    \"commission_value\": 50,\r\n    \"effect\": \"SWITCH_TO_DIFF_CIRCLE\",\r\n    \"conditions\": [\r\n        {\r\n            \"parameter\": \"purchase amount\",\r\n            \"operator\": \"greater than\",\r\n            \"value\": 3000\r\n        }\r\n    ],\r\n    \"circle\": \"DEFAULT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get function",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"functions",
+								":function_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "function_id",
+									"value": "{{function_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions",
+										":function_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "function_id",
+											"value": "{{function_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\" : \"Successfully got function.\",\r\n    \"data\": {\r\n        \"function\": {\r\n            \"function_id\": \"23kjnf982n3cuibn1\",\r\n            \"name\": \"Beginner function\",\r\n            \"trigger\": \"PURCHASE\",\r\n            \"commission_type\": \"FIXED\",\r\n            \"commission_value\": 50,\r\n            \"effect\": \"SWITCH_TO_DIFF_CIRCLE\",\r\n            \"conditions\": [\r\n                {\r\n                    \"parameter\": \"purchase amount\",\r\n                    \"operator\": \"greater than\",\r\n                    \"value\": 3000\r\n                }\r\n            ],\r\n            \"circle\": \"DEFAULT\"\r\n        }\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Update function",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"function\" },\r",
+									"        \"function_id\": { \"type\": \"string\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"trigger\": { \"type\": \"string\", \"enum\": [\"signup\", \"purchase\"] },\r",
+									"        \"commission_type\": { \"type\": \"string\", \"enum\": [\"fixed\", \"percentage\"] },\r",
+									"        \"commission_value\": { \"type\": \"number\" },\r",
+									"        \"effect\": { \"type\": \"string\" },\r",
+									"        \"conditions\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"parameter\": { \"type\": \"string\" },\r",
+									"                    \"operator\": { \"type\": \"string\" },\r",
+									"                    \"value\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"parameter\", \"operator\", \"value\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"circle\": { \"type\": \"string\" }\r",
+									"    },\r",
+									"    \"required\": [\"name\", \"trigger\", \"commission_type\", \"commission_value\"]\r",
+									"};\r",
+									"//@endschema\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"trigger\": \"\",\r\n    \"commission_type\": \"\",\r\n    \"commission_value\": 50,\r\n    \"status\": \"\",\r\n    \"effect\": \"\",\r\n    \"conditions\": [\r\n        {\r\n            \"parameter\": \"\",\r\n            \"operator\": \"\",\r\n            \"value\": \"\"\r\n        },\r\n        {\r\n            \"parameter\": \"\",\r\n            \"operator\": \"\",\r\n            \"value\": \"\"\r\n        }\r\n    ],\r\n    \"circle\":\"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"functions",
+								":function_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "function_id",
+									"value": "{{function_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Pro function\",\r\n    \"trigger\": \"CONTACT\",\r\n    \"commission_type\": \"PERCENTAGE\",\r\n    \"commission_value\": 12,\r\n    \"effect\": \"GENERATE_COMMISSION\",\r\n    \"conditions\": [\r\n        {\r\n            \"parameter\": \"No. of contacts\",\r\n            \"operator\": \"eq\",\r\n            \"value\": 10\r\n        }\r\n    ],\r\n    \"circle\": \"DEFAULT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions",
+										":function_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "function_id",
+											"value": "{{function_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully updated function.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Pro function\",\r\n    \"trigger\": \"CONTACT\",\r\n    \"commission_type\": \"PERCENTAGE\",\r\n    \"commission_value\": 12,\r\n    \"effect\": \"GENERATE_COMMISSION\",\r\n    \"conditions\": [\r\n        {\r\n            \"parameter\": \"No. of contacts\",\r\n            \"operator\": \"eq\",\r\n            \"value\": 10\r\n        }\r\n    ],\r\n    \"circle\": \"DEFAULT\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions",
+										":function_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "function_id",
+											"value": "{{function_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete function",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"functions",
+								":function_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "function_id",
+									"value": "{{function_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions",
+										":function_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "function_id",
+											"value": "{{function_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully deleted function.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions/:function_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions",
+										":function_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "function_id",
+											"value": "{{function_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all functions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/functions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"functions"
+							],
+							"query": [
+								{
+									"key": "circle_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "conversion_type",
+									"value": "",
+									"description": "CONTACT / PURCHASE",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "effect",
+									"value": null,
+									"description": "GENERATE_COMMISSION / SWITCH_TO_DIFF_CIRCLE",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/functions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"functions"
+									],
+									"query": [
+										{
+											"key": "circle_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "conversion_type",
+											"value": "",
+											"description": "CONTACT / PURCHASE",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "effect",
+											"value": null,
+											"description": "GENERATE_COMMISSION / SWITCH_TO_DIFF_CIRCLE",
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all functions.\",\r\n    \"data\": {\r\n        \"functions\": [\r\n            {\r\n                \"function_id\": \"23kjnf982n3cuibn1\",\r\n                \"name\": \"Beginner function\",\r\n                \"trigger\": \"PURCHASE\",\r\n                \"commission_type\": \"FIXED\",\r\n                \"commission_value\": 50,\r\n                \"effect\": \"SWITCH_TO_DIFF_CIRCLE\",\r\n                \"conditions\": [\r\n                    {\r\n                        \"parameter\": \"purchase amount\",\r\n                        \"operator\": \"greater than\",\r\n                        \"value\": 3000\r\n                    }\r\n                ],\r\n                \"circle\": \"DEFAULT\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Promoter",
+			"item": [
+				{
+					"name": "Create promoter",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"promoter\" },\r",
+									"        \"promoter_id\": { \"type\": \"string\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"logo_url\": { \"type\": \"string\" }\r",
+									"    },\r",
+									"    \"required\": [\"name\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"promoter_name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"promoter_name\": \"The Affiliate Man\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created promoter.\",\r\n    \"data\": {\r\n        \"promoter_id\": \"jwbveie982y938yf93\"\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get promoter",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"promoter_name\": \"\",\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"promoter_name\": \"\",\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got promoter.\",\r\n    \"data\": {\r\n        \"promoter\": {\r\n            \"promoter_id\": \"jwbveie982y938yf93\",\r\n            \"promoter_name\": \"The Affiliate Man\"\r\n        }\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Invite member",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"member\" },\r",
+									"        \"member_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\",\r\n    \"role\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"members"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\",\r\n    \"role\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"members"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully sent an invitation.\",\r\n    \"data\": {\r\n        \"member_id\": \"wne908uj231nc23inc\"\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Update role",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"role\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members/:member_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"members",
+								":member_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								},
+								{
+									"key": "member_id",
+									"value": "{{member_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"role\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members/:member_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"members",
+										":member_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										},
+										{
+											"key": "member_id",
+											"value": "{{member_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully changed user role.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"role\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members/:member_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"members",
+										":member_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										},
+										{
+											"key": "member_id",
+											"value": "{{member_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove member",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members/:member_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"members",
+								":member_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								},
+								{
+									"key": "member_id",
+									"value": "{{member_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members/:member_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"members",
+										":member_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										},
+										{
+											"key": "member_id",
+											"value": "{{member_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully removed member.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members/:member_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"members",
+										":member_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										},
+										{
+											"key": "member_id",
+											"value": "{{member_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all members",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpbnRlbnQiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3MzY5MjIyNDYsImV4cCI6MTczNzAwODY0NiwiYXVkIjoiXCJtb3ZpZS1zcGFjZS11c2VyXCIiLCJpc3MiOiJvcmcucXVpY2tvLm1vdmllc3BhY2UiLCJzdWIiOiI1ZTRiZTg4My02MWMzLTQyYmQtOWMzMi1jNjFiNTU3NmY3M2QifQ.MBEI6zgMcEWFp5MYdrOf-uRYdr9zpnhHUHstxPqy_Eif_Pr78Moq0hTbrvm1UGL1YKdyiKW3BB9vC_WuSOksQQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"members"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "",
+									"description": "ADMIN / MEMBER",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "",
+									"description": "ACTIVE / INACTIVE",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/members",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"members"
+									],
+									"query": [
+										{
+											"key": "role",
+											"value": "",
+											"description": "ADMIN / MEMBER",
+											"disabled": true
+										},
+										{
+											"key": "email",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "status",
+											"value": "",
+											"description": "ACTIVE / INACTIVE",
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all members.\",\r\n    \"data\": {\r\n        \"members\": [\r\n            {\r\n                \"member_id\": \"wevn1i23yd13hcoiu3bnvkn\",\r\n                \"email\": \"leonardo@mail.com\",\r\n                \"password\": \"2j3n2o30j29j\",\r\n                \"first_name\": \"Leonardo\",\r\n                \"last_name\": \"Da Vinci\"\r\n            },\r\n            {\r\n                \"member_id\": \"ebnf23n89kj-vndkv\",\r\n                \"email\": \"dwight@mail.com\",\r\n                \"password\": \"2j3n2o30j29j\",\r\n                \"first_name\": \"Dwight\",\r\n                \"last_name\": \"Schrute\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get contacts for promoter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"contacts"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/contacts",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"contacts"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all contacts referred by promoter.\",\r\n    \"data\": {\r\n        \"contacts\": [\r\n            {\r\n                \"link_id\": \"12dkj3ifb893uhcv\",\r\n                \"amount\": 100,\r\n                \"email\": \"caesar@mail.com\",\r\n                \"external_id\": \"nc9183hinwde3f\"\r\n                // optionally contact_id as well\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get purchases for promoter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/purchases",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"purchases"
+							],
+							"query": [
+								{
+									"key": "external_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "contact_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/purchases",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"purchases"
+									],
+									"query": [
+										{
+											"key": "external_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "contact_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all purchases referred by promoter.\",\r\n    \"data\": {\r\n        \"purchases\": [\r\n            {\r\n                \"link_id\": \"2m3fj23uicbn\",\r\n                \"email\": \"caesar@mail.com\",\r\n                \"first_name\": \"Julius\",\r\n                \"last_name\": \"Caesar\",\r\n                \"phone\": \"1234567890\",\r\n                \"external_id\": \"qokicmoijv8qj\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get promoter commissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/commissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"commissions"
+							],
+							"query": [
+								{
+									"key": "conversion_type",
+									"value": "",
+									"description": "CONTACT / PURCHASE",
+									"disabled": true
+								},
+								{
+									"key": "conversion_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/commissions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"commissions"
+									],
+									"query": [
+										{
+											"key": "conversion_type",
+											"value": "",
+											"description": "CONTACT / PURCHASE",
+											"disabled": true
+										},
+										{
+											"key": "conversion_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all commissions for promoter.\",\r\n    \"data\": [\r\n        \"commissions\": [\r\n            {\r\n                \"commission_id\": \"123\",\r\n                \"conversion_id\": \"233v4g23f\",\r\n                \"conversion_type\": \"CONTACT\",\r\n                \"amount\": 50\r\n            },\r\n            {\r\n                \"commission_id\": \"457\",\r\n                \"conversion_id\": \"23983hc9cn\",\r\n                \"conversion_type\": \"PURCHASE\",\r\n                \"amount\": 80\r\n            }\r\n        ]\r\n    ]\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Member",
+			"item": [
+				{
+					"name": "Member sign up",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"member\" },\r",
+									"        \"member_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\", \"role\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"luke@mail.com\",\r\n    \"password\": \"notnice\",\r\n    \"first_name\": \"luke\",\r\n    \"last_name\": \"skywalker\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/members/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"members",
+								"signup"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"leonardo@mail.com\",\r\n    \"password\": \"2j3n2o30j29j\",\r\n    \"first_name\": \"Leonardo\",\r\n    \"last_name\": \"Da Vinci\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/members/signup",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"members",
+										"signup"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully signed up member.\",\r\n    \"data\": {\r\n        \"member_id\": \"wevn1i23yd13hcoiu3bnvkn\"\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Member log in",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"member\" },\r",
+									"        \"member_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"luke@mail.com\",\r\n    \"password\": \"notnice\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/members/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"members",
+								"login"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/members/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"members",
+										"login"
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"data\": {\r\n        \"token\": \"2kj3nkj3nco9h9%^82ewh\"\r\n    },\r\n    \"message\": \"Successfully logged in member.\"\r\n}"
+						},
+						{
+							"name": "failure- incorrect credentials",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/members/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"members",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"Incorrect credentials. Please try again.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get member",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/members/:member_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"members",
+								":member_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "member_id",
+									"value": "{{member_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/members/:member_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"members",
+										":member_id"
+									],
+									"variable": [
+										{
+											"key": "member_id",
+											"value": "{{member_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got member.\",\r\n    \"data\": {\r\n        \"member\": {\r\n            \"email\": \"leonardo@mail.com\",\r\n            \"password\": \"2j3n2o30j29j\",\r\n            \"first_name\": \"Leonardo\",\r\n            \"last_name\": \"Da Vinci\"\r\n        }\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Update member info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"member\" },\r",
+									"        \"member_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"member\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkMjk1MDcyZC1lMzQ5LTQzZmItOWQzNi0yNmRkOGY1NTczZWEiLCJlbWFpbCI6Imx1a2VAbWFpbC5jb20iLCJpYXQiOjE3Mzk4ODIxMzgsImV4cCI6MTczOTk2ODUzOH0.XfpGmILpHNZo4XRP4bzT6HZxgunLJJVmpduZyqlvEuo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"first_name\": \"luke\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/members/:member_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"members",
+								":member_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "member_id",
+									"value": "{{member_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/members/:member_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"members",
+										":member_id"
+									],
+									"variable": [
+										{
+											"key": "member_id",
+											"value": "{{member_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully updated member information.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/members/:member_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"members",
+										":member_id"
+									],
+									"variable": [
+										{
+											"key": "member_id",
+											"value": "{{member_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete member",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/members/:member_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"members",
+								":member_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "member_id",
+									"value": "{{member_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Circle",
+			"item": [
+				{
+					"name": "Create circle",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"circle\" },\r",
+									"        \"circle_id\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"name\": {\r",
+									"            \"type\": \"string\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"name\"]\r",
+									"}\r",
+									"// @endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/circles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"circles"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Beginners\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created circle.\",\r\n    \"data\": {\r\n        \"circle_id\": \"kewmf2oi3nfnvoine\"\r\n    }\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Beginners\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all circles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/circles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"circles"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "",
+									"description": "name of circle",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "",
+											"description": "name of circle",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all circles.\",\r\n    \"data\": {\r\n        \"circles\": [\r\n            {\r\n                \"circle_id\": \"23kjcn2uvhn29\",\r\n                \"name\": \"Beginners\"\r\n            },\r\n            {\r\n                \"circle_id\": \"wev123r9qkweno-vndkv\",\r\n                \"name\": \"Intermediates\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Add promoter",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"promoter_ids\": [\"ids\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"circles",
+								":circle_id",
+								"promoters"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "circle_id",
+									"value": "{{circle_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"promoter_ids\": [\"ids\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id",
+										"promoters"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "circle_id",
+											"value": "{{circle_id}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully added promoter to circle.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"promoter_ids\": [\"ids\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id",
+										"promoters"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "circle_id",
+											"value": "{{circle_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all Promoters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"circles",
+								":circle_id",
+								"promoters"
+							],
+							"query": [
+								{
+									"key": "promoter_name",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "promoter_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "circle_id",
+									"value": "{{circle_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id",
+										"promoters"
+									],
+									"query": [
+										{
+											"key": "promoter_name",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "promoter_id",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "circle_id",
+											"value": "{{circle_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all promoters.\",\r\n    \"data\": {\r\n        \"promoters\": [\r\n            {\r\n                \"promoter_id\": \"2kj3nf2o3ivnfeiwnv\",\r\n                \"name\": \"The Affiliate Man\"\r\n            },\r\n            {\r\n                \"promoter_id\": \"13jnfkj2nfewve\",\r\n                \"name\": \"Affiliate Warriors\"\r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get circle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/circles/:circle_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"circles",
+								":circle_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "circle_id",
+									"value": "{{circle_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "circle_id",
+											"value": "23kjcn2uvhn29"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got circle.\",\r\n    \"data\": {\r\n        \"circle\": {\r\n            \"circle_id\": \"23kjcn2uvhn29\",\r\n            \"name\": \"Beginners\"\r\n        }\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove promoter",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters/:promoter_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"circles",
+								":circle_id",
+								"promoters",
+								":promoter_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": ""
+								},
+								{
+									"key": "circle_id",
+									"value": ""
+								},
+								{
+									"key": "promoter_id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters/:promoter_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id",
+										"promoters",
+										":promoter_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": ""
+										},
+										{
+											"key": "circle_id",
+											"value": ""
+										},
+										{
+											"key": "promoter_id",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully removed promoter from circle.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id/promoters/:promoter_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id",
+										"promoters",
+										":promoter_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": ""
+										},
+										{
+											"key": "circle_id",
+											"value": ""
+										},
+										{
+											"key": "promoter_id",
+											"value": ""
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete circle",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/circles/:circle_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"circles",
+								":circle_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "circle_id",
+									"value": "{{circle_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "circle_id",
+											"value": "{{circle_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully deleted circle.\"\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Link",
+			"item": [
+				{
+					"name": "Create link",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"link\" },\r",
+									"        \"link_id\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"name\": {\r",
+									"            \"type\": \"string\"\r",
+									"        },\r",
+									"        \"url\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": { \"type\": \"string\" }\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"name\", \"url\"]\r",
+									"}\r",
+									"// @endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"url\": \"quicko.com/it/plans\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/links",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"links"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"\",\r\n    \"url\": \"quicko.com/it/plans\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/links",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"links"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created link\",\r\n    \"data\": {\r\n        \"link_id\": \"\",\r\n        \"name\": \"\",\r\n        \"created_at\": \"\",\r\n        \"updated_at\": \"\"\r\n    }\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete a link",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/links/:link_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"links",
+								":link_id"
+							],
+							"variable": [
+								{
+									"key": "link_id",
+									"value": "{{link_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/links/:link_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"links",
+										":link_id"
+									],
+									"variable": [
+										{
+											"key": "link_id",
+											"value": "{{link_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully removed Link\",\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all links",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/links",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"promoters",
+								":promoter_id",
+								"links"
+							],
+							"query": [
+								{
+									"key": "source",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "medium",
+									"value": "",
+									"description": "EMAIL / SOCIAL / WEBSITE / OTHER",
+									"disabled": true
+								},
+								{
+									"key": "url",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "promoter_id",
+									"value": "{{promoter_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/links",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"promoters",
+										":promoter_id",
+										"links"
+									],
+									"query": [
+										{
+											"key": "source",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "medium",
+											"value": "",
+											"description": "EMAIL / SOCIAL / WEBSITE / OTHER",
+											"disabled": true
+										},
+										{
+											"key": "url",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": null,
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "promoter_id",
+											"value": "{{promoter_id}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully got all links\",\r\n    \"data\": {\r\n        \"links\": [\r\n            {\r\n                \"link_id\": \"\",\r\n                \"name\": \"\",\r\n                \"created_at\": \"\",\r\n                \"updated_at\": \"\"\r\n                \r\n            },\r\n             {\r\n                \"link_id\": \"\",\r\n                \"name\": \"\",\r\n                \"created_at\": \"\",\r\n                \"updated_at\": \"\"\r\n                \r\n            },\r\n             {\r\n                \"link_id\": \"\",\r\n                \"name\": \"\",\r\n                \"created_at\": \"\",\r\n                \"updated_at\": \"\"\r\n                \r\n            }\r\n        ]\r\n    }\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Contact",
+			"item": [
+				{
+					"name": "Create contact",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"contact\" },\r",
+									"        \"contact_id\": { \"type\": \"string\" },\r",
+									"        \"link_id\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"phone\": { \"type\": \"string\" },\r",
+									"        \"external_id\": { \"type\": \"string\" }\r",
+									"    },\r",
+									"    \"required\": [\"link_id\", \"email\", \"first_name\", \"last_name\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"link_id\": \"\",\r\n    \"email\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\",\r\n    \"phone\": \"\",\r\n    \"external_id\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"link_id\": \"\",\r\n    \"email\": \"\",\r\n    \"first_name\": \"\",\r\n    \"last_name\": \"\",\r\n    \"phone\": \"\",\r\n    \"external_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/contacts",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"contacts"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created contact.\",\r\n    \"data\": {\r\n        \"contact_id\": \"287482hdi9037fih08\"\r\n    }\r\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Purchase",
+			"item": [
+				{
+					"name": "Create Purchase",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"purchase\" },\r",
+									"        \"purchase_id\": { \"type\": \"string\" },\r",
+									"        \"link_id\": { \"type\": \"string\" },\r",
+									"        \"amount\": { \"type\": \"number\", \"minimum\": 0 },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"external_id\": { \"type\": \"string\" },\r",
+									"        \"contact_id\": { \"type\": \"string\" }\r",
+									"    },\r",
+									"    \"required\": [\"link_id\", \"amount\", \"email\"]\r",
+									"}\r",
+									"//@endschema"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"link_id\": \"\",\r\n    \"amount\": 0,\r\n    \"email\": \"\",\r\n    \"external_id\": \"\",\r\n    \"contact_id\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/purchases",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchases"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"link_id\": \"\",\r\n    \"amount\": 0,\r\n    \"email\": \"\",\r\n    \"external_id\": \"\",\r\n    \"contact_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/purchases",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"purchases"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created purchase.\",\r\n    \"data\": {\r\n        \"purchase_id\": \"3268912347129074y8ydd89273\"\r\n    }\r\n}"
+						},
+						{
+							"name": "failure- Invalid body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"link_id\": \"\",\r\n    \"amount\": 0,\r\n    \"email\": \"\",\r\n    \"external_id\": \"\",\r\n    \"contact_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/purchases",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"purchases"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Failed to create purchase\"\r\n    \"error\": Invalid body\r\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,109 @@
+import {
+  Controller, Get, Post, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { UserService } from '../services/user.service'
+import { CreateUserDto, UpdateUserDto, UserDto } from '../dtos';
+import { LoggerService } from '../services/logger.service';
+import { User } from '../entities';
+import { plainToInstance } from 'class-transformer';
+import { UserAuthService } from '../services/userAuth.service';
+import { UserPermissions } from '../decorators/permissions.decorator';
+import { UnifiedAuthGuard } from 'src/guards/auth/auth.guard';
+import { UserPermissionsGuard } from 'src/guards/permissions/userPermissions.guard';
+// import { UserAuthGuard } from '../guards/auth/auth.guard';
+
+@ApiTags('User')
+@Controller('/users')
+export class UserController {
+
+  constructor(
+    private userService: UserService,
+    private userAuthService: UserAuthService, 
+    private logger: LoggerService,
+  ) { }
+
+
+  /**
+   * User sign up
+   */
+  @ApiResponse({ status: 201, description: 'Created' })
+  @Post('signup')
+  async userSignUp(@Body() body: CreateUserDto) {
+    this.logger.info('START: userSignUp controller');
+
+    const result = await this.userService.userSignUp(body);
+
+    this.logger.info('END: userSignUp controller');
+    return { message: 'Successfully signed up user.', result };
+  }
+
+  /**
+    * User log in
+    */
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @Post('login')
+  async login(@Body() body: any) {
+    this.logger.info('START: login controller');
+
+    const transformedBody = plainToInstance(UserDto, body);
+
+    const result = await this.userAuthService.authenticateUser({
+      email: transformedBody.email,
+      password: transformedBody.password,
+    });
+
+    this.logger.info('END: login controller');
+    return { message: 'Successfully logged in user.', result };
+  }
+
+  /**
+   * Get user
+   */
+  @ApiResponse({ status: 200, description: 'OK' })
+  // @UseGuards(UserAuthGuard)
+  @UseGuards(UnifiedAuthGuard)
+  @UserPermissions('read', User)
+  @Get(':user_id')
+  async getUser(@Param('user_id') userId: string) {
+    this.logger.info('START: getUser controller');
+
+    const result = await this.userService.getUser(userId);
+
+    this.logger.info('END: getUser controller');
+    return { message: 'Successfully got user information.', result };
+  }
+
+  /**
+   * Update User info
+   */
+  @ApiResponse({ status: 204, description: 'No Content' })
+  @UseGuards(UnifiedAuthGuard, UserPermissionsGuard)
+  @UserPermissions('update', User)
+  @Patch(':user_id')
+  async updateUserInfo(@Param('user_id') userId: string, @Body() body: UpdateUserDto) {
+    this.logger.info('START: updateUserInfo controller');
+
+    const result = await this.userService.updateUserInfo(userId, body);
+
+    this.logger.info('END: updateUserInfo controller');
+    return { message: 'Successfully updated user information.', result };
+  }
+
+  /**
+   * Delete user
+   */
+  @ApiResponse({ status: 204, description: 'No Content' })
+  @UseGuards(UnifiedAuthGuard, UserPermissionsGuard)
+  // @UserPermissions('delete', 'User')
+  @UserPermissions('delete', User)
+  @Delete(':user_id')
+  async deleteUser(@Param('user_id') userId: string) {
+    this.logger.info('START: deleteUser controller');
+
+    await this.userService.deleteUser(userId);
+
+    this.logger.info('END: deleteUser controller');
+    return { message: 'Successfully deleted user.' };
+  }
+}
