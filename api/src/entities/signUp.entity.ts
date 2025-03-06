@@ -15,10 +15,6 @@ import { Contact } from './contact.entity';
 @Entity()
 export class SignUp {
 
-  constructor(item: Partial<SignUp>) {
-    Object.assign(this, item);
-  }
-
   @OneToOne(() => Contact, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'contact_id',
@@ -28,6 +24,9 @@ export class SignUp {
 
   @PrimaryColumn('uuid', { name: 'contact_id' })
   contactId: string;
+
+  @Column('varchar', { name: 'external_id', nullable: true })
+  externalId: string;
 
   @CreateDateColumn({
     type: 'time with time zone',

@@ -1,5 +1,4 @@
-import {
-  Controller, Get, Post, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service'
 import { CreateUserDto, UpdateUserDto, UserDto } from '../dtos';
@@ -7,10 +6,9 @@ import { LoggerService } from '../services/logger.service';
 import { User } from '../entities';
 import { plainToInstance } from 'class-transformer';
 import { UserAuthService } from '../services/userAuth.service';
-import { UserPermissions } from '../decorators/permissions.decorator';
-import { UnifiedAuthGuard } from 'src/guards/auth/auth.guard';
-import { UserPermissionsGuard } from 'src/guards/permissions/userPermissions.guard';
-// import { UserAuthGuard } from '../guards/auth/auth.guard';
+import { Permissions } from '../decorators/permissions.decorator';
+import { AuthGuard } from '../guards/auth/auth.guard';
+import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 
 @ApiTags('User')
 @Controller('/users')
@@ -61,9 +59,8 @@ export class UserController {
    * Get user
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  // @UseGuards(UserAuthGuard)
-  @UseGuards(UnifiedAuthGuard)
-  @UserPermissions('read', User)
+  @UseGuards(AuthGuard)
+  @Permissions('read', User)
   @Get(':user_id')
   async getUser(@Param('user_id') userId: string) {
     this.logger.info('START: getUser controller');
@@ -78,8 +75,8 @@ export class UserController {
    * Update User info
    */
   @ApiResponse({ status: 204, description: 'No Content' })
-  @UseGuards(UnifiedAuthGuard, UserPermissionsGuard)
-  @UserPermissions('update', User)
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('update', User)
   @Patch(':user_id')
   async updateUserInfo(@Param('user_id') userId: string, @Body() body: UpdateUserDto) {
     this.logger.info('START: updateUserInfo controller');
@@ -94,9 +91,8 @@ export class UserController {
    * Delete user
    */
   @ApiResponse({ status: 204, description: 'No Content' })
-  @UseGuards(UnifiedAuthGuard, UserPermissionsGuard)
-  // @UserPermissions('delete', 'User')
-  @UserPermissions('delete', User)
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @Permissions('delete', User)
   @Delete(':user_id')
   async deleteUser(@Param('user_id') userId: string) {
     this.logger.info('START: deleteUser controller');

@@ -25,7 +25,10 @@ export class UserDto {
 
     @IsOptional()
     @IsEnum(roleEnum)
-    role?: roleEnum;
+    programRole?: roleEnum;
+
+    @IsEnum(roleEnum)
+    role: roleEnum;
 
     @IsOptional()
     @IsEnum(statusEnum)
@@ -56,6 +59,10 @@ export class CreateUserDto {
     @Expose({ name: 'last_name' })
     @IsString()
     lastName: string;
+
+    @IsOptional()
+    @IsEnum(roleEnum)
+    role?: roleEnum;
 
 }
 

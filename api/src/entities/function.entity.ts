@@ -27,12 +27,6 @@ export class Function {
   @Column('enum', { enum: triggerEnum })
   trigger: triggerEnum;
 
-  // @Column({
-  //   type: 'jsonb',
-  //   default: () => "'[]'::jsonb",
-  // })
-  // conditions: Condition[];
-
   @OneToMany(() => Condition, (condition) => condition.func)
   conditions: Condition[];
 

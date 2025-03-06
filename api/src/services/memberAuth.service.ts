@@ -5,6 +5,7 @@ import { Member } from '../entities';
 import { LoggerService } from './logger.service';
 import { MemberService } from './member.service';
 import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
+import { audienceEnum } from 'src/enums/audience.enum';
 
 
 
@@ -50,7 +51,6 @@ export class MemberAuthService {
             logInData = {
                 member_id: entity.memberId,
                 email: entity.email,
-                // role: TODO: find appropriate value for the role of member
             };
 
         } else logInData = null;
@@ -65,14 +65,12 @@ export class MemberAuthService {
         const tokenPayload = {
             sub: entity.member_id,
             email: entity.email,
-            aud: 'member'
+            aud: audienceEnum.PROMOTER_USER,
         };
 
         const accessToken = await this.jwtService.signAsync(tokenPayload);
         this.logger.info(`END: loginMember service`);
-        return {
-            accessToken,
-        };
+        return { accessToken };
     }
 
     private async comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {

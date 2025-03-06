@@ -7,6 +7,7 @@ export interface QueryOptionsInterface {
     status?: statusEnum;
     role?: roleEnum;
     externalId?: string;
+    itemId?: string;
     conversionType?: conversionTypeEnum;
     effect?: effectEnum;
     source?: string;

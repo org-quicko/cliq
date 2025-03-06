@@ -18,10 +18,6 @@ import { SignUp } from './signUp.entity';
 @Entity()
 export class Contact {
 
-  constructor(item: Partial<Contact>) {
-    Object.assign(this, item);
-  }
-
   @PrimaryGeneratedColumn('uuid', { name: 'contact_id' })
   contactId: string;
 

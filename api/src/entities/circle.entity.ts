@@ -14,9 +14,6 @@ import { Program } from './program.entity';
 
 @Entity()
 export class Circle {
-  constructor(item: Partial<Circle>) {
-    Object.assign(this, item);
-  }
 
   @PrimaryGeneratedColumn('uuid', { name: 'circle_id' })
   circleId: string;

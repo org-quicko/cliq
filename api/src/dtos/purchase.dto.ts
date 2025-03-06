@@ -37,7 +37,11 @@ export class PurchaseDto {
 
     @Expose({ name: 'external_id' })
     @IsString()
-    externalId: string;
+    externalId?: string;
+
+    @Expose({ name: 'item_id' })
+    @IsString()
+    itemId: string;
 
     @Expose({ name: 'contact_id' })
     @IsUUID()
@@ -78,9 +82,14 @@ export class CreatePurchaseDto {
     @IsString()
     email?: string;
 
+    @IsOptional()
     @Expose({ name: 'external_id' })
     @IsString()
-    externalId: string;
+    externalId?: string;
+
+    @Expose({ name: 'item_id' })
+    @IsString()
+    itemId: string;
 
     @IsOptional()
     @IsString()

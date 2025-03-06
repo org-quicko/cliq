@@ -8,7 +8,6 @@ import { PromoterMember } from '../entities/promoterMember.entity';
 import { MemberConverter } from '../converters/member.converter';
 import { MemberAuthService } from '../services/memberAuth.service';
 import { PromoterModule } from './promoter.module';
-import { MemberPermissionsGuard } from 'src/guards/permissions/memberPermissions.guard';
 
 @Global()
 @Module({
@@ -20,12 +19,12 @@ import { MemberPermissionsGuard } from 'src/guards/permissions/memberPermissions
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET!,
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: '30d' },
     }),
     forwardRef(() => PromoterModule),
   ],
   controllers: [MemberController],
-  providers: [MemberService, MemberAuthService, MemberPermissionsGuard, MemberConverter],
-  exports: [MemberService, MemberAuthService, MemberPermissionsGuard, MemberConverter]
+  providers: [MemberService, MemberAuthService, MemberConverter],
+  exports: [MemberService, MemberAuthService, MemberConverter]
 })
 export class MemberModule { }

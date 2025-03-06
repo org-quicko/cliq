@@ -609,7 +609,6 @@ export class PromoterService {
       .groupBy('promoter_id')
       .getRawOne();
 
-    // TODO
     let referralDto;
     if (!referralResult) {
       referralDto = {

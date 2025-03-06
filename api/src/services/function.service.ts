@@ -160,6 +160,7 @@ export class FunctionService {
     });
 
     if (!functionResult) {
+      this.logger.warn(`Error. Function ${functionId} not found.`);
       throw new NotFoundException(`Error. Function ${functionId} not found.`);
     }
 
@@ -320,7 +321,6 @@ export class FunctionService {
     // 3. Promoter not in circle
     // 4. One of the function's conditions is false
     for (const func of functionsResult) {
-      // TODO: evaluate conditions differently
       if (
         !(
           (func.status === functionStatusEnum.ACTIVE)
@@ -344,20 +344,6 @@ export class FunctionService {
     return;
   }
 
-  private async shouldNotTriggerFunction(func: Function, payload: TriggerEvent) {
-    this.logger.info(`START: shouldNotTriggerFunction service`);
-
-    const inactive = !(func.status === functionStatusEnum.ACTIVE);
-    const promoterNotInCircle = !(await this.circleService.promoterExistsInCircle(func.circle.circleId, payload.promoterId));
-    const differentTrigger = !(func.trigger === payload.triggerType);
-    const anyConditionFalse = !(await this.evaluateAllConditions(func.conditions, payload));
-
-    console.log(inactive, promoterNotInCircle, differentTrigger, anyConditionFalse);
-
-    this.logger.info(`START: shouldNotTriggerFunction service`);
-    return inactive || promoterNotInCircle || differentTrigger || anyConditionFalse;
-  }
-
   private triggerFunction(func: Function, payload: TriggerEvent) {
     this.logger.info(`START: triggerFunction service`);
 
@@ -371,12 +357,12 @@ export class FunctionService {
       );
       this.eventEmitter.emit(SWITCH_CIRCLE_EVENT, switchCircleEvent);
 
-    } else if (func.effect instanceof GenerateCommissionEffect) {
+    } else if (func.effect instanceof GenerateCommissionEffect) { 
 
       // TODO: Make typescript infer that payload.amount isn't null when a generate commission event is emitted
       let commissionAmount = 0;
       if (func.effect.commission.commissionType === commissionTypeEnum.FIXED) {
-        commissionAmount = func.effect.commission.commissionValue;
+        commissionAmount = func.effect.commission.commissionValue; 
       } else {
         commissionAmount = roundedNumber(payload.amount! * func.effect.commission.commissionValue / 100, 2);
       }
@@ -435,15 +421,15 @@ export class FunctionService {
 
       evalResult = condition.evaluate({ numPurchases });
       console.log(payload.promoterId, numPurchases, evalResult);
-      // EXTERNAL ID condition
-    } else if (condition.parameter === conditionParameterEnum.EXTERNAL_ID) {
+      // ITEM ID condition
+    } else if (condition.parameter === conditionParameterEnum.ITEM_ID) {
 
-      if (!payload.externalId) {
-        this.logger.warn(`Error. API payload requires external ID for this function condition.`);
-        throw new BadRequestException(`Error. API payload requires external ID for this function condition.`);
+      if (!payload.itemId) {
+        this.logger.warn(`Error. API payload requires item ID for this function condition.`);
+        throw new BadRequestException(`Error. API payload requires item ID for this function condition.`);
       }
 
-      evalResult = condition.evaluate({ externalId: payload.externalId });
+      evalResult = condition.evaluate({ itemId: payload.itemId });
     } else {
       evalResult = false;
     }

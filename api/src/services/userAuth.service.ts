@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { User } from '../entities';
 import { LoggerService } from './logger.service';
 import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
+import { audienceEnum } from 'src/enums/audience.enum';
 
 export interface UserLoginData extends LoginData {
     user_id: string,
@@ -48,7 +49,7 @@ export class UserAuthService {
             loginData = {
                 user_id: entity.userId,
                 email: entity.email,
-                role: entity.role
+                role: entity.role,
             };
 
         } else loginData = null;
@@ -63,8 +64,8 @@ export class UserAuthService {
         const tokenPayload = {
             sub: entity.user_id,
             email: entity.email,
-            aud: 'user',
-            role: entity.role,
+            aud: audienceEnum.PROGRAM_USER,
+            role: entity.role
         };
 
         const accessToken = await this.jwtService.signAsync(tokenPayload);

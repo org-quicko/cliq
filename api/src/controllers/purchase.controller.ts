@@ -1,10 +1,8 @@
-import { Controller, Post, Body, 
-  // Logger
- } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { PurchaseService } from '../services/purchase.service'
-import { CreatePurchaseDto } from 'src/dtos';
-import { LoggerService } from 'src/services/logger.service';
+import { CreatePurchaseDto } from '../dtos';
+import { LoggerService } from '../services/logger.service';
 
 @ApiTags('Purchase')
 @Controller('/purchases')

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ConditionDto, ExternalIdConditionDto, NumOfPurchasesConditionDto, NumOfSignupsConditionDto } from "../dtos";
+import { ConditionDto, ItemIdConditionDto, NumOfPurchasesConditionDto, NumOfSignupsConditionDto } from "../dtos";
 import { Condition } from "../entities";
 import { conditionParameterEnum } from "src/enums";
 
@@ -21,9 +21,9 @@ export class ConditionConverter {
             dto.value = Number(condition.value);
             return dto;
         },
-        [conditionParameterEnum.EXTERNAL_ID]: (condition: Condition) => {
-            const dto = new ExternalIdConditionDto();
-            dto.parameter = conditionParameterEnum.EXTERNAL_ID;
+        [conditionParameterEnum.ITEM_ID]: (condition: Condition) => {
+            const dto = new ItemIdConditionDto();
+            dto.parameter = conditionParameterEnum.ITEM_ID;
             dto.operator = condition.operator;
             dto.value = condition.value;
             return dto;

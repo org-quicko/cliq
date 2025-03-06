@@ -47,8 +47,8 @@ export class CircleService {
     const programResult = await this.programService.getProgram(programId);
 
     if (!programResult) {
-      this.logger.warn('Failed to get program for createCircle')
-      throw new NotFoundException(`Failed to get Program ${programId}.`);
+      this.logger.warn(`Failed to get Program ${programId} for creating circle.`)
+      throw new BadRequestException(`Failed to get Program ${programId} for creating circle.`);
     }
 
     const circleEntity = this.circleRepository.create({
@@ -92,7 +92,7 @@ export class CircleService {
       ...queryOptions
     })
 
-    if (!circles || circles.length == 0) {
+    if (!circles) {
       this.logger.warn('Failed to get circles');
       throw new NotFoundException('Failed to get circles')
     }
@@ -113,8 +113,8 @@ export class CircleService {
     })
 
     if (!circle) {
-      this.logger.warn(`Failed to get circle ${circleId}`)
-      throw new NotFoundException(`Failed to get circle for circle_id: ${circleId}`)
+      this.logger.warn(`Failed to get Circle ${circleId} for adding promoter.`);
+      throw new BadRequestException(`Failed to get Circle ${circleId} for adding promoter.`);
     }
 
     await Promise.all(
@@ -191,7 +191,7 @@ export class CircleService {
     return circleDto;
   }
 
-  async getRandomCircle(programId: string) {
+  async getFirstCircleOfProgram(programId: string) {
     this.logger.info('START: getRandomCircle service');
 
     const circleResult = await this.circleRepository.findOne({ 
@@ -241,7 +241,7 @@ export class CircleService {
     this.logger.info('START: deleteCircle service');
     await this.circleRepository.delete({
       circleId
-    })
+    });
     this.logger.info('END: deleteCircle service');
   }
 

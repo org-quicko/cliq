@@ -3,9 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../services/user.service';
 import { MemberService } from '../../services/member.service';
 import { LoggerService } from '../../services/logger.service';
+import { audienceEnum } from 'src/enums/audience.enum';
+import { Request } from 'express';
 
 @Injectable()
-export class UnifiedAuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate {
     constructor(
         private jwtService: JwtService,
         private userService: UserService,
@@ -14,10 +16,10 @@ export class UnifiedAuthGuard implements CanActivate {
     ) { }
 
     async canActivate(context: ExecutionContext) {
-        this.logger.info(`START: canActivate function- UnifiedAuthGuard guard`);
+        this.logger.info(`START: canActivate function- AuthGuard guard`);
 
-        const request = context.switchToHttp().getRequest();
-        const authorization: string = request.headers.authorization;
+        const request: Request = context.switchToHttp().getRequest();
+        const authorization = request.headers.authorization;
 
         if (!authorization) {
             this.logger.error('Missing authentication token');
@@ -34,28 +36,21 @@ export class UnifiedAuthGuard implements CanActivate {
             const tokenPayload = await this.jwtService.verifyAsync(token);
 
             // Try authenticating as a user
-            if (tokenPayload.aud === 'user') {
+            if (tokenPayload.aud === audienceEnum.PROGRAM_USER) {
                 const user = await this.userService.getUser(tokenPayload.sub as string);
                 if (user) {
-                    request.user = {
-                        user_id: tokenPayload.sub,
-                        email: tokenPayload.email,
-                        role: tokenPayload.role,
-                    };
+                    request.headers.user_id = user.userId;
 
-                    this.logger.info(`END: canActivate function- UnifiedAuthGuard guard- authorized user`);
+                    this.logger.info(`END: canActivate function- AuthGuard guard- authenticated user`);
                     return true;
                 }
             } else {
                 // Try authenticating as a member
                 const member = await this.memberService.getMember(tokenPayload.sub as string);
                 if (member) {
-                    request.member = {
-                        member_id: tokenPayload.sub,
-                        email: tokenPayload.email,
-                    };
+                    request.headers.member_id = member.memberId;
 
-                    this.logger.info(`END: canActivate function- UnifiedAuthGuard guard- authorized member`);
+                    this.logger.info(`END: canActivate function- AuthGuard guard- authenticated member`);
                     return true;
                 }
             }

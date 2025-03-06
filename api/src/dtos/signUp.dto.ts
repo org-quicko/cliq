@@ -10,6 +10,10 @@ export class SignUpDto {
     @Expose({ name: 'link_id' })
     @IsUUID()
     linkId: string;
+    
+    @Expose({ name: 'external_id' })
+    @IsString()
+    externalId?: string;
 
     @IsOptional()
     @IsString()
@@ -62,6 +66,11 @@ export class CreateSignUpDto {
     @Expose({ name: 'last_name' })
     @IsString()
     lastName?: string;
+
+    @IsOptional()
+    @Expose({ name: 'external_id' })
+    @IsString()
+    externalId?: string;
 
     @IsOptional()
     @IsString()

@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MemberConverter } from 'src/converters/member.converter';
 import { CreateMemberDto, UpdateMemberDto } from 'src/dtos';
 import { Member } from 'src/entities';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsRelations } from 'typeorm';
 import { LoggerService } from './logger.service';
 
 @Injectable()
@@ -73,13 +73,14 @@ export class MemberService {
   /**
    * Get member entity
    */
-  async getMemberEntity(memberId: string) {
+  async getMemberEntity(memberId: string, relations: FindOptionsRelations<Member> = {}) {
     this.logger.info('Start getMemberEntity service');
     
     const memberResult = await this.memberRepository.findOne({
       where: { memberId: memberId },
       relations: {
         promoterMembers: true,
+        ...relations
       },
       select: {
         promoterMembers: {

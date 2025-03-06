@@ -92,7 +92,8 @@ export class SignUpService {
       const newSignUp = signUpRepository.create({
         contact: savedContact,
         link: linkResult,
-        promoterId: linkResult.promoterId
+        promoterId: linkResult.promoterId,
+        externalId: body?.externalId
       });
 
       const savedSignUp = await signUpRepository.save(newSignUp);

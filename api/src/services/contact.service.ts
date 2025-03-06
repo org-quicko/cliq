@@ -28,7 +28,7 @@ export class ContactService {
    * Create contact
    */
   async createContact(body: CreateContactDto) {
-    this.logger.info('Start createContact service');
+    this.logger.info('START: createContact service');
 
     const programResult = await this.programService.getProgramEntity(body.programId);
 
@@ -44,12 +44,14 @@ export class ContactService {
 
     const savedContact = await this.contactRepository.save(newContact);
 
-    this.logger.info('End createContact service');
+    this.logger.info('END: createContact service');
     return this.contactConverter.convert(savedContact);
   }
 
   async contactExists(programId: string, whereOptions: object) {
-    return await this.contactRepository.findOne({
+    this.logger.info('START: contactExists service');
+    
+    const contactResult = await this.contactRepository.findOne({
       where: {
         program: {
           programId,
@@ -57,21 +59,34 @@ export class ContactService {
         ...whereOptions
       }
     });
+
+    this.logger.info('END: contactExists service');
+    return contactResult;
   }
 
   async changeContactStatus(contactId: string, status: contactStatusEnum) {
+    this.logger.info('START: changeContactStatus service');
+
     await this.contactRepository.update(contactId, { status, updatedAt: () => `NOW()` });
+    
+    this.logger.info('END: changeContactStatus service');
   }
 
   verifyReferralKeyInput(referralKeyType: referralKeyTypeEnum, body: CreateContactDto) {
+    this.logger.info('START: verifyReferralKeyInput service');
 
+    let valid: boolean;
+    
     if (
       ((referralKeyType === referralKeyTypeEnum.EMAIL) && !body.email) ||
       ((referralKeyType === referralKeyTypeEnum.PHONE) && !body.phone)
     ) {
-      return false;
+      valid = false;
+    } else {
+      valid = true;
     }
 
-    return true;
+    this.logger.info('END: verifyReferralKeyInput service');
+    return valid;
   }
 }

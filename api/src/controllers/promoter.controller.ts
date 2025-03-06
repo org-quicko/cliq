@@ -1,25 +1,19 @@
-import {
-  Controller, Get, Post, Delete, Patch, Body, Param, Query,
-  Res,
-  UseGuards,
-  Req
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import * as fs from 'fs';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { PromoterService } from '../services/promoter.service'
 import { CreatePromoterDto, InviteMemberDto, UpdatePromoterMemberDto } from '../dtos';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { roleEnum, statusEnum, conversionTypeEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
-import { RequestWithUser } from '../interfaces/requestWithUser.interface';
-import { UnifiedAuthGuard } from '../guards/auth/auth.guard';
-import { MemberPermissions } from '../decorators/permissions.decorator';
+import { AuthGuard } from '../guards/auth/auth.guard';
+import { Permissions } from '../decorators/permissions.decorator';
 import { Commission, Contact, Member, Promoter, PromoterMember, Purchase, ReferralView, SignUp } from '../entities';
-import { UnifiedPermissionsGuard } from 'src/guards/permissions/unifiedPermissions.guard';
+import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 
 @ApiTags('Promoter')
-@UseGuards(UnifiedAuthGuard, UnifiedPermissionsGuard)
+@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('/programs/:program_id/promoters')
 export class PromoterController {
 
@@ -34,10 +28,10 @@ export class PromoterController {
    */
   @ApiResponse({ status: 201, description: 'Created' })
   @Post()
-  async createPromoter(@Req() req: RequestWithUser, @Param('program_id') programId: string, @Body() body: CreatePromoterDto) {
+  async createPromoter(@Req() req: Request, @Param('program_id') programId: string, @Body() body: CreatePromoterDto) {
     this.logger.info('START: createPromoter controller')
 
-    const memberId = req.user.user_id;
+    const memberId = req.headers.member_id as string;
     const result = await this.promoterService.createPromoter(memberId, programId, body);
 
     this.logger.info('END: createPromoter controller')
@@ -48,7 +42,7 @@ export class PromoterController {
    * Get promoter
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @MemberPermissions('read', Promoter)
+  @Permissions('read', Promoter)
   @Get(':promoter_id')
   async getPromoter(@Param('promoter_id') promoterId: string) {
     this.logger.info('START: getPromoter controller');
@@ -63,7 +57,7 @@ export class PromoterController {
    * Invite member
    */
   @ApiResponse({ status: 201, description: 'Created' })
-  @MemberPermissions('invite_member', Promoter)
+  @Permissions('invite_member', Promoter)
   @Post(':promoter_id/members')
   async inviteMember(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Body() body: InviteMemberDto) {
     this.logger.info('START: inviteMember controller')
@@ -78,7 +72,7 @@ export class PromoterController {
    * Get all members
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @MemberPermissions('read', Member)
+  @Permissions('read', Member)
   @Get(':promoter_id/members')
   async getAllMembers(
     @Param('program_id') programId: string,
@@ -109,7 +103,7 @@ export class PromoterController {
    */
   @ApiResponse({ status: 204, description: 'No Content' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @MemberPermissions('change_role', PromoterMember)
+  @Permissions('change_role', PromoterMember)
   @Patch(':promoter_id/members/:member_id')
   async updateRole(@Param('member_id') memberId: string, @Body() body: UpdatePromoterMemberDto) {
     this.logger.info('START: updateRole controller');
@@ -125,7 +119,7 @@ export class PromoterController {
    */
   @ApiResponse({ status: 204, description: 'No Content' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @MemberPermissions('remove_member', PromoterMember)
+  @Permissions('remove_member', PromoterMember)
   @Delete(':promoter_id/members/:member_id')
   async removeMember(@Param('promoter_id') promoterId: string, @Param('member_id') memberId: string) {
     this.logger.info('START: removeMember controller');
@@ -140,7 +134,7 @@ export class PromoterController {
    * Get contacts for promoter
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @MemberPermissions('read', Contact)
+  @Permissions('read', Contact)
   @Get(':promoter_id/contacts')
   async getContactsForPromoter(
     @Param('program_id') programId: string,
@@ -163,7 +157,7 @@ export class PromoterController {
    * Get signups for promoter
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @MemberPermissions('read', SignUp)
+  @Permissions('read', SignUp)
   @Get(':promoter_id/signups')
   async getSignUpsForPromoter(
     @Param('program_id') programId: string,
@@ -186,7 +180,7 @@ export class PromoterController {
    * Get purchases for promoter
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @MemberPermissions('read', Purchase)
+  @Permissions('read', Purchase)
   @Get(':promoter_id/purchases')
   async getPurchasesForPromoter(
     @Param('program_id') programId: string,
@@ -211,7 +205,7 @@ export class PromoterController {
    * Get promoter commissions
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @MemberPermissions('read', Commission)
+  @Permissions('read', Commission)
   @Get(':promoter_id/commissions')
   async getPromoterCommissions(
     @Param('program_id') programId: string,
@@ -234,7 +228,7 @@ export class PromoterController {
 
   @ApiResponse({ status: 200, description: 'OK' })
   @SkipTransform()
-  @MemberPermissions('read', Contact)
+  @Permissions('read', Contact)
   @Get(':promoter_id/reports/contacts')
   async getContactsReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
     this.logger.info('START: getContactsReport controller');
@@ -259,7 +253,7 @@ export class PromoterController {
 
   @ApiResponse({ status: 200, description: 'OK' })
   @SkipTransform()
-  @MemberPermissions('read', Purchase)
+  @Permissions('read', Purchase)
   @Get(':promoter_id/reports/purchases')
   async getPurchasesReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
     this.logger.info('START: getPurchasesReport controller');
@@ -287,7 +281,7 @@ export class PromoterController {
      */
   @ApiResponse({ status: 201, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  @MemberPermissions('read', ReferralView)
+  @Permissions('read', ReferralView)
   @Get(':promoter_id/referrals')
   async getPromoterReferrals(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
     this.logger.info('START: getPromoterReferrals controller');

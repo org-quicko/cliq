@@ -23,7 +23,7 @@ export class User {
     @Column('varchar', { name: 'last_name' })
     lastName: string;
 
-    @Column('enum', { enum: roleEnum, default: roleEnum.VIEWER })
+    @Column('enum', { enum: roleEnum, default: roleEnum.REGULAR })
     role: roleEnum;
 
     @CreateDateColumn({ type: 'time with time zone', default: () => `now()`, name: 'created_at' })

@@ -1,18 +1,16 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, 
-  // Logger
- } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CircleService } from '../services/circle.service'
 import { AddPromoterToCircleDto, CreateCircleDto } from '../dtos';
-import { LoggerService } from 'src/services/logger.service';
-import { Permissions } from 'src/decorators/permissions.decorator';
-import { Circle, Promoter } from 'src/entities';
-import { UnifiedAuthGuard } from 'src/guards/auth/auth.guard';
-import { UnifiedPermissionsGuard } from 'src/guards/permissions/unifiedPermissions.guard';
+import { LoggerService } from '../services/logger.service';
+import { Permissions } from '../decorators/permissions.decorator';
+import { Circle } from '../entities';
+import { AuthGuard } from '../guards/auth/auth.guard';
+import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 
 @ApiTags('Circle')
 @Controller('/programs/:program_id/circles')
-@UseGuards(UnifiedAuthGuard, UnifiedPermissionsGuard)
+@UseGuards(AuthGuard, PermissionsGuard)
 export class CircleController {
 
   constructor(
@@ -25,6 +23,7 @@ export class CircleController {
    * Create circle
    */
   @ApiResponse({ status: 201, description: 'Created' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @Permissions('create', Circle)
   @Post()
@@ -40,6 +39,7 @@ export class CircleController {
   /**
    * Get all circles
    */
+  @ApiResponse({ status: 200, description: 'OK' })
   @Permissions('read', Circle)
   @Get()
   async getAllCircles(
@@ -64,6 +64,7 @@ export class CircleController {
    * Add promoters
    */
   @ApiResponse({ status: 201, description: 'Created' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @Permissions('include_promoter', Circle)
   @Post(':circle_id/promoters')
@@ -80,7 +81,7 @@ export class CircleController {
    * Get all Promoters
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Promoter)
+  @Permissions('read', Circle)
   @Get(':circle_id/promoters')
   async getAllPromoters(
     @Param('circle_id') circleId: string,
@@ -103,7 +104,7 @@ export class CircleController {
   /**
    * Get circle
    */
-  @ApiResponse({ status: undefined, description: '' })
+  @ApiResponse({ status: 200, description: 'Bad Request' })
   @Permissions('read', Circle)
   @Get(':circle_id')
   async getCircle(@Param('circle_id') circleId: string) {
@@ -119,6 +120,7 @@ export class CircleController {
    * Delete circle
    */
   @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
   @Permissions('delete', Circle)
   @Delete(':circle_id')
   async deleteCircle(@Param('circle_id') circleId: string) {
@@ -134,6 +136,7 @@ export class CircleController {
    * Remove promoter
    */
   @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @Permissions('remove_promoter', Circle)
   @Delete(':circle_id/promoters/:promoter_id')

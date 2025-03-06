@@ -1,21 +1,16 @@
-import {
-  Controller, Get, Post, Delete, Patch, Body, Param, Query,
-  UseGuards,
-  // Logger
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FunctionService } from '../services/function.service'
 import { CreateFunctionDto, UpdateFunctionDto } from '../dtos';
 import { conversionTypeEnum, effectEnum } from '../enums';
-import { LoggerService } from 'src/services/logger.service';
-import { UserPermissionsGuard } from 'src/guards/permissions/userPermissions.guard';
-import { UserPermissions } from 'src/decorators/permissions.decorator';
-import { Function } from 'src/entities';
-import { UnifiedAuthGuard } from 'src/guards/auth/auth.guard';
+import { LoggerService } from '../services/logger.service';
+import { Permissions } from '../decorators/permissions.decorator';
+import { Function } from '../entities';
+import { AuthGuard } from '../guards/auth/auth.guard';
+import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 
 @ApiTags('Function')
-// @UseGuards(UserAuthGuard, UserPermissionsGuard)
-@UseGuards(UnifiedAuthGuard, UserPermissionsGuard)
+@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('/programs/:program_id/functions')
 export class FunctionController {
 
@@ -29,7 +24,7 @@ export class FunctionController {
    */
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @UserPermissions('create', Function)
+  @Permissions('create', Function)
   @Post()
   async createFunction(@Param('program_id') programId: string, @Body() body: CreateFunctionDto) {
     this.logger.info('START: createFunction controller');
@@ -44,7 +39,7 @@ export class FunctionController {
    * Get all functions
    */
   @ApiResponse({ status: undefined, description: '' })
-  @UserPermissions('read', Function)
+  @Permissions('read', Function)
   @Get()
   async getAllFunctions(
     @Param('program_id') programId: string,
@@ -72,7 +67,7 @@ export class FunctionController {
    * Get function
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @UserPermissions('read', Function)
+  @Permissions('read', Function)
   @Get(':function_id')
   async getFunction(@Param('program_id') programId: string, @Param('function_id') functionId: string) {
     this.logger.info('START: getFunction controller');
@@ -88,7 +83,7 @@ export class FunctionController {
    */
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @UserPermissions('update', Function)
+  @Permissions('update', Function)
   @Patch(':function_id')
   async updateFunction(@Param('program_id') programId: string, @Param('function_id') functionId: string, @Body() body: UpdateFunctionDto) {
     this.logger.info('START: updateFunction controller');
@@ -104,7 +99,7 @@ export class FunctionController {
    */
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  @UserPermissions('delete', Function)
+  @Permissions('delete', Function)
   @Delete(':function_id')
   async deleteFunction(@Param('program_id') programId: string, @Param('function_id') functionId: string) {
     this.logger.info('START: deleteFunction controller');

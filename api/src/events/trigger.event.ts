@@ -8,6 +8,7 @@ export class TriggerEvent {
         public promoterId: string,
         public programId: string,
         public externalId?: string,
+        public itemId?: string,
         public amount?: number,
     ) { }
 

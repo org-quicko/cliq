@@ -50,9 +50,9 @@ export class NumOfPurchasesConditionDto extends BaseConditionDto {
     value: number;
 }
 
-export class ExternalIdConditionDto extends BaseConditionDto {
+export class ItemIdConditionDto extends BaseConditionDto {
     @Expose({ name: 'parameter' })
-    @IsEnum([conditionParameterEnum.EXTERNAL_ID])
+    @IsEnum([conditionParameterEnum.ITEM_ID])
     parameter: conditionParameterEnum;
 
     @Expose({ name: 'operator' })
@@ -79,10 +79,10 @@ export class ConditionDto {
             subTypes: [
                 { value: NumOfSignupsConditionDto, name: conditionParameterEnum.NUM_OF_SIGNUPS as string },
                 { value: NumOfPurchasesConditionDto, name: conditionParameterEnum.NUM_OF_PURCHASES as string },
-                { value: ExternalIdConditionDto, name: conditionParameterEnum.EXTERNAL_ID as string },
+                { value: ItemIdConditionDto, name: conditionParameterEnum.ITEM_ID as string },
             ],
         },
         keepDiscriminatorProperty: true,
     })
-    condition: NumOfSignupsConditionDto | NumOfPurchasesConditionDto | ExternalIdConditionDto;
+    condition: NumOfSignupsConditionDto | NumOfPurchasesConditionDto | ItemIdConditionDto;
 }

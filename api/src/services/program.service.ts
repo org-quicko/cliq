@@ -1,14 +1,9 @@
-import {
-  Injectable, InternalServerErrorException,
-  // Logger,
-  NotFoundException
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DataSource, FindOptionsRelations, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commission, Program, Purchase, ReferralView, User } from '../entities';
 import { CreateUserDto } from '../dtos';
 import { ProgramUser } from '../entities/programUser.entity';
-import { } from '../dtos/programUser.dto';
 import { CreateProgramDto, UpdateProgramDto, UpdateProgramUserDto } from '../dtos';
 import { InviteUserDto } from '../dtos/inviteUser.dto';
 import { UserService } from './user.service';
@@ -353,10 +348,17 @@ export class ProgramService {
     return programUserResult;
   }
 
+  async checkIfUserExistsInProgram(programId: string, userId: string) {
+    const programUserResult = await this.programUserRepository.findOne({ where: { programId, userId } });
+
+    return programUserResult;
+  }
+
   /**
    * Get all promoters
    */
   async getAllPromoters(programId: string, queryOptions: QueryOptionsInterface = {}) {
+    this.logger.info(`START: getAllPromoters service`);
 
     const whereOptions = {};
     if (queryOptions['name']) {
@@ -371,40 +373,23 @@ export class ProgramService {
       throw new NotFoundException(`Error. Promoters of Program ${programId} not found.`);
     }
 
-    return programPromotersResult.map(pp => this.promoterConverter.convert(pp.promoter));
-  }
-
-  /**
-   * Get contacts in workspace
-   */
-  async getContactsInWorkspace(programId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info(`START: getContactsInWorkspace service`);
-
-    const programResult = await this.programRepository.findOne({
-      where: { programId },
-      relations: {
-        contacts: {
-          program: true
-        }
-      },
-      ...queryOptions
-    });
-
-    if (!programResult) {
-      throw new NotFoundException(`Error. Contacts of Program ${programId} not found.`);
-    }
-
-    const contactDtos = programResult.contacts.map(contact => this.contactConverter.convert(contact));
-
-    this.logger.info(`END: getContactsInWorkspace service`);
-    return contactDtos;
+    const programPromotersDto = programPromotersResult.map(pp => this.promoterConverter.convert(pp.promoter));
+    
+    this.logger.info(`END: getAllPromoters service`);
+    return programPromotersDto;
   }
 
   /**
    * Get signups in workspace
    */
-  async getSignUpsInWorkspace(programId: string, queryOptions: QueryOptionsInterface = {}) {
+  async getSignUpsInWorkspace(userId: string, programId: string, queryOptions: QueryOptionsInterface = {}) {
     this.logger.info(`START: getSignUpsInWorkspace service`);
+
+    // will throw error if user isn't in the program
+    if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+      this.logger.error(`User does not have permission to perform this action!`);
+      throw new ForbiddenException(`Forbidden Resource`);
+    }
 
     const programResult = await this.programRepository.findOne({
       where: { programId },
@@ -435,8 +420,13 @@ export class ProgramService {
   /**
    * Get purchases in workspace
   */
-  async getPurchasesInWorkspace(programId: string, queryOptions: QueryOptionsInterface = {}) {
+  async getPurchasesInWorkspace(userId: string, programId: string, queryOptions: QueryOptionsInterface = {}) {
     this.logger.info(`START: getPurchasesInWorkspace service`);
+
+    if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+      this.logger.error(`User does not have permission to perform this action!`);
+      throw new ForbiddenException(`Forbidden Resource`);
+    }
 
     const externalId = queryOptions.externalId;
     if (externalId) {
@@ -479,8 +469,14 @@ export class ProgramService {
   /**
    * Get all commissions
    */
-  async getAllCommissions(programId: string, queryOptions: QueryOptionsInterface = {}) {
+  async getAllCommissions(userId: string, programId: string, queryOptions: QueryOptionsInterface = {}) {
     this.logger.info(`START: getAllCommissions service`);
+
+    // will throw error if user isn't in the program
+    if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+      this.logger.error(`User does not have permission to perform this action!`);
+      throw new ForbiddenException(`Forbidden Resource`);
+    }
 
     const programResult = await this.programRepository.findOne({
       where: {
@@ -514,7 +510,6 @@ export class ProgramService {
     this.logger.info(`START: getPromoterReferrals service`);
 
     await this.getProgram(programId);
-
     const referralResult = await this.referralRepository.find({ where: { programId } });
 
     this.logger.info(`END: getPromoterReferrals service`);

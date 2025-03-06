@@ -91,6 +91,7 @@ export class PurchaseService {
         link: linkResult,
         promoter: promoterResult,
         externalId: body.externalId,
+        itemId: body.itemId,
       });
 
       const savedPurchase = await purchaseRepository.save(newPurchase);
@@ -111,6 +112,7 @@ export class PurchaseService {
         promoterResult.promoterId,
         programResult.programId,
         savedPurchase.externalId,
+        undefined,
         savedPurchase.amount,
       );
       this.eventEmitter.emit(TRIGGER_EVENT, signUpCreatedEvent);

@@ -17,6 +17,7 @@ export class PurchaseConverter {
         purchaseDto.lastName = purchase.contact.lastName;
         purchaseDto.phone = purchase.contact.phone;
         purchaseDto.externalId = purchase.externalId;
+        purchaseDto.itemId = purchase.itemId;
         purchaseDto.contactId = purchase.contact.contactId;
 
         purchaseDto.createdAt = purchase.createdAt;

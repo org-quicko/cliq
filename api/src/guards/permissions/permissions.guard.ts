@@ -1,22 +1,21 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
 import { ForbiddenError } from '@casl/ability';
-import { actionsType, AppAbility, RoleService, subjectsType } from '../../services/role.service';
+import { actionsType, AppAbility, AuthorizationService, subjectsType } from '../../services/authorization.service';
 import { CHECK_PERMISSIONS_KEY } from '../../decorators/permissions.decorator';
 import { LoggerService } from '../../services/logger.service';
 import { MemberService } from '../../services/member.service';
-import { MemberLoginData } from '../../services/memberAuth.service';
-import { UserService } from 'src/services/user.service';
-import { UserLoginData } from 'src/services/userAuth.service';
+import { UserService } from '../../services/user.service';
 
 @Injectable()
-export class UnifiedPermissionsGuard implements CanActivate {
+export class PermissionsGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
 
         private userService: UserService,
 
-        private roleService: RoleService,
+        private AuthorizationService: AuthorizationService,
 
         private memberService: MemberService,
 
@@ -35,44 +34,45 @@ export class UnifiedPermissionsGuard implements CanActivate {
         }
 
 
-        const request = context.switchToHttp().getRequest();
-        const user: UserLoginData = request.user;
-        const member: MemberLoginData = request.member; // AuthGuard already sets `request.member`
+        const request: Request = context.switchToHttp().getRequest();
+        const user_id = request.headers.user_id as string;
+        const member_id = request.headers.member_id as string;
+        let entityType: 'User' | 'Member';
 
-        if (!member) {
-            if (!user) {
+        if (!member_id) {
+            if (!user_id) {
                 return false; // Shouldn't happen since AuthGuard ensures member is set
             }
         }
 
         let ability: AppAbility;
-        if (member) {
-            const memberEntity = await this.memberService.getMemberByEmail(member.email);
+        if (member_id) {
+            // Generate member's ability
+            const memberEntity = await this.memberService.getMemberEntity(member_id);
             if (!memberEntity) {
-                return false; // Shouldn't happen since AuthGuard ensures member is set
+                return false;
             }
-            ability = this.roleService.createForMember(memberEntity);
-        } else if (user) {
-            const userEntity = await this.userService.getUserByEmail(user.email);
-            if (!userEntity) {
-                return false; // Shouldn't happen since AuthGuard ensures user is set
-            }
-
-            // Generate user's ability
-            ability = this.roleService.createForUser(userEntity);
+            ability = this.AuthorizationService.createForMember(memberEntity);
+            entityType = 'Member';
         } else {
-            ability = this.roleService.createEmpty();
+            const userEntity = await this.userService.getUserEntity(user_id);
+            if (!userEntity) {
+                return false; 
+            }
+            
+            // Generate user's ability
+            ability = this.AuthorizationService.createForUser(userEntity);
+            entityType = 'User';
         }
 
-        // Generate member's ability
 
 
         try {
-            const subjectObjects = await this.roleService.getSubjects(request, requiredPermissions);
+            const subjectObjects = await this.AuthorizationService.getSubjects(request, requiredPermissions);
 
             for (let i = 0; i < requiredPermissions.length; i++) {
                 const action = requiredPermissions[i].action;
-                
+
                 console.log('\n\n', action, subjectObjects[i], '\n\n');
                 ForbiddenError.from(ability).throwUnlessCan(action, subjectObjects[i]);
             }
@@ -80,7 +80,7 @@ export class UnifiedPermissionsGuard implements CanActivate {
             return true;
         } catch (error) {
             if (error instanceof Error) {
-                this.logger.error(`Member does not have permission to perform this action!`);
+                this.logger.error(`${entityType} does not have permission to perform this action!`);
             }
             return false;
         }

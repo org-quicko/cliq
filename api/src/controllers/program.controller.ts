@@ -4,15 +4,15 @@ import { ProgramService } from '../services/program.service'
 import { LoggerService } from '../services/logger.service';
 import { CreateProgramDto, UpdateProgramDto, UpdateProgramUserDto, InviteUserDto } from '../dtos';
 import { visibilityEnum, statusEnum, roleEnum, conversionTypeEnum } from '../enums';
-import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 import { Permissions } from '../decorators/permissions.decorator';
-import { Commission, Contact, Program, ProgramPromoter, ProgramUser, Purchase, ReferralView, SignUp } from '../entities';
-import { UnifiedAuthGuard } from 'src/guards/auth/auth.guard';
-import { UnifiedPermissionsGuard } from 'src/guards/permissions/unifiedPermissions.guard';
+import { Commission, Program, ProgramPromoter, ProgramUser, Purchase, ReferralView, SignUp } from '../entities';
+import { AuthGuard } from '../guards/auth/auth.guard';
+import { PermissionsGuard } from '../guards/permissions/permissions.guard';
+import { Request } from 'express';
 
 @ApiTags('Program')
 @Controller('/programs')
-@UseGuards(UnifiedAuthGuard, UnifiedPermissionsGuard)
+@UseGuards(AuthGuard, PermissionsGuard)
 export class ProgramController {
 
   constructor(
@@ -25,10 +25,11 @@ export class ProgramController {
   @ApiResponse({ status: 201, description: 'Created' })
   @Permissions('create', Program)
   @Post()
-  async createProgram(@Req() req: RequestWithUser, @Body() body: CreateProgramDto) {
+  // TODO: put user id in header instead
+  async createProgram(@Req() req: Request, @Body() body: CreateProgramDto) {
     this.logger.info('START: createProgram controller');
     
-    const userId = req.user.user_id;
+    const userId = req.headers.user_id as string;
     const result = await this.programService.createProgram(userId, body);
     
     this.logger.info('END: createProgram controller');
@@ -198,26 +199,6 @@ export class ProgramController {
     this.logger.info('END: getAllPromoters controller');
     return { message: 'Successfully fetched all promoters of program.', result };
   }
-
-  /**
-   * Get contacts in workspace
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Contact)
-  @Get(':program_id/contacts')
-  async getContactsInWorkspace(
-    @Param('program_id') programId: string,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
-  ) {
-    this.logger.info('START: getContactsInWorkspace controller');
-    const result = await this.programService.getContactsInWorkspace(programId, {
-      skip, 
-      take,
-    });
-    this.logger.info('END: getContactsInWorkspace controller');
-    return { message: 'Successfully fetched all contacts of program.', result };
-  }
   
   /**
    * Get signups in workspace
@@ -226,15 +207,19 @@ export class ProgramController {
   @Permissions('read', SignUp)
   @Get(':program_id/signups')
   async getSignUpsInWorkspace(
+    @Req() req: Request, 
     @Param('program_id') programId: string,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getSignUpsInWorkspace controller');
-    const result = await this.programService.getSignUpsInWorkspace(programId, {
+    
+    const userId = req.headers.user_id as string;
+    const result = await this.programService.getSignUpsInWorkspace(userId, programId, {
       skip, 
       take,
     });
+    
     this.logger.info('END: getSignUpsInWorkspace controller');
     return { message: 'Successfully fetched all signups of program.', result };
   }
@@ -246,17 +231,21 @@ export class ProgramController {
   @Permissions('read', Purchase)
   @Get(':program_id/purchases')
   async getPurchasesInWorkspace(
+    @Req() req: Request, 
     @Param('program_id') programId: string,
-    @Query('external_id') externalId?: string,
+    @Query('item_id') itemId?: string,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getPurchasesInWorkspace');
-    const result = await this.programService.getPurchasesInWorkspace(programId, {
-      externalId,
+    
+    const userId = req.headers.user_id as string;
+    const result = await this.programService.getPurchasesInWorkspace(userId, programId, {
+      itemId,
       skip,
       take,
     });
+    
     this.logger.info('END: getPurchasesInWorkspace');
     return { message: 'Successfully fetched all purchases of program.', result };
   }
@@ -268,17 +257,21 @@ export class ProgramController {
   @Permissions('read', Commission)
   @Get(':program_id/commissions')
   async getAllCommissions(
+    @Req() req: Request, 
     @Param('program_id') programId: string,
     @Query('conversion_type') conversionType: conversionTypeEnum,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getAllCommissions controller');
-    const result = await this.programService.getAllCommissions(programId, {
+    
+    const userId = req.headers.user_id as string;
+    const result = await this.programService.getAllCommissions(userId, programId, {
       conversionType,
       skip,
       take,
     });
+    
     this.logger.info('END: getAllCommissions controller');
     return { message: 'Successfully fetched all commissions of program.', result };
   }

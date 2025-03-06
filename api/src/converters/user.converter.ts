@@ -14,7 +14,7 @@ export class UserConverter {
         //  not sending the password
         userDto.firstName = user.firstName;
         userDto.lastName = user.lastName;
-        userDto.role = programUser?.role;
+        // userDto.role = programUser?.role;
         userDto.status = programUser?.status;
         userDto.role = user.role;
         

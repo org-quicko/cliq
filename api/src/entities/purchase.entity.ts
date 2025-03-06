@@ -16,8 +16,11 @@ export class Purchase {
   @PrimaryGeneratedColumn('uuid', { name: 'purchase_id' })
   purchaseId: string;
 
-  @Column('varchar', { name: 'external_id' })
+  @Column('varchar', { name: 'external_id', nullable: true })
   externalId: string;
+
+  @Column('varchar', { name: 'item_id' })
+  itemId: string;
 
   @Column('varchar', { name: 'contact_id' })
   contactId: string;

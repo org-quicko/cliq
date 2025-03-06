@@ -15,6 +15,7 @@ export class SignUpConverter {
         signUpDto.email = signUp.contact?.email;
         signUpDto.firstName = signUp.contact?.lastName;
         signUpDto.lastName = signUp.contact?.lastName;
+        signUpDto.externalId = signUp?.externalId;
         signUpDto.phone = signUp.contact?.phone;
 
         

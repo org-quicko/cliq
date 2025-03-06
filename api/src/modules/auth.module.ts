@@ -1,6 +1,6 @@
 import { Global, Module } from "@nestjs/common";
-import { RoleService } from "../services/role.service";
-import { UnifiedAuthGuard } from "../guards/auth/auth.guard";
+import { AuthorizationService } from "../services/authorization.service";
+import { AuthGuard } from "../guards/auth/auth.guard";
 import { LinkModule } from "./link.module";
 import { CircleModule } from "./circle.module";
 import { FunctionModule } from "./function.module";
@@ -8,7 +8,7 @@ import { FunctionModule } from "./function.module";
 @Global()
 @Module({
     imports: [LinkModule, CircleModule, FunctionModule],
-    providers: [RoleService, UnifiedAuthGuard],
-    exports: [RoleService, UnifiedAuthGuard]
+    providers: [AuthorizationService, AuthGuard],
+    exports: [AuthorizationService, AuthGuard]
 })
 export class AuthModule { }

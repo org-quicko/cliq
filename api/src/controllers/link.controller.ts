@@ -2,14 +2,14 @@ import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, } from '@
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { LinkService } from '../services/link.service'
 import { CreateLinkDto } from '../dtos';
-import { LoggerService } from 'src/services/logger.service';
-import { Permissions } from 'src/decorators/permissions.decorator';
-import { Link } from 'src/entities';
-import { UnifiedAuthGuard } from 'src/guards/auth/auth.guard';
-import { UnifiedPermissionsGuard } from 'src/guards/permissions/unifiedPermissions.guard';
+import { LoggerService } from '../services/logger.service';
+import { Permissions } from '../decorators/permissions.decorator';
+import { Link } from '../entities';
+import { AuthGuard } from '../guards/auth/auth.guard';
+import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 
 @ApiTags('Link')
-@UseGuards(UnifiedAuthGuard, UnifiedPermissionsGuard)
+@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('programs/:program_id/promoters/:promoter_id/links')
 export class LinkController {
 

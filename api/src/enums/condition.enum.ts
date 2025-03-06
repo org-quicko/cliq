@@ -1,7 +1,7 @@
 export enum conditionParameterEnum {
     NUM_OF_SIGNUPS = 'no. of signups',
     NUM_OF_PURCHASES = 'no. of purchases',
-    EXTERNAL_ID = 'external id',
+    ITEM_ID = 'item_id',
 }
 
 export enum conditionOperatorEnum {
@@ -9,4 +9,3 @@ export enum conditionOperatorEnum {
     EQUALS = 'equals',
     CONTAINS = 'contains',
 }
-
