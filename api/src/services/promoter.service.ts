@@ -259,7 +259,7 @@ export class PromoterService {
    */
   async getAllMembers(promoterId: string, queryOptions: QueryOptionsInterface = {}) {
 
-    this.logger.info('Start getAllMembers service');
+    this.logger.info('START: getAllMembers service');
 
     const whereOptions = {};
 
@@ -299,7 +299,7 @@ export class PromoterService {
       throw new NotFoundException(`Failed to get members for promoter_id: ${promoterId}`);
     }
 
-    this.logger.info('End getAllMembers service');
+    this.logger.info('END: getAllMembers service');
 
     return promoterMembers.map((pm) => this.memeberConverter.convert(pm.member, pm));
   }
@@ -312,7 +312,7 @@ export class PromoterService {
     body: UpdatePromoterMemberDto,
   ) {
 
-    this.logger.info('Start updateRole service');
+    this.logger.info('START: updateRole service');
 
     const member = await this.memberService.getMember(memberId);
 
@@ -327,14 +327,14 @@ export class PromoterService {
       role: body.role, 
       updatedAt: () => `NOW()`    
     });
-    this.logger.info('End updateRole service');
+    this.logger.info('END: updateRole service');
   }
 
   /**
    * Remove member
    */
   async removeMember(promoterId: string, memberId: string) {
-    this.logger.info('Start removeMember service')
+    this.logger.info('START: removeMember service')
     return await this.promoterMemberRepository.update(
       {
         promoterId,
@@ -348,7 +348,7 @@ export class PromoterService {
    * Get signups for promoter
    */
   async getSignUpsForPromoter(programId: string, promoterId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info('Start getSignUpsForPromoter service');
+    this.logger.info('START: getSignUpsForPromoter service');
 
     // getting signups for: program -> promoter -> signups
     const signUpsResult = await this.signUpRepository.find({
@@ -375,7 +375,7 @@ export class PromoterService {
 
     const signUpDtos = signUpsResult.map(signUp => this.signUpConverter.convert(signUp));
 
-    this.logger.info('End getSignUpsForPromoter service');
+    this.logger.info('END: getSignUpsForPromoter service');
     return signUpDtos;
   }
 

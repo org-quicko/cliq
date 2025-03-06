@@ -199,7 +199,8 @@ export class AuthorizationService {
         return subjectObjects;
     }
 
-    createForUser(user: User) {
+    getUserAbility(user: User) {
+        this.logger.info(`START: getUserAbility service`);
 
         const programUserPermissions = this.getProgramUserPermissions(user);
 
@@ -245,10 +246,12 @@ export class AuthorizationService {
         });
 
 
+        this.logger.info(`END: getUserAbility service`);
         return ability;
     }
 
-    createForMember(member: Member) {
+    getMemberAbility(member: Member) {
+        this.logger.info(`START: getMemberAbility service`);
 
         const promoterMemberPermissions = this.getPromoterMemberPermissions(member);
 
@@ -280,11 +283,7 @@ export class AuthorizationService {
             detectSubjectType: item => item.constructor as ExtractSubjectType<subjectsType>
         });
 
+        this.logger.info(`END: getMemberAbility service`);
         return ability;
-    }
-
-    createEmpty() {
-        const { build } = new AbilityBuilder<AppAbility>(createAppAbility);
-        return build();
     }
 } 

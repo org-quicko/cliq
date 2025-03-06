@@ -98,7 +98,7 @@ export class FunctionService {
    * Get all functions
    */
   async getAllFunctions(programId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info('Start getAllFunctions service');
+    this.logger.info('START: getAllFunctions service');
 
     const whereOptions = {};
 
@@ -135,7 +135,7 @@ export class FunctionService {
       throw new NotFoundException(`Error. Functions of Program ${programId} not found.`);
     }
 
-    this.logger.info('End getAllFunctions service');
+    this.logger.info('END: getAllFunctions service');
 
     return functionsResult.map(func => this.functionConverter.convert(func));
   }

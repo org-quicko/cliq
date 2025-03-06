@@ -95,7 +95,7 @@ export class ProgramService {
    * Get all programs
    */
   async getAllPrograms(queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info('Start getAllPrograms service');
+    this.logger.info('START: getAllPrograms service');
     const findOptions: object = {};
 
     if (queryOptions.name) {
@@ -111,7 +111,7 @@ export class ProgramService {
       findOptions['take'] = queryOptions.take;
     }
 
-    this.logger.info('End getAllPrograms service');
+    this.logger.info('END: getAllPrograms service');
     return await this.programRepository.find(findOptions);
   }
 
@@ -119,7 +119,7 @@ export class ProgramService {
    * Get program
    */
   async getProgram(programId: string) {
-    this.logger.info('Start getProgram service');
+    this.logger.info('START: getProgram service');
 
     const programResult = await this.programRepository.findOne({
       where: { programId: programId }
@@ -130,7 +130,7 @@ export class ProgramService {
       throw new NotFoundException(`Error. Program ${programId} not found.`);
     }
 
-    this.logger.info('End getProgram service');
+    this.logger.info('END: getProgram service');
     return this.programConverter.convert(programResult);
   }
 
@@ -138,7 +138,7 @@ export class ProgramService {
    * Get program entity
    */
   async getProgramEntity(programId: string, relations?: FindOptionsRelations<Program>) {
-    this.logger.info('Start getProgramEntity service');
+    this.logger.info('START: getProgramEntity service');
 
     const programResult = await this.programRepository.findOne({ where: { programId: programId }, relations });
 
@@ -146,7 +146,7 @@ export class ProgramService {
       throw new NotFoundException(`Error. Program ${programId} not found.`);
     }
 
-    this.logger.info('End getProgramEntity service');
+    this.logger.info('END: getProgramEntity service');
     return programResult;
   }
 
@@ -154,14 +154,14 @@ export class ProgramService {
    * Update program
    */
   async updateProgram(programId: string, body: UpdateProgramDto) {
-    this.logger.info('Start updateProgram service');
+    this.logger.info('START: updateProgram service');
     const programResult = await this.getProgramEntity(programId);
 
     if (!programResult) {
       throw new NotFoundException(`Error. Program ${programId} not found.`);
     }
 
-    this.logger.info('End updateProgram service');
+    this.logger.info('END: updateProgram service');
     await this.programRepository.update({ programId }, { ...body, updatedAt: () => `NOW()` });
   }
 
@@ -169,13 +169,13 @@ export class ProgramService {
    * Forms relation between program and user
    */
   async relateProgramToUser(programId: string, userId: string) {
-    this.logger.info('Start relateProgramToUser service');
+    this.logger.info('START: relateProgramToUser service');
 
     const newProgramUser = new ProgramUser();
     newProgramUser.programId = programId;
     newProgramUser.userId = userId;
 
-    this.logger.info('End relateProgramToUser service');
+    this.logger.info('END: relateProgramToUser service');
     await this.programUserRepository.save(newProgramUser);
   }
 
@@ -183,12 +183,12 @@ export class ProgramService {
    * Delete program
    */
   async deleteProgram(programId: string) {
-    this.logger.info('Start deleteProgram service');
+    this.logger.info('START: deleteProgram service');
     if (await this.getProgramEntity(programId)) {
       await this.programRepository.delete({ programId });
-      this.logger.info('End deleteProgram service');
+      this.logger.info('END: deleteProgram service');
     } else {
-      this.logger.info('End deleteProgram service');
+      this.logger.info('END: deleteProgram service');
       throw new NotFoundException(`Error. Program ${programId} not found.`);
     }
   }
@@ -199,7 +199,7 @@ export class ProgramService {
   async inviteUser(programId: string, body: InviteUserDto) {
     return this.datasource.transaction(async (manager) => {
 
-      this.logger.info('Start inviteUser service');
+      this.logger.info('START: inviteUser service');
       const user = await this.userService.getUserByEmail(body.email);
 
       let newUser: User;
@@ -252,7 +252,7 @@ export class ProgramService {
       const programResult = await this.getProgramEntity(programId);
 
       if (!programResult) {
-        this.logger.warn('program not found');
+        this.logger.warn('Error. Program ${programId} not found.');
         throw new NotFoundException(`Error. Program ${programId} not found.`);
       }
 
@@ -267,7 +267,7 @@ export class ProgramService {
         throw new InternalServerErrorException('Failed to invite user.');
       }
 
-      this.logger.info('End inviteUser service');
+      this.logger.info('END: inviteUser service');
       return;
 
     });
@@ -277,7 +277,7 @@ export class ProgramService {
    * Get all users
    */
   async getAllUsers(programId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info('Start getAllUsers service');
+    this.logger.info('START: getAllUsers service');
 
     const whereOptions = {};
 
@@ -300,7 +300,7 @@ export class ProgramService {
       throw new NotFoundException(`Error. Users of Program ${programId} not found.`);
     }
 
-    this.logger.info('End getAllUsers service');
+    this.logger.info('END: getAllUsers service');
     return programUsersResult.map(pu => this.userConverter.convert(pu.user, pu));
   }
 
@@ -308,7 +308,7 @@ export class ProgramService {
    * Update role
    */
   async updateRole(programId: string, userId: string, body: UpdateProgramUserDto) {
-    this.logger.info('Start updateRole service');
+    this.logger.info('START: updateRole service');
     const programUserResult = await this.programUserRepository.findOne({ where: { programId, userId } });
 
     if (!programUserResult) {
@@ -316,14 +316,14 @@ export class ProgramService {
     }
 
     await this.programUserRepository.update({ programId, userId }, { role: body.role, updatedAt: () => `NOW()` });
-    this.logger.info('End updateRole service');
+    this.logger.info('END: updateRole service');
   }
 
   /**
    * Remove user
    */
   async removeUser(programId: string, userId: string) {
-    this.logger.info('Start removeUser service');
+    this.logger.info('START: removeUser service');
 
     const programUserResult = await this.programUserRepository.findOne({ where: { programId, userId } });
 
@@ -335,16 +335,19 @@ export class ProgramService {
       { programId, userId },
       { ...programUserResult, status: statusEnum.INACTIVE, updatedAt: () => `NOW()` }
     );
-    this.logger.info('End removeUser service');
+    this.logger.info('END: removeUser service');
   }
 
   async getProgramUserRowEntity(programId: string, userId: string) {
+    this.logger.info(`START: getProgramUserRowEntity service`);
+
     const programUserResult = await this.programUserRepository.findOne({ where: { programId, userId } });
 
     if(!programUserResult) {
       throw new NotFoundException(`Error. Failed to get program user row of Program ID ${programId}, User ID ${userId}`);
     }
 
+    this.logger.info(`END: getProgramUserRowEntity service`);
     return programUserResult;
   }
 

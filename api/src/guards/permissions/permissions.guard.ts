@@ -52,7 +52,7 @@ export class PermissionsGuard implements CanActivate {
             if (!memberEntity) {
                 return false;
             }
-            ability = this.AuthorizationService.createForMember(memberEntity);
+            ability = this.AuthorizationService.getMemberAbility(memberEntity);
             entityType = 'Member';
         } else {
             const userEntity = await this.userService.getUserEntity(user_id);
@@ -61,7 +61,7 @@ export class PermissionsGuard implements CanActivate {
             }
             
             // Generate user's ability
-            ability = this.AuthorizationService.createForUser(userEntity);
+            ability = this.AuthorizationService.getUserAbility(userEntity);
             entityType = 'User';
         }
 

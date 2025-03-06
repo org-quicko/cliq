@@ -45,7 +45,7 @@ export class MemberService {
    * Get member
    */
   async getMember(memberId: string) {
-    this.logger.info('Start getMember service');
+    this.logger.info('START: getMember service');
     
     const memberResult = await this.memberRepository.findOne({
       where: { memberId: memberId },
@@ -66,7 +66,7 @@ export class MemberService {
       throw new NotFoundException(`Failed to get member of ID: ${memberId}.`);
     }
   
-    this.logger.info('End getMember service');
+    this.logger.info('END: getMember service');
     return this.memberConverter.convert(memberResult);
   }
 
@@ -74,7 +74,7 @@ export class MemberService {
    * Get member entity
    */
   async getMemberEntity(memberId: string, relations: FindOptionsRelations<Member> = {}) {
-    this.logger.info('Start getMemberEntity service');
+    this.logger.info('START: getMemberEntity service');
     
     const memberResult = await this.memberRepository.findOne({
       where: { memberId: memberId },
@@ -96,14 +96,14 @@ export class MemberService {
       throw new NotFoundException(`Failed to get member of ID: ${memberId}.`);
     }
   
-    this.logger.info('End getMemberEntity service');
+    this.logger.info('END: getMemberEntity service');
     return memberResult;
   }
 
   async getMemberByEmail(email: string): Promise<Member | null> {
-    this.logger.info('Start getMemberByEmail service');
+    this.logger.info('START: getMemberByEmail service');
     const memberResult = await this.memberRepository.findOne({ where: { email: email }, relations: { promoterMembers: true } });
-    this.logger.info('End getMemberByEmail service');
+    this.logger.info('END: getMemberByEmail service');
     return memberResult;
   }
 
@@ -111,7 +111,7 @@ export class MemberService {
    * Update member info
    */
   async updateMemberInfo(memberId: string, member: UpdateMemberDto) {
-    this.logger.info('Start updateMemberInfo service');
+    this.logger.info('START: updateMemberInfo service');
     
     const memberResult = await this.memberRepository.findOne({
       where: { memberId: memberId },
@@ -127,13 +127,13 @@ export class MemberService {
       { ...member, updatedAt: () => `NOW()` },
     );
   
-    this.logger.info('End updateMemberInfo service');
+    this.logger.info('END: updateMemberInfo service');
   }
   /**
    * Delete member
    */
   async deleteMember(memberId: string) {
-    this.logger.info('Start deleteMember service');
+    this.logger.info('START: deleteMember service');
     const member = await this.memberRepository.findOne({
       where: { memberId: memberId },
     });
@@ -144,11 +144,11 @@ export class MemberService {
     }
 
     await this.memberRepository.delete({ memberId: memberId });
-    this.logger.info('End deleteMember service');
+    this.logger.info('END: deleteMember service');
   }
 
   async memberExists(email: string, programId: string) {
-    this.logger.info('Start memberExists service');
+    this.logger.info('START: memberExists service');
     const member = await this.memberRepository.findOne({
      where:{
       email: email,
@@ -161,7 +161,7 @@ export class MemberService {
      }
     });
     console.log("member: ", member);
-    this.logger.info('End memberExists service');
+    this.logger.info('END: memberExists service');
     return member;
   }
 }

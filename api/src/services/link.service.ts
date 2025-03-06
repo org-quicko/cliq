@@ -25,7 +25,7 @@ export class LinkService {
    * Create link
    */
   async createLink(programId: string, promoterId: string, body: CreateLinkDto) {
-    this.logger.info('Start createLink service');
+    this.logger.info('START: createLink service');
     const program = await this.programService.getProgram(programId);
     const promoter = await this.promoterService.getPromoter(promoterId);
 
@@ -52,7 +52,7 @@ export class LinkService {
     
     const savedLink = await this.linkRepository.save(newLink);
 
-    this.logger.info('End createLink service');
+    this.logger.info('END: createLink service');
     return this.linkConverter.convert(savedLink);
   }
 
@@ -60,7 +60,7 @@ export class LinkService {
    * Get all links
    */
   async getAllLinks(programId: string, promoterId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info('Start getAllLinks service');
+    this.logger.info('START: getAllLinks service');
     const whereOptions = {};
 
     if (queryOptions['source']) {
@@ -94,7 +94,7 @@ export class LinkService {
       throw new NotFoundException('Failed to get link');
     }
 
-    this.logger.info('End getAllLinks service');
+    this.logger.info('END: getAllLinks service');
     return links.map((link) => this.linkConverter.convert(link));
   }
 
@@ -102,7 +102,7 @@ export class LinkService {
    * Get link entity by ID
    */
   async getLinkEntity(linkId: string, relations?: FindOptionsRelations<Link>) {
-    this.logger.info('Start getLinkEntity service');
+    this.logger.info('START: getLinkEntity service');
     const linkResult = await this.linkRepository.findOne({ where: { linkId }, relations })
 
     if (!linkResult) {
@@ -110,7 +110,7 @@ export class LinkService {
       throw new NotFoundException('Failed to get link');
     }
 
-    this.logger.info('End getLinkEntity service');
+    this.logger.info('END: getLinkEntity service');
     return linkResult;
   }
 
@@ -140,7 +140,7 @@ export class LinkService {
    * Get link by ID
    */
   async getLink(linkId: string) {
-    this.logger.info('Start getLink service');
+    this.logger.info('START: getLink service');
     const linkResult = await this.linkRepository.findOne({ where: { linkId } })
 
     if (!linkResult) {
@@ -148,7 +148,7 @@ export class LinkService {
       throw new NotFoundException(`Failed to get link for link_id: ${linkId}`);
     }
 
-    this.logger.info('End getLink service');
+    this.logger.info('END: getLink service');
     return this.linkConverter.convert(linkResult);
   }
 
@@ -156,8 +156,8 @@ export class LinkService {
    * Delete a link
    */
   async deleteALink(linkId: string) {
-    this.logger.info('Start deleteALink service');
+    this.logger.info('START: deleteALink service');
     await this.linkRepository.delete({ linkId });
-    this.logger.info('End deleteALink service');
+    this.logger.info('END: deleteALink service');
   }
 }
