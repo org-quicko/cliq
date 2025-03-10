@@ -1,119 +1,154 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as crypto from 'crypto';
-import * as bcrypt from "bcrypt";
-import { ApiKey } from "../entities";
-import { LoggerService } from "./logger.service";
-import { statusEnum } from "../enums";
+import * as bcrypt from 'bcrypt';
+import { ApiKey } from '../entities';
+import { LoggerService } from './logger.service';
+import { statusEnum } from '../enums';
 import { ProgramService } from './program.service';
-import { UpdateApiKeyDto } from "src/dtos/apiKey.dto";
+import { UpdateApiKeyDto } from 'src/dtos/apiKey.dto';
 import { ApiKeyConverter } from '../converters/apiKey.converter';
 
 @Injectable()
 export class ApiKeyService {
-    constructor(
-        @InjectRepository(ApiKey)
-        private apiKeyRepository: Repository<ApiKey>,
-        
-        private programService: ProgramService,
+	constructor(
+		@InjectRepository(ApiKey)
+		private apiKeyRepository: Repository<ApiKey>,
 
-        private apiKeyConverter: ApiKeyConverter,
+		private programService: ProgramService,
 
-        private logger: LoggerService,
-    ) { }
+		private apiKeyConverter: ApiKeyConverter,
 
-    async generateKey(programId: string, userId: string) {
-        this.logger.info(`START: generateKey service`);
+		private logger: LoggerService,
+	) {}
 
-        if (!this.programService.checkIfUserExistsInProgram(programId, userId)) {
-            this.logger.error(`User ${userId} does not have permission to perform this action!`);
-            throw new ForbiddenException(`Forbidden Resource`);
-        }
+	async generateKey(programId: string, userId: string) {
+		this.logger.info(`START: generateKey service`);
 
-        const key = crypto.randomBytes(16).toString('hex');
-        const secret = crypto.randomBytes(32).toString('hex');
+		if (
+			!this.programService.checkIfUserExistsInProgram(programId, userId)
+		) {
+			this.logger.error(
+				`User ${userId} does not have permission to perform this action!`,
+			);
+			throw new ForbiddenException(`Forbidden Resource`);
+		}
 
-        const newApiKey = new ApiKey();
-        newApiKey.key = key;
-        newApiKey.secret = secret;
-        newApiKey.programId = programId;
-        
-        const apiKey = await this.apiKeyRepository.save(newApiKey);
-        const apiKeyDto = this.apiKeyConverter.convert(apiKey, secret);
+		const key = crypto.randomBytes(16).toString('hex');
+		const secret = crypto.randomBytes(32).toString('hex');
 
-        this.logger.info(`END: generateKey service`);
-        return apiKeyDto;
-    }
+		const newApiKey = new ApiKey();
+		newApiKey.key = key;
+		newApiKey.secret = secret;
+		newApiKey.programId = programId;
 
-    async getAllKeys(programId: string) {
-        this.logger.info(`START: getAllKeys service`);
+		const apiKey = await this.apiKeyRepository.save(newApiKey);
+		const apiKeyDto = this.apiKeyConverter.convert(apiKey, secret);
 
-        const apiKeys = await this.apiKeyRepository.find({ where: { programId } });
-        const apiKeysDto = apiKeys.map(apiKey => this.apiKeyConverter.convert(apiKey));
+		this.logger.info(`END: generateKey service`);
+		return apiKeyDto;
+	}
 
-        this.logger.info(`END: getAllKeys service`);
-        return apiKeysDto;
-    }
+	async getAllKeys(programId: string) {
+		this.logger.info(`START: getAllKeys service`);
 
-    async updateKey(programId: string, apiKeyId: string, body: UpdateApiKeyDto) {
-        this.logger.info(`START: updateKey service`);
+		const apiKeys = await this.apiKeyRepository.find({
+			where: { programId },
+		});
+		const apiKeysDto = apiKeys.map((apiKey) =>
+			this.apiKeyConverter.convert(apiKey),
+		);
 
-        const keyExists = await this.keyExistsInProgram(programId, apiKeyId);
+		this.logger.info(`END: getAllKeys service`);
+		return apiKeysDto;
+	}
 
-        if (!keyExists) {
-            this.logger.error(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
-            throw new BadRequestException(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
-        }
+	async updateKey(
+		programId: string,
+		apiKeyId: string,
+		body: UpdateApiKeyDto,
+	) {
+		this.logger.info(`START: updateKey service`);
 
-        await this.apiKeyRepository.update({ programId, apiKeyId }, { status: body.status, updatedAt: () => `NOW()` });
+		const keyExists = await this.keyExistsInProgram(programId, apiKeyId);
 
-        this.logger.info(`END: updateKey service`);
-    }
+		if (!keyExists) {
+			this.logger.error(
+				`Error. Failed to find API key ${apiKeyId} in Program ${programId}`,
+			);
+			throw new BadRequestException(
+				`Error. Failed to find API key ${apiKeyId} in Program ${programId}`,
+			);
+		}
 
-    async deleteKey(programId: string, apiKeyId: string) {
-        this.logger.info(`START: deleteKey service`);
+		await this.apiKeyRepository.update(
+			{ programId, apiKeyId },
+			{ status: body.status, updatedAt: () => `NOW()` },
+		);
 
-        await this.apiKeyRepository.delete({ programId, apiKeyId });
+		this.logger.info(`END: updateKey service`);
+	}
 
-        this.logger.info(`END: deleteKey service`);
-    }
+	async deleteKey(programId: string, apiKeyId: string) {
+		this.logger.info(`START: deleteKey service`);
 
-    async validateKeyAndSecret(key: string, secret: string): Promise<ApiKey | null> {
-        this.logger.info(`START: validateKeyAndSecret service`);
+		await this.apiKeyRepository.delete({ programId, apiKeyId });
 
-        const apiKey = await this.apiKeyRepository.findOne({
-            where: {
-                key,
-                status: statusEnum.ACTIVE,
-            },
-        });
+		this.logger.info(`END: deleteKey service`);
+	}
 
-        if (!apiKey) return null;
+	async validateKeyAndSecret(
+		key: string,
+		secret: string,
+	): Promise<ApiKey | null> {
+		this.logger.info(`START: validateKeyAndSecret service`);
 
-        this.logger.info(`END: validateKeyAndSecret service`);
-        const isValid = await bcrypt.compare(secret, apiKey.secret);
-        return isValid ? apiKey : null;
-    }
+		const apiKey = await this.apiKeyRepository.findOne({
+			where: {
+				key,
+				status: statusEnum.ACTIVE,
+			},
+		});
 
-    async getFirstKey(programId: string) {
-        this.logger.info(`START: getFirstKey service`);
+		if (!apiKey) return null;
 
-        const apiKeyResult = await this.apiKeyRepository.findOne({ where: { programId } });
+		this.logger.info(`END: validateKeyAndSecret service`);
+		const isValid = await bcrypt.compare(secret, apiKey.secret);
+		return isValid ? apiKey : null;
+	}
 
-        if (!apiKeyResult) {
-            this.logger.error(`Error. Failed to find API key for Program ${programId}.`);
-            throw new NotFoundException(`Error. Failed to find API key for Program ${programId}.`);
-        }
+	async getFirstKey(programId: string) {
+		this.logger.info(`START: getFirstKey service`);
 
-        this.logger.info(`END: getFirstKey service`);
-        return apiKeyResult;
-    }
+		const apiKeyResult = await this.apiKeyRepository.findOne({
+			where: { programId },
+		});
 
-    async keyExistsInProgram(programId: string, apiKeyId: string) {
-        const keyResult = await this.apiKeyRepository.findOne({ where: { programId, apiKeyId } });
+		if (!apiKeyResult) {
+			this.logger.error(
+				`Error. Failed to find API key for Program ${programId}.`,
+			);
+			throw new NotFoundException(
+				`Error. Failed to find API key for Program ${programId}.`,
+			);
+		}
 
-        if (!keyResult) return false;
-        else return true;
-    }
+		this.logger.info(`END: getFirstKey service`);
+		return apiKeyResult;
+	}
+
+	async keyExistsInProgram(programId: string, apiKeyId: string) {
+		const keyResult = await this.apiKeyRepository.findOne({
+			where: { programId, apiKeyId },
+		});
+
+		if (!keyResult) return false;
+		else return true;
+	}
 }

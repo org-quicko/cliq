@@ -9,128 +9,133 @@ import { roleEnum } from 'src/enums';
 
 @Injectable()
 export class UserService {
+	public ability;
 
-  public ability;
+	constructor(
+		@InjectRepository(User)
+		private readonly userRepository: Repository<User>,
 
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+		private userConverter: UserConverter,
 
-    private userConverter: UserConverter,
+		private logger: LoggerService,
+	) {
+		this.ability = undefined;
+	}
 
-    private logger: LoggerService,
-  ) {
-    this.ability = undefined;
-  }
+	async isFirstUserSignUp(): Promise<boolean> {
+		const isFirstUser = (await this.userRepository.find()).length === 0;
+		return isFirstUser;
+	}
 
-  async isFirstUserSignUp(): Promise<boolean> {
-    const isFirstUser = (await this.userRepository.find()).length === 0;
-    return isFirstUser;
-  }
+	/**
+	 * User sign up
+	 */
+	async userSignUp(body: CreateUserDto) {
+		this.logger.info('START: userSignUp service');
 
-  /**
-   * User sign up
-   */
-  async userSignUp(body: CreateUserDto) {
+		const userEntity = this.userRepository.create(body);
 
-    this.logger.info('START: userSignUp service');
+		if (await this.isFirstUserSignUp()) {
+			userEntity.role = roleEnum.SUPER_ADMIN;
+		}
 
-    const userEntity = this.userRepository.create(body);
+		// has to be saved as an entity otherwise password hashing won't be triggered
+		const newUser = await this.userRepository.save(userEntity);
 
-    if (await this.isFirstUserSignUp()) {
-      userEntity.role = roleEnum.SUPER_ADMIN;
-    }
+		if (!newUser) {
+			throw new Error('Failed to sign up user.');
+		}
 
-    // has to be saved as an entity otherwise password hashing won't be triggered
-    const newUser = await this.userRepository.save(userEntity);
+		this.logger.info('END: userSignUp service');
+		return newUser;
+	}
 
-    if (!newUser) {
-      throw new Error('Failed to sign up user.');
-    }
+	/**
+	 * Get user
+	 */
+	async getUser(userId: string) {
+		this.logger.info('START: getUser service');
 
-    this.logger.info('END: userSignUp service');
-    return newUser;
-  }
+		const userResult = await this.userRepository.findOne({
+			where: { userId: userId },
+			relations: { programUsers: true },
+		});
 
-  /**
-   * Get user
-   */
-  async getUser(userId: string) {
-    this.logger.info('START: getUser service');
+		if (!userResult) {
+			throw new EntityNotFoundError(User, userId);
+		}
 
-    const userResult = await this.userRepository.findOne({
-      where: { userId: userId },
-      relations: { programUsers: true },
-    });
+		this.logger.info('END: getUser service');
+		return this.userConverter.convert(userResult);
+	}
 
-    if (!userResult) {
-      throw new EntityNotFoundError(User, userId);
-    }
+	async getUserEntity(userId: string) {
+		this.logger.info('START: getUserEntity service');
 
-    this.logger.info('END: getUser service');
-    return this.userConverter.convert(userResult);
-  }
+		const userResult = await this.userRepository.findOne({
+			where: { userId: userId },
+			relations: { programUsers: true },
+		});
 
-  async getUserEntity(userId: string) {
-    this.logger.info('START: getUserEntity service');
+		if (!userResult) {
+			throw new EntityNotFoundError(User, userId);
+		}
 
-    const userResult = await this.userRepository.findOne({
-      where: { userId: userId },
-      relations: { programUsers: true },
-    });
+		this.logger.info('END: getUserEntity service');
+		return userResult;
+	}
 
-    if (!userResult) {
-      throw new EntityNotFoundError(User, userId);
-    }
+	async getUserByEmail(email: string) {
+		this.logger.info('START: getUserByEmail service');
 
-    this.logger.info('END: getUserEntity service');
-    return userResult;
-  }
+		const userResult = await this.userRepository.findOne({
+			where: { email: email },
+			// relations: [ProgramUser]
+			relations: {
+				programUsers: true,
+			},
+		});
 
-  async getUserByEmail(email: string) {
-    this.logger.info('START: getUserByEmail service');
+		this.logger.info('END: getUserByEmail service');
+		return userResult;
+	}
 
-    const userResult = await this.userRepository.findOne({
-      where: { email: email },
-      // relations: [ProgramUser]
-      relations: {
-        programUsers: true,
-      }
-    });
+	/**
+	 * Update User info
+	 */
+	async updateUserInfo(userId: string, body: UpdateUserDto) {
+		this.logger.info('START: updateUserInfo service');
 
-    this.logger.info('END: getUserByEmail service');
-    return userResult;
-  }
+		const userResult = await this.userRepository.findOne({
+			where: { userId: userId },
+		});
 
-  /**
-   * Update User info
-   */
-  async updateUserInfo(userId: string, body: UpdateUserDto) {
-    this.logger.info('START: updateUserInfo service');
+		if (!userResult) {
+			throw new Error(`User does not exist.`);
+		}
 
-    const userResult = await this.userRepository.findOne({ where: { userId: userId } });
+		await this.userRepository.update(
+			{ userId: userId },
+			{ ...body, updatedAt: () => `NOW()` },
+		);
+		this.logger.info('END: updateUserInfo service');
+	}
 
-    if (!userResult) {
-      throw new Error(`User does not exist.`);
-    }
+	/**
+	 * Delete user
+	 */
+	async deleteUser(userId: string) {
+		this.logger.info('START: deleteUser service');
 
-    await this.userRepository.update({ userId: userId }, { ...body, updatedAt: () => `NOW()` });
-    this.logger.info('END: updateUserInfo service');
-  }
+		const user = await this.userRepository.findOne({
+			where: { userId: userId },
+		});
 
-  /**
-   * Delete user
-   */
-  async deleteUser(userId: string) {
-    this.logger.info('START: deleteUser service');
+		if (!user) {
+			throw new Error(`User does not exist.`);
+		}
 
-    const user = await this.userRepository.findOne({ where: { userId: userId } });
-
-    if (!user) {
-      throw new Error(`User does not exist.`);
-    }
-
-    await this.userRepository.delete({ userId: userId });
-    this.logger.info('END: deleteUser service');
-  }
+		await this.userRepository.delete({ userId: userId });
+		this.logger.info('END: deleteUser service');
+	}
 }

@@ -1,100 +1,103 @@
 import { PartialType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsString, IsNumber, IsOptional, IsUUID, Min, IsDate } from 'class-validator';
+import {
+	IsString,
+	IsNumber,
+	IsOptional,
+	IsUUID,
+	Min,
+	IsDate,
+} from 'class-validator';
 
 export class PurchaseDto {
+	@Expose({ name: 'purchase_id' })
+	@IsUUID()
+	purchaseId: string;
 
-    @Expose({ name: 'purchase_id' })
-    @IsUUID()
-    purchaseId: string;
+	@Expose({ name: 'link_id' })
+	@IsUUID()
+	linkId: string;
 
-    @Expose({ name: 'link_id' })
-    @IsUUID()
-    linkId: string;
+	@IsNumber()
+	// @IsPositive({ message: 'amount entered must be greater than 0' })
+	@Min(0, { message: 'amount entered must be non negative.' })
+	amount: number;
 
-    @IsNumber()
-    // @IsPositive({ message: 'amount entered must be greater than 0' })
-    @Min(0, { message: 'amount entered must be non negative.' })
-    amount: number;
+	@IsOptional()
+	@IsString()
+	email?: string;
 
-    @IsOptional()
-    @IsString()
-    email?: string;
+	@IsOptional()
+	@Expose({ name: 'first_name' })
+	@IsString()
+	firstName: string;
 
-    @IsOptional()
-    @Expose({ name: 'first_name' })
-    @IsString()
-    firstName: string;
+	@IsOptional()
+	@Expose({ name: 'last_name' })
+	@IsString()
+	lastName: string;
 
-    @IsOptional()
-    @Expose({ name: 'last_name' })
-    @IsString()
-    lastName: string;
+	@IsOptional()
+	@IsString()
+	phone?: string;
 
-    @IsOptional()
-    @IsString()
-    phone?: string;
+	@Expose({ name: 'external_id' })
+	@IsString()
+	externalId?: string;
 
-    @Expose({ name: 'external_id' })
-    @IsString()
-    externalId?: string;
+	@Expose({ name: 'item_id' })
+	@IsString()
+	itemId: string;
 
-    @Expose({ name: 'item_id' })
-    @IsString()
-    itemId: string;
+	@Expose({ name: 'contact_id' })
+	@IsUUID()
+	contactId: string;
 
-    @Expose({ name: 'contact_id' })
-    @IsUUID()
-    contactId: string;
+	@Expose({ name: 'created_at' })
+	@IsDate()
+	createdAt: Date;
 
-    @Expose({ name: 'created_at' })
-    @IsDate()
-    createdAt: Date;
-
-    @Expose({ name: 'updated_at' })
-    @IsDate()
-    updatedAt: Date;
-
+	@Expose({ name: 'updated_at' })
+	@IsDate()
+	updatedAt: Date;
 }
 
 export class CreatePurchaseDto {
+	@Expose({ name: 'ref_val' })
+	@IsString()
+	refVal: string;
 
-    @Expose({ name: 'ref_val' })
-    @IsString()
-    refVal: string;
+	@IsNumber()
+	// @IsPositive({ message: 'amount entered must be greater than 0' })
+	@Min(0, { message: 'amount entered must be non negative.' })
+	amount: number;
 
-    @IsNumber()
-    // @IsPositive({ message: 'amount entered must be greater than 0' })
-    @Min(0, { message: 'amount entered must be non negative.' })
-    amount: number;
+	@IsOptional()
+	@Expose({ name: 'first_name' })
+	@IsString()
+	firstName?: string;
 
-    @IsOptional()
-    @Expose({ name: 'first_name' })
-    @IsString()
-    firstName?: string;
+	@IsOptional()
+	@Expose({ name: 'last_name' })
+	@IsString()
+	lastName?: string;
 
-    @IsOptional()
-    @Expose({ name: 'last_name' })
-    @IsString()
-    lastName?: string;
+	@IsOptional()
+	@IsString()
+	email?: string;
 
-    @IsOptional()
-    @IsString()
-    email?: string;
+	@IsOptional()
+	@Expose({ name: 'external_id' })
+	@IsString()
+	externalId?: string;
 
-    @IsOptional()
-    @Expose({ name: 'external_id' })
-    @IsString()
-    externalId?: string;
+	@Expose({ name: 'item_id' })
+	@IsString()
+	itemId: string;
 
-    @Expose({ name: 'item_id' })
-    @IsString()
-    itemId: string;
-
-    @IsOptional()
-    @IsString()
-    phone?: string;
-
+	@IsOptional()
+	@IsString()
+	phone?: string;
 }
 
-export class UpdatePurchaseDto extends PartialType(CreatePurchaseDto) { }
+export class UpdatePurchaseDto extends PartialType(CreatePurchaseDto) {}

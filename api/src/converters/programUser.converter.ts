@@ -1,23 +1,21 @@
-import { Injectable } from "@nestjs/common";
-import { ProgramUserDto } from "../dtos";
-import { ProgramUser } from "../entities";
+import { Injectable } from '@nestjs/common';
+import { ProgramUserDto } from '../dtos';
+import { ProgramUser } from '../entities';
 
 @Injectable()
 export class ProgramUserConverter {
-    
-    convert(programUser: ProgramUser): ProgramUserDto {
-        const programUserDto = new ProgramUserDto();
+	convert(programUser: ProgramUser): ProgramUserDto {
+		const programUserDto = new ProgramUserDto();
 
-        programUserDto.programId = programUser.programId;
+		programUserDto.programId = programUser.programId;
 
-        programUserDto.userId = programUser.userId;
-        programUserDto.status = programUser.status;
-        programUserDto.role = programUser.role;
+		programUserDto.userId = programUser.userId;
+		programUserDto.status = programUser.status;
+		programUserDto.role = programUser.role;
 
-        programUserDto.createdAt = programUser.createdAt;
-        programUserDto.updatedAt = programUser.updatedAt;
+		programUserDto.createdAt = programUser.createdAt;
+		programUserDto.updatedAt = programUser.updatedAt;
 
-        return programUserDto;
-    }
-
+		return programUserDto;
+	}
 }

@@ -1,7 +1,10 @@
 import {
-  BadRequestException, ConflictException, ForbiddenException, Injectable, InternalServerErrorException,
-  // Logger, 
-  NotFoundException,
+	BadRequestException,
+	ConflictException,
+	ForbiddenException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
 } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -18,147 +21,180 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class SignUpService {
+	constructor(
+		@InjectRepository(SignUp)
+		private readonly signUpRepository: Repository<SignUp>,
 
-  constructor(
+		private linkService: LinkService,
+		private contactService: ContactService,
+		private apiKeyService: ApiKeyService,
 
-    @InjectRepository(SignUp)
-    private readonly signUpRepository: Repository<SignUp>,
+		private signUpConverter: SignUpConverter,
 
-    private linkService: LinkService,
-    private contactService: ContactService,
-    private apiKeyService: ApiKeyService,
+		private eventEmitter: EventEmitter2,
 
-    private signUpConverter: SignUpConverter,
+		private datasource: DataSource,
 
-    private eventEmitter: EventEmitter2,
+		private logger: LoggerService,
+	) {}
 
-    private datasource: DataSource,
+	/**
+	 * Create SignUp
+	 */
+	async createSignUp(apiKeyId: string, body: CreateSignUpDto) {
+		return this.datasource.transaction(async (manager) => {
+			this.logger.info(`START: createSignUp service`);
 
-    private logger: LoggerService,
-  ) { }
+			const linkResult = await this.linkService.getLinkEntityByRefVal(
+				body.refVal,
+			);
 
-  /**
-   * Create SignUp
-   */
-  async createSignUp(apiKeyId: string, body: CreateSignUpDto) {
-    return this.datasource.transaction(async (manager) => {
-      this.logger.info(`START: createSignUp service`);
+			if (!linkResult.programId) {
+				this.logger.error(
+					`Failed to get program for ref val ${body.refVal} for signup creation.`,
+				);
+				throw new NotFoundException(
+					`Failed to get program for ref val ${body.refVal} for signup creation.`,
+				);
+			}
+			if (!linkResult.promoterId) {
+				this.logger.error(
+					`Failed to get promoter for ref val ${body.refVal} for signup creation.`,
+				);
+				throw new NotFoundException(
+					`Failed to get promoter for ref val ${body.refVal} for signup creation.`,
+				);
+			}
+			const validApiKeyOfProgram =
+				await this.apiKeyService.keyExistsInProgram(
+					linkResult.programId,
+					apiKeyId,
+				);
+			if (!validApiKeyOfProgram) {
+				this.logger.error(
+					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
+				);
+				throw new ForbiddenException(
+					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
+				);
+			}
 
-      const linkResult = await this.linkService.getLinkEntityByRefVal(body.refVal);
+			const programResult = linkResult.program;
 
-      if (!linkResult.programId) {
-        this.logger.error(`Failed to get program for ref val ${body.refVal} for signup creation.`);
-        throw new NotFoundException(`Failed to get program for ref val ${body.refVal} for signup creation.`);
-      }
-      if (!linkResult.promoterId) {
-        this.logger.error(`Failed to get promoter for ref val ${body.refVal} for signup creation.`);
-        throw new NotFoundException(`Failed to get promoter for ref val ${body.refVal} for signup creation.`);
-      }
-      const validApiKeyOfProgram = await this.apiKeyService.keyExistsInProgram(linkResult.programId, apiKeyId);
-      if (!validApiKeyOfProgram) {
-        this.logger.error(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
-        throw new ForbiddenException(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
-      }
+			const createContactBody: CreateContactDto = {
+				programId: linkResult.programId,
+				email: body?.email,
+				firstName: body?.firstName,
+				lastName: body?.lastName,
+				phone: body?.phone,
+			};
 
-      const programResult = linkResult.program;
+			if (
+				!this.contactService.verifyReferralKeyInput(
+					programResult.referralKeyType,
+					createContactBody,
+				)
+			) {
+				throw new BadRequestException(
+					`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`,
+				);
+			}
 
-      const createContactBody: CreateContactDto = {
-        programId: linkResult.programId,
-        email: body?.email,
-        firstName: body?.firstName,
-        lastName: body?.lastName,
-        phone: body?.phone,
-      };
+			const contactRepository = manager.getRepository(Contact);
+			const signUpRepository = manager.getRepository(SignUp);
 
-      if (!(this.contactService.verifyReferralKeyInput(programResult.referralKeyType, createContactBody))) {
-        throw new BadRequestException(
-          `Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`
-        );
-      }
+			const contactExists = await this.contactService.contactExists(
+				programResult.programId,
+				{
+					...(programResult.referralKeyType ===
+					referralKeyTypeEnum.EMAIL
+						? { email: body.email }
+						: { phone: body.phone }),
+				},
+			);
 
-      const contactRepository = manager.getRepository(Contact);
-      const signUpRepository = manager.getRepository(SignUp);
+			if (contactExists) {
+				this.logger.error(
+					'Error. Failed to create contact - contact already exists.',
+				);
+				throw new ConflictException(
+					'Error. Failed to create contact - contact already exists.',
+				);
+			}
 
-      const contactExists = await this.contactService.contactExists(programResult.programId, {
-        ...(programResult.referralKeyType === referralKeyTypeEnum.EMAIL
-          ? { email: body.email }
-          : { phone: body.phone })
-      });
+			const newContact = contactRepository.create({
+				...createContactBody,
+				program: programResult,
+			});
+			const savedContact = await contactRepository.save(newContact);
 
-      if (contactExists) {
-        this.logger.error('Error. Failed to create contact - contact already exists.');
-        throw new ConflictException('Error. Failed to create contact - contact already exists.');
-      }
+			if (!savedContact) {
+				this.logger.error(`Error. Failed to create new contact.`);
+				throw new InternalServerErrorException(
+					`Error. Failed to create new contact.`,
+				);
+			}
 
-      const newContact = contactRepository.create({
-        ...createContactBody,
-        program: programResult,
-      });
-      const savedContact = await contactRepository.save(newContact);
+			const newSignUp = signUpRepository.create({
+				contact: savedContact,
+				link: linkResult,
+				promoterId: linkResult.promoterId,
+				externalId: body?.externalId,
+			});
 
-      if (!savedContact) {
-        this.logger.error(`Error. Failed to create new contact.`);
-        throw new InternalServerErrorException(`Error. Failed to create new contact.`);
-      }
+			const savedSignUp = await signUpRepository.save(newSignUp);
 
-      const newSignUp = signUpRepository.create({
-        contact: savedContact,
-        link: linkResult,
-        promoterId: linkResult.promoterId,
-        externalId: body?.externalId
-      });
+			if (!savedSignUp) {
+				this.logger.error(`Error. Failed to create new signup.`);
+				throw new InternalServerErrorException(
+					`Error. Failed to create new signup.`,
+				);
+			}
 
-      const savedSignUp = await signUpRepository.save(newSignUp);
+			const signUpCreatedEvent = new SignUpEvent(
+				savedContact.contactId,
+				linkResult.promoterId,
+				programResult.programId,
+			);
+			// const signUpCreatedEvent = new TriggerEvent(
+			//   triggerEnum.SIGNUP,
+			//   savedContact.contactId,
+			//   linkResult.promoterId,
+			//   programResult.programId,
+			// );
+			// this.eventEmitter.emit(TRIGGER_EVENT, signUpCreatedEvent);
+			this.eventEmitter.emit(SIGNUP_EVENT, signUpCreatedEvent);
 
-      if (!savedSignUp) {
-        this.logger.error(`Error. Failed to create new signup.`);
-        throw new InternalServerErrorException(`Error. Failed to create new signup.`);
-      }
+			const signUpDto = this.signUpConverter.convert(savedSignUp);
 
-      const signUpCreatedEvent = new SignUpEvent(
-        savedContact.contactId,
-        linkResult.promoterId,
-        programResult.programId,
-      );
-      // const signUpCreatedEvent = new TriggerEvent(
-      //   triggerEnum.SIGNUP,
-      //   savedContact.contactId,
-      //   linkResult.promoterId,
-      //   programResult.programId,
-      // );
-      // this.eventEmitter.emit(TRIGGER_EVENT, signUpCreatedEvent);
-      this.eventEmitter.emit(SIGNUP_EVENT, signUpCreatedEvent);
+			this.logger.info(`END: createSignUp service`);
+			return signUpDto;
+		});
+	}
 
-      const signUpDto = this.signUpConverter.convert(savedSignUp);
+	async getFirstSignUp(programId?: string, promoterId?: string) {
+		this.logger.info('START: getFirstSignUp service');
 
-      this.logger.info(`END: createSignUp service`);
-      return signUpDto;
-    });
-  }
+		if (!programId && !promoterId) {
+			throw new BadRequestException(
+				`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`,
+			);
+		}
 
+		const signUpResult = await this.signUpRepository.findOne({
+			where: {
+				contact: {
+					programId: programId,
+				},
+				promoterId,
+			},
+		});
 
-  async getFirstSignUp(programId?: string, promoterId?: string) {
-    this.logger.info('START: getFirstSignUp service');
+		if (!signUpResult) {
+			throw new BadRequestException();
+		}
 
-    if (!programId && !promoterId) {
-      throw new BadRequestException(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
-    }
-
-    const signUpResult = await this.signUpRepository.findOne({
-      where: {
-        contact: {
-          programId: programId,
-        },
-        promoterId,
-      },
-    });
-
-    if (!signUpResult) {
-      throw new BadRequestException();
-    }
-
-    this.logger.info('END: getFirstSignUp service');
-    return signUpResult;
-  }
-
+		this.logger.info('END: getFirstSignUp service');
+		return signUpResult;
+	}
 }

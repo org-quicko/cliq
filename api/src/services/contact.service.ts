@@ -1,6 +1,4 @@
-import { Injectable, 
-  // Logger
- } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Contact } from '../entities';
 import { Repository } from 'typeorm';
@@ -12,81 +10,88 @@ import { LoggerService } from './logger.service';
 
 @Injectable()
 export class ContactService {
+	constructor(
+		@InjectRepository(Contact)
+		private readonly contactRepository: Repository<Contact>,
 
-  constructor(
-    @InjectRepository(Contact)
-    private readonly contactRepository: Repository<Contact>,
+		private programService: ProgramService,
 
-    private programService: ProgramService,
+		private contactConverter: ContactConverter,
 
-    private contactConverter: ContactConverter,
+		private logger: LoggerService,
+	) {}
 
-    private logger: LoggerService,
-  ) { }
+	/**
+	 * Create contact
+	 */
+	async createContact(body: CreateContactDto) {
+		this.logger.info('START: createContact service');
 
-  /**
-   * Create contact
-   */
-  async createContact(body: CreateContactDto) {
-    this.logger.info('START: createContact service');
+		const programResult = await this.programService.getProgramEntity(
+			body.programId,
+		);
 
-    const programResult = await this.programService.getProgramEntity(body.programId);
+		const newContact = this.contactRepository.create({
+			email: body?.email,
+			firstName: body?.firstName,
+			lastName: body?.lastName,
+			phone: body?.phone,
+			program: programResult,
+			status: body?.status,
+			// status defaults to LEAD in database
+		});
 
-    const newContact = this.contactRepository.create({
-      email: body?.email,
-      firstName: body?.firstName,
-      lastName: body?.lastName,
-      phone: body?.phone,
-      program: programResult,
-      status: body?.status
-      // status defaults to LEAD in database
-    });
+		const savedContact = await this.contactRepository.save(newContact);
 
-    const savedContact = await this.contactRepository.save(newContact);
+		this.logger.info('END: createContact service');
+		return this.contactConverter.convert(savedContact);
+	}
 
-    this.logger.info('END: createContact service');
-    return this.contactConverter.convert(savedContact);
-  }
+	async contactExists(programId: string, whereOptions: object) {
+		this.logger.info('START: contactExists service');
 
-  async contactExists(programId: string, whereOptions: object) {
-    this.logger.info('START: contactExists service');
-    
-    const contactResult = await this.contactRepository.findOne({
-      where: {
-        program: {
-          programId,
-        },
-        ...whereOptions
-      }
-    });
+		const contactResult = await this.contactRepository.findOne({
+			where: {
+				program: {
+					programId,
+				},
+				...whereOptions,
+			},
+		});
 
-    this.logger.info('END: contactExists service');
-    return contactResult;
-  }
+		this.logger.info('END: contactExists service');
+		return contactResult;
+	}
 
-  async changeContactStatus(contactId: string, status: contactStatusEnum) {
-    this.logger.info('START: changeContactStatus service');
+	async changeContactStatus(contactId: string, status: contactStatusEnum) {
+		this.logger.info('START: changeContactStatus service');
 
-    await this.contactRepository.update(contactId, { status, updatedAt: () => `NOW()` });
-    
-    this.logger.info('END: changeContactStatus service');
-  }
+		await this.contactRepository.update(contactId, {
+			status,
+			updatedAt: () => `NOW()`,
+		});
 
-  verifyReferralKeyInput(referralKeyType: referralKeyTypeEnum, body: CreateContactDto) {
-    this.logger.info('START: verifyReferralKeyInput service');
+		this.logger.info('END: changeContactStatus service');
+	}
 
-    let valid: boolean;
-    
-    if (
-      ((referralKeyType === referralKeyTypeEnum.EMAIL) && !body.email) ||
-      ((referralKeyType === referralKeyTypeEnum.PHONE) && !body.phone)
-    ) {
-      valid = false;
-    } else {
-      valid = true;
-    }
+	verifyReferralKeyInput(
+		referralKeyType: referralKeyTypeEnum,
+		body: CreateContactDto,
+	) {
+		this.logger.info('START: verifyReferralKeyInput service');
 
-    this.logger.info('END: verifyReferralKeyInput service');
-    return valid;
-  }
+		let valid: boolean;
+
+		if (
+			(referralKeyType === referralKeyTypeEnum.EMAIL && !body.email) ||
+			(referralKeyType === referralKeyTypeEnum.PHONE && !body.phone)
+		) {
+			valid = false;
+		} else {
+			valid = true;
+		}
+
+		this.logger.info('END: verifyReferralKeyInput service');
+		return valid;
+	}
 }

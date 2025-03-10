@@ -2,7 +2,12 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { ForbiddenError } from '@casl/ability';
-import { actionsType, AppAbility, AuthorizationService, subjectsType } from '../../services/authorization.service';
+import {
+	actionsType,
+	AppAbility,
+	AuthorizationService,
+	subjectsType,
+} from '../../services/authorization.service';
 import { CHECK_PERMISSIONS_KEY } from '../../decorators/permissions.decorator';
 import { LoggerService } from '../../services/logger.service';
 import { MemberService } from '../../services/member.service';
@@ -10,79 +15,83 @@ import { UserService } from '../../services/user.service';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
-    constructor(
-        private reflector: Reflector,
+	constructor(
+		private reflector: Reflector,
 
-        private userService: UserService,
+		private userService: UserService,
 
-        private AuthorizationService: AuthorizationService,
+		private AuthorizationService: AuthorizationService,
 
-        private memberService: MemberService,
+		private memberService: MemberService,
 
-        private logger: LoggerService,
-    ) { }
+		private logger: LoggerService,
+	) {}
 
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-        const requiredPermissions =
-            this.reflector.get<{ action: actionsType; subject: subjectsType }[]>(
-                CHECK_PERMISSIONS_KEY,
-                context.getHandler(),
-            );
+	async canActivate(context: ExecutionContext): Promise<boolean> {
+		const requiredPermissions = this.reflector.get<
+			{ action: actionsType; subject: subjectsType }[]
+		>(CHECK_PERMISSIONS_KEY, context.getHandler());
 
-        if (!requiredPermissions) {
-            return true; // No permissions required, allow access
-        }
+		if (!requiredPermissions) {
+			return true; // No permissions required, allow access
+		}
 
+		const request: Request = context.switchToHttp().getRequest();
+		const user_id = request.headers.user_id as string;
+		const member_id = request.headers.member_id as string;
+		let entityType: 'User' | 'Member';
 
-        const request: Request = context.switchToHttp().getRequest();
-        const user_id = request.headers.user_id as string;
-        const member_id = request.headers.member_id as string;
-        let entityType: 'User' | 'Member';
+		if (!member_id) {
+			if (!user_id) {
+				return false; // Shouldn't happen since AuthGuard ensures member is set
+			}
+		}
 
-        if (!member_id) {
-            if (!user_id) {
-                return false; // Shouldn't happen since AuthGuard ensures member is set
-            }
-        }
+		let ability: AppAbility;
+		if (member_id) {
+			// Generate member's ability
+			const memberEntity =
+				await this.memberService.getMemberEntity(member_id);
+			if (!memberEntity) {
+				return false;
+			}
+			ability = this.AuthorizationService.getMemberAbility(memberEntity);
+			entityType = 'Member';
+		} else {
+			const userEntity = await this.userService.getUserEntity(user_id);
+			if (!userEntity) {
+				return false;
+			}
 
-        let ability: AppAbility;
-        if (member_id) {
-            // Generate member's ability
-            const memberEntity = await this.memberService.getMemberEntity(member_id);
-            if (!memberEntity) {
-                return false;
-            }
-            ability = this.AuthorizationService.getMemberAbility(memberEntity);
-            entityType = 'Member';
-        } else {
-            const userEntity = await this.userService.getUserEntity(user_id);
-            if (!userEntity) {
-                return false; 
-            }
-            
-            // Generate user's ability
-            ability = this.AuthorizationService.getUserAbility(userEntity);
-            entityType = 'User';
-        }
+			// Generate user's ability
+			ability = this.AuthorizationService.getUserAbility(userEntity);
+			entityType = 'User';
+		}
 
+		try {
+			const subjectObjects = await this.AuthorizationService.getSubjects(
+				request,
+				requiredPermissions,
+			);
 
+			for (let i = 0; i < requiredPermissions.length; i++) {
+				const action = requiredPermissions[i].action;
 
-        try {
-            const subjectObjects = await this.AuthorizationService.getSubjects(request, requiredPermissions);
+				console.log('\n\n', action, subjectObjects[i], '\n\n');
+				ForbiddenError.from(ability).throwUnlessCan(
+					action,
+					subjectObjects[i],
+				);
+			}
 
-            for (let i = 0; i < requiredPermissions.length; i++) {
-                const action = requiredPermissions[i].action;
-
-                console.log('\n\n', action, subjectObjects[i], '\n\n');
-                ForbiddenError.from(ability).throwUnlessCan(action, subjectObjects[i]);
-            }
-
-            return true;
-        } catch (error) {
-            if (error instanceof Error) {
-                this.logger.error(`${entityType} does not have permission to perform this action!`);
-            }
-            return false;
-        }
-    }
+			return true;
+		} catch (error) {
+			if (error instanceof Error) {
+				this.logger.error(
+					`${entityType} does not have permission to perform this action!`,
+				);
+			}
+			return false;
+		}
+	}
 }

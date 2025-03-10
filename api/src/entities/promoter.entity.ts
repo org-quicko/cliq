@@ -1,10 +1,10 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+	Column,
+	CreateDateColumn,
+	Entity,
+	OneToMany,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
 } from 'typeorm';
 import { CirclePromoter } from './circlePromoter.entity';
 import { SignUp } from './signUp.entity';
@@ -16,47 +16,56 @@ import { Commission } from './commission.entity';
 
 @Entity()
 export class Promoter {
-  @PrimaryGeneratedColumn('uuid', { name: 'promoter_id' })
-  promoterId: string;
+	@PrimaryGeneratedColumn('uuid', { name: 'promoter_id' })
+	promoterId: string;
 
-  @Column('varchar')
-  name: string;
+	@Column('varchar')
+	name: string;
 
-  @Column('varchar', { name: 'logo_url' })
-  logoUrl: string;
+	@Column('varchar', { name: 'logo_url' })
+	logoUrl: string;
 
-  @CreateDateColumn({
-    type: 'time with time zone',
-    default: () => `now()`,
-    name: 'created_at',
-  })
-  createdAt: Date;
+	@CreateDateColumn({
+		type: 'time with time zone',
+		default: () => `now()`,
+		name: 'created_at',
+	})
+	createdAt: Date;
 
-  @UpdateDateColumn({
-    type: 'time with time zone',
-    default: () => `now()`,
-    name: 'updated_at',
-  })
-  updatedAt: Date;
+	@UpdateDateColumn({
+		type: 'time with time zone',
+		default: () => `now()`,
+		name: 'updated_at',
+	})
+	updatedAt: Date;
 
-  @OneToMany(() => SignUp, (signUp) => signUp.promoter)
-  signUps: SignUp[];
+	@OneToMany(() => SignUp, (signUp) => signUp.promoter)
+	signUps: SignUp[];
 
-  @OneToMany(() => Link, (link) => link.promoter)
-  links: Link[];
+	@OneToMany(() => Link, (link) => link.promoter)
+	links: Link[];
 
-  @OneToMany(() => Purchase, (purchase) => purchase.promoter)
-  purchases: Purchase[];
+	@OneToMany(() => Purchase, (purchase) => purchase.promoter)
+	purchases: Purchase[];
 
-  @OneToMany(() => PromoterMember, (promoterMember) => promoterMember.promoter)
-  promoterMembers: PromoterMember[];
+	@OneToMany(
+		() => PromoterMember,
+		(promoterMember) => promoterMember.promoter,
+	)
+	promoterMembers: PromoterMember[];
 
-  @OneToMany(() => CirclePromoter, (circlePromoter) => circlePromoter.promoter)
-  circlePromoters: CirclePromoter[];
+	@OneToMany(
+		() => CirclePromoter,
+		(circlePromoter) => circlePromoter.promoter,
+	)
+	circlePromoters: CirclePromoter[];
 
-  @OneToMany(() => ProgramPromoter, (programPromoter) => programPromoter.promoter)
-  programPromoters: ProgramPromoter[];
+	@OneToMany(
+		() => ProgramPromoter,
+		(programPromoter) => programPromoter.promoter,
+	)
+	programPromoters: ProgramPromoter[];
 
-  @OneToMany(() => Commission, (commission) => commission.promoter)
-  commissions: Commission[];
+	@OneToMany(() => Commission, (commission) => commission.promoter)
+	commissions: Commission[];
 }

@@ -6,28 +6,34 @@ import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 
 @ApiTags('SignUp')
-// @UseGuards(ApiKeyGuard)
 @UseGuards(AuthGuard)
 @Controller('/signups')
 export class SignUpController {
+	constructor(
+		private readonly signUpService: SignUpService,
+		private logger: LoggerService,
+	) {}
 
-    constructor(
-        private readonly signUpService: SignUpService,
-        private logger: LoggerService,
-    ) { }
+	/**
+	 * Create contact
+	 */
+	@ApiResponse({ status: 201, description: 'Created' })
+	@Post()
+	async createSignUp(
+		@Headers('api_key_id') apiKeyId: string,
+		@Body() body: CreateSignUpDto,
+	) {
+		this.logger.info('START: createSignUp controller');
 
+		const signUpResult = await this.signUpService.createSignUp(
+			apiKeyId,
+			body,
+		);
 
-    /**
-     * Create contact
-     */
-    @ApiResponse({ status: 201, description: 'Created' })
-    @Post()
-    async createSignUp(@Headers('api_key_id') apiKeyId: string, @Body() body: CreateSignUpDto) {
-        this.logger.info('START: createSignUp controller');
-
-        const signUpResult = await this.signUpService.createSignUp(apiKeyId, body);
-
-        this.logger.info('END: createSignUp controller');
-        return { message: 'Successfully created signup.', result: signUpResult };
-    }
+		this.logger.info('END: createSignUp controller');
+		return {
+			message: 'Successfully created signup.',
+			result: signUpResult,
+		};
+	}
 }

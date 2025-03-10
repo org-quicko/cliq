@@ -1,13 +1,13 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+	Column,
+	CreateDateColumn,
+	Entity,
+	Index,
+	JoinColumn,
+	ManyToOne,
+	OneToMany,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
 } from 'typeorm';
 import { Program } from './program.entity';
 import { Promoter } from './promoter.entity';
@@ -16,56 +16,58 @@ import { SignUp } from './signUp.entity';
 
 @Entity()
 export class Link {
-  @PrimaryGeneratedColumn('uuid', { name: 'link_id' })
-  linkId: string;
+	@PrimaryGeneratedColumn('uuid', { name: 'link_id' })
+	linkId: string;
 
-  @Index({ unique: true })
-  @Column('varchar', { name: 'ref_val' })
-  refVal: string;
+	@Index({ unique: true })
+	@Column('varchar', { name: 'ref_val' })
+	refVal: string;
 
-  @Column('varchar')
-  source: string;
+	@Column('varchar')
+	source: string;
 
-  @Column('varchar')
-  medium: string;
+	@Column('varchar')
+	medium: string;
 
-  @CreateDateColumn({
-    type: 'time with time zone',
-    default: () => `now()`,
-    name: 'created_at',
-  })
-  createdAt: Date;
+	@CreateDateColumn({
+		type: 'time with time zone',
+		default: () => `now()`,
+		name: 'created_at',
+	})
+	createdAt: Date;
 
-  @UpdateDateColumn({
-    type: 'time with time zone',
-    default: () => `now()`,
-    name: 'updated_at',
-  })
-  updatedAt: Date;
+	@UpdateDateColumn({
+		type: 'time with time zone',
+		default: () => `now()`,
+		name: 'updated_at',
+	})
+	updatedAt: Date;
 
-  @OneToMany(() => SignUp, (signUp) => signUp.link)
-  signUps: SignUp[];
+	@OneToMany(() => SignUp, (signUp) => signUp.link)
+	signUps: SignUp[];
 
-  @OneToMany(() => Purchase, (purchase) => purchase.link)
-  purchases: Purchase[];
+	@OneToMany(() => Purchase, (purchase) => purchase.link)
+	purchases: Purchase[];
 
-  @ManyToOne(() => Program, (program) => program.links, { onDelete: 'CASCADE' })
-  @JoinColumn({
-    name: 'program_id',
-    referencedColumnName: 'programId',
-  })
-  program: Program;
+	@ManyToOne(() => Program, (program) => program.links, {
+		onDelete: 'CASCADE',
+	})
+	@JoinColumn({
+		name: 'program_id',
+		referencedColumnName: 'programId',
+	})
+	program: Program;
 
-  @Column('uuid', { name: 'program_id' })
-  programId: string;
+	@Column('uuid', { name: 'program_id' })
+	programId: string;
 
-  @ManyToOne(() => Promoter, (promoter) => promoter.links)
-  @JoinColumn({
-    name: 'promoter_id',
-    referencedColumnName: 'promoterId',
-  })
-  promoter: Promoter;
+	@ManyToOne(() => Promoter, (promoter) => promoter.links)
+	@JoinColumn({
+		name: 'promoter_id',
+		referencedColumnName: 'promoterId',
+	})
+	promoter: Promoter;
 
-  @Column('uuid', { name: 'promoter_id' })
-  promoterId: string;
+	@Column('uuid', { name: 'promoter_id' })
+	promoterId: string;
 }

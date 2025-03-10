@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { FunctionService } from '../services/function.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FunctionController } from "../controllers/function.controller";
+import { FunctionController } from '../controllers/function.controller';
 import { Function } from '../entities/function.entity';
 import { ProgramModule } from './program.module';
 import { FunctionConverter } from '../converters/function.converter';
@@ -10,9 +10,13 @@ import { Condition } from '../entities';
 import { ConditionConverter } from 'src/converters/condition.converter';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Function, Condition]), ProgramModule, CircleModule],
-  controllers: [FunctionController],
-  providers: [FunctionService, ConditionConverter, FunctionConverter],
-  exports: [FunctionService, ConditionConverter, FunctionConverter],
+	imports: [
+		TypeOrmModule.forFeature([Function, Condition]),
+		ProgramModule,
+		CircleModule,
+	],
+	controllers: [FunctionController],
+	providers: [FunctionService, ConditionConverter, FunctionConverter],
+	exports: [FunctionService, ConditionConverter, FunctionConverter],
 })
 export class FunctionModule {}

@@ -1,5 +1,4 @@
 export enum commissionTypeEnum {
-    FIXED = 'fixed',
-    PERCENTAGE = 'percentage',
+	FIXED = 'fixed',
+	PERCENTAGE = 'percentage',
 }
-

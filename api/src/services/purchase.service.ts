@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DataSource, Repository } from 'typeorm';
 import { Contact, Purchase } from '../entities';
@@ -14,155 +20,186 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PurchaseService {
+	constructor(
+		@InjectRepository(Purchase)
+		private readonly purchaseRepository: Repository<Purchase>,
 
-  constructor(
+		private linkService: LinkService,
+		private contactService: ContactService,
+		private apiKeyService: ApiKeyService,
 
-    @InjectRepository(Purchase)
-    private readonly purchaseRepository: Repository<Purchase>,
+		private purchaseConverter: PurchaseConverter,
 
-    private linkService: LinkService,
-    private contactService: ContactService,
-    private apiKeyService: ApiKeyService,
+		private eventEmitter: EventEmitter2,
 
-    private purchaseConverter: PurchaseConverter,
+		private datasource: DataSource,
 
-    private eventEmitter: EventEmitter2,
+		private logger: LoggerService,
+	) {}
 
-    private datasource: DataSource,
+	/**
+	 * Create Purchase
+	 */
+	async createPurchase(apiKeyId: string, body: CreatePurchaseDto) {
+		return this.datasource.transaction(async (manager) => {
+			const linkResult = await this.linkService.getLinkEntityByRefVal(
+				body.refVal,
+			);
 
-    private logger: LoggerService,
-  ) { }
+			if (!linkResult.program) {
+				this.logger.error(
+					`Failed to get program for ref val ${body.refVal} for purchase creation.`,
+				);
+				throw new NotFoundException(
+					`Failed to get program for ref val ${body.refVal} for purchase creation.`,
+				);
+			}
+			if (!linkResult.promoter) {
+				this.logger.error(
+					`Failed to get promoter for ref val ${body.refVal} for purchase creation.`,
+				);
+				throw new NotFoundException(
+					`Failed to get promoter for ref val ${body.refVal} for purchase creation.`,
+				);
+			}
 
-  /**
-   * Create Purchase
-   */
-  async createPurchase(apiKeyId: string, body: CreatePurchaseDto) {
+			const validApiKeyOfProgram =
+				await this.apiKeyService.keyExistsInProgram(
+					linkResult.programId,
+					apiKeyId,
+				);
+			if (!validApiKeyOfProgram) {
+				this.logger.error(
+					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
+				);
+				throw new ForbiddenException(
+					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
+				);
+			}
 
-    return this.datasource.transaction(async (manager) => {
-      const linkResult = await this.linkService.getLinkEntityByRefVal(body.refVal);
+			const programResult = linkResult.program;
+			const promoterResult = linkResult.promoter;
 
-      if (!linkResult.program) {
-        this.logger.error(`Failed to get program for ref val ${body.refVal} for purchase creation.`);
-        throw new NotFoundException(`Failed to get program for ref val ${body.refVal} for purchase creation.`);
-      }
-      if (!linkResult.promoter) {
-        this.logger.error(`Failed to get promoter for ref val ${body.refVal} for purchase creation.`);
-        throw new NotFoundException(`Failed to get promoter for ref val ${body.refVal} for purchase creation.`);
-      }
+			const createContactBody: CreateContactDto = {
+				programId: programResult.programId,
+				email: body?.email,
+				firstName: body?.firstName,
+				lastName: body?.lastName,
+				phone: body?.phone,
+			};
 
-      const validApiKeyOfProgram = await this.apiKeyService.keyExistsInProgram(linkResult.programId, apiKeyId);
-      if (!validApiKeyOfProgram) {
-        this.logger.error(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
-        throw new ForbiddenException(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
-      }
+			if (
+				!this.contactService.verifyReferralKeyInput(
+					programResult.referralKeyType,
+					createContactBody,
+				)
+			) {
+				throw new BadRequestException(
+					`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`,
+				);
+			}
 
-      const programResult = linkResult.program;
-      const promoterResult = linkResult.promoter;
+			const contactRepository = manager.getRepository(Contact);
+			const purchaseRepository = manager.getRepository(Purchase);
 
-      const createContactBody: CreateContactDto = {
-        programId: programResult.programId,
-        email: body?.email,
-        firstName: body?.firstName,
-        lastName: body?.lastName,
-        phone: body?.phone,
-      };
+			let associatedContact = await this.contactService.contactExists(
+				programResult.programId,
+				{
+					...(programResult.referralKeyType ===
+					referralKeyTypeEnum.EMAIL
+						? { email: body.email }
+						: { phone: body.phone }),
+				},
+			);
 
-      if (!(this.contactService.verifyReferralKeyInput(programResult.referralKeyType, createContactBody))) {
-        throw new BadRequestException(`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`);
-      }
+			if (!associatedContact) {
+				associatedContact = contactRepository.create({
+					...createContactBody,
+					program: programResult,
+				});
+				associatedContact =
+					await contactRepository.save(associatedContact);
 
-      const contactRepository = manager.getRepository(Contact);
-      const purchaseRepository = manager.getRepository(Purchase);
+				if (!associatedContact) {
+					this.logger.error(`Error. Failed to create new contact.`);
+					throw new InternalServerErrorException(
+						`Error. Failed to create new contact.`,
+					);
+				}
+			}
 
-      let associatedContact = await this.contactService.contactExists(programResult.programId, {
-        ...(programResult.referralKeyType === referralKeyTypeEnum.EMAIL
-          ? { email: body.email }
-          : { phone: body.phone })
-      });
+			const newPurchase = purchaseRepository.create({
+				amount: body.amount,
+				contact: associatedContact,
+				link: linkResult,
+				promoter: promoterResult,
+				externalId: body.externalId,
+				itemId: body.itemId,
+			});
 
-      if (!associatedContact) {
-        associatedContact = contactRepository.create({
-          ...createContactBody,
-          program: programResult,
-        });
-        associatedContact = await contactRepository.save(associatedContact);
+			const savedPurchase = await purchaseRepository.save(newPurchase);
 
-        if (!associatedContact) {
-          this.logger.error(`Error. Failed to create new contact.`);
-          throw new InternalServerErrorException(`Error. Failed to create new contact.`);
-        }
+			if (!savedPurchase) {
+				this.logger.error(`Error. Failed to create new purchase.`);
+				throw new InternalServerErrorException(
+					`Error. Failed to create new purchase.`,
+				);
+			}
 
-      }
+			await contactRepository.update(
+				{ contactId: associatedContact.contactId },
+				{ status: contactStatusEnum.ACTIVE, updatedAt: () => `NOW()` },
+			);
 
-      const newPurchase = purchaseRepository.create({
-        amount: body.amount,
-        contact: associatedContact,
-        link: linkResult,
-        promoter: promoterResult,
-        externalId: body.externalId,
-        itemId: body.itemId,
-      });
+			const purchaseCreatedEvent = new PurchaseEvent(
+				associatedContact.contactId,
+				promoterResult.promoterId,
+				programResult.programId,
+				savedPurchase.itemId,
+				savedPurchase.amount,
+				savedPurchase.externalId,
+			);
+			// const purchaseCreatedEvent = new TriggerEvent(
+			//   triggerEnum.PURCHASE,
+			//   associatedContact.contactId,
+			//   promoterResult.promoterId,
+			//   programResult.programId,
+			//   savedPurchase.externalId,
+			//   undefined,
+			//   savedPurchase.amount,
+			// );
+			// this.eventEmitter.emit(TRIGGER_EVENT, purchaseCreatedEvent);
+			this.eventEmitter.emit(PURCHASE_EVENT, purchaseCreatedEvent);
 
-      const savedPurchase = await purchaseRepository.save(newPurchase);
+			return this.purchaseConverter.convert(savedPurchase);
+		});
+	}
 
-      if (!savedPurchase) {
-        this.logger.error(`Error. Failed to create new purchase.`);
-        throw new InternalServerErrorException(`Error. Failed to create new purchase.`);
-      }
+	async getFirstPurchase(programId?: string, promoterId?: string) {
+		this.logger.info('START: getFirstPurchase service');
 
-      await contactRepository.update(
-        { contactId: associatedContact.contactId },
-        { status: contactStatusEnum.ACTIVE, updatedAt: () => `NOW()` }
-      );
+		if (!programId && !promoterId) {
+			throw new BadRequestException(
+				`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`,
+			);
+		}
 
-      const purchaseCreatedEvent = new PurchaseEvent(
-        associatedContact.contactId,
-        promoterResult.promoterId,
-        programResult.programId,
-        savedPurchase.itemId,
-        savedPurchase.amount,
-        savedPurchase.externalId,
-      );
-      // const purchaseCreatedEvent = new TriggerEvent(
-      //   triggerEnum.PURCHASE,
-      //   associatedContact.contactId,
-      //   promoterResult.promoterId,
-      //   programResult.programId,
-      //   savedPurchase.externalId,
-      //   undefined,
-      //   savedPurchase.amount,
-      // );
-      // this.eventEmitter.emit(TRIGGER_EVENT, purchaseCreatedEvent);
-      this.eventEmitter.emit(PURCHASE_EVENT, purchaseCreatedEvent);
+		const purchaseResult = await this.purchaseRepository.findOne({
+			where: {
+				contact: {
+					programId: programId,
+				},
+				promoter: {
+					promoterId,
+				},
+			},
+		});
 
-      return this.purchaseConverter.convert(savedPurchase);
-    });
+		if (!purchaseResult) {
+			throw new BadRequestException();
+		}
 
-  }
-
-  async getFirstPurchase(programId?: string, promoterId?: string) {
-    this.logger.info('START: getFirstPurchase service');
-
-    if (!programId && !promoterId) {
-      throw new BadRequestException(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
-    }
-
-    const purchaseResult = await this.purchaseRepository.findOne({
-      where: {
-        contact: {
-          programId: programId,
-        },
-        promoter: {
-          promoterId
-        }
-      },
-    });
-
-    if (!purchaseResult) {
-      throw new BadRequestException();
-    }
-
-    this.logger.info('END: getFirstPurchase service');
-    return purchaseResult;
-  }
+		this.logger.info('END: getFirstPurchase service');
+		return purchaseResult;
+	}
 }

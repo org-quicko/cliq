@@ -4,82 +4,79 @@ import { PartialType } from '@nestjs/mapped-types';
 import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
 
 export class ProgramDto {
+	@Expose({ name: 'program_id' })
+	@IsUUID()
+	programId: string;
 
-    @Expose({ name: 'program_id' })
-    @IsUUID()
-    programId: string;
+	@IsString()
+	name: string;
 
-    @IsString()
-    name: string;
+	@IsString()
+	website: string;
 
-    @IsString()
-    website: string;
+	@IsOptional()
+	@IsEnum(visibilityEnum)
+	visibility: visibilityEnum;
 
-    @IsOptional()
-    @IsEnum(visibilityEnum)
-    visibility: visibilityEnum;
+	@Expose({ name: 'referral_key_type' })
+	@IsEnum(referralKeyTypeEnum)
+	referralKeyType: referralKeyTypeEnum;
 
-    @Expose({ name: 'referral_key_type' })
-    @IsEnum(referralKeyTypeEnum)
-    referralKeyType: referralKeyTypeEnum;
+	@IsString()
+	currency: string;
 
-    @IsString()
-    currency: string;
+	@Expose({ name: 'theme_color' })
+	@IsString()
+	themeColor: string;
 
-    @Expose({ name: 'theme_color' })
-    @IsString()
-    themeColor: string;
+	@Expose({ name: 'date_format' })
+	@IsOptional()
+	@IsEnum(dateFormatEnum)
+	dateFormat: dateFormatEnum;
 
-    @Expose({ name: 'date_format' })
-    @IsOptional()
-    @IsEnum(dateFormatEnum)
-    dateFormat: dateFormatEnum;
+	@Expose({ name: 'time_zone' })
+	@IsString()
+	timeZone: string;
 
-    @Expose({ name: 'time_zone' })
-    @IsString()
-    timeZone: string;
+	@Expose({ name: 'created_at' })
+	@IsDate()
+	createdAt: Date;
 
-    @Expose({ name: 'created_at' })
-    @IsDate()
-    createdAt: Date;
-
-    @Expose({ name: 'updated_at' })
-    @IsDate()
-    updatedAt: Date;
-
+	@Expose({ name: 'updated_at' })
+	@IsDate()
+	updatedAt: Date;
 }
 
 export class CreateProgramDto {
+	@IsString()
+	name: string;
 
-    @IsString()
-    name: string;
+	@IsString()
+	currency: string;
 
-    @IsString()
-    currency: string;
+	@IsString()
+	website: string;
 
-    @IsString()
-    website: string;
+	@IsEnum(visibilityEnum)
+	visibility: visibilityEnum;
 
-    @IsEnum(visibilityEnum)
-    visibility: visibilityEnum;
+	@Expose({ name: 'referral_key_type' })
+	@IsEnum(referralKeyTypeEnum)
+	referralKeyType: referralKeyTypeEnum;
 
-    @Expose({ name: 'referral_key_type' })
-    @IsEnum(referralKeyTypeEnum)
-    referralKeyType: referralKeyTypeEnum;
+	@IsOptional()
+	@Expose({ name: 'theme_color' })
+	@IsString()
+	themeColor?: string;
 
-    @IsOptional()
-    @Expose({ name: 'theme_color' })
-    @IsString()
-    themeColor?: string;
+	@Expose({ name: 'date_format' })
+	@IsOptional()
+	@IsEnum(dateFormatEnum)
+	dateFormat: dateFormatEnum;
 
-    @Expose({ name: 'date_format' })
-    @IsOptional()
-    @IsEnum(dateFormatEnum)
-    dateFormat: dateFormatEnum;
-
-    @Expose({ name: 'time_zone' })
-    @IsString()
-    timeZone: string;
+	@Expose({ name: 'time_zone' })
+	@IsString()
+	timeZone: string;
 }
 
-export class UpdateProgramDto extends PartialType(CreateProgramDto) { }
+export class UpdateProgramDto extends PartialType(CreateProgramDto) {}

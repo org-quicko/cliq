@@ -7,15 +7,9 @@ import { SignUpConverter } from 'src/converters/signUp.converter';
 import { SignUpController } from 'src/controllers/signUp.controller';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      SignUp,
-      Contact,
-    ]),
-    ContactModule,
-  ],
-  controllers: [SignUpController],
-  providers: [SignUpService, SignUpConverter],
-  exports: [SignUpService, SignUpConverter]
+	imports: [TypeOrmModule.forFeature([SignUp, Contact]), ContactModule],
+	controllers: [SignUpController],
+	providers: [SignUpService, SignUpConverter],
+	exports: [SignUpService, SignUpConverter],
 })
-export class SignUpModule { }
+export class SignUpModule {}

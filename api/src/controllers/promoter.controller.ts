@@ -2,335 +2,421 @@ import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, UseGuard
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import * as fs from 'fs';
 import { Request, Response } from 'express';
-import { PromoterService } from '../services/promoter.service'
-import { CreatePromoterDto, InviteMemberDto, UpdatePromoterMemberDto } from '../dtos';
+import { PromoterService } from '../services/promoter.service';
+import {
+	CreatePromoterDto,
+	InviteMemberDto,
+	UpdatePromoterMemberDto,
+} from '../dtos';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { roleEnum, statusEnum, conversionTypeEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
-import { Commission, Member, Promoter, PromoterMember, Purchase, ReferralView, ReferralViewAggregate, SignUp } from '../entities';
+import {
+	Commission,
+	Member,
+	Promoter,
+	PromoterMember,
+	Purchase,
+	ReferralView,
+	ReferralViewAggregate,
+	SignUp,
+} from '../entities';
 import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 
 @ApiTags('Promoter')
 @UseGuards(AuthGuard, PermissionsGuard)
 @Controller('/programs/:program_id/promoters')
 export class PromoterController {
+	constructor(
+		private readonly promoterService: PromoterService,
+		private logger: LoggerService,
+	) {}
 
-  constructor(
-    private readonly promoterService: PromoterService,
-    private logger: LoggerService,
-  ) { }
+	/**
+	 * Create promoter
+	 */
+	@ApiResponse({ status: 201, description: 'Created' })
+	@Post()
+	async createPromoter(
+		@Req() req: Request,
+		@Param('program_id') programId: string,
+		@Body() body: CreatePromoterDto,
+	) {
+		this.logger.info('START: createPromoter controller');
 
+		const memberId = req.headers.member_id as string;
+		const result = await this.promoterService.createPromoter(
+			memberId,
+			programId,
+			body,
+		);
 
-  /**
-   * Create promoter
-   */
-  @ApiResponse({ status: 201, description: 'Created' })
-  @Post()
-  async createPromoter(@Req() req: Request, @Param('program_id') programId: string, @Body() body: CreatePromoterDto) {
-    this.logger.info('START: createPromoter controller')
+		this.logger.info('END: createPromoter controller');
+		return { message: 'Successfully created promoter.', result };
+	}
 
-    const memberId = req.headers.member_id as string;
-    const result = await this.promoterService.createPromoter(memberId, programId, body);
+	/**
+	 * Get promoter
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Promoter)
+	@Get(':promoter_id')
+	async getPromoter(@Param('promoter_id') promoterId: string) {
+		this.logger.info('START: getPromoter controller');
 
-    this.logger.info('END: createPromoter controller')
-    return { message: 'Successfully created promoter.', result };
-  }
+		const result = await this.promoterService.getPromoter(promoterId);
 
-  /**
-   * Get promoter
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Promoter)
-  @Get(':promoter_id')
-  async getPromoter(@Param('promoter_id') promoterId: string) {
-    this.logger.info('START: getPromoter controller');
+		this.logger.info(`END: getPromoter controller`);
+		return { message: 'Successfully fetched promoter.', result };
+	}
 
-    const result = await this.promoterService.getPromoter(promoterId);
+	/**
+	 * Invite member
+	 */
+	@ApiResponse({ status: 201, description: 'Created' })
+	@Permissions('invite_member', Promoter)
+	@Post(':promoter_id/members')
+	async inviteMember(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Body() body: InviteMemberDto,
+	) {
+		this.logger.info('START: inviteMember controller');
 
-    this.logger.info(`END: getPromoter controller`);
-    return { message: 'Successfully fetched promoter.', result };
-  }
+		const result = await this.promoterService.inviteMember(
+			programId,
+			promoterId,
+			body,
+		);
 
-  /**
-   * Invite member
-   */
-  @ApiResponse({ status: 201, description: 'Created' })
-  @Permissions('invite_member', Promoter)
-  @Post(':promoter_id/members')
-  async inviteMember(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Body() body: InviteMemberDto) {
-    this.logger.info('START: inviteMember controller')
+		this.logger.info('END: inviteMember controller');
+		return { message: 'Successfully invited member to promoter.', result };
+	}
 
-    const result = await this.promoterService.inviteMember(programId, promoterId, body);
+	/**
+	 * Get all members
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Member)
+	@Get(':promoter_id/members')
+	async getAllMembers(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Query('role') role: roleEnum,
+		@Query('email') email: string,
+		@Query('status') status: statusEnum,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
+	) {
+		this.logger.info('START: getAllMembers controller');
 
-    this.logger.info('END: inviteMember controller');
-    return { message: 'Successfully invited member to promoter.', result };
-  }
+		const result = await this.promoterService.getAllMembers(promoterId, {
+			email,
+			role,
+			status,
+			skip,
+			take,
+		});
 
-  /**
-   * Get all members
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Member)
-  @Get(':promoter_id/members')
-  async getAllMembers(
-    @Param('program_id') programId: string,
-    @Param('promoter_id') promoterId: string,
-    @Query('role') role: roleEnum,
-    @Query('email') email: string,
-    @Query('status') status: statusEnum,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
+		this.logger.info('END: getAllMembers controller');
+		return { message: 'Successfully fetched members of promoter.', result };
+	}
 
-  ) {
-    this.logger.info('START: getAllMembers controller');
+	/**
+	 * Update role
+	 */
+	@ApiResponse({ status: 204, description: 'No Content' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@Permissions('change_role', PromoterMember)
+	@Patch(':promoter_id/members/:member_id')
+	async updateRole(
+		@Param('member_id') memberId: string,
+		@Body() body: UpdatePromoterMemberDto,
+	) {
+		this.logger.info('START: updateRole controller');
 
-    const result = await this.promoterService.getAllMembers(promoterId, {
-      email,
-      role,
-      status,
-      skip,
-      take
-    });
+		await this.promoterService.updateRole(memberId, body);
 
-    this.logger.info('END: getAllMembers controller');
-    return { message: 'Successfully fetched members of promoter.', result };
-  }
+		this.logger.info('END: updateRole controller');
+		return { message: 'Successfully updated role of member.' };
+	}
 
-  /**
-   * Update role
-   */
-  @ApiResponse({ status: 204, description: 'No Content' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
-  @Permissions('change_role', PromoterMember)
-  @Patch(':promoter_id/members/:member_id')
-  async updateRole(@Param('member_id') memberId: string, @Body() body: UpdatePromoterMemberDto) {
-    this.logger.info('START: updateRole controller');
+	/**
+	 * Remove member
+	 */
+	@ApiResponse({ status: 204, description: 'No Content' })
+	@ApiResponse({ status: 403, description: 'Forbidden' })
+	@Permissions('remove_member', PromoterMember)
+	@Delete(':promoter_id/members/:member_id')
+	async removeMember(
+		@Param('promoter_id') promoterId: string,
+		@Param('member_id') memberId: string,
+	) {
+		this.logger.info('START: removeMember controller');
 
-    await this.promoterService.updateRole(memberId, body);
+		await this.promoterService.removeMember(promoterId, memberId);
 
-    this.logger.info('END: updateRole controller');
-    return { message: 'Successfully updated role of member.' };
-  }
+		this.logger.info('END: removeMember controller');
+		return { message: 'Successfully removed member from promoter.' };
+	}
 
-  /**
-   * Remove member
-   */
-  @ApiResponse({ status: 204, description: 'No Content' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
-  @Permissions('remove_member', PromoterMember)
-  @Delete(':promoter_id/members/:member_id')
-  async removeMember(@Param('promoter_id') promoterId: string, @Param('member_id') memberId: string) {
-    this.logger.info('START: removeMember controller');
+	// TODO: consider removing this entirely as well
+	// /**
+	//  * Get contacts for promoter
+	//  */
+	// @ApiResponse({ status: 200, description: 'OK' })
+	// @Permissions('read', Contact)
+	// @Get(':promoter_id/contacts')
+	// async getContactsForPromoter(
+	//   @Param('program_id') programId: string,
+	//   @Param('promoter_id') promoterId: string,
+	//   @Query('skip') skip: number = 0,
+	//   @Query('take') take: number = 10,
+	// ) {
+	//   this.logger.info('START: getContactsForPromoter controller');
 
-    await this.promoterService.removeMember(promoterId, memberId);
+	//   const result = await this.promoterService.getContactsForPromoter(programId, promoterId, {
+	//     skip,
+	//     take
+	//   });
 
-    this.logger.info('END: removeMember controller');
-    return { message: 'Successfully removed member from promoter.' };
-  }
+	//   this.logger.info('END: getContactsForPromoter controller');
+	//   return { message: 'Successfully fetched all contacts of promoter.', result };
+	// }
 
-  // TODO: consider removing this entirely as well
-  // /**
-  //  * Get contacts for promoter
-  //  */
-  // @ApiResponse({ status: 200, description: 'OK' })
-  // @Permissions('read', Contact)
-  // @Get(':promoter_id/contacts')
-  // async getContactsForPromoter(
-  //   @Param('program_id') programId: string,
-  //   @Param('promoter_id') promoterId: string,
-  //   @Query('skip') skip: number = 0,
-  //   @Query('take') take: number = 10,
-  // ) {
-  //   this.logger.info('START: getContactsForPromoter controller');
+	/**
+	 * Get signups for promoter
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', SignUp)
+	@Get(':promoter_id/signups')
+	async getSignUpsForPromoter(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
+	) {
+		this.logger.info('START: getSignUpsForPromoter controller');
 
-  //   const result = await this.promoterService.getContactsForPromoter(programId, promoterId, {
-  //     skip,
-  //     take
-  //   });
+		const result = await this.promoterService.getSignUpsForPromoter(
+			programId,
+			promoterId,
+			{
+				skip,
+				take,
+			},
+		);
 
-  //   this.logger.info('END: getContactsForPromoter controller');
-  //   return { message: 'Successfully fetched all contacts of promoter.', result };
-  // }
+		this.logger.info('END: getSignUpsForPromoter controller');
+		return {
+			message: 'Successfully fetched all signups of promoter.',
+			result,
+		};
+	}
 
-  /**
-   * Get signups for promoter
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', SignUp)
-  @Get(':promoter_id/signups')
-  async getSignUpsForPromoter(
-    @Param('program_id') programId: string,
-    @Param('promoter_id') promoterId: string,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
-  ) {
-    this.logger.info('START: getSignUpsForPromoter controller');
+	/**
+	 * Get purchases for promoter
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Purchase)
+	@Get(':promoter_id/purchases')
+	async getPurchasesForPromoter(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Query('external_id') externalId?: string,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
+	) {
+		this.logger.info('START: getPurchasesForPromoter controller');
 
-    const result = await this.promoterService.getSignUpsForPromoter(programId, promoterId, {
-      skip,
-      take
-    });
+		const result = await this.promoterService.getPurchasesForPromoter(
+			programId,
+			promoterId,
+			{
+				externalId,
+				skip,
+				take,
+			},
+		);
 
-    this.logger.info('END: getSignUpsForPromoter controller');
-    return { message: 'Successfully fetched all signups of promoter.', result };
-  }
+		this.logger.info('END: getPurchasesForPromoter controller');
+		return {
+			message: 'Successfully fetched all purchases of promoter.',
+			result,
+		};
+	}
 
-  /**
-   * Get purchases for promoter
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Purchase)
-  @Get(':promoter_id/purchases')
-  async getPurchasesForPromoter(
-    @Param('program_id') programId: string,
-    @Param('promoter_id') promoterId: string,
-    @Query('external_id') externalId?: string,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
-  ) {
-    this.logger.info('START: getPurchasesForPromoter controller');
+	/**
+	 * Get promoter referrals, for a program
+	 */
+	@ApiResponse({ status: 201, description: 'OK' })
+	@ApiResponse({ status: 400, description: 'Bad Request' })
+	@Permissions('read', ReferralView)
+	@Get(':promoter_id/referrals')
+	async getPromoterReferrals(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+	) {
+		this.logger.info('START: getPromoterReferrals controller');
 
-    const result = await this.promoterService.getPurchasesForPromoter(programId, promoterId, {
-      externalId,
-      skip,
-      take,
-    });
+		const result = await this.promoterService.getPromoterReferrals(
+			programId,
+			promoterId,
+		);
 
-    this.logger.info('END: getPurchasesForPromoter controller');
-    return { message: 'Successfully fetched all purchases of promoter.', result };
-  }
+		this.logger.info('END: getPromoterReferrals controller');
+		return { message: 'Successfully got promoter referrals.', result };
+	}
 
-  /**
-     * Get promoter referrals, for a program
-     */
-  @ApiResponse({ status: 201, description: 'OK' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @Permissions('read', ReferralView)
-  @Get(':promoter_id/referrals')
-  async getPromoterReferrals(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
-    this.logger.info('START: getPromoterReferrals controller');
+	/**
+	 * Get promoter commissions
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Commission)
+	@Get(':promoter_id/commissions')
+	async getPromoterCommissions(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Query('conversion_type') conversionType: conversionTypeEnum,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
+	) {
+		this.logger.info('START: getPromoterCommissions controller');
 
-    const result = await this.promoterService.getPromoterReferrals(programId, promoterId);
+		const result = await this.promoterService.getPromoterCommissions(
+			programId,
+			promoterId,
+			{
+				conversionType,
+				skip,
+				take,
+			},
+		);
 
-    this.logger.info('END: getPromoterReferrals controller');
-    return { message: 'Successfully got promoter referrals.', result };
-  }
+		this.logger.info('END: getPromoterCommissions controller');
+		return {
+			message: 'Successfully fetched all commissions of promoter.',
+			result,
+		};
+	}
 
-  /**
-   * Get promoter commissions
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Commission)
-  @Get(':promoter_id/commissions')
-  async getPromoterCommissions(
-    @Param('program_id') programId: string,
-    @Param('promoter_id') promoterId: string,
-    @Query('conversion_type') conversionType: conversionTypeEnum,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
-  ) {
-    this.logger.info('START: getPromoterCommissions controller');
+	@ApiResponse({ status: 200, description: 'OK' })
+	@SkipTransform()
+	@Permissions('read', SignUp)
+	@Get(':promoter_id/reports/signups')
+	async getSignUpsReport(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Res() res: Response,
+	) {
+		this.logger.info('START: getSignUpsReport controller');
 
-    const result = await this.promoterService.getPromoterCommissions(programId, promoterId, {
-      conversionType,
-      skip,
-      take,
-    });
+		const filePath = await this.promoterService.getSignUpsReport(
+			programId,
+			promoterId,
+		);
 
-    this.logger.info('END: getPromoterCommissions controller');
-    return { message: 'Successfully fetched all commissions of promoter.', result };
-  }
+		res.header('Content-Type', 'text/csv');
+		res.attachment(`promoter_${promoterId}_signups.csv`);
 
-  @ApiResponse({ status: 200, description: 'OK' })
-  @SkipTransform()
-  @Permissions('read', SignUp)
-  @Get(':promoter_id/reports/signups')
-  async getSignUpsReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
-    this.logger.info('START: getSignUpsReport controller');
+		res.on('finish', async () => {
+			try {
+				await fs.promises.unlink(filePath);
+				console.log(`File deleted successfully`);
+			} catch (error) {
+				console.error('Error deleting file:', error);
+			}
+		});
 
-    const filePath = await this.promoterService.getSignUpsReport(programId, promoterId);
+		this.logger.info('END: getSignUpsReport controller');
+		res.sendFile(filePath);
+	}
 
-    res.header('Content-Type', 'text/csv');
-    res.attachment(`promoter_${promoterId}_signups.csv`);
+	@ApiResponse({ status: 200, description: 'OK' })
+	@SkipTransform()
+	@Permissions('read', Purchase)
+	@Get(':promoter_id/reports/purchases')
+	async getPurchasesReport(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Res() res: Response,
+	) {
+		this.logger.info('START: getPurchasesReport controller');
 
-    res.on('finish', async () => {
-      try {
-        await fs.promises.unlink(filePath);
-        console.log(`File deleted successfully`);
-      } catch (error) {
-        console.error('Error deleting file:', error);
-      }
-    });
+		const filePath = await this.promoterService.getPurchasesReport(
+			programId,
+			promoterId,
+		);
 
-    this.logger.info('END: getSignUpsReport controller');
-    res.sendFile(filePath);
-  }
+		res.header('Content-Type', 'text/csv');
+		res.attachment(`promoter_${promoterId}_purchases.csv`);
 
-  @ApiResponse({ status: 200, description: 'OK' })
-  @SkipTransform()
-  @Permissions('read', Purchase)
-  @Get(':promoter_id/reports/purchases')
-  async getPurchasesReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
-    this.logger.info('START: getPurchasesReport controller');
+		res.on('finish', async () => {
+			try {
+				await fs.promises.unlink(filePath);
+				console.log(`File deleted successfully`);
+			} catch (error) {
+				console.error('Error deleting file:', error);
+			}
+		});
 
-    const filePath = await this.promoterService.getPurchasesReport(programId, promoterId);
+		this.logger.info('END: getPurchasesReport controller');
+		res.sendFile(filePath);
+	}
 
-    res.header('Content-Type', 'text/csv');
-    res.attachment(`promoter_${promoterId}_purchases.csv`);
+	@ApiResponse({ status: 200, description: 'OK' })
+	@SkipTransform()
+	@Permissions('read', ReferralView)
+	@Get(':promoter_id/reports/referrals')
+	async getReferralsReport(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Res() res: Response,
+	) {
+		this.logger.info('START: getReferralsReport controller');
 
-    res.on('finish', async () => {
-      try {
-        await fs.promises.unlink(filePath);
-        console.log(`File deleted successfully`);
-      } catch (error) {
-        console.error('Error deleting file:', error);
-      }
-    });
+		const filePath = await this.promoterService.getReferralsReport(
+			programId,
+			promoterId,
+		);
 
-    this.logger.info('END: getPurchasesReport controller');
-    res.sendFile(filePath);
-  }
+		res.header('Content-Type', 'text/csv');
+		res.attachment(`promoter_${promoterId}_referrals.csv`);
 
-  @ApiResponse({ status: 200, description: 'OK' })
-  @SkipTransform()
-  @Permissions('read', ReferralView)
-  @Get(':promoter_id/reports/referrals')
-  async getReferralsReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
-    this.logger.info('START: getReferralsReport controller');
+		res.on('finish', async () => {
+			try {
+				await fs.promises.unlink(filePath);
+				console.log(`File deleted successfully`);
+			} catch (error) {
+				console.error('Error deleting file:', error);
+			}
+		});
 
-    const filePath = await this.promoterService.getReferralsReport(programId, promoterId);
+		this.logger.info('END: getReferralsReport controller');
+		res.sendFile(filePath);
+	}
 
-    res.header('Content-Type', 'text/csv');
-    res.attachment(`promoter_${promoterId}_referrals.csv`);
+	/**
+	 * Get promoter statistics
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@ApiResponse({ status: 400, description: 'Bad Request' })
+	@Permissions('read', ReferralViewAggregate)
+	@Get(':promoter_id/stats')
+	async getPromoterStatistics(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+	) {
+		this.logger.info('START: getPromoterStatistics controller');
 
-    res.on('finish', async () => {
-      try {
-        await fs.promises.unlink(filePath);
-        console.log(`File deleted successfully`);
-      } catch (error) {
-        console.error('Error deleting file:', error);
-      }
-    });
+		const result = await this.promoterService.getPromoterStatistics(
+			programId,
+			promoterId,
+		);
 
-    this.logger.info('END: getReferralsReport controller');
-    res.sendFile(filePath);
-  }
-
-  /**
-   * Get promoter statistics
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @Permissions('read', ReferralViewAggregate)
-  @Get(':promoter_id/stats')
-  async getPromoterStatistics(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
-    this.logger.info('START: getPromoterStatistics controller');
-
-    const result = await this.promoterService.getPromoterStatistics(programId, promoterId);
-
-    this.logger.info('END: getPromoterStatistics controller');
-    return { message: 'Successfully got promoter statistics.', result };
-  }
+		this.logger.info('END: getPromoterStatistics controller');
+		return { message: 'Successfully got promoter statistics.', result };
+	}
 }

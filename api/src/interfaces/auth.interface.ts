@@ -1,12 +1,12 @@
 export interface AuthInput {
-    email: string;
-    password: string;
-};
+	email: string;
+	password: string;
+}
 
 export interface AuthResult {
-    accessToken: string;
-};
+	accessToken: string;
+}
 
 export interface LoginData {
-    email: string;
-};
+	email: string;
+}

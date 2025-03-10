@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from "bcrypt";
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Member } from '../entities';
 import { LoggerService } from './logger.service';
@@ -7,73 +7,75 @@ import { MemberService } from './member.service';
 import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
 import { audienceEnum } from 'src/enums/audience.enum';
 
-
-
 export interface MemberLoginData extends LoginData {
-    member_id: string,
-};
+	member_id: string;
+}
 
 @Injectable()
 export class MemberAuthService {
-    constructor(
-        private memberService: MemberService,
-        private jwtService: JwtService,
-        private logger: LoggerService,
-    ) { }
+	constructor(
+		private memberService: MemberService,
+		private jwtService: JwtService,
+		private logger: LoggerService,
+	) {}
 
-    async authenticateMember(input: AuthInput): Promise<AuthResult> {
-        this.logger.info(`START: authenticateMember service`);
-        const entity = await this.validateMember(input);
+	async authenticateMember(input: AuthInput): Promise<AuthResult> {
+		this.logger.info(`START: authenticateMember service`);
+		const entity = await this.validateMember(input);
 
-        if (!entity) {
-            throw new UnauthorizedException({
-                error: `Member does not exist.`,
-                code: 401
-            });
-        }
+		if (!entity) {
+			throw new UnauthorizedException({
+				error: `Member does not exist.`,
+				code: 401,
+			});
+		}
 
-        const authResult = await this.loginMember(entity);
-        
-        this.logger.info(`END: authenticateMember service`);
-        return authResult;
-    }
+		const authResult = await this.loginMember(entity);
 
-    async validateMember(input: AuthInput): Promise<MemberLoginData | null> {
-        this.logger.info(`START: validateMember service`);
+		this.logger.info(`END: authenticateMember service`);
+		return authResult;
+	}
 
-        const entity: Member | null = await this.memberService.getMemberByEmail(input.email);
+	async validateMember(input: AuthInput): Promise<MemberLoginData | null> {
+		this.logger.info(`START: validateMember service`);
 
-        let logInData: MemberLoginData | null;
-        if (
-            entity &&
-            await this.comparePasswords(input.password, entity.password)
-        ) {
-            logInData = {
-                member_id: entity.memberId,
-                email: entity.email,
-            };
+		const entity: Member | null = await this.memberService.getMemberByEmail(
+			input.email,
+		);
 
-        } else logInData = null;
+		let logInData: MemberLoginData | null;
+		if (
+			entity &&
+			(await this.comparePasswords(input.password, entity.password))
+		) {
+			logInData = {
+				member_id: entity.memberId,
+				email: entity.email,
+			};
+		} else logInData = null;
 
-        this.logger.info(`END: validateMember service`);
-        return logInData;
-    }
+		this.logger.info(`END: validateMember service`);
+		return logInData;
+	}
 
-    async loginMember(entity: MemberLoginData): Promise<AuthResult> {
-        this.logger.info(`START: loginMember service`);
+	async loginMember(entity: MemberLoginData): Promise<AuthResult> {
+		this.logger.info(`START: loginMember service`);
 
-        const tokenPayload = {
-            sub: entity.member_id,
-            email: entity.email,
-            aud: audienceEnum.PROMOTER_USER,
-        };
+		const tokenPayload = {
+			sub: entity.member_id,
+			email: entity.email,
+			aud: audienceEnum.PROMOTER_USER,
+		};
 
-        const accessToken = await this.jwtService.signAsync(tokenPayload);
-        this.logger.info(`END: loginMember service`);
-        return { accessToken };
-    }
+		const accessToken = await this.jwtService.signAsync(tokenPayload);
+		this.logger.info(`END: loginMember service`);
+		return { accessToken };
+	}
 
-    private async comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
-        return await bcrypt.compare(plainPassword, hashedPassword);
-    }
+	private async comparePasswords(
+		plainPassword: string,
+		hashedPassword: string,
+	): Promise<boolean> {
+		return await bcrypt.compare(plainPassword, hashedPassword);
+	}
 }

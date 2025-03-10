@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
-import { LinkService } from '../services/link.service'
+import { LinkService } from '../services/link.service';
 import { CreateLinkDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
@@ -12,70 +12,80 @@ import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 @UseGuards(AuthGuard, PermissionsGuard)
 @Controller('programs/:program_id/promoters/:promoter_id/links')
 export class LinkController {
+	constructor(
+		private readonly linkService: LinkService,
+		private logger: LoggerService,
+	) {}
 
-  constructor(
-    private readonly linkService: LinkService,
-    private logger: LoggerService,
-  ) { }
+	/**
+	 * Create link
+	 */
+	@ApiResponse({ status: 201, description: 'Created' })
+	@Permissions('create', Link)
+	@Post()
+	async createLink(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Body() body: CreateLinkDto,
+	) {
+		this.logger.info('START: createLink controller');
 
+		const result = await this.linkService.createLink(
+			programId,
+			promoterId,
+			body,
+		);
 
-  /**
-   * Create link
-   */
-  @ApiResponse({ status: 201, description: 'Created' })
-  @Permissions('create', Link)
-  @Post()
-  async createLink(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Body() body: CreateLinkDto) {
-    this.logger.info('START: createLink controller');
+		this.logger.info('END: createLink controller');
+		return { message: 'Successfully created link.', result };
+	}
 
-    const result = await this.linkService.createLink(programId, promoterId, body);
+	/**
+	 * Get all links
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Link)
+	@Get()
+	async getAllLinks(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
 
-    this.logger.info('END: createLink controller');
-    return { message: "Successfully created link.", result };
-  }
+		@Query('source') source: string,
+		@Query('medium') medium: string,
+		@Query('url') url: string,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
+	) {
+		this.logger.info('START: getAllLinks controller');
 
-  /**
-   * Get all links
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Link)
-  @Get()
-  async getAllLinks(
-    @Param('program_id') programId: string,
-    @Param('promoter_id') promoterId: string,
+		const result = await this.linkService.getAllLinks(
+			programId,
+			promoterId,
+			{
+				url,
+				source,
+				medium,
+				skip,
+				take,
+			},
+		);
 
-    @Query('source') source: string,
-    @Query('medium') medium: string,
-    @Query('url') url: string,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
-  ) {
-    this.logger.info('START: getAllLinks controller');
+		this.logger.info('END: getAllLinks controller');
+		return { message: 'Successfully fetched all links.', result };
+	}
 
-    const result = await this.linkService.getAllLinks(programId, promoterId, {
-      url,
-      source,
-      medium,
-      skip,
-      take,
-    });
+	/**
+	 * Delete a link
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('delete', Link)
+	@Delete(':link_id')
+	async deleteALink(@Param('link_id') linkId: string) {
+		this.logger.info('START: deleteALink controller');
 
-    this.logger.info('END: getAllLinks controller');
-    return { message: 'Successfully fetched all links.', result };
-  }
+		await this.linkService.deleteALink(linkId);
 
-  /**
-   * Delete a link
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('delete', Link)
-  @Delete(':link_id')
-  async deleteALink(@Param('link_id') linkId: string) {
-    this.logger.info('START: deleteALink controller');
-
-    await this.linkService.deleteALink(linkId);
-
-    this.logger.info('END: deleteALink controller');
-    return { message: "Successfully deleted link." };
-  }
+		this.logger.info('END: deleteALink controller');
+		return { message: 'Successfully deleted link.' };
+	}
 }

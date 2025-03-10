@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from "bcrypt";
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
 import { User } from '../entities';
@@ -8,73 +8,77 @@ import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
 import { audienceEnum } from 'src/enums/audience.enum';
 
 export interface UserLoginData extends LoginData {
-    user_id: string,
-};
+	user_id: string;
+}
 
 @Injectable()
 export class UserAuthService {
-    constructor(
-        private userService: UserService,
-        private jwtService: JwtService,
-        private logger: LoggerService,
-    ) { }
+	constructor(
+		private userService: UserService,
+		private jwtService: JwtService,
+		private logger: LoggerService,
+	) {}
 
-    async authenticateUser(input: AuthInput): Promise<AuthResult> {
-        this.logger.info(`START: authenticateUser service`);
-        const entity = await this.validateUser(input);
+	async authenticateUser(input: AuthInput): Promise<AuthResult> {
+		this.logger.info(`START: authenticateUser service`);
+		const entity = await this.validateUser(input);
 
-        if (!entity) {
-            throw new UnauthorizedException({
-                error: `User does not exist.`,
-                code: 401
-            });
-        }
+		if (!entity) {
+			throw new UnauthorizedException({
+				error: `User does not exist.`,
+				code: 401,
+			});
+		}
 
-        const authResult = await this.loginUser(entity);
-        
-        this.logger.info(`END: authenticateUser service`);
-        return authResult;
-    }
+		const authResult = await this.loginUser(entity);
 
-    async validateUser(input: AuthInput): Promise<UserLoginData | null> {
-        this.logger.info(`START: validateUser service`);
+		this.logger.info(`END: authenticateUser service`);
+		return authResult;
+	}
 
-        const entity: User | null = await this.userService.getUserByEmail(input.email);
+	async validateUser(input: AuthInput): Promise<UserLoginData | null> {
+		this.logger.info(`START: validateUser service`);
 
-        let loginData: UserLoginData | null;
-        if (
-            entity &&
-            await this.comparePasswords(input.password, entity.password)
-        ) {
-            loginData = {
-                user_id: entity.userId,
-                email: entity.email,
-            };
+		const entity: User | null = await this.userService.getUserByEmail(
+			input.email,
+		);
 
-        } else loginData = null;
+		let loginData: UserLoginData | null;
+		if (
+			entity &&
+			(await this.comparePasswords(input.password, entity.password))
+		) {
+			loginData = {
+				user_id: entity.userId,
+				email: entity.email,
+			};
+		} else loginData = null;
 
-        this.logger.info(`END: validateUser service`);
-        return loginData;
-    }
+		this.logger.info(`END: validateUser service`);
+		return loginData;
+	}
 
-    async loginUser(entity: UserLoginData): Promise<AuthResult> {
-        this.logger.info(`START: loginUser service`);
+	async loginUser(entity: UserLoginData): Promise<AuthResult> {
+		this.logger.info(`START: loginUser service`);
 
-        const tokenPayload = {
-            sub: entity.user_id,
-            email: entity.email,
-            aud: audienceEnum.PROGRAM_USER,
-        };
+		const tokenPayload = {
+			sub: entity.user_id,
+			email: entity.email,
+			aud: audienceEnum.PROGRAM_USER,
+		};
 
-        const accessToken = await this.jwtService.signAsync(tokenPayload);
-        
-        this.logger.info(`END: loginUser service`);
-        return {
-            accessToken,
-        };
-    }
+		const accessToken = await this.jwtService.signAsync(tokenPayload);
 
-    private async comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {
-        return await bcrypt.compare(plainPassword, hashedPassword);
-    }
+		this.logger.info(`END: loginUser service`);
+		return {
+			accessToken,
+		};
+	}
+
+	private async comparePasswords(
+		plainPassword: string,
+		hashedPassword: string,
+	): Promise<boolean> {
+		return await bcrypt.compare(plainPassword, hashedPassword);
+	}
 }

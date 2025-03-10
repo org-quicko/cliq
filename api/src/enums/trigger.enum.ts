@@ -1,5 +1,4 @@
 export enum triggerEnum {
-    SIGNUP = 'signup',
-    PURCHASE = 'purchase',
+	SIGNUP = 'signup',
+	PURCHASE = 'purchase',
 }
-

@@ -1,29 +1,27 @@
-import { Injectable } from "@nestjs/common";
-import { PurchaseDto } from "../dtos";
-import { Purchase } from "../entities";
+import { Injectable } from '@nestjs/common';
+import { PurchaseDto } from '../dtos';
+import { Purchase } from '../entities';
 
 @Injectable()
 export class PurchaseConverter {
-    
-    convert(purchase: Purchase): PurchaseDto {
-        const purchaseDto = new PurchaseDto();
+	convert(purchase: Purchase): PurchaseDto {
+		const purchaseDto = new PurchaseDto();
 
-        purchaseDto.purchaseId = purchase.purchaseId;
-        
-        purchaseDto.linkId = purchase.link.linkId;
-        purchaseDto.email = purchase.contact.email;
-        purchaseDto.amount = purchase.amount;
-        purchaseDto.firstName = purchase.contact.firstName;
-        purchaseDto.lastName = purchase.contact.lastName;
-        purchaseDto.phone = purchase.contact.phone;
-        purchaseDto.externalId = purchase.externalId;
-        purchaseDto.itemId = purchase.itemId;
-        purchaseDto.contactId = purchase.contact.contactId;
+		purchaseDto.purchaseId = purchase.purchaseId;
 
-        purchaseDto.createdAt = purchase.createdAt;
-        purchaseDto.updatedAt = purchase.updatedAt;
+		purchaseDto.linkId = purchase.link.linkId;
+		purchaseDto.email = purchase.contact.email;
+		purchaseDto.amount = purchase.amount;
+		purchaseDto.firstName = purchase.contact.firstName;
+		purchaseDto.lastName = purchase.contact.lastName;
+		purchaseDto.phone = purchase.contact.phone;
+		purchaseDto.externalId = purchase.externalId;
+		purchaseDto.itemId = purchase.itemId;
+		purchaseDto.contactId = purchase.contact.contactId;
 
-        return purchaseDto;
-    }
+		purchaseDto.createdAt = purchase.createdAt;
+		purchaseDto.updatedAt = purchase.updatedAt;
 
+		return purchaseDto;
+	}
 }

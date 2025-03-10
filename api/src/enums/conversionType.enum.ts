@@ -1,4 +1,4 @@
 export enum conversionTypeEnum {
-    CONTACT = 'signup',
-    PURCHASE = 'purchase',
-};
+	CONTACT = 'signup',
+	PURCHASE = 'purchase',
+}
