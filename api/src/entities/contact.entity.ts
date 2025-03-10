@@ -50,7 +50,7 @@ export class Contact {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Program, (program) => program.contacts)
+  @ManyToOne(() => Program, (program) => program.contacts, { onDelete: 'SET NULL' })
   @JoinColumn({
     name: 'program_id',
     referencedColumnName: 'programId',

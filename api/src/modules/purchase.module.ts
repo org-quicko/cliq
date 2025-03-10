@@ -11,6 +11,6 @@ import { Contact } from 'src/entities';
   imports: [TypeOrmModule.forFeature([Purchase, Contact]), ContactModule],
   controllers: [PurchaseController],
   providers: [PurchaseService, PurchaseConverter],
-  exports: [PurchaseConverter, PurchaseConverter]
+  exports: [PurchaseService, PurchaseConverter]
 })
 export class PurchaseModule {}

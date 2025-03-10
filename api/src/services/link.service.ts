@@ -39,7 +39,7 @@ export class LinkService {
     }
 
     const newLink = this.linkRepository.create({
-      name: body.name,
+      refVal: body.refVal,
       source: body.source,
       medium: body.medium,
       program: {
@@ -115,10 +115,11 @@ export class LinkService {
   }
 
   async getFirstLink(programId?: string, promoterId?: string) {
-    this.logger.info('START: getRandomLink service');
+    this.logger.info('START: getFirstLink service');
 
     if (!programId && !promoterId) {
-      throw new BadRequestException(`Error. Must provide one of Progrma ID or Promoter ID to get random link.`);
+      this.logger.error(`Error. Must provide one of Program ID or Promoter ID to get random link.`);
+      throw new BadRequestException(`Error. Must provide one of Program ID or Promoter ID to get random link.`);
     }
 
     const linkResult = await this.linkRepository.findOne({ 
@@ -129,10 +130,11 @@ export class LinkService {
     });
 
     if (!linkResult) {
-      throw new NotFoundException(`Error. Failed to get random link for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
+      this.logger.error(`Error. Failed to get first link for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
+      throw new NotFoundException(`Error. Failed to get first link for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
     }
 
-    this.logger.info('END: getRandomLink service');
+    this.logger.info('END: getFirstLink service');
     return linkResult;
   }
 
@@ -150,6 +152,30 @@ export class LinkService {
 
     this.logger.info('END: getLink service');
     return this.linkConverter.convert(linkResult);
+  }
+
+  /**
+   * Get link by ref val
+   */
+  async getLinkEntityByRefVal(refVal: string) {
+    this.logger.info('START: getLinkByRefVal service');
+    const linkResult = await this.linkRepository.findOne({ 
+      where: {
+        refVal,
+      },
+      relations: {
+        program: true,
+        promoter: true,
+      }
+    });
+
+    if (!linkResult) {
+      this.logger.warn(`Failed to get link with ref val ${refVal}.`);
+      throw new NotFoundException(`Failed to get link with ref val ${refVal}.`);
+    }
+
+    this.logger.info('END: getLinkByRefVal service');
+    return linkResult;
   }
 
   /**

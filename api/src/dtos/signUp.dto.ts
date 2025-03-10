@@ -49,9 +49,9 @@ export class SignUpDto {
 
 export class CreateSignUpDto {
 
-    @Expose({ name: 'link_id' })
-    @IsUUID()
-    linkId: string;
+    @Expose({ name: 'ref_val' })
+    @IsString()
+    refVal: string;
 
     @IsOptional()
     @IsString()

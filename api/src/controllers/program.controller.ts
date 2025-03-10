@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ProgramService } from '../services/program.service'
 import { LoggerService } from '../services/logger.service';
@@ -8,7 +8,6 @@ import { Permissions } from '../decorators/permissions.decorator';
 import { Commission, Program, ProgramPromoter, ProgramUser, Purchase, ReferralView, SignUp } from '../entities';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import { PermissionsGuard } from '../guards/permissions/permissions.guard';
-import { Request } from 'express';
 
 @ApiTags('Program')
 @Controller('/programs')
@@ -26,12 +25,11 @@ export class ProgramController {
   @Permissions('create', Program)
   @Post()
   // TODO: put user id in header instead
-  async createProgram(@Req() req: Request, @Body() body: CreateProgramDto) {
+  async createProgram(@Headers('user_id') userId: string, @Body() body: CreateProgramDto) {
     this.logger.info('START: createProgram controller');
-    
-    const userId = req.headers.user_id as string;
+
     const result = await this.programService.createProgram(userId, body);
-    
+
     this.logger.info('END: createProgram controller');
     return { message: 'Successfully created program.', result };
   }
@@ -49,14 +47,14 @@ export class ProgramController {
     @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getAllPrograms controller');
-    
+
     const result = await this.programService.getAllPrograms({
       name,
       visibility,
       skip,
       take,
     });
-    
+
     this.logger.info('END: getAllPrograms controller');
     return { message: 'Successfully fetched all programs.', result };
   }
@@ -69,9 +67,9 @@ export class ProgramController {
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {
     this.logger.info('START: getProgram controller');
-    
+
     const result = await this.programService.getProgram(programId);
-    
+
     this.logger.info('END: getProgram controller');
     return { message: 'Successfully fetched program.', result };
   }
@@ -85,9 +83,9 @@ export class ProgramController {
   @Patch(':program_id')
   async updateProgram(@Param('program_id') programId: string, @Body() body: UpdateProgramDto) {
     this.logger.info('START: updateProgram controller');
-    
+
     await this.programService.updateProgram(programId, body);
-    
+
     this.logger.info('END: updateProgram controller');
     return { message: 'Successfully updated program.' };
   }
@@ -101,9 +99,9 @@ export class ProgramController {
   @Delete(':program_id')
   async deleteProgram(@Param('program_id') programId: string) {
     this.logger.info('START: deleteProgram controller');
-    
+
     await this.programService.deleteProgram(programId);
-    
+
     this.logger.info('END: deleteProgram controller');
     return { message: 'Successfully deleted program.' };
   }
@@ -117,9 +115,9 @@ export class ProgramController {
   @Post(':program_id/invite')
   async inviteUser(@Param('program_id') programId: string, @Body() body: InviteUserDto) {
     this.logger.info('START: inviteUser controller');
-    
+
     await this.programService.inviteUser(programId, body);
-    
+
     this.logger.info('END: inviteUser controller');
     return { message: 'Successfully invited user to program.' };
   }
@@ -157,9 +155,9 @@ export class ProgramController {
   @Patch(':program_id/users/:user_id')
   async updateRole(@Param('program_id') programId: string, @Param('user_id') userId: string, @Body() body: UpdateProgramUserDto) {
     this.logger.info('START: updateRole controller');
-    
+
     await this.programService.updateRole(programId, userId, body);
-    
+
     this.logger.info('END: updateRole controller');
     return { message: 'Successfully updated role of user.' };
   }
@@ -199,54 +197,52 @@ export class ProgramController {
     this.logger.info('END: getAllPromoters controller');
     return { message: 'Successfully fetched all promoters of program.', result };
   }
-  
+
   /**
-   * Get signups in workspace
+   * Get signups in program
    */
   @ApiResponse({ status: 200, description: 'OK' })
   @Permissions('read', SignUp)
   @Get(':program_id/signups')
-  async getSignUpsInWorkspace(
-    @Req() req: Request, 
+  async getSignUpsInProgram(
+    @Headers('user_id') userId: string,     
     @Param('program_id') programId: string,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
-    this.logger.info('START: getSignUpsInWorkspace controller');
-    
-    const userId = req.headers.user_id as string;
-    const result = await this.programService.getSignUpsInWorkspace(userId, programId, {
-      skip, 
+    this.logger.info('START: getSignUpsInProgram controller');
+
+    const result = await this.programService.getSignUpsInProgram(userId, programId, {
+      skip,
       take,
     });
-    
-    this.logger.info('END: getSignUpsInWorkspace controller');
+
+    this.logger.info('END: getSignUpsInProgram controller');
     return { message: 'Successfully fetched all signups of program.', result };
   }
 
   /**
-   * Get purchases in workspace
+   * Get purchases in program
    */
   @ApiResponse({ status: 200, description: 'OK' })
   @Permissions('read', Purchase)
   @Get(':program_id/purchases')
-  async getPurchasesInWorkspace(
-    @Req() req: Request, 
+  async getPurchasesInProgram(
+    @Headers('user_id') userId: string,     
     @Param('program_id') programId: string,
     @Query('item_id') itemId?: string,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
-    this.logger.info('START: getPurchasesInWorkspace');
-    
-    const userId = req.headers.user_id as string;
-    const result = await this.programService.getPurchasesInWorkspace(userId, programId, {
+    this.logger.info('START: getPurchasesInProgram');
+
+    const result = await this.programService.getPurchasesInProgram(userId, programId, {
       itemId,
       skip,
       take,
     });
-    
-    this.logger.info('END: getPurchasesInWorkspace');
+
+    this.logger.info('END: getPurchasesInProgram');
     return { message: 'Successfully fetched all purchases of program.', result };
   }
 
@@ -257,21 +253,20 @@ export class ProgramController {
   @Permissions('read', Commission)
   @Get(':program_id/commissions')
   async getAllCommissions(
-    @Req() req: Request, 
+    @Headers('user_id') userId: string,     
     @Param('program_id') programId: string,
     @Query('conversion_type') conversionType: conversionTypeEnum,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getAllCommissions controller');
-    
-    const userId = req.headers.user_id as string;
+
     const result = await this.programService.getAllCommissions(userId, programId, {
       conversionType,
       skip,
       take,
     });
-    
+
     this.logger.info('END: getAllCommissions controller');
     return { message: 'Successfully fetched all commissions of program.', result };
   }
@@ -284,11 +279,11 @@ export class ProgramController {
   @Permissions('read', ReferralView)
   @Get(':program_id/referrals')
   async getAllProgramReferrals(@Param('program_id') programId: string) {
-      this.logger.info('START: getAllProgramReferrals controller');
+    this.logger.info('START: getAllProgramReferrals controller');
 
-      const result = await this.programService.getAllProgramReferrals(programId);
+    const result = await this.programService.getAllProgramReferrals(programId);
 
-      this.logger.info('END: getAllProgramReferrals controller');
-      return { message: 'Successfully got program referrals.', result };
+    this.logger.info('END: getAllProgramReferrals controller');
+    return { message: 'Successfully got program referrals.', result };
   }
 }

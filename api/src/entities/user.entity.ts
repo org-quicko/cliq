@@ -1,8 +1,8 @@
 import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import * as bcrypt from "bcrypt";
-import { SALT_ROUNDS } from 'src/constants';
+import { SALT_ROUNDS } from '../constants';
 import { ProgramUser } from './programUser.entity';
-import { roleEnum } from 'src/enums';
+import { roleEnum } from '../enums';
 
 
 @Entity()

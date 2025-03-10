@@ -49,7 +49,6 @@ export class UserAuthService {
             loginData = {
                 user_id: entity.userId,
                 email: entity.email,
-                role: entity.role,
             };
 
         } else loginData = null;
@@ -65,10 +64,10 @@ export class UserAuthService {
             sub: entity.user_id,
             email: entity.email,
             aud: audienceEnum.PROGRAM_USER,
-            role: entity.role
         };
 
         const accessToken = await this.jwtService.signAsync(tokenPayload);
+        
         this.logger.info(`END: loginUser service`);
         return {
             accessToken,

@@ -1,3 +1,4 @@
+export * from "./apiKey.entity";
 export * from "./circle.entity";
 export * from "./circlePromoter.entity";
 export * from "./commission.entity";

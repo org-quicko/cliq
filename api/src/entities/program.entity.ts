@@ -1,11 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Circle } from './circle.entity';
 import { Contact } from './contact.entity';
 import { Function } from './function.entity';
@@ -14,6 +7,7 @@ import { Member } from './member.entity';
 import { ProgramPromoter } from './programPromoter.entity';
 import { ProgramUser } from './programUser.entity';
 import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
+import { ApiKey } from './apiKey.entity';
 
 @Entity()
 export class Program {
@@ -43,6 +37,9 @@ export class Program {
 
   @Column('varchar', { name: 'time_zone' })
   timeZone: string;
+
+  @OneToMany(() => ApiKey, (apiKey) => apiKey.program)
+  apiKeys: ApiKey[];
 
   @CreateDateColumn({
     type: 'time with time zone',

@@ -8,8 +8,9 @@ export class LinkDto {
     @IsUUID()
     linkId: string;
 
+    @Expose({ name: 'ref_val' })
     @IsString()
-    name: string;
+    refVal: string;
 
     @Expose({ name: 'product_path' })
     @IsString()
@@ -31,8 +32,9 @@ export class LinkDto {
 }
 
 export class CreateLinkDto {
+    @Expose({ name: 'ref_val' })
     @IsString()
-    name: string;
+    refVal: string;
 
     @IsString({ each: true })
     source: string;

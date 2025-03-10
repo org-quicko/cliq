@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, Brackets } from 'typeorm';
 import { Parser } from 'json2csv';
 import * as fs from 'fs';
 import { CreatePromoterDto, InviteMemberDto, UpdatePromoterMemberDto } from '../dtos';
-import { Circle, CirclePromoter, Contact, ProgramPromoter, Promoter, PromoterMember, Purchase, ReferralView, SignUp } from '../entities';
+import { Circle, CirclePromoter, Commission, Contact, ProgramPromoter, Promoter, PromoterMember, Purchase, ReferralView, ReferralViewAggregate, SignUp } from '../entities';
 import { MemberService } from './member.service';
 import { PromoterConverter } from '../converters/promoter.converter';
 import { PromoterMemberService } from './promoterMember.service';
@@ -35,11 +36,17 @@ export class PromoterService {
     @InjectRepository(SignUp)
     private signUpRepository: Repository<SignUp>,
 
+    @InjectRepository(Commission)
+    private commissionRepository: Repository<Commission>,
+
     @InjectRepository(Purchase)
     private purchaseRepository: Repository<Purchase>,
 
     @InjectRepository(ReferralView)
-    private referralRepository: Repository<ReferralView>,
+    private referralViewRepository: Repository<ReferralView>,
+
+    @InjectRepository(ReferralViewAggregate)
+    private referralViewProgramRepository: Repository<ReferralViewAggregate>,
 
     private programService: ProgramService,
     private memberService: MemberService,
@@ -379,9 +386,10 @@ export class PromoterService {
     return signUpDtos;
   }
 
-  /**
-   * Get contacts for promoter
-   */
+  // TODO: Consider removing this entirely
+  // /**
+  //  * Get contacts for promoter
+  //  */
   async getContactsForPromoter(programId: string, promoterId: string, queryOptions: QueryOptionsInterface = {}) {
     this.logger.info('START: getContactsForPromoter service')
 
@@ -465,6 +473,19 @@ export class PromoterService {
     return result;
   }
 
+  async getPromoterReferrals(programId: string, promoterId: string) {
+    this.logger.info(`START: getPromoterReferrals service`);
+
+    // checking if the program and promoter exist
+    await this.programService.getProgram(programId);
+    await this.getPromoter(promoterId);
+
+    const referralResult = await this.referralViewRepository.find({ where: { promoterId } });
+
+    this.logger.info(`END: getPromoterReferrals service`);
+    return referralResult;
+  }
+
   /**
    * Get promoter commissions
    */
@@ -497,13 +518,30 @@ export class PromoterService {
     return commissionDtos;
   }
 
+  async getFirstCommission(promoterId: string) {
+    this.logger.info('START: getFirstCommission service');
+
+    const commissionResult = await this.commissionRepository.findOne({
+      where: {
+        promoterId
+      }
+    });
+
+    if (!commissionResult) {
+      throw new BadRequestException();
+    }
+
+    this.logger.info('END: getFirstCommission service');
+    return commissionResult;
+  }
+
   /**
    * Get contacts report
    */
-  async getContactsReport(programId: string, promoterId: string) {
-    this.logger.info('START: getContactsReport service');
+  async getSignUpsReport(programId: string, promoterId: string) {
+    this.logger.info('START: getSignUpsReport service');
 
-    const contactsResult = await this.getContactsForPromoter(programId, promoterId);
+    const contactsResult = await this.getSignUpsForPromoter(programId, promoterId);
 
     const fields = ['contactId', 'firstName', 'lastName', 'email', 'phone', 'createdAt'];
     const parser = new Parser({ fields });
@@ -520,7 +558,7 @@ export class PromoterService {
 
     fs.writeFileSync(filePath, csv);
 
-    this.logger.info('END: getContactsReport service');
+    this.logger.info('END: getSignUpsReport service');
     return filePath;
   }
 
@@ -556,14 +594,13 @@ export class PromoterService {
    * Get referrals report
    */
   async getReferralsReport(programId: string, promoterId: string) {
-    this.logger.info('START: getPurchasesReport service');
+    this.logger.info('START: getReferralsReport service');
 
-    const purchasesResult = await this.getPromoterReferrals(programId, promoterId);
+    const referralsResult = await this.getPromoterReferrals(programId, promoterId);
 
-    const fields = ['contactId', 'firstName', 'lastName', 'email', 'phone', 'createdAt', 'amount', 'externalId', 'linkId'];
+    const fields = ['contactId', 'totalRevenue', 'totalCommission', 'contactInfo'];
     const parser = new Parser({ fields });
-    const csv = parser.parse(purchasesResult);
-
+    const csv = parser.parse(referralsResult);
 
     const publicDir = path.resolve(__dirname, '..', '..', 'public');
 
@@ -571,27 +608,16 @@ export class PromoterService {
       fs.mkdirSync(publicDir, { recursive: true });
     }
 
-    const fileName = `purchases_${Date.now()}.csv`;
+    const fileName = `referrals_${Date.now()}.csv`;
     const filePath = path.join(publicDir, fileName);
     fs.writeFileSync(filePath, csv);
 
-    this.logger.info('END: getPurchasesReport service');
+    this.logger.info('END: getReferralsReport service');
     return filePath;
 
   }
 
-  async getPromoterReferrals(programId: string, promoterId: string) {
-    this.logger.info(`START: getPromoterReferrals service`);
-
-    // checking if the program and promoter exist
-    await this.programService.getProgram(programId);
-    await this.getPromoter(promoterId);
-
-    const referralResult = await this.referralRepository.find({ where: { promoterId } });
-
-    this.logger.info(`END: getPromoterReferrals service`);
-    return referralResult;
-  }
+  
 
   async getPromoterStatistics(programId: string, promoterId: string) {
     this.logger.info(`START: getPromoterStatistics service`);
@@ -600,14 +626,17 @@ export class PromoterService {
     await this.programService.getProgram(programId);
     await this.getPromoter(promoterId);
 
-    const referralResult = await this.referralRepository
-      .createQueryBuilder()
-      .select('SUM(total_commission)', 'total_commission')
-      .addSelect('SUM(total_revenue)', 'total_revenue')
-      .where(`promoter_id = '${promoterId}'`)
-      .andWhere(`program_id = '${programId}'`)
-      .groupBy('promoter_id')
-      .getRawOne();
+    const referralResult = await this.referralViewProgramRepository.findOne({
+      select: {
+        totalCommission: true,
+        totalRevenue: true,
+      },
+      where: {
+        programId,
+        promoterId,
+      },
+    });
+
 
     let referralDto;
     if (!referralResult) {
@@ -621,5 +650,20 @@ export class PromoterService {
 
     this.logger.info(`END: getPromoterStatistics service`);
     return referralDto;
+  }
+
+  async getFirstPromoterReferral(promoterId: string) {
+    this.logger.info(`START: getFirstPromoterReferral service`);
+
+    await this.getPromoter(promoterId);
+    const referralResult = await this.referralViewProgramRepository.findOne({ where: { promoterId } });
+
+    if (!referralResult) {
+      this.logger.error(`Error. Failed to get first referral for Promoter ID: ${promoterId}.`);
+      throw new NotFoundException(`Error. Failed to get first referral for Promoter ID: ${promoterId}.`);
+    }
+
+    this.logger.info(`END: getFirstPromoterReferral service`);
+    return referralResult;
   }
 }

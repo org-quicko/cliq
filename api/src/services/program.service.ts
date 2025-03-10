@@ -12,7 +12,6 @@ import { ProgramConverter } from '../converters/program.converter';
 import { PromoterConverter } from '../converters/promoter.converter';
 import { UserConverter } from '../converters/user.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { ContactConverter } from '../converters/contact.converter';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { CommissionConverter } from '../converters/commission.converter';
 import { roleEnum, statusEnum } from '../enums';
@@ -38,17 +37,13 @@ export class ProgramService {
     private readonly purchaseRepository: Repository<Purchase>,
 
     @InjectRepository(ReferralView)
-    private readonly referralRepository: Repository<ReferralView>,
-
-    @InjectRepository(Commission)
-    private readonly commissionRepository: Repository<Commission>,
+    private readonly referralViewRepository: Repository<ReferralView>,
 
     private userService: UserService,
 
     private programConverter: ProgramConverter,
     private promoterConverter: PromoterConverter,
     private userConverter: UserConverter,
-    private contactConverter: ContactConverter,
     private signUpConverter: SignUpConverter,
     private purchaseConverter: PurchaseConverter,
     private commissionConverter: CommissionConverter,
@@ -225,7 +220,8 @@ export class ProgramService {
       } else {
 
         // does program-user relation exist?
-        const programUserResult = await programUserRepository.findOne({ where: { programId, userId: user.userId } });
+        const programUserResult = await this.checkIfUserExistsInProgram(programId, user.userId)
+
         if (programUserResult) {
 
           // if it does, is status active?
@@ -309,10 +305,11 @@ export class ProgramService {
    */
   async updateRole(programId: string, userId: string, body: UpdateProgramUserDto) {
     this.logger.info('START: updateRole service');
-    const programUserResult = await this.programUserRepository.findOne({ where: { programId, userId } });
+
+    const programUserResult = await this.checkIfUserExistsInProgram(programId, userId)
 
     if (!programUserResult) {
-      throw new NotFoundException(`Error. Program ${programId} not found.`);
+      throw new NotFoundException(`Error. User ${userId} of Program ${programId} not found.`);
     }
 
     await this.programUserRepository.update({ programId, userId }, { role: body.role, updatedAt: () => `NOW()` });
@@ -325,10 +322,10 @@ export class ProgramService {
   async removeUser(programId: string, userId: string) {
     this.logger.info('START: removeUser service');
 
-    const programUserResult = await this.programUserRepository.findOne({ where: { programId, userId } });
+    const programUserResult = await this.checkIfUserExistsInProgram(programId, userId)
 
     if (!programUserResult) {
-      throw new NotFoundException(`Error. Users of Program ${programId} not found.`);
+      throw new NotFoundException(`Error. User ${userId} of Program ${programId} not found.`);
     }
 
     await this.programUserRepository.update(
@@ -343,7 +340,7 @@ export class ProgramService {
 
     const programUserResult = await this.programUserRepository.findOne({ where: { programId, userId } });
 
-    if(!programUserResult) {
+    if (!programUserResult) {
       throw new NotFoundException(`Error. Failed to get program user row of Program ID ${programId}, User ID ${userId}`);
     }
 
@@ -377,7 +374,7 @@ export class ProgramService {
     }
 
     const programPromotersDto = programPromotersResult.map(pp => this.promoterConverter.convert(pp.promoter));
-    
+
     this.logger.info(`END: getAllPromoters service`);
     return programPromotersDto;
   }
@@ -385,8 +382,8 @@ export class ProgramService {
   /**
    * Get signups in workspace
    */
-  async getSignUpsInWorkspace(userId: string, programId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info(`START: getSignUpsInWorkspace service`);
+  async getSignUpsInProgram(userId: string, programId: string, queryOptions: QueryOptionsInterface = {}) {
+    this.logger.info(`START: getSignUpsInProgram service`);
 
     // will throw error if user isn't in the program
     if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
@@ -416,15 +413,15 @@ export class ProgramService {
       .filter(c => c.signup) // because not all contacts have signups
       .map(contact => this.signUpConverter.convert(contact.signup));
 
-    this.logger.info(`END: getSignUpsInWorkspace service`);
+    this.logger.info(`END: getSignUpsInProgram service`);
     return signUpDtos;
   }
 
   /**
    * Get purchases in workspace
   */
-  async getPurchasesInWorkspace(userId: string, programId: string, queryOptions: QueryOptionsInterface = {}) {
-    this.logger.info(`START: getPurchasesInWorkspace service`);
+  async getPurchasesInProgram(userId: string, programId: string, queryOptions: QueryOptionsInterface = {}) {
+    this.logger.info(`START: getPurchasesInProgram service`);
 
     if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
       this.logger.error(`User does not have permission to perform this action!`);
@@ -465,7 +462,7 @@ export class ProgramService {
 
     const purchaseDtos = purchases.map(purchase => this.purchaseConverter.convert(purchase));
 
-    this.logger.info(`END: getPurchasesInWorkspace service`);
+    this.logger.info(`END: getPurchasesInProgram service`);
     return purchaseDtos;
   }
 
@@ -513,9 +510,24 @@ export class ProgramService {
     this.logger.info(`START: getPromoterReferrals service`);
 
     await this.getProgram(programId);
-    const referralResult = await this.referralRepository.find({ where: { programId } });
+    const referralResult = await this.referralViewRepository.find({ where: { programId } });
 
     this.logger.info(`END: getPromoterReferrals service`);
     return referralResult;
-}
+  }
+
+  async getFirstProgramReferral(programId: string) {
+    this.logger.info(`START: getFirstProgramReferral service`);
+
+    await this.getProgram(programId);
+    const referralResult = await this.referralViewRepository.findOne({ where: { programId } });
+
+    if (!referralResult) {
+      this.logger.error(`Error. Failed to get first referral for Program ID: ${programId}.`);
+      throw new NotFoundException(`Error. Failed to get first link for Program ID: ${programId}.`);
+    }
+
+    this.logger.info(`END: getFirstProgramReferral service`);
+    return referralResult;
+  }
 }

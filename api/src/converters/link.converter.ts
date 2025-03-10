@@ -10,7 +10,7 @@ export class LinkConverter {
 
         linkDto.linkId = link.linkId;
 
-        linkDto.name = link.name;
+        linkDto.refVal = link.refVal;
         linkDto.source = link.source;
         linkDto.medium = link.medium;
 

@@ -1,16 +1,19 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
-import { DataSource } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { CreateCommissionDto } from "../dtos";
 import { Commission } from "../entities";
 import { LoggerService } from "./logger.service";
 import { GENERATE_COMMISSION_EVENT, GenerateCommissionEvent } from "../events";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class CommissionService {
     constructor(
+        @InjectRepository(Commission)
+        private readonly commissionRepository: Repository<Commission>,
 
-        private datasource: DataSource, 
+        private datasource: DataSource,
 
         private logger: LoggerService,
     ) { }
@@ -28,29 +31,42 @@ export class CommissionService {
             createCommissionDto.contactId = payload.contactId;
             createCommissionDto.conversionType = payload.conversionType;
             createCommissionDto.promoterId = payload.promoterId;
-            
+
             const newCommission = commissionRepository.create(createCommissionDto);
             const savedCommission = await commissionRepository.save(newCommission);
-            
-            if(!savedCommission) {
+
+            if (!savedCommission) {
                 this.logger.error(`Failed to save commission.`);
                 throw new InternalServerErrorException('Failed to save commission.');
             }
-            
+
             this.logger.info(`END: createCommission service`);
             return savedCommission;
-        })
-        .then(async (result) => {
-            // Ensure the refresh runs after the transaction is fully committed
-            this.logger.info('Transaction committed. Refreshing materialized view...');
-            await this.datasource.query(`REFRESH MATERIALIZED VIEW referral_mv;`);
-            await this.datasource.query(`REFRESH MATERIALIZED VIEW referral_mv_program;`);
-            return result;
-          }).catch((error) => {
-            if (error instanceof Error) {
-              this.logger.error('Error during purchase creation:', error.message);
-              throw error;
-            }
-          });
+        });
+
+    }
+
+    async getFirstCommission(programId?: string, promoterId?: string) {
+        this.logger.info('START: getFirstCommission service');
+
+        if (!programId && !promoterId) {
+            throw new BadRequestException(`Error. Must pass at least one of Program ID or Promoter ID to get commission result.`);
+        }
+
+        const commissionResult = await this.commissionRepository.findOne({
+            where: {
+                contact: {
+                    programId: programId,
+                },
+                promoterId,
+            },
+        });
+
+        if (!commissionResult) {
+            throw new BadRequestException();
+        }
+
+        this.logger.info('END: getFirstCommission service');
+        return commissionResult;
     }
 }

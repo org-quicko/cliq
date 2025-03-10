@@ -9,7 +9,7 @@ import { roleEnum, statusEnum, conversionTypeEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
-import { Commission, Contact, Member, Promoter, PromoterMember, Purchase, ReferralView, SignUp } from '../entities';
+import { Commission, Member, Promoter, PromoterMember, Purchase, ReferralView, ReferralViewAggregate, SignUp } from '../entities';
 import { PermissionsGuard } from '../guards/permissions/permissions.guard';
 
 @ApiTags('Promoter')
@@ -130,28 +130,29 @@ export class PromoterController {
     return { message: 'Successfully removed member from promoter.' };
   }
 
-  /**
-   * Get contacts for promoter
-   */
-  @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Contact)
-  @Get(':promoter_id/contacts')
-  async getContactsForPromoter(
-    @Param('program_id') programId: string,
-    @Param('promoter_id') promoterId: string,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
-  ) {
-    this.logger.info('START: getContactsForPromoter controller');
+  // TODO: consider removing this entirely as well
+  // /**
+  //  * Get contacts for promoter
+  //  */
+  // @ApiResponse({ status: 200, description: 'OK' })
+  // @Permissions('read', Contact)
+  // @Get(':promoter_id/contacts')
+  // async getContactsForPromoter(
+  //   @Param('program_id') programId: string,
+  //   @Param('promoter_id') promoterId: string,
+  //   @Query('skip') skip: number = 0,
+  //   @Query('take') take: number = 10,
+  // ) {
+  //   this.logger.info('START: getContactsForPromoter controller');
 
-    const result = await this.promoterService.getContactsForPromoter(programId, promoterId, {
-      skip,
-      take
-    });
+  //   const result = await this.promoterService.getContactsForPromoter(programId, promoterId, {
+  //     skip,
+  //     take
+  //   });
 
-    this.logger.info('END: getContactsForPromoter controller');
-    return { message: 'Successfully fetched all contacts of promoter.', result };
-  }
+  //   this.logger.info('END: getContactsForPromoter controller');
+  //   return { message: 'Successfully fetched all contacts of promoter.', result };
+  // }
 
   /**
    * Get signups for promoter
@@ -202,6 +203,22 @@ export class PromoterController {
   }
 
   /**
+     * Get promoter referrals, for a program
+     */
+  @ApiResponse({ status: 201, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @Permissions('read', ReferralView)
+  @Get(':promoter_id/referrals')
+  async getPromoterReferrals(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
+    this.logger.info('START: getPromoterReferrals controller');
+
+    const result = await this.promoterService.getPromoterReferrals(programId, promoterId);
+
+    this.logger.info('END: getPromoterReferrals controller');
+    return { message: 'Successfully got promoter referrals.', result };
+  }
+
+  /**
    * Get promoter commissions
    */
   @ApiResponse({ status: 200, description: 'OK' })
@@ -228,15 +245,15 @@ export class PromoterController {
 
   @ApiResponse({ status: 200, description: 'OK' })
   @SkipTransform()
-  @Permissions('read', Contact)
-  @Get(':promoter_id/reports/contacts')
-  async getContactsReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
-    this.logger.info('START: getContactsReport controller');
+  @Permissions('read', SignUp)
+  @Get(':promoter_id/reports/signups')
+  async getSignUpsReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
+    this.logger.info('START: getSignUpsReport controller');
 
-    const filePath = await this.promoterService.getContactsReport(programId, promoterId);
+    const filePath = await this.promoterService.getSignUpsReport(programId, promoterId);
 
     res.header('Content-Type', 'text/csv');
-    res.attachment(`promoter_${promoterId}_contacts.csv`);
+    res.attachment(`promoter_${promoterId}_signups.csv`);
 
     res.on('finish', async () => {
       try {
@@ -247,7 +264,7 @@ export class PromoterController {
       }
     });
 
-    this.logger.info('END: getContactsReport controller');
+    this.logger.info('END: getSignUpsReport controller');
     res.sendFile(filePath);
   }
 
@@ -276,20 +293,29 @@ export class PromoterController {
     res.sendFile(filePath);
   }
 
-  /**
-     * Get promoter referrals, for a program
-     */
-  @ApiResponse({ status: 201, description: 'OK' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @SkipTransform()
   @Permissions('read', ReferralView)
-  @Get(':promoter_id/referrals')
-  async getPromoterReferrals(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
-    this.logger.info('START: getPromoterReferrals controller');
+  @Get(':promoter_id/reports/referrals')
+  async getReferralsReport(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string, @Res() res: Response) {
+    this.logger.info('START: getReferralsReport controller');
 
-    const result = await this.promoterService.getPromoterReferrals(programId, promoterId);
+    const filePath = await this.promoterService.getReferralsReport(programId, promoterId);
 
-    this.logger.info('END: getPromoterReferrals controller');
-    return { message: 'Successfully got promoter referrals.', result };
+    res.header('Content-Type', 'text/csv');
+    res.attachment(`promoter_${promoterId}_referrals.csv`);
+
+    res.on('finish', async () => {
+      try {
+        await fs.promises.unlink(filePath);
+        console.log(`File deleted successfully`);
+      } catch (error) {
+        console.error('Error deleting file:', error);
+      }
+    });
+
+    this.logger.info('END: getReferralsReport controller');
+    res.sendFile(filePath);
   }
 
   /**
@@ -297,6 +323,7 @@ export class PromoterController {
    */
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
+  @Permissions('read', ReferralViewAggregate)
   @Get(':promoter_id/stats')
   async getPromoterStatistics(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
     this.logger.info('START: getPromoterStatistics controller');

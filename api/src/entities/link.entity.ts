@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -18,8 +19,9 @@ export class Link {
   @PrimaryGeneratedColumn('uuid', { name: 'link_id' })
   linkId: string;
 
-  @Column('varchar')
-  name: string;
+  @Index({ unique: true })
+  @Column('varchar', { name: 'ref_val' })
+  refVal: string;
 
   @Column('varchar')
   source: string;
@@ -47,7 +49,7 @@ export class Link {
   @OneToMany(() => Purchase, (purchase) => purchase.link)
   purchases: Purchase[];
 
-  @ManyToOne(() => Program, (program) => program.links)
+  @ManyToOne(() => Program, (program) => program.links, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'program_id',
     referencedColumnName: 'programId',

@@ -1,25 +1,28 @@
-import {
-  BadRequestException, Injectable, InternalServerErrorException,
-  // Logger,
-  NotFoundException
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Contact, Purchase } from '../entities';
 import { CreateContactDto, CreatePurchaseDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { PurchaseConverter } from '../converters/purchase.converter';
-import { contactStatusEnum, referralKeyTypeEnum, triggerEnum } from '../enums';
+import { contactStatusEnum, referralKeyTypeEnum } from '../enums';
 import { LoggerService } from './logger.service';
-import { TRIGGER_EVENT, TriggerEvent } from '../events/trigger.event';
+import { PURCHASE_EVENT, PurchaseEvent } from '../events/trigger.event';
+import { ApiKeyService } from './apiKey.service';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PurchaseService {
 
   constructor(
+
+    @InjectRepository(Purchase)
+    private readonly purchaseRepository: Repository<Purchase>,
+
     private linkService: LinkService,
     private contactService: ContactService,
+    private apiKeyService: ApiKeyService,
 
     private purchaseConverter: PurchaseConverter,
 
@@ -33,18 +36,24 @@ export class PurchaseService {
   /**
    * Create Purchase
    */
-  async createPurchase(body: CreatePurchaseDto) {
+  async createPurchase(apiKeyId: string, body: CreatePurchaseDto) {
 
     return this.datasource.transaction(async (manager) => {
-      const linkResult = await this.linkService.getLinkEntity(body.linkId, { program: true, promoter: true });
+      const linkResult = await this.linkService.getLinkEntityByRefVal(body.refVal);
 
       if (!linkResult.program) {
-        this.logger.error(`Failed to get program for link ${body.linkId} for purchase creation.`);
-        throw new NotFoundException(`Failed to get program for link ${body.linkId} for purchase creation.`);
+        this.logger.error(`Failed to get program for ref val ${body.refVal} for purchase creation.`);
+        throw new NotFoundException(`Failed to get program for ref val ${body.refVal} for purchase creation.`);
       }
       if (!linkResult.promoter) {
-        this.logger.error(`Failed to get promoter for link ${body.linkId} for purchase creation.`);
-        throw new NotFoundException(`Failed to get promoter for link ${body.linkId} for purchase creation.`);
+        this.logger.error(`Failed to get promoter for ref val ${body.refVal} for purchase creation.`);
+        throw new NotFoundException(`Failed to get promoter for ref val ${body.refVal} for purchase creation.`);
+      }
+
+      const validApiKeyOfProgram = await this.apiKeyService.keyExistsInProgram(linkResult.programId, apiKeyId);
+      if (!validApiKeyOfProgram) {
+        this.logger.error(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
+        throw new ForbiddenException(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
       }
 
       const programResult = linkResult.program;
@@ -106,31 +115,54 @@ export class PurchaseService {
         { status: contactStatusEnum.ACTIVE, updatedAt: () => `NOW()` }
       );
 
-      const signUpCreatedEvent = new TriggerEvent(
-        triggerEnum.PURCHASE,
+      const purchaseCreatedEvent = new PurchaseEvent(
         associatedContact.contactId,
         promoterResult.promoterId,
         programResult.programId,
-        savedPurchase.externalId,
-        undefined,
+        savedPurchase.itemId,
         savedPurchase.amount,
+        savedPurchase.externalId,
       );
-      this.eventEmitter.emit(TRIGGER_EVENT, signUpCreatedEvent);
+      // const purchaseCreatedEvent = new TriggerEvent(
+      //   triggerEnum.PURCHASE,
+      //   associatedContact.contactId,
+      //   promoterResult.promoterId,
+      //   programResult.programId,
+      //   savedPurchase.externalId,
+      //   undefined,
+      //   savedPurchase.amount,
+      // );
+      // this.eventEmitter.emit(TRIGGER_EVENT, purchaseCreatedEvent);
+      this.eventEmitter.emit(PURCHASE_EVENT, purchaseCreatedEvent);
 
       return this.purchaseConverter.convert(savedPurchase);
-    }).then(async (result) => {
-      // Ensure the refresh runs after the transaction is fully committed
-      this.logger.info('Transaction committed. Refreshing materialized view...');
-      await this.datasource.query(`REFRESH MATERIALIZED VIEW referral_mv;`);
-      await this.datasource.query(`REFRESH MATERIALIZED VIEW referral_mv_program;`);
-      return result;
-    }).catch((error) => {
-      if (error instanceof Error) {
-        this.logger.error('Error during purchase creation:', error.message);
-        throw error;
-      }
     });
 
+  }
 
+  async getFirstPurchase(programId?: string, promoterId?: string) {
+    this.logger.info('START: getFirstPurchase service');
+
+    if (!programId && !promoterId) {
+      throw new BadRequestException(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
+    }
+
+    const purchaseResult = await this.purchaseRepository.findOne({
+      where: {
+        contact: {
+          programId: programId,
+        },
+        promoter: {
+          promoterId
+        }
+      },
+    });
+
+    if (!purchaseResult) {
+      throw new BadRequestException();
+    }
+
+    this.logger.info('END: getFirstPurchase service');
+    return purchaseResult;
   }
 }

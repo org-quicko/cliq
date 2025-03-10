@@ -1,25 +1,32 @@
 import {
-  BadRequestException, ConflictException, Injectable, InternalServerErrorException,
+  BadRequestException, ConflictException, ForbiddenException, Injectable, InternalServerErrorException,
   // Logger, 
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Contact, SignUp } from '../entities';
 import { CreateContactDto, CreateSignUpDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { SignUpConverter } from '../converters/signUp.converter';
-import { TRIGGER_EVENT, TriggerEvent } from '../events';
-import { referralKeyTypeEnum, triggerEnum } from '../enums';
+import { SIGNUP_EVENT, SignUpEvent } from '../events';
+import { referralKeyTypeEnum } from '../enums';
 import { LoggerService } from './logger.service';
+import { ApiKeyService } from './apiKey.service';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class SignUpService {
 
   constructor(
+
+    @InjectRepository(SignUp)
+    private readonly signUpRepository: Repository<SignUp>,
+
     private linkService: LinkService,
     private contactService: ContactService,
+    private apiKeyService: ApiKeyService,
 
     private signUpConverter: SignUpConverter,
 
@@ -31,21 +38,26 @@ export class SignUpService {
   ) { }
 
   /**
-   * Create Purchase
+   * Create SignUp
    */
-  async createSignUp(body: CreateSignUpDto) {
+  async createSignUp(apiKeyId: string, body: CreateSignUpDto) {
     return this.datasource.transaction(async (manager) => {
       this.logger.info(`START: createSignUp service`);
 
-      const linkResult = await this.linkService.getLinkEntity(body.linkId, { program: true });
+      const linkResult = await this.linkService.getLinkEntityByRefVal(body.refVal);
 
       if (!linkResult.programId) {
-        this.logger.error(`Failed to get program for link ${body.linkId} for signup creation.`);
-        throw new NotFoundException(`Failed to get program for link ${body.linkId} for signup creation.`);
+        this.logger.error(`Failed to get program for ref val ${body.refVal} for signup creation.`);
+        throw new NotFoundException(`Failed to get program for ref val ${body.refVal} for signup creation.`);
       }
       if (!linkResult.promoterId) {
-        this.logger.error(`Failed to get promoter for link ${body.linkId} for signup creation.`);
-        throw new NotFoundException(`Failed to get promoter for link ${body.linkId} for signup creation.`);
+        this.logger.error(`Failed to get promoter for ref val ${body.refVal} for signup creation.`);
+        throw new NotFoundException(`Failed to get promoter for ref val ${body.refVal} for signup creation.`);
+      }
+      const validApiKeyOfProgram = await this.apiKeyService.keyExistsInProgram(linkResult.programId, apiKeyId);
+      if (!validApiKeyOfProgram) {
+        this.logger.error(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
+        throw new ForbiddenException(`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`);
       }
 
       const programResult = linkResult.program;
@@ -103,30 +115,50 @@ export class SignUpService {
         throw new InternalServerErrorException(`Error. Failed to create new signup.`);
       }
 
-      const signUpCreatedEvent = new TriggerEvent(
-        triggerEnum.SIGNUP,
+      const signUpCreatedEvent = new SignUpEvent(
         savedContact.contactId,
         linkResult.promoterId,
         programResult.programId,
       );
-      this.eventEmitter.emit(TRIGGER_EVENT, signUpCreatedEvent);
+      // const signUpCreatedEvent = new TriggerEvent(
+      //   triggerEnum.SIGNUP,
+      //   savedContact.contactId,
+      //   linkResult.promoterId,
+      //   programResult.programId,
+      // );
+      // this.eventEmitter.emit(TRIGGER_EVENT, signUpCreatedEvent);
+      this.eventEmitter.emit(SIGNUP_EVENT, signUpCreatedEvent);
 
       const signUpDto = this.signUpConverter.convert(savedSignUp);
 
       this.logger.info(`END: createSignUp service`);
       return signUpDto;
-    }).then(async (result) => {
-      // Ensure the refresh runs after the transaction is fully committed
-      this.logger.info('Transaction committed. Refreshing materialized view...');
-      await this.datasource.query(`REFRESH MATERIALIZED VIEW referral_mv;`);
-      await this.datasource.query(`REFRESH MATERIALIZED VIEW referral_mv_program;`);
-      return result;
-    }).catch((error) => {
-      if (error instanceof Error) {
-        this.logger.error('Error during purchase creation:', error.message);
-        throw error;
-      }
     });
+  }
+
+
+  async getFirstSignUp(programId?: string, promoterId?: string) {
+    this.logger.info('START: getFirstSignUp service');
+
+    if (!programId && !promoterId) {
+      throw new BadRequestException(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
+    }
+
+    const signUpResult = await this.signUpRepository.findOne({
+      where: {
+        contact: {
+          programId: programId,
+        },
+        promoterId,
+      },
+    });
+
+    if (!signUpResult) {
+      throw new BadRequestException();
+    }
+
+    this.logger.info('END: getFirstSignUp service');
+    return signUpResult;
   }
 
 }

@@ -59,9 +59,9 @@ export class PurchaseDto {
 
 export class CreatePurchaseDto {
 
-    @Expose({ name: 'link_id' })
-    @IsUUID()
-    linkId: string;
+    @Expose({ name: 'ref_val' })
+    @IsString()
+    refVal: string;
 
     @IsNumber()
     // @IsPositive({ message: 'amount entered must be greater than 0' })

@@ -7,12 +7,12 @@ import {
 import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsRelations, DataSource } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { Condition, Function, GenerateCommissionEffect, SwitchCircleEffect } from '../entities';
 import { ProgramService } from './program.service';
 import { FunctionConverter } from '../converters/function.converter';
-import { GENERATE_COMMISSION_EVENT, GenerateCommissionEvent, SWITCH_CIRCLE_EVENT, SwitchCircleEvent, TRIGGER_EVENT, TriggerEvent } from '../events';
+import { GENERATE_COMMISSION_EVENT, GenerateCommissionEvent, PURCHASE_EVENT, SIGNUP_EVENT, SWITCH_CIRCLE_EVENT, SwitchCircleEvent, TRIGGER_EVENT, TriggerEvent } from '../events';
 import { LoggerService } from './logger.service';
 import { CircleService } from './circle.service';
 import { PromoterService } from './promoter.service';
@@ -26,8 +26,6 @@ export class FunctionService {
   constructor(
     @InjectRepository(Function)
     private readonly functionRepository: Repository<Function>,
-    @InjectRepository(Condition)
-    private readonly conditionRepository: Repository<Condition>,
 
     private programService: ProgramService,
     private promoterService: PromoterService,
@@ -171,30 +169,8 @@ export class FunctionService {
     return functionDto;
   }
 
-  /**
-   * Get function
-   */
-  async getFunctionEntity(programId: string, functionId: string, relations?: FindOptionsRelations<Function>) {
-    this.logger.info('START: getFunctionEntity service');
-
-    const functionResult = await this.functionRepository.findOne({
-      where: {
-        program: { programId },
-        functionId,
-      },
-      relations,
-    });
-
-
-    if (!functionResult) {
-      throw new NotFoundException(`Error. Function ${functionId} not found.`);
-    }
-
-    this.logger.info('END: getFunctionEntity service');
-    return functionResult;
-  }
-
-  async getRandomFunction(programId: string) {
+  
+  async getFirstFunctionOfProgram(programId: string) {
     this.logger.info('START: getRandomFunction service');
 
     const functionResult = await this.functionRepository.findOne({
@@ -230,7 +206,20 @@ export class FunctionService {
       }
 
       // Fetch function with current conditions
-      const functionResult = await this.getFunctionEntity(programId, functionId, { conditions: true });
+      // const functionResult = await this.getFunctionEntity(programId, functionId, { conditions: true });
+      const functionResult = await functionRepository.findOne({ 
+        where: { 
+          programId, 
+          functionId,
+        },
+        relations: {
+          conditions: true,
+        },
+      });
+
+      if (!functionResult) {
+        throw new NotFoundException(`Error. Function ${functionId} not found.`);
+      }
 
       // Extract existing conditions
       const existingConditionIds = functionResult.conditions.map(c => c.conditionId);
@@ -300,6 +289,8 @@ export class FunctionService {
   }
 
   @OnEvent(TRIGGER_EVENT)
+  @OnEvent(SIGNUP_EVENT)
+  @OnEvent(PURCHASE_EVENT)
   async triggerProgramFunctions(payload: TriggerEvent) {
     this.logger.info('START: triggerProgramFunctions service');
 
@@ -359,7 +350,6 @@ export class FunctionService {
 
     } else if (func.effect instanceof GenerateCommissionEffect) { 
 
-      // TODO: Make typescript infer that payload.amount isn't null when a generate commission event is emitted
       let commissionAmount = 0;
       if (func.effect.commission.commissionType === commissionTypeEnum.FIXED) {
         commissionAmount = func.effect.commission.commissionValue; 

@@ -104,7 +104,7 @@ export class ReferralView {
 
 
 @ViewEntity({
-    name: 'referral_mv_program',
+    name: 'referral_mv_aggregate',
     expression: (datasource: DataSource) => {
         return datasource
             .createQueryBuilder()
@@ -117,7 +117,7 @@ export class ReferralView {
     },
     materialized: true,
 })
-export class ReferralViewProgram {
+export class ReferralViewAggregate {
     @Index()
     @PrimaryColumn('uuid', { name: 'program_id' })
     programId: string;

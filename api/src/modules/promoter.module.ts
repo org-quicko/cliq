@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PromoterController } from "../controllers/promoter.controller";
-import { Promoter, PromoterMember, Contact, Purchase, SignUp, ReferralView } from '../entities';
+import { Promoter, PromoterMember, Contact, Purchase, SignUp, ReferralView, ReferralViewAggregate, Commission } from '../entities';
 import { PromoterService } from '../services/promoter.service';
 import { PromoterMemberService } from '../services/promoterMember.service';
 import { PromoterConverter } from '../converters/promoter.converter';
@@ -21,6 +21,8 @@ import { ProgramModule } from './program.module';
       SignUp,
       Purchase,
       ReferralView,
+      ReferralViewAggregate,
+      Commission
     ]),
     CommissionModule,
     forwardRef(() => ProgramModule)

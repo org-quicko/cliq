@@ -17,6 +17,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SignUpModule } from './modules/signUp.module';
 import { LoggerModule } from './modules/logger.module';
 import { AuthModule } from './modules/auth.module';
+import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
+import { ApiKeyModule } from './modules/apiKey.module';
 
 @Module({
   imports: [
@@ -33,10 +35,11 @@ import { AuthModule } from './modules/auth.module';
       poolSize: 10,
       connectTimeoutMS: 2000,
       maxQueryExecutionTime: 5000,
-      // subscribers: ['./subscribers/*.subscriber.ts']
+      subscribers: [MaterializedViewSubscriber]
     }),
     EventEmitterModule.forRoot(),
     AuthModule,
+    ApiKeyModule,
     UserModule,
     ProgramModule,
     CircleModule,

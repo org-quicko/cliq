@@ -1,10 +1,13 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { PurchaseService } from '../services/purchase.service'
 import { CreatePurchaseDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
 
 @ApiTags('Purchase')
+// @UseGuards(ApiKeyGuard)
+@UseGuards(AuthGuard)
 @Controller('/purchases')
 export class PurchaseController {
 
@@ -20,10 +23,10 @@ constructor(
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @Post()
-  async createPurchase(@Body() body: CreatePurchaseDto) {
+  async createPurchase(@Headers('api_key_id') apiKeyId: string, @Body() body: CreatePurchaseDto) {
     this.logger.info('START: createPurchase controller');
     
-    const result = await this.purchaseService.createPurchase(body);
+    const result = await this.purchaseService.createPurchase(apiKeyId, body);
     
     this.logger.info('END: createPurchase controller');
     return { message: 'Successfully created purchase.', result };
