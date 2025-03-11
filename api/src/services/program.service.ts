@@ -86,6 +86,7 @@ export class ProgramService {
 				role: roleEnum.SUPER_ADMIN,
 			});
 
+			console.log(savedProgram);
 			// create default circle for program
 			const generateDefaultCircleEvent = new GenerateDefaultCircleEvent(
 				savedProgram.programId,

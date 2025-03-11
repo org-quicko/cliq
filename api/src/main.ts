@@ -15,6 +15,7 @@ import { HttpExceptionFilter } from './exceptionFilters/globalExceptionFilter';
 import { TransformInterceptor } from './interceptors/response.interceptor';
 
 async function bootstrap() {
+
 	const app = await NestFactory.create(AppModule, {
 		snapshot: true,
 		logger: WinstonModule.createLogger({

@@ -41,7 +41,6 @@ export class ProgramController {
   @ApiResponse({ status: 201, description: 'Created' })
   @Permissions('create', Program)
   @Post()
-  // TODO: put user id in header instead
   async createProgram(
     @Headers('user_id') userId: string,
     @Body() body: CreateProgramDto,
@@ -58,7 +57,7 @@ export class ProgramController {
    * Get all programs
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Program)
+  @Permissions('read_all', Program)
   @Get()
   async getAllPrograms(
     @Query('name') name: string,

@@ -12,7 +12,7 @@ import { SKIP_TRANSFORM_KEY } from 'src/decorators/skipTransform.decorator';
 
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<T, Response> {
-	constructor(private readonly reflector: Reflector) {}
+	constructor(private readonly reflector: Reflector) { }
 
 	intercept(
 		context: ExecutionContext,
@@ -41,6 +41,10 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response> {
 	}
 
 	private convertToSnakeCase(obj: any): any {
+		if (obj instanceof Date) {
+			return obj;
+		}
+
 		if (Array.isArray(obj)) {
 			return obj.map((item) => this.convertToSnakeCase(item));
 		} else if (obj !== null && typeof obj === 'object') {
@@ -53,4 +57,5 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response> {
 		}
 		return obj;
 	}
+
 }

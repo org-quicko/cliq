@@ -144,7 +144,6 @@ export class AuthorizationService {
         requiredPermissions: { action: actionsType; subject: subjectsType }[],
     ) {
         let subjectObjects: subjectsType[] = [];
-        // try {
         this.logger.info(`START: getSubjects service`);
         subjectObjects = await Promise.all(
             requiredPermissions.map(({ action, subject }) => {
@@ -153,6 +152,7 @@ export class AuthorizationService {
                 const subjectMemberId = request.params.member_id as string;
                 const subjectPromoterId = request.params.promoter_id as string;
 
+                console.log(subject);
                 if (subject === User) {
                     if (action === 'read' || action === 'create')
                         return subject;
@@ -166,7 +166,7 @@ export class AuthorizationService {
                     const user = this.userService.getUserEntity(subjectUserId);
                     return user;
                 } else if (subject === Program) {
-                    if (action === 'create') return subject;
+                    if (action === 'read_all' || action === 'create') return subject;
 
                     if (!subjectProgramId) {
                         throw new BadRequestException(
@@ -349,6 +349,7 @@ export class AuthorizationService {
             }),
         );
 
+        this.logger.info(`END: getSubjects service`);
         return subjectObjects;
     }
 
