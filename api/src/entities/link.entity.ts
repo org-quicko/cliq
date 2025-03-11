@@ -13,13 +13,14 @@ import { Program } from './program.entity';
 import { Promoter } from './promoter.entity';
 import { Purchase } from './purchase.entity';
 import { SignUp } from './signUp.entity';
+import { Commission } from './commission.entity'; 
 
+@Index(['refVal', 'programId'], { unique: true })
 @Entity()
 export class Link {
 	@PrimaryGeneratedColumn('uuid', { name: 'link_id' })
 	linkId: string;
-
-	@Index({ unique: true })
+ 
 	@Column('varchar', { name: 'ref_val' })
 	refVal: string;
 
@@ -30,14 +31,14 @@ export class Link {
 	medium: string;
 
 	@CreateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'created_at',
 	})
 	createdAt: Date;
 
 	@UpdateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'updated_at',
 	})
@@ -45,6 +46,9 @@ export class Link {
 
 	@OneToMany(() => SignUp, (signUp) => signUp.link)
 	signUps: SignUp[];
+
+	@OneToMany(() => Commission, (commission) => commission.link)
+	commissions: Commission[];
 
 	@OneToMany(() => Purchase, (purchase) => purchase.link)
 	purchases: Purchase[];

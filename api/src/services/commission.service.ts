@@ -32,8 +32,13 @@ export class CommissionService {
 			const createCommissionDto = new CreateCommissionDto();
 			createCommissionDto.amount = payload.amount;
 			createCommissionDto.contactId = payload.contactId;
+			createCommissionDto.linkId = payload.linkId;
 			createCommissionDto.conversionType = payload.conversionType;
 			createCommissionDto.promoterId = payload.promoterId;
+
+			if (payload.revenue) {
+				createCommissionDto.revenue = payload.revenue;
+			}
 
 			const newCommission =
 				commissionRepository.create(createCommissionDto);

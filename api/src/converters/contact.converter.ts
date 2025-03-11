@@ -16,8 +16,8 @@ export class ContactConverter {
 		contactDto.status = contact.status;
 		contactDto.programId = contact.program.programId;
 
-		contactDto.createdAt = contact.createdAt;
-		contactDto.updatedAt = contact.updatedAt;
+		contactDto.createdAt = new Date(contact.createdAt);
+		contactDto.updatedAt = new Date(contact.updatedAt);
 
 		return contactDto;
 	}

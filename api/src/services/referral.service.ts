@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { ReferralView, ReferralViewAggregate } from 'src/entities';
+import { ReferralView, ReferralAggregateView } from 'src/entities';
 import { Repository } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,8 +10,8 @@ export class ReferralService {
         @InjectRepository(ReferralView)
         private readonly referralViewRepository: Repository<ReferralView>,
 
-        @InjectRepository(ReferralViewAggregate)
-        private readonly referralViewAggregateRepository: Repository<ReferralViewAggregate>,
+        @InjectRepository(ReferralAggregateView)
+        private readonly referralViewAggregateRepository: Repository<ReferralAggregateView>,
 
         private logger: LoggerService,
     ) { }

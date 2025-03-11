@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS public.circle
 (
     circle_id uuid NOT NULL DEFAULT uuid_generate_v4(),
     name character varying COLLATE pg_catalog."default" NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     program_id uuid,
     CONSTRAINT "PK_08744ec19c2b01f4c29faacc393" PRIMARY KEY (circle_id)
 );
@@ -17,16 +17,16 @@ CREATE TABLE IF NOT EXISTS public.circle_promoter
 (
     circle_id uuid NOT NULL,
     promoter_id uuid NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT "PK_4ff1a30947984b4a64bfda525be" PRIMARY KEY (circle_id, promoter_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.contact
 (
     contact_id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     promoter_id uuid,
     link_id uuid,
     status contact_status_enum NOT NULL,
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS public.function
     commission_value character varying COLLATE pg_catalog."default" NOT NULL,
     conditions jsonb NOT NULL DEFAULT '[]'::jsonb,
     effect character varying COLLATE pg_catalog."default" NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     circle_id uuid,
     program_id uuid,
     trigger function_trigger_enum NOT NULL,
@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS public.link
     url character varying COLLATE pg_catalog."default" NOT NULL,
     source character varying COLLATE pg_catalog."default" NOT NULL,
     medium character varying COLLATE pg_catalog."default" NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     program_id uuid,
     promoter_id uuid,
     CONSTRAINT "PK_2c169f0fae14774f9787954ae6f" PRIMARY KEY (link_id)
@@ -76,8 +76,8 @@ CREATE TABLE IF NOT EXISTS public.member
     password character varying COLLATE pg_catalog."default" NOT NULL,
     first_name character varying COLLATE pg_catalog."default" NOT NULL,
     last_name character varying COLLATE pg_catalog."default" NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     program_id uuid,
     CONSTRAINT "PK_73e1828d94de0b2ddf89da05463" PRIMARY KEY (member_id),
     CONSTRAINT program_id_email_unique UNIQUE (program_id, email)
@@ -89,8 +89,8 @@ CREATE TABLE IF NOT EXISTS public.program
     name character varying COLLATE pg_catalog."default" NOT NULL,
     website character varying COLLATE pg_catalog."default" NOT NULL,
     currency character varying COLLATE pg_catalog."default" NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     visibility program_visibility_enum NOT NULL DEFAULT 'public'::program_visibility_enum,
     CONSTRAINT "PK_53f58709c0270f634ebc233c52c" PRIMARY KEY (program_id)
 );
@@ -98,8 +98,8 @@ CREATE TABLE IF NOT EXISTS public.program
 CREATE TABLE IF NOT EXISTS public.program_promoter
 (
     program_id uuid NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     promoter_id uuid NOT NULL,
     CONSTRAINT "PK_962c05e02f60d5c579897e7ee18" PRIMARY KEY (program_id, promoter_id)
 );
@@ -108,8 +108,8 @@ CREATE TABLE IF NOT EXISTS public.program_user
 (
     program_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     status program_user_status_enum NOT NULL DEFAULT 'active'::program_user_status_enum,
     role program_user_role_enum NOT NULL DEFAULT 'member'::program_user_role_enum,
     CONSTRAINT "PK_ca45ab30487a8daececdaa8a02f" PRIMARY KEY (program_id, user_id)
@@ -121,16 +121,16 @@ CREATE TABLE IF NOT EXISTS public.promoter
     name character varying COLLATE pg_catalog."default" NOT NULL,
     logo_url character varying COLLATE pg_catalog."default" NOT NULL,
     theme_color character varying COLLATE pg_catalog."default" NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT "PK_f496acc776e708cae318d49c16a" PRIMARY KEY (promoter_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.promoter_member
 (
     member_id uuid NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     promoter_id uuid NOT NULL,
     status promoter_member_status_enum NOT NULL DEFAULT 'active'::promoter_member_status_enum,
     role promoter_member_role_enum NOT NULL DEFAULT 'member'::promoter_member_role_enum,
@@ -143,8 +143,8 @@ CREATE TABLE IF NOT EXISTS public.purchase
     external_id character varying COLLATE pg_catalog."default" NOT NULL,
     contact_id character varying COLLATE pg_catalog."default" NOT NULL,
     amount numeric NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     link_id uuid,
     promoter_id uuid,
     CONSTRAINT "PK_fb8b774c1e9156a025b67133750" PRIMARY KEY (purchase_id)
@@ -157,8 +157,8 @@ CREATE TABLE IF NOT EXISTS public."user"
     password character varying COLLATE pg_catalog."default" NOT NULL,
     first_name character varying COLLATE pg_catalog."default" NOT NULL,
     last_name character varying COLLATE pg_catalog."default" NOT NULL,
-    created_at time with time zone NOT NULL DEFAULT now(),
-    updated_at time with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT "PK_758b8ce7c18b9d347461b30228d" PRIMARY KEY (user_id),
     CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE (email)
 );

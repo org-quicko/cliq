@@ -9,8 +9,9 @@ export class CircleConverter {
 			circleId: circle.circleId,
 			isDefaultCircle: circle.isDefaultCircle,
 			name: circle.name,
-			createdAt: circle.createdAt,
-			updatedAt: circle.updatedAt,
+
+			createdAt: new Date(circle.createdAt),
+			updatedAt: new Date(circle.updatedAt),
 		};
 	}
 }

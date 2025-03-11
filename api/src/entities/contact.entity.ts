@@ -26,6 +26,9 @@ export class Contact {
 	@Column('varchar', { name: 'first_name', nullable: true })
 	firstName: string;
 
+	@Column('varchar', { name: 'external_id', nullable: true })
+	externalId: string;
+
 	@Column('varchar', { name: 'last_name', nullable: true })
 	lastName: string;
 
@@ -39,14 +42,14 @@ export class Contact {
 	status: contactStatusEnum;
 
 	@CreateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'created_at',
 	})
 	createdAt: Date;
 
 	@UpdateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'updated_at',
 	})

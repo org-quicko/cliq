@@ -58,6 +58,11 @@ export class CreateContactDto {
 	@IsString()
 	email?: string;
 
+	@Expose({ name: 'external_id' })
+	@IsOptional()
+	@IsString()
+	externalId?: string;
+
 	@IsOptional()
 	@Expose({ name: 'first_name' })
 	@Transform(({ value }) => value, { toClassOnly: true })

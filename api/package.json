@@ -19,7 +19,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "generate": "npm run generateSchema && npm run generateObjects",
+    "generateSchema": "excel-to-schema --input ../resources/excel/PromoterWorkbook.xlsx --output ./generated/schemas/PromoterWorkbook.json",
+    "generateObjects": "schema-to-objects --input ./generated/schemas/PromoterWorkbook.json --output ./generated/sources"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
@@ -46,7 +49,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "xlsx": "^0.20.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -54,8 +58,8 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
-    "@org.quicko/nestjs-generator": "1.0.0-SNAPSHOT",
     "@org.quicko/postman-to-openapi-generator": "1.0.0-SNAPSHOT",
+    "@org.quicko/sheet-generator": "^6.0.4-SNAPSHOT",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
     "@types/bcrypt": "^5.0.2",

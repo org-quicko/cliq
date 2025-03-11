@@ -5,6 +5,8 @@ export class GenerateCommissionEvent {
 		public contactId: string,
 		public conversionType: conversionTypeEnum,
 		public promoterId: string,
+		public linkId: string,
+		public revenue: number | undefined,
 		public amount: number,
 	) {}
 }

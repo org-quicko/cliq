@@ -3,7 +3,7 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
+import { CreateFunctionDto, PurchaseDto, SignUpDto, UpdateFunctionDto } from 'src/dtos';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -434,9 +434,11 @@ export class FunctionService {
 			const generateCommissionEvent = new GenerateCommissionEvent(
 				payload.contactId,
 				payload.triggerType === triggerEnum.SIGNUP
-					? conversionTypeEnum.CONTACT
+					? conversionTypeEnum.SIGNUP
 					: conversionTypeEnum.PURCHASE,
 				payload.promoterId,
+				payload.linkId,
+				payload.amount,
 				commissionAmount,
 			);
 			this.eventEmitter.emit(
@@ -483,7 +485,7 @@ export class FunctionService {
 				await this.promoterService.getSignUpsForPromoter(
 					payload.programId,
 					payload.promoterId,
-				)
+				) as SignUpDto[]
 			).length;
 
 			evalResult = condition.evaluate({ numSignUps });
@@ -496,7 +498,8 @@ export class FunctionService {
 				await this.promoterService.getPurchasesForPromoter(
 					payload.programId,
 					payload.promoterId,
-				)
+					false,
+				) as PurchaseDto[]
 			).length;
 
 			evalResult = condition.evaluate({ numPurchases });

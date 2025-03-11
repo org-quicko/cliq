@@ -12,8 +12,8 @@ export class PromoterConverter {
 		promoterDto.name = promoter.name;
 		promoterDto.logoUrl = promoter.logoUrl;
 
-		promoterDto.createdAt = promoter.createdAt;
-		promoterDto.updatedAt = promoter.updatedAt;
+		promoterDto.createdAt = new Date(promoter.createdAt);
+		promoterDto.updatedAt = new Date(promoter.updatedAt);
 
 		return promoterDto;
 	}

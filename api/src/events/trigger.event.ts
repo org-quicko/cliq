@@ -6,10 +6,10 @@ export class TriggerEvent {
 		public contactId: string,
 		public promoterId: string,
 		public programId: string,
-		public externalId?: string,
+		public linkId: string,
 		public itemId?: string,
 		public amount?: number,
-	) {}
+	) { }
 }
 
 export class SignUpEvent extends TriggerEvent {
@@ -17,9 +17,15 @@ export class SignUpEvent extends TriggerEvent {
 		public contactId: string,
 		public promoterId: string,
 		public programId: string,
-		public externalId?: string,
+		public linkId: string,
 	) {
-		super(triggerEnum.SIGNUP, contactId, promoterId, programId, externalId);
+		super(
+			triggerEnum.SIGNUP, 
+			contactId, 
+			promoterId, 
+			programId, 
+			linkId, 
+		);
 	}
 }
 
@@ -28,16 +34,16 @@ export class PurchaseEvent extends TriggerEvent {
 		public contactId: string,
 		public promoterId: string,
 		public programId: string,
+		public linkId: string,
 		public itemId: string,
 		public amount: number,
-		public externalId?: string,
 	) {
 		super(
 			triggerEnum.PURCHASE,
 			contactId,
 			promoterId,
 			programId,
-			externalId,
+			linkId,
 			itemId,
 			amount,
 		);

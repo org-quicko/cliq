@@ -21,12 +21,14 @@ export class SignUpController {
 	@Post()
 	async createSignUp(
 		@Headers('api_key_id') apiKeyId: string,
+		@Headers('program_id') programId: string,
 		@Body() body: CreateSignUpDto,
 	) {
 		this.logger.info('START: createSignUp controller');
 
 		const signUpResult = await this.signUpService.createSignUp(
 			apiKeyId,
+			programId,
 			body,
 		);
 

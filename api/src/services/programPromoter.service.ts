@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoter } from '../entities';
 import { Repository } from 'typeorm';
@@ -13,7 +13,7 @@ export class ProgramPromoterService {
 		private logger: LoggerService,
 	) {}
 
-	async getRandomProgramPromoter(programId: string) {
+	async getFirstProgramPromoter(programId: string) {
 		this.logger.info('START: getProgramPromoterRowEntity service');
 
 		const promoterMember = await this.programPromoterRepository.findOne({
@@ -33,5 +33,20 @@ export class ProgramPromoterService {
 
 		this.logger.info('END: getProgramPromoterRowEntity service');
 		return promoterMember;
+	}
+
+	async getProgramPromoter(programId: string, promoterId: string) {
+		const programPromoterResult = await this.programPromoterRepository.findOne({
+			where: {
+				programId,
+				promoterId,
+			}
+		});
+
+		if (!programPromoterResult) {
+			throw new BadRequestException(`Error. Promoter ${promoterId} does not exist in Program ${programId}.`);
+		}
+
+		return programPromoterResult;
 	}
 }

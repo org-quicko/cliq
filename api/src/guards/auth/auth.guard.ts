@@ -37,6 +37,7 @@ export class AuthGuard implements CanActivate {
 			);
 			if (apiKey) {
 				request.headers.api_key_id = apiKey.apiKeyId;
+				request.headers.program_id = apiKey.programId;
 				this.logger.info(
 					`END: canActivate function - AuthApiKeyGuard (authenticated via API Key)`,
 				);
@@ -69,9 +70,7 @@ export class AuthGuard implements CanActivate {
 				);
 				if (user) {
 					request.headers.user_id = user.userId;
-					this.logger.info(
-						`END: canActivate function - AuthApiKeyGuard (authenticated user)`,
-					);
+					this.logger.info(`END: canActivate function - AuthApiKeyGuard (authenticated user)`);
 					return true;
 				}
 			} else {

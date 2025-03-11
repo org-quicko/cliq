@@ -8,6 +8,7 @@ export class ProgramConverter {
 	convert(program: Program): ProgramDto {
 		const programDto = new ProgramDto();
 
+		console.log(program);
 		programDto.programId = program.programId;
 
 		programDto.name = program.name;
@@ -18,7 +19,7 @@ export class ProgramConverter {
 		programDto.dateFormat = program.dateFormat;
 		programDto.timeZone = program.timeZone;
 
-		programDto.createdAt = program.createdAt;
+		programDto.createdAt = new Date(program.createdAt);
 		programDto.updatedAt = program.updatedAt;
 
 		return programDto;

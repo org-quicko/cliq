@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { ForbiddenError } from '@casl/ability';
@@ -78,6 +78,7 @@ export class PermissionsGuard implements CanActivate {
 				const action = requiredPermissions[i].action;
 
 				console.log('\n\n', action, subjectObjects[i], '\n\n');
+
 				ForbiddenError.from(ability).throwUnlessCan(
 					action,
 					subjectObjects[i],
@@ -86,7 +87,11 @@ export class PermissionsGuard implements CanActivate {
 
 			return true;
 		} catch (error) {
-			if (error instanceof Error) {
+			if (error instanceof BadRequestException) {
+				this.logger.warn(error.message);
+				throw error;
+			}
+			else if (error instanceof Error) {
 				this.logger.error(
 					`${entityType} does not have permission to perform this action!`,
 				);

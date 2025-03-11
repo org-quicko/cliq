@@ -35,15 +35,16 @@ export class PurchaseService {
 		private datasource: DataSource,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create Purchase
 	 */
-	async createPurchase(apiKeyId: string, body: CreatePurchaseDto) {
+	async createPurchase(apiKeyId: string, programId: string, body: CreatePurchaseDto) {
 		return this.datasource.transaction(async (manager) => {
 			const linkResult = await this.linkService.getLinkEntityByRefVal(
 				body.refVal,
+				programId
 			);
 
 			if (!linkResult.program) {
@@ -86,6 +87,7 @@ export class PurchaseService {
 				firstName: body?.firstName,
 				lastName: body?.lastName,
 				phone: body?.phone,
+				externalId: body?.externalId,
 			};
 
 			if (
@@ -106,7 +108,7 @@ export class PurchaseService {
 				programResult.programId,
 				{
 					...(programResult.referralKeyType ===
-					referralKeyTypeEnum.EMAIL
+						referralKeyTypeEnum.EMAIL
 						? { email: body.email }
 						: { phone: body.phone }),
 				},
@@ -133,7 +135,6 @@ export class PurchaseService {
 				contact: associatedContact,
 				link: linkResult,
 				promoter: promoterResult,
-				externalId: body.externalId,
 				itemId: body.itemId,
 			});
 
@@ -155,20 +156,11 @@ export class PurchaseService {
 				associatedContact.contactId,
 				promoterResult.promoterId,
 				programResult.programId,
+				linkResult.linkId,
 				savedPurchase.itemId,
 				savedPurchase.amount,
-				savedPurchase.externalId,
 			);
-			// const purchaseCreatedEvent = new TriggerEvent(
-			//   triggerEnum.PURCHASE,
-			//   associatedContact.contactId,
-			//   promoterResult.promoterId,
-			//   programResult.programId,
-			//   savedPurchase.externalId,
-			//   undefined,
-			//   savedPurchase.amount,
-			// );
-			// this.eventEmitter.emit(TRIGGER_EVENT, purchaseCreatedEvent);
+
 			this.eventEmitter.emit(PURCHASE_EVENT, purchaseCreatedEvent);
 
 			return this.purchaseConverter.convert(savedPurchase);
@@ -196,7 +188,9 @@ export class PurchaseService {
 		});
 
 		if (!purchaseResult) {
-			throw new BadRequestException();
+			this.logger.warn(`No Purchases found for Promoter ${promoterId} in Program ${programId}`);
+
+			throw new BadRequestException(`No Purchases found for Promoter ${promoterId} in Program ${programId}`);
 		}
 
 		this.logger.info('END: getFirstPurchase service');

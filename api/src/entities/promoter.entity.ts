@@ -22,18 +22,18 @@ export class Promoter {
 	@Column('varchar')
 	name: string;
 
-	@Column('varchar', { name: 'logo_url' })
+	@Column('varchar', { name: 'logo_url', nullable: true })
 	logoUrl: string;
 
 	@CreateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'created_at',
 	})
 	createdAt: Date;
 
 	@UpdateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'updated_at',
 	})

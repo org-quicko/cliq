@@ -8,7 +8,7 @@ import {
 	Purchase,
 	SignUp,
 	ReferralView,
-	ReferralViewAggregate,
+	ReferralAggregateView,
 	Commission,
 } from '../entities';
 import { PromoterService } from '../services/promoter.service';
@@ -20,6 +20,8 @@ import { PurchaseConverter } from '../converters/purchase.converter';
 import { CommissionModule } from './commission.module';
 import { SignUpConverter } from 'src/converters/signUp.converter';
 import { ProgramModule } from './program.module';
+import { LinkStatsView } from 'src/entities/link.view';
+import { LinkConverter } from 'src/converters/link.converter';
 
 @Module({
 	imports: [
@@ -29,8 +31,9 @@ import { ProgramModule } from './program.module';
 			Contact,
 			SignUp,
 			Purchase,
+			LinkStatsView,
+			ReferralAggregateView,
 			ReferralView,
-			ReferralViewAggregate,
 			Commission,
 		]),
 		CommissionModule,
@@ -43,6 +46,7 @@ import { ProgramModule } from './program.module';
 		PromoterConverter,
 		MemberConverter,
 		ContactConverter,
+		LinkConverter,
 		PurchaseConverter,
 		SignUpConverter,
 	],

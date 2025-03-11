@@ -18,6 +18,9 @@ export class LinkService {
 	constructor(
 		@InjectRepository(Link)
 		private readonly linkRepository: Repository<Link>,
+		
+
+
 		private programService: ProgramService,
 		private promoterService: PromoterService,
 		private linkConverter: LinkConverter,
@@ -186,11 +189,12 @@ export class LinkService {
 	/**
 	 * Get link by ref val
 	 */
-	async getLinkEntityByRefVal(refVal: string) {
+	async getLinkEntityByRefVal(refVal: string, programId: string) {
 		this.logger.info('START: getLinkByRefVal service');
 		const linkResult = await this.linkRepository.findOne({
 			where: {
 				refVal,
+				programId,
 			},
 			relations: {
 				program: true,

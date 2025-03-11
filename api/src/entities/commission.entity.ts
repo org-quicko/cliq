@@ -10,6 +10,7 @@ import {
 import { Contact } from './contact.entity';
 import { conversionTypeEnum } from '../enums';
 import { Promoter } from './promoter.entity';
+import { Link } from './link.entity';
 
 @Entity()
 export class Commission {
@@ -22,25 +23,24 @@ export class Commission {
 	@Column('decimal')
 	amount: number;
 
+	@Column('decimal', { nullable: true })
+	revenue: number;
+
 	@CreateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'created_at',
 	})
 	createdAt: Date;
 
 	@UpdateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'updated_at',
 	})
 	updatedAt: Date;
 
-	@ManyToOne(
-		() => Contact,
-		(contact) => contact.commissions,
-		// , { onDelete: 'SET NULL' }
-	)
+	@ManyToOne(() => Contact, (contact) => contact.commissions)
 	@JoinColumn({
 		name: 'contact_id',
 		referencedColumnName: 'contactId',
@@ -50,7 +50,7 @@ export class Commission {
 	@Column('uuid', { name: 'contact_id' })
 	contactId: string;
 
-	@ManyToOne(() => Promoter, (contact) => contact.commissions)
+	@ManyToOne(() => Promoter, (contact) => contact.commissions, { onDelete: 'SET NULL' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',
@@ -59,4 +59,14 @@ export class Commission {
 
 	@Column('uuid', { name: 'promoter_id' })
 	promoterId: string;
+	
+	@ManyToOne(() => Link, (link) => link.commissions, { onDelete: 'SET NULL' })
+	@JoinColumn({
+		name: 'link_id',
+		referencedColumnName: 'linkId',
+	})
+	link: Link;
+
+	@Column('uuid', { name: 'link_id' })
+	linkId: string;
 }

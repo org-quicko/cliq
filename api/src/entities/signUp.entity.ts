@@ -24,24 +24,21 @@ export class SignUp {
 	@PrimaryColumn('uuid', { name: 'contact_id' })
 	contactId: string;
 
-	@Column('varchar', { name: 'external_id', nullable: true })
-	externalId: string;
-
 	@CreateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'created_at',
 	})
 	createdAt: Date;
 
 	@UpdateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'updated_at',
 	})
 	updatedAt: Date;
 
-	@ManyToOne(() => Promoter, (promoter) => promoter.signUps)
+	@ManyToOne(() => Promoter, (promoter) => promoter.signUps, { onDelete: 'CASCADE' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',

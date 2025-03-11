@@ -45,14 +45,14 @@ export class ApiKey {
 	@CreateDateColumn({
 		name: 'created_at',
 		default: () => `NOW()`,
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 	})
 	createdAt: Date;
 
 	@CreateDateColumn({
 		name: 'updated_at',
 		default: () => `NOW()`,
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 	})
 	updatedAt: Date;
 

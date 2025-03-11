@@ -13,8 +13,8 @@ export class ProgramUserConverter {
 		programUserDto.status = programUser.status;
 		programUserDto.role = programUser.role;
 
-		programUserDto.createdAt = programUser.createdAt;
-		programUserDto.updatedAt = programUser.updatedAt;
+		programUserDto.createdAt = new Date(programUser.createdAt);
+		programUserDto.updatedAt = new Date(programUser.updatedAt);
 
 		return programUserDto;
 	}

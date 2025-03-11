@@ -90,7 +90,6 @@ export class UserService {
 
 		const userResult = await this.userRepository.findOne({
 			where: { email: email },
-			// relations: [ProgramUser]
 			relations: {
 				programUsers: true,
 			},

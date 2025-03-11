@@ -22,8 +22,8 @@ export class FunctionConverter {
 			func.conditions,
 		);
 
-		functionDto.createdAt = func.createdAt;
-		functionDto.updatedAt = func.updatedAt;
+		functionDto.createdAt = new Date(func.createdAt);
+		functionDto.updatedAt = new Date(func.updatedAt);
 
 		return functionDto;
 	}

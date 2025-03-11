@@ -15,8 +15,8 @@ export class MemberConverter {
 		memberDto.role = promoterMember?.role;
 		memberDto.status = promoterMember?.status;
 
-		memberDto.createdAt = member.createdAt;
-		memberDto.updatedAt = member.updatedAt;
+		memberDto.createdAt = new Date(member.createdAt);
+		memberDto.updatedAt = new Date(member.updatedAt);
 
 		return memberDto;
 	}

@@ -1,14 +1,12 @@
 import {
-	BadRequestException,
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, Brackets } from 'typeorm';
-import { Parser } from 'json2csv';
-import * as fs from 'fs';
+import { Repository, DataSource, Brackets, FindOptionsWhere, Raw } from 'typeorm';
+import * as XLSX from 'xlsx';
 import {
 	CreatePromoterDto,
 	InviteMemberDto,
@@ -17,14 +15,13 @@ import {
 import {
 	Circle,
 	CirclePromoter,
-	Commission,
 	Contact,
 	ProgramPromoter,
 	Promoter,
 	PromoterMember,
 	Purchase,
 	ReferralView,
-	ReferralViewAggregate,
+	ReferralAggregateView,
 	SignUp,
 } from '../entities';
 import { MemberService } from './member.service';
@@ -34,12 +31,17 @@ import { MemberConverter } from '../converters/member.converter';
 import { ContactConverter } from '../converters/contact.converter';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import * as path from 'path';
 import { roleEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from 'src/converters/signUp.converter';
 import { CommissionConverter } from 'src/converters/commission.converter';
 import { ProgramService } from './program.service';
+import { sortOrderEnum } from 'src/enums/sortOrder.enum';
+import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
+import { LinkStatsView } from 'src/entities/link.view';
+import { ReferralConverter } from 'src/converters/referral.converter';
+import { LinkConverter } from 'src/converters/link.converter';
+import { PromoterWorkbook } from 'generated/sources';
 
 @Injectable()
 export class PromoterService {
@@ -56,8 +58,8 @@ export class PromoterService {
 		@InjectRepository(SignUp)
 		private signUpRepository: Repository<SignUp>,
 
-		@InjectRepository(Commission)
-		private commissionRepository: Repository<Commission>,
+		@InjectRepository(LinkStatsView)
+		private readonly linkStatsViewRepository: Repository<LinkStatsView>,
 
 		@InjectRepository(Purchase)
 		private purchaseRepository: Repository<Purchase>,
@@ -65,24 +67,28 @@ export class PromoterService {
 		@InjectRepository(ReferralView)
 		private referralViewRepository: Repository<ReferralView>,
 
-		@InjectRepository(ReferralViewAggregate)
-		private referralViewProgramRepository: Repository<ReferralViewAggregate>,
+		@InjectRepository(ReferralAggregateView)
+		private referralAggregateViewRepository: Repository<ReferralAggregateView>,
+
+
 
 		private programService: ProgramService,
 		private memberService: MemberService,
 		private promoterMemberService: PromoterMemberService,
 
 		private promoterConverter: PromoterConverter,
+		private linkConverter: LinkConverter,
 		private memeberConverter: MemberConverter,
 		private contactConverter: ContactConverter,
 		private purchaseConverter: PurchaseConverter,
 		private signUpConverter: SignUpConverter,
 		private commissionConverter: CommissionConverter,
+		private referralConverter: ReferralConverter,
 
 		private datasource: DataSource,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create promoter
@@ -96,13 +102,10 @@ export class PromoterService {
 			this.logger.info('START: createPromoter service');
 
 			const promoterRepository = manager.getRepository(Promoter);
-			const programPromoterRepository =
-				manager.getRepository(ProgramPromoter);
-			const promoterMemberRepository =
-				manager.getRepository(PromoterMember);
+			const programPromoterRepository = manager.getRepository(ProgramPromoter);
+			const promoterMemberRepository = manager.getRepository(PromoterMember);
 			const circleRepository = manager.getRepository(Circle);
-			const circlePromoterRepository =
-				manager.getRepository(CirclePromoter);
+			const circlePromoterRepository = manager.getRepository(CirclePromoter);
 
 			const promoterEntity = promoterRepository.create(body);
 			const savedPromoter = await promoterRepository.save(promoterEntity);
@@ -403,6 +406,8 @@ export class PromoterService {
 	async getSignUpsForPromoter(
 		programId: string,
 		promoterId: string,
+		toUseSheetJsonFormat: boolean = true,
+		whereOptions: FindOptionsWhere<Purchase> = {},
 		queryOptions: QueryOptionsInterface = {},
 	) {
 		this.logger.info('START: getSignUpsForPromoter service');
@@ -418,9 +423,11 @@ export class PromoterService {
 						},
 					},
 				},
+				...whereOptions
 			},
 			relations: {
 				contact: true,
+				link: true
 			},
 			...queryOptions,
 		});
@@ -434,6 +441,13 @@ export class PromoterService {
 			);
 		}
 
+		if (toUseSheetJsonFormat) {
+			const signUpSheetJson = this.signUpConverter.convertToSheetJson(signUpsResult);
+
+			this.logger.info('END: getSignUpsForPromoter service: Returning Workbook');
+			return signUpSheetJson;
+		}
+
 		const signUpDtos = signUpsResult.map((signUp) =>
 			this.signUpConverter.convert(signUp),
 		);
@@ -442,8 +456,6 @@ export class PromoterService {
 		return signUpDtos;
 	}
 
-	// TODO: Consider removing this entirely
-	// /**
 	//  * Get contacts for promoter
 	//  */
 	async getContactsForPromoter(
@@ -495,28 +507,26 @@ export class PromoterService {
 	async getPurchasesForPromoter(
 		programId: string,
 		promoterId: string,
+		toUseSheetJsonFormat: boolean = true,
+		whereOptions: FindOptionsWhere<Purchase> = {},
 		queryOptions: QueryOptionsInterface = {},
+
 	) {
 		this.logger.info('START: getPurchasesForPromoter service');
-
-		const whereOptions = {};
-
-		if (queryOptions['externalId']) {
-			whereOptions['externalId'] = queryOptions.externalId;
-			delete queryOptions['externalId'];
-		}
 
 		const purchases = await this.purchaseRepository.find({
 			where: {
 				promoter: {
 					promoterId,
 				},
+				contact: {
+					programId,
+				},
 				...whereOptions,
 			},
 			select: {
 				purchaseId: true,
 				amount: true,
-				externalId: true,
 				contact: {
 					contactId: true,
 					email: true,
@@ -525,6 +535,7 @@ export class PromoterService {
 					phone: true,
 				},
 				createdAt: true,
+				itemId: true,
 			},
 			relations: {
 				link: true,
@@ -533,22 +544,40 @@ export class PromoterService {
 			...queryOptions,
 		});
 
-		if (!purchases || purchases.length == 0) {
-			this.logger.warn(
-				`failed to get purchases for promoter ${promoterId}`,
-			);
+		if (!purchases) {
+			this.logger.warn(`failed to get purchases for promoter ${promoterId}`);
 			throw new NotFoundException(`No purchases found for ${promoterId}`);
+		}
+
+		console.log(purchases);
+
+		if (toUseSheetJsonFormat) {
+			const purchaseSheetJson = this.purchaseConverter.convertToSheetJson(purchases);
+
+			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
+
+			return purchaseSheetJson;
 		}
 
 		const result = purchases.map((purchase) =>
 			this.purchaseConverter.convert(purchase),
 		);
 
+
 		this.logger.info('END: getPurchasesForPromoter service');
 		return result;
 	}
 
-	async getPromoterReferrals(programId: string, promoterId: string) {
+
+	async getPromoterReferrals(
+		programId: string,
+		promoterId: string,
+		sortBy?: referralSortByEnum,
+		sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
+		toUseSheetJsonFormat: boolean = true,
+		whereOptions: FindOptionsWhere<Purchase> = {},
+		queryOptions: QueryOptionsInterface = {},
+	) {
 		this.logger.info(`START: getPromoterReferrals service`);
 
 		// checking if the program and promoter exist
@@ -556,8 +585,21 @@ export class PromoterService {
 		await this.getPromoter(promoterId);
 
 		const referralResult = await this.referralViewRepository.find({
-			where: { promoterId },
+			where: {
+				promoterId,
+				...whereOptions
+			},
+			...(sortBy && { order: { [sortBy as string]: sortOrder } }),
+			...queryOptions
 		});
+
+		if (toUseSheetJsonFormat) {
+			const commissionSheetJson = this.referralConverter.convertReferralViewToSheet(referralResult);
+
+			this.logger.info(`END: getPromoterReferrals service: Returning Workbook`);
+			return commissionSheetJson;
+		}
+
 
 		this.logger.info(`END: getPromoterReferrals service`);
 		return referralResult;
@@ -569,6 +611,7 @@ export class PromoterService {
 	async getPromoterCommissions(
 		programId: string,
 		promoterId: string,
+		toUseSheetJsonFormat: boolean = true,
 		queryOptions: QueryOptionsInterface = {},
 	) {
 		this.logger.info('START: getPromoterCommissions service');
@@ -601,6 +644,13 @@ export class PromoterService {
 			);
 		}
 
+		if (toUseSheetJsonFormat) {
+			const commissionSheetJson = this.commissionConverter.convertToSheet(promoterResult.commissions);
+
+			this.logger.info(`END: getPromoterCommissions service: Returning Workbook`);
+			return commissionSheetJson;
+		}
+
 		const commissionDtos = promoterResult.commissions.map((commission) =>
 			this.commissionConverter.convert(commission),
 		);
@@ -609,146 +659,132 @@ export class PromoterService {
 		return commissionDtos;
 	}
 
-	async getFirstCommission(promoterId: string) {
-		this.logger.info('START: getFirstCommission service');
-
-		const commissionResult = await this.commissionRepository.findOne({
-			where: {
-				promoterId,
-			},
-		});
-
-		if (!commissionResult) {
-			throw new BadRequestException();
-		}
-
-		this.logger.info('END: getFirstCommission service');
-		return commissionResult;
-	}
-
 	/**
 	 * Get contacts report
 	 */
-	async getSignUpsReport(programId: string, promoterId: string) {
+	async getSignUpsReport(
+		programId: string,
+		promoterId: string,
+		startDate?: Date,
+		endDate?: Date,
+	) {
 		this.logger.info('START: getSignUpsReport service');
 
-		const contactsResult = await this.getSignUpsForPromoter(
-			programId,
-			promoterId,
-		);
+		const filter = (startDate && endDate) ? {
+			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+				start: startDate.toISOString(),
+				end: endDate.toISOString(),
+			})
+		} : {};
 
-		const fields = [
-			'contactId',
-			'firstName',
-			'lastName',
-			'email',
-			'phone',
-			'createdAt',
-		];
-		const parser = new Parser({ fields });
-		const csv = parser.parse(contactsResult);
+		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, true, filter) as PromoterWorkbook;
 
-		const publicDir = path.resolve(__dirname, '..', '..', 'public');
+		const signUpTable = signUpsResult.getSignupSheet().getSignupTable();
 
-		if (!fs.existsSync(publicDir)) {
-			fs.mkdirSync(publicDir, { recursive: true });
-		}
+		const workbook = PromoterWorkbook.toXlsx();
+		const sheetData: any[] = [signUpTable.getHeader()];
 
-		const fileName = `contacts_${Date.now()}.csv`;
-		const filePath = path.join(publicDir, fileName);
+		signUpTable.getRows().map(row => {
+			sheetData.push(row);
+		});
 
-		fs.writeFileSync(filePath, csv);
+		const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+		XLSX.utils.book_append_sheet(workbook, worksheet, 'Signups');
+
+		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
 		this.logger.info('END: getSignUpsReport service');
-		return filePath;
+		return fileBuffer;
 	}
 
 	/**
 	 * Get purchases report
 	 */
-	async getPurchasesReport(programId: string, promoterId: string) {
+	async getPurchasesReport(
+		programId: string,
+		promoterId: string,
+		startDate?: Date,
+		endDate?: Date,
+	) {
 		this.logger.info('START: getPurchasesReport service');
 
-		const purchasesResult = await this.getPurchasesForPromoter(
-			programId,
-			promoterId,
-		);
+		const filter = (startDate && endDate) ? {
+			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+				start: startDate.toISOString(),
+				end: endDate.toISOString(),
+			})
+		} : {};
 
-		const fields = [
-			'contactId',
-			'firstName',
-			'lastName',
-			'email',
-			'phone',
-			'createdAt',
-			'amount',
-			'externalId',
-			'linkId',
-		];
-		const parser = new Parser({ fields });
-		const csv = parser.parse(purchasesResult);
+		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, true, filter) as PromoterWorkbook;
+		const purchasesTable = purchasesResult.getPurchaseSheet().getPurchaseTable();
 
-		const publicDir = path.resolve(__dirname, '..', '..', 'public');
+		const workbook = PromoterWorkbook.toXlsx();
+		const sheetData: any[] = [purchasesTable.getHeader()];
 
-		if (!fs.existsSync(publicDir)) {
-			fs.mkdirSync(publicDir, { recursive: true });
-		}
+		purchasesTable.getRows().map(row => {
+			sheetData.push(row);
+		});
 
-		const fileName = `purchases_${Date.now()}.csv`;
-		const filePath = path.join(publicDir, fileName);
-		fs.writeFileSync(filePath, csv);
+		const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+		XLSX.utils.book_append_sheet(workbook, worksheet, 'Purchases');
+
+		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
 		this.logger.info('END: getPurchasesReport service');
-		return filePath;
+		return fileBuffer;
 	}
 
 	/**
 	 * Get referrals report
 	 */
-	async getReferralsReport(programId: string, promoterId: string) {
+	async getReferralsReport(
+		programId: string,
+		promoterId: string,
+		startDate?: Date,
+		endDate?: Date,
+	) {
 		this.logger.info('START: getReferralsReport service');
 
-		const referralsResult = await this.getPromoterReferrals(
-			programId,
-			promoterId,
-		);
+		const filter = (startDate && endDate) ? {
+			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+				start: startDate.toISOString(),
+				end: endDate.toISOString(),
+			})
+		} : {};
 
-		const fields = [
-			'contactId',
-			'totalRevenue',
-			'totalCommission',
-			'contactInfo',
-		];
-		const parser = new Parser({ fields });
-		const csv = parser.parse(referralsResult);
+		const referralsResult = await this.getPromoterReferrals(programId, promoterId, undefined, undefined, true, filter) as PromoterWorkbook;
 
-		const publicDir = path.resolve(__dirname, '..', '..', 'public');
+		const referralTable = referralsResult.getReferralSheet().getReferralTable();
 
-		if (!fs.existsSync(publicDir)) {
-			fs.mkdirSync(publicDir, { recursive: true });
-		}
+		const workbook = PromoterWorkbook.toXlsx();
+		const sheetData: any[] = [referralTable.getHeader()];
 
-		const fileName = `referrals_${Date.now()}.csv`;
-		const filePath = path.join(publicDir, fileName);
-		fs.writeFileSync(filePath, csv);
+		referralTable.getRows().map(row => {
+			sheetData.push(row);
+		});
+
+		const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+		XLSX.utils.book_append_sheet(workbook, worksheet, 'Referrals');
+
+		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
 		this.logger.info('END: getReferralsReport service');
-		return filePath;
+		return fileBuffer;
 	}
 
-	async getPromoterStatistics(programId: string, promoterId: string) {
+	async getPromoterStatistics(
+		programId: string,
+		promoterId: string,
+		toUseSheetJsonFormat: boolean = true,
+	) {
 		this.logger.info(`START: getPromoterStatistics service`);
 
 		// checking if the program and promoter exist
 		await this.programService.getProgram(programId);
 		await this.getPromoter(promoterId);
 
-		const referralResult = await this.referralViewProgramRepository.findOne(
+		const referralAggregateResult = await this.referralAggregateViewRepository.findOne(
 			{
-				select: {
-					totalCommission: true,
-					totalRevenue: true,
-				},
 				where: {
 					programId,
 					promoterId,
@@ -757,13 +793,33 @@ export class PromoterService {
 		);
 
 		let referralDto;
-		if (!referralResult) {
+		if (!referralAggregateResult) {
 			referralDto = {
+				programId,
+				promoterId,
 				totalCommission: 0,
 				totalRevenue: 0,
+				totalSignUps: 0,
+				totalPurchases: 0,
 			};
 		} else {
-			referralDto = referralResult;
+			referralDto = referralAggregateResult;
+		}
+
+		if (toUseSheetJsonFormat) {
+			const promoterWorkbook = this.referralConverter.convertReferralAggregateViewToSheet([
+				referralAggregateResult ?? {
+					programId,
+					promoterId,
+					totalCommission: 0,
+					totalRevenue: 0,
+					totalSignUps: 0,
+					totalPurchases: 0,
+				}
+			]);
+			this.logger.info(`END: getPromoterStatistics service: Returning Workbook`);
+
+			return promoterWorkbook;
 		}
 
 		this.logger.info(`END: getPromoterStatistics service`);
@@ -774,7 +830,7 @@ export class PromoterService {
 		this.logger.info(`START: getFirstPromoterReferral service`);
 
 		await this.getPromoter(promoterId);
-		const referralResult = await this.referralViewProgramRepository.findOne(
+		const referralResult = await this.referralAggregateViewRepository.findOne(
 			{ where: { promoterId } },
 		);
 
@@ -790,4 +846,24 @@ export class PromoterService {
 		this.logger.info(`END: getFirstPromoterReferral service`);
 		return referralResult;
 	}
+
+	async getPromoterLinkStatistics(programId: string, promoterId: string, toUseSheetJsonFormat: boolean = true) {
+		this.logger.info(`START: getPromoterLinkStatistics service`);
+		const linkStatsResult = await this.linkStatsViewRepository.find({
+			where: {
+				programId,
+				promoterId
+			}
+		});
+
+		if (toUseSheetJsonFormat) {
+			const promoterWorkbook = this.linkConverter.convertLinkStatsToSheet(linkStatsResult);
+			this.logger.info(`START: getPromoterLinkStatistics service: Returning Workbook`);
+			return promoterWorkbook;
+		}
+
+		this.logger.info(`END: getPromoterLinkStatistics service`);
+		return linkStatsResult;
+	}
+
 }

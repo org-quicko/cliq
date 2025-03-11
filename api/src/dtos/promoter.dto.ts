@@ -30,7 +30,7 @@ export class CreatePromoterDto {
 	@IsOptional()
 	@Expose({ name: 'logo_url' })
 	@IsString()
-	logoUrl: string;
+	logoUrl?: string;
 }
 
 export class UpdatePromoterDto extends PartialType(CreatePromoterDto) {}

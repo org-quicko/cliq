@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
-import { IsDate, IsUUID, IsEnum, IsNumber, Min } from 'class-validator';
+import { IsDate, IsUUID, IsEnum, IsNumber, Min, IsOptional } from 'class-validator';
 import { conversionTypeEnum } from '../enums';
 
 export class CommissionDto {
@@ -46,9 +46,18 @@ export class CreateCommissionDto {
 	@IsUUID()
 	promoterId: string;
 
+	@Expose({ name: 'link_id' })
+	@IsUUID()
+	linkId: string;
+
 	@IsNumber({ allowInfinity: false })
 	@Min(0, { message: 'amount entered must be non negative.' })
 	amount: number;
+
+	@IsOptional()
+	@IsNumber({ allowInfinity: false })
+	@Min(0, { message: 'revenue entered must be non negative.' })
+	revenue?: number;
 }
 
 export class UpdateCommissionDto extends PartialType(CreateCommissionDto) {}

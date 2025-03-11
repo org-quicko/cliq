@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, UseGuards, Req, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
-import * as fs from 'fs';
 import { Request, Response } from 'express';
 import { PromoterService } from '../services/promoter.service';
 import {
@@ -20,10 +19,15 @@ import {
 	PromoterMember,
 	Purchase,
 	ReferralView,
-	ReferralViewAggregate,
+	ReferralAggregateView,
 	SignUp,
+	Link,
 } from '../entities';
 import { PermissionsGuard } from '../guards/permissions/permissions.guard';
+import { sortOrderEnum } from 'src/enums/sortOrder.enum';
+import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
+import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
+import { getReportFileName, getStartEndDate } from 'src/utils';
 
 @ApiTags('Promoter')
 @UseGuards(AuthGuard, PermissionsGuard)
@@ -32,7 +36,7 @@ export class PromoterController {
 	constructor(
 		private readonly promoterService: PromoterService,
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create promoter
@@ -162,37 +166,15 @@ export class PromoterController {
 		return { message: 'Successfully removed member from promoter.' };
 	}
 
-	// TODO: consider removing this entirely as well
-	// /**
-	//  * Get contacts for promoter
-	//  */
-	// @ApiResponse({ status: 200, description: 'OK' })
-	// @Permissions('read', Contact)
-	// @Get(':promoter_id/contacts')
-	// async getContactsForPromoter(
-	//   @Param('program_id') programId: string,
-	//   @Param('promoter_id') promoterId: string,
-	//   @Query('skip') skip: number = 0,
-	//   @Query('take') take: number = 10,
-	// ) {
-	//   this.logger.info('START: getContactsForPromoter controller');
-
-	//   const result = await this.promoterService.getContactsForPromoter(programId, promoterId, {
-	//     skip,
-	//     take
-	//   });
-
-	//   this.logger.info('END: getContactsForPromoter controller');
-	//   return { message: 'Successfully fetched all contacts of promoter.', result };
-	// }
-
 	/**
 	 * Get signups for promoter
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('read', SignUp)
+	@SkipTransform()
 	@Get(':promoter_id/signups')
 	async getSignUpsForPromoter(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Query('skip') skip: number = 0,
@@ -200,9 +182,13 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getSignUpsForPromoter controller');
 
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
 		const result = await this.promoterService.getSignUpsForPromoter(
 			programId,
 			promoterId,
+			toUseSheetJsonFormat,
+			{},
 			{
 				skip,
 				take,
@@ -221,21 +207,28 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('read', Purchase)
+	@SkipTransform()
 	@Get(':promoter_id/purchases')
 	async getPurchasesForPromoter(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
-		@Query('external_id') externalId?: string,
+		@Query('item_id') itemId?: string,
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
 		this.logger.info('START: getPurchasesForPromoter controller');
 
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
 		const result = await this.promoterService.getPurchasesForPromoter(
 			programId,
 			promoterId,
+			toUseSheetJsonFormat,
 			{
-				externalId,
+				...(itemId && { itemId }),
+			},
+			{
 				skip,
 				take,
 			},
@@ -253,17 +246,26 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 201, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
+	@SkipTransform()
 	@Permissions('read', ReferralView)
 	@Get(':promoter_id/referrals')
 	async getPromoterReferrals(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
+		@Query('sort_by') sortBy: referralSortByEnum = referralSortByEnum.CREATED_AT,
+		@Query('sort_order') sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING, // latest first
 	) {
 		this.logger.info('START: getPromoterReferrals controller');
+
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
 
 		const result = await this.promoterService.getPromoterReferrals(
 			programId,
 			promoterId,
+			sortBy,
+			sortOrder,
+			toUseSheetJsonFormat,
 		);
 
 		this.logger.info('END: getPromoterReferrals controller');
@@ -275,8 +277,10 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('read', Commission)
+	@SkipTransform()
 	@Get(':promoter_id/commissions')
 	async getPromoterCommissions(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Query('conversion_type') conversionType: conversionTypeEnum,
@@ -285,9 +289,12 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getPromoterCommissions controller');
 
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
 		const result = await this.promoterService.getPromoterCommissions(
 			programId,
 			promoterId,
+			toUseSheetJsonFormat,
 			{
 				conversionType,
 				skip,
@@ -307,31 +314,30 @@ export class PromoterController {
 	@Permissions('read', SignUp)
 	@Get(':promoter_id/reports/signups')
 	async getSignUpsReport(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
+		@Query('report_period') reportPeriod?: reportPeriodEnum,
+		@Query('start_date') startDate?: string,
+		@Query('end_date') endDate?: string,
 	) {
 		this.logger.info('START: getSignUpsReport controller');
 
-		const filePath = await this.promoterService.getSignUpsReport(
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+
+		const workbookBuffer = await this.promoterService.getSignUpsReport(
 			programId,
 			promoterId,
+			parsedStartDate,
+			parsedEndDate,
 		);
 
-		res.header('Content-Type', 'text/csv');
-		res.attachment(`promoter_${promoterId}_signups.csv`);
+		const fileName = getReportFileName('signups', reportPeriod, parsedStartDate, parsedEndDate);
 
-		res.on('finish', async () => {
-			try {
-				await fs.promises.unlink(filePath);
-				console.log(`File deleted successfully`);
-			} catch (error) {
-				console.error('Error deleting file:', error);
-			}
-		});
-
-		this.logger.info('END: getSignUpsReport controller');
-		res.sendFile(filePath);
+		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.send(workbookBuffer);
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
@@ -339,31 +345,31 @@ export class PromoterController {
 	@Permissions('read', Purchase)
 	@Get(':promoter_id/reports/purchases')
 	async getPurchasesReport(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
+		@Query('report_period') reportPeriod?: reportPeriodEnum,
+		@Query('start_date') startDate?: string,
+		@Query('end_date') endDate?: string,
 	) {
 		this.logger.info('START: getPurchasesReport controller');
 
-		const filePath = await this.promoterService.getPurchasesReport(
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+
+		const workbookBuffer = await this.promoterService.getPurchasesReport(
 			programId,
 			promoterId,
+			parsedStartDate,
+			parsedEndDate,
 		);
 
-		res.header('Content-Type', 'text/csv');
-		res.attachment(`promoter_${promoterId}_purchases.csv`);
+		const fileName = getReportFileName('purchases', reportPeriod, parsedStartDate, parsedEndDate);
+		console.log(fileName);
 
-		res.on('finish', async () => {
-			try {
-				await fs.promises.unlink(filePath);
-				console.log(`File deleted successfully`);
-			} catch (error) {
-				console.error('Error deleting file:', error);
-			}
-		});
-
-		this.logger.info('END: getPurchasesReport controller');
-		res.sendFile(filePath);
+		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.send(workbookBuffer);
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
@@ -371,31 +377,31 @@ export class PromoterController {
 	@Permissions('read', ReferralView)
 	@Get(':promoter_id/reports/referrals')
 	async getReferralsReport(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
+		@Query('report_period') reportPeriod?: reportPeriodEnum,
+		@Query('start_date') startDate?: string,
+		@Query('end_date') endDate?: string,
 	) {
 		this.logger.info('START: getReferralsReport controller');
 
-		const filePath = await this.promoterService.getReferralsReport(
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+
+		const workbookBuffer = await this.promoterService.getReferralsReport(
 			programId,
 			promoterId,
+			parsedStartDate,
+			parsedEndDate,
 		);
 
-		res.header('Content-Type', 'text/csv');
-		res.attachment(`promoter_${promoterId}_referrals.csv`);
+		const fileName = getReportFileName('referrals', reportPeriod, parsedStartDate, parsedEndDate);
+		
 
-		res.on('finish', async () => {
-			try {
-				await fs.promises.unlink(filePath);
-				console.log(`File deleted successfully`);
-			} catch (error) {
-				console.error('Error deleting file:', error);
-			}
-		});
-
-		this.logger.info('END: getReferralsReport controller');
-		res.sendFile(filePath);
+		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.send(workbookBuffer);
 	}
 
 	/**
@@ -403,17 +409,48 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@Permissions('read', ReferralViewAggregate)
+	@SkipTransform()
+	@Permissions('read', Link)
+	@Get(':promoter_id/link_stats')
+	async getPromoterLinkStatistics(
+		@Headers('x-accept-type') acceptType: string,
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+	) {
+		this.logger.info('START: getPromoterLinkStatistics controller');
+
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
+		const result = await this.promoterService.getPromoterLinkStatistics(
+			programId,
+			promoterId,
+			toUseSheetJsonFormat,
+		);
+
+		this.logger.info('END: getPromoterLinkStatistics controller');
+		return { message: 'Successfully got promoter statistics.', result };
+	}
+	/**
+	 * Get promoter statistics
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@ApiResponse({ status: 400, description: 'Bad Request' })
+	@SkipTransform()
+	@Permissions('read', ReferralAggregateView)
 	@Get(':promoter_id/stats')
 	async getPromoterStatistics(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 	) {
 		this.logger.info('START: getPromoterStatistics controller');
 
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
 		const result = await this.promoterService.getPromoterStatistics(
 			programId,
 			promoterId,
+			toUseSheetJsonFormat,
 		);
 
 		this.logger.info('END: getPromoterStatistics controller');

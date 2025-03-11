@@ -22,12 +22,14 @@ export class PurchaseController {
 	@Post()
 	async createPurchase(
 		@Headers('api_key_id') apiKeyId: string,
+		@Headers('program_id') programId: string,
 		@Body() body: CreatePurchaseDto,
 	) {
 		this.logger.info('START: createPurchase controller');
 
 		const result = await this.purchaseService.createPurchase(
 			apiKeyId,
+			programId,
 			body,
 		);
 

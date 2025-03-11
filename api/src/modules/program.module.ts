@@ -9,7 +9,7 @@ import {
 	Commission,
 	Purchase,
 	ReferralView,
-	ReferralViewAggregate,
+	ReferralAggregateView,
 } from '../entities';
 import { PromoterModule } from './promoter.module';
 import { ProgramConverter } from 'src/converters/program.converter';
@@ -18,6 +18,7 @@ import { PurchaseConverter } from 'src/converters/purchase.converter';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { ProgramPromoterService } from '../services/programPromoter.service';
 import { ReferralService } from 'src/services/referral.service';
+import { ReferralConverter } from 'src/converters/referral.converter';
 
 @Module({
 	imports: [
@@ -27,12 +28,12 @@ import { ReferralService } from 'src/services/referral.service';
 			ProgramPromoter,
 			Purchase,
 			Commission,
+			ReferralAggregateView,
 			ReferralView,
-			ReferralViewAggregate,
 		]),
 		PromoterModule,
 	],
-	controllers: [ProgramController],
+	controllers: [ProgramController], 
 	providers: [
 		ProgramService,
 		ProgramConverter,
@@ -41,12 +42,14 @@ import { ReferralService } from 'src/services/referral.service';
 		SignUpConverter,
 		ProgramPromoterService,
 		ReferralService,
+		ReferralConverter,
 	],
 	exports: [
 		ProgramService,
 		PromoterModule,
 		ProgramPromoterService,
 		ReferralService,
+		ReferralConverter,
 	],
 })
 export class ProgramModule {}

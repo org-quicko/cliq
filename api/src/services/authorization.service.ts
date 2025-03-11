@@ -23,7 +23,7 @@ import {
     PromoterMember,
     Purchase,
     ReferralView,
-    ReferralViewAggregate,
+    ReferralAggregateView,
     SignUp,
     User,
 } from '../entities';
@@ -80,7 +80,7 @@ export type subjectsType =
         | typeof ProgramPromoter
         | typeof Purchase
         | typeof ReferralView
-        | typeof ReferralViewAggregate
+        | typeof ReferralAggregateView
         | typeof SignUp
         | typeof User
     >
@@ -97,7 +97,6 @@ const userResources = [
     Condition,
     Circle,
 ];
-const memberResources = [Promoter, Contact, Purchase, SignUp, ReferralView];
 
 @Injectable()
 export class AuthorizationService {
@@ -144,8 +143,10 @@ export class AuthorizationService {
         request: any,
         requiredPermissions: { action: actionsType; subject: subjectsType }[],
     ) {
+        let subjectObjects: subjectsType[] = [];
+        // try {
         this.logger.info(`START: getSubjects service`);
-        const subjectObjects = await Promise.all(
+        subjectObjects = await Promise.all(
             requiredPermissions.map(({ action, subject }) => {
                 const subjectUserId = request.params.user_id as string;
                 const subjectProgramId = request.params.program_id as string;
@@ -208,7 +209,7 @@ export class AuthorizationService {
                         );
                     }
 
-                    return this.programPromoterService.getRandomProgramPromoter(
+                    return this.programPromoterService.getFirstProgramPromoter(
                         subjectProgramId,
                     );
                 } else if (subject === Promoter) {
@@ -298,7 +299,7 @@ export class AuthorizationService {
                         subjectProgramId,
                         subjectPromoterId,
                     );
-                } else if (subject === ReferralViewAggregate) {
+                } else if (subject === ReferralAggregateView) {
                     if (!subjectProgramId && !subjectPromoterId) {
                         throw new BadRequestException(
                             `Error. Must provide a Program ID or a Promoter ID for performing action on object`,
@@ -348,7 +349,6 @@ export class AuthorizationService {
             }),
         );
 
-        this.logger.info(`END: getSubjects service`);
         return subjectObjects;
     }
 
@@ -374,7 +374,7 @@ export class AuthorizationService {
                 'read',
                 [
                     ReferralView,
-                    ReferralViewAggregate,
+                    ReferralAggregateView,
                     ProgramPromoter,
                     Link,
                     Circle,
@@ -426,18 +426,15 @@ export class AuthorizationService {
     getMemberAbility(member: Member) {
         this.logger.info(`START: getMemberAbility service`);
 
-        const promoterMemberPermissions =
-            this.getPromoterMemberPermissions(member);
+        const promoterMemberPermissions = this.getPromoterMemberPermissions(member);
 
-        const { can: allow, build } = new AbilityBuilder<AppAbility>(
-            createAppAbility,
-        );
+        const { can: allow, build } = new AbilityBuilder<AppAbility>(createAppAbility);
 
-        for (const [promoterId, role] of Object.entries(
-            promoterMemberPermissions,
-        )) {
+        console.log('\n\n', promoterMemberPermissions);
+
+        for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
             allow('read', ReferralView, { promoterId });
-            allow('read', ReferralViewAggregate, { promoterId });
+            allow('read', ReferralAggregateView, { promoterId });
             allow('read', Commission, { promoterId });
             allow(['read'], Member, { promoterMembers: { promoterId } });
             allow(['read'], ReferralView, { promoterId });
@@ -446,7 +443,6 @@ export class AuthorizationService {
             allow(['read'], Link, { promoterId });
 
             if (role === roleEnum.ADMIN) {
-                allow('manage', memberResources);
                 // allow update program or invite other users to the program
                 allow(['update', 'invite_member'], Promoter, { promoterId });
 
@@ -456,7 +452,7 @@ export class AuthorizationService {
                     role: roleEnum.VIEWER,
                 });
 
-                allow(['create', 'delete'], Link, { promoterId });
+                allow('manage', Link, { promoterId });
             }
         }
 

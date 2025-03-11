@@ -16,9 +16,6 @@ export class Purchase {
 	@PrimaryGeneratedColumn('uuid', { name: 'purchase_id' })
 	purchaseId: string;
 
-	@Column('varchar', { name: 'external_id', nullable: true })
-	externalId: string;
-
 	@Column('varchar', { name: 'item_id' })
 	itemId: string;
 
@@ -29,14 +26,14 @@ export class Purchase {
 	amount: number;
 
 	@CreateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'created_at',
 	})
 	createdAt: Date;
 
 	@UpdateDateColumn({
-		type: 'time with time zone',
+		type: 'timestamp with time zone',
 		default: () => `now()`,
 		name: 'updated_at',
 	})
@@ -49,12 +46,15 @@ export class Purchase {
 	})
 	link: Link;
 
-	@ManyToOne(() => Promoter, (promoter) => promoter.purchases)
+	@ManyToOne(() => Promoter, (promoter) => promoter.purchases, { onDelete: 'CASCADE' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',
 	})
 	promoter: Promoter;
+
+	@Column('uuid', { name: 'promoter_id' })
+	promoterId: string;
 
 	@ManyToOne(() => Contact, (contact) => contact.purchases, {
 		onDelete: 'CASCADE',

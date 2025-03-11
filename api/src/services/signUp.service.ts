@@ -18,6 +18,7 @@ import { referralKeyTypeEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProgramPromoterService } from './programPromoter.service';
 
 @Injectable()
 export class SignUpService {
@@ -26,6 +27,7 @@ export class SignUpService {
 		private readonly signUpRepository: Repository<SignUp>,
 
 		private linkService: LinkService,
+		private programPromoterService: ProgramPromoterService,
 		private contactService: ContactService,
 		private apiKeyService: ApiKeyService,
 
@@ -41,12 +43,13 @@ export class SignUpService {
 	/**
 	 * Create SignUp
 	 */
-	async createSignUp(apiKeyId: string, body: CreateSignUpDto) {
+	async createSignUp(apiKeyId: string, programId: string, body: CreateSignUpDto) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info(`START: createSignUp service`);
 
 			const linkResult = await this.linkService.getLinkEntityByRefVal(
 				body.refVal,
+				programId,
 			);
 
 			if (!linkResult.programId) {
@@ -87,6 +90,7 @@ export class SignUpService {
 				firstName: body?.firstName,
 				lastName: body?.lastName,
 				phone: body?.phone,
+				externalId: body?.externalId
 			};
 
 			if (
@@ -139,7 +143,6 @@ export class SignUpService {
 				contact: savedContact,
 				link: linkResult,
 				promoterId: linkResult.promoterId,
-				externalId: body?.externalId,
 			});
 
 			const savedSignUp = await signUpRepository.save(newSignUp);
@@ -155,14 +158,9 @@ export class SignUpService {
 				savedContact.contactId,
 				linkResult.promoterId,
 				programResult.programId,
+				linkResult.linkId,
 			);
-			// const signUpCreatedEvent = new TriggerEvent(
-			//   triggerEnum.SIGNUP,
-			//   savedContact.contactId,
-			//   linkResult.promoterId,
-			//   programResult.programId,
-			// );
-			// this.eventEmitter.emit(TRIGGER_EVENT, signUpCreatedEvent);
+
 			this.eventEmitter.emit(SIGNUP_EVENT, signUpCreatedEvent);
 
 			const signUpDto = this.signUpConverter.convert(savedSignUp);
@@ -181,17 +179,24 @@ export class SignUpService {
 			);
 		}
 
+		if (programId && promoterId) {
+			// will throw error if promoter isn't in the program
+			await this.programPromoterService.getProgramPromoter(programId, promoterId);
+		}
+
 		const signUpResult = await this.signUpRepository.findOne({
 			where: {
 				contact: {
 					programId: programId,
 				},
-				promoterId,
+				promoterId, 
 			},
 		});
 
 		if (!signUpResult) {
-			throw new BadRequestException();
+			this.logger.warn(`No Signups found for Promoter ${promoterId} in Program ${programId}`);
+			
+			throw new BadRequestException(`No Signups found for Promoter ${promoterId} in Program ${programId}`);
 		}
 
 		this.logger.info('END: getFirstSignUp service');

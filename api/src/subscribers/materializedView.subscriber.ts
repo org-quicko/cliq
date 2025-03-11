@@ -1,8 +1,10 @@
-import { Commission, Purchase, SignUp } from '../entities';
+import { linkStatsMVName, referralAggregateMVName, referralMVName } from 'src/constants';
+import { Commission, Link, Purchase, SignUp } from '../entities';
 import {
 	EventSubscriber,
 	EntitySubscriberInterface,
 	InsertEvent,
+	RemoveEvent,
 } from 'typeorm';
 
 @EventSubscriber()
@@ -17,28 +19,47 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 			console.log('refreshing...');
 			await this.refreshMaterializedViews(event);
 		}
+
+		if (event.entity instanceof Link) {
+			await event.queryRunner.query(
+				`REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+			);
+		}
+	}
+
+	async afterRemove(event: RemoveEvent<any>): Promise<void> {
+		if (event.entity instanceof Link) {
+			await event.queryRunner.query(
+				`REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+			);
+		}
 	}
 
 	private async refreshMaterializedViews(
 		event: InsertEvent<any>,
 	): Promise<void> {
+
 		try {
 			await event.queryRunner.query(`
-                CREATE UNIQUE INDEX IF NOT EXISTS referral_mv_idx 
-                ON referral_mv (program_id, promoter_id, contact_id);
+                CREATE UNIQUE INDEX IF NOT EXISTS ${referralMVName}_idx 
+                ON ${referralMVName} (program_id, promoter_id, contact_id);
             `);
 
 			await event.queryRunner.query(
-				`REFRESH MATERIALIZED VIEW referral_mv;`,
+				`REFRESH MATERIALIZED VIEW ${referralMVName};`,
 			);
 
 			await event.queryRunner.query(`
-                CREATE UNIQUE INDEX IF NOT EXISTS referral_mv_aggregate_idx 
-                ON referral_mv_aggregate (program_id, promoter_id);
+                CREATE UNIQUE INDEX IF NOT EXISTS ${referralMVName}_aggregate_idx 
+                ON ${referralAggregateMVName} (program_id, promoter_id);
             `);
 
 			await event.queryRunner.query(
-				`REFRESH MATERIALIZED VIEW referral_mv_aggregate;`,
+				`REFRESH MATERIALIZED VIEW ${referralAggregateMVName};`,
+			);
+
+			await event.queryRunner.query(
+				`REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
 			);
 
 			console.log('Materialized views refreshed successfully.');
