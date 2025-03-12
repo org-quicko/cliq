@@ -5,6 +5,7 @@ import { CommissionRow, CommissionsSheet, CommissionsSummaryList, CommissionTabl
 import { isAfter, isBefore } from 'date-fns';
 import { conversionTypeEnum } from 'src/enums';
 import { maskInfo } from 'src/utils';
+import { formatDate } from 'src/utils/formatDate.util';
 
 @Injectable()
 export class CommissionConverter {
@@ -126,7 +127,7 @@ export class CommissionConverter {
 			row.setCommission(Number(commissionAmount));
 			row.setEmail(maskInfo(signUp.contact.email));
 			row.setPhone(maskInfo(signUp.contact.phone));
-			row.setSignUpDate(signUp.createdAt.toISOString());
+			row.setSignUpDate(formatDate(signUp.createdAt));
 			row.setUtmSource(signUp?.utmParams?.source);
 			row.setUtmMedium(signUp?.utmParams?.medium);
 
@@ -140,8 +141,8 @@ export class CommissionConverter {
 		const summarySheet = new CwSummarySheet();
 		const commissionsSummaryList = new CommissionsSummaryList();
 
-		commissionsSummaryList.addFrom(startDate ? startDate.toISOString() : fromDate.toISOString());
-		commissionsSummaryList.addTo(endDate ? endDate.toISOString() : toDate.toISOString());
+		commissionsSummaryList.addFrom(formatDate(startDate ? startDate : fromDate));
+		commissionsSummaryList.addTo(formatDate(endDate ? endDate : toDate));
 		commissionsSummaryList.addPromoterId(promoter.promoterId);
 		commissionsSummaryList.addPromoterName(promoter.name);
 		commissionsSummaryList.addPurchases(Number(totalPurchases));

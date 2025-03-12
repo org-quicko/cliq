@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PromoterWorkbook, ReferralAggregateRow, ReferralAggregateSheet, ReferralAggregateTable, ReferralRow, ReferralSheet, ReferralTable } from "generated/sources";
 import { ReferralView, ReferralAggregateView } from "src/entities";
 import { maskInfo } from "src/utils";
+import { formatDate } from "src/utils/formatDate.util";
 
 @Injectable()
 export class ReferralConverter {
@@ -13,9 +14,9 @@ export class ReferralConverter {
         newReferralRow.setStatus(referral.status);
         newReferralRow.setContactId(referral.contactId);
         newReferralRow.setContactInfo(maskInfo(referral.contactInfo));
-        newReferralRow.setTotalRevenue(referral.totalRevenue);
-        newReferralRow.setTotalCommission(referral.totalCommission);
-        newReferralRow.setUpdatedAt(referral.updatedAt.toISOString());
+        newReferralRow.setTotalRevenue(Number(referral.totalRevenue));
+        newReferralRow.setTotalCommission(Number(referral.totalCommission));
+        newReferralRow.setUpdatedAt(formatDate(referral.updatedAt));
 
         return newReferralRow;
     }
@@ -42,10 +43,10 @@ export class ReferralConverter {
 
         newReferralAggregateRow.setProgramId(referralAgg.programId);
         newReferralAggregateRow.setPromoterId(referralAgg.promoterId);
-        newReferralAggregateRow.setTotalSignups(referralAgg.totalSignUps);
-        newReferralAggregateRow.setTotalPurchases(referralAgg.totalPurchases);
-        newReferralAggregateRow.setTotalRevenue(referralAgg.totalRevenue);
-        newReferralAggregateRow.setTotalCommission(referralAgg.totalCommission);
+        newReferralAggregateRow.setTotalSignups(Number(referralAgg.totalSignUps));
+        newReferralAggregateRow.setTotalPurchases(Number(referralAgg.totalPurchases));
+        newReferralAggregateRow.setTotalRevenue(Number(referralAgg.totalRevenue));
+        newReferralAggregateRow.setTotalCommission(Number(referralAgg.totalCommission));
 
         return newReferralAggregateRow;
     }

@@ -6,6 +6,7 @@ import { maskInfo } from 'src/utils';
 import { isBefore, isAfter } from 'date-fns';
 import { SignupsTable } from '../../generated/sources/tables/signups-table/SignupsTable';
 import { conversionTypeEnum } from 'src/enums';
+import { formatDate } from 'src/utils/formatDate.util';
 
 @Injectable()
 export class SignUpConverter {
@@ -90,7 +91,7 @@ export class SignUpConverter {
 			row.setContactId(signUp.contactId);
 			row.setEmail(maskInfo(signUp.contact.email));
 			row.setPhone(maskInfo(signUp.contact.phone));
-			row.setSignUpDate(signUp.createdAt.toISOString());
+			row.setSignUpDate(formatDate(signUp.createdAt));
 			row.setUtmSource(signUp?.utmParams?.source);
 			row.setUtmMedium(signUp?.utmParams?.medium);
 
@@ -102,8 +103,8 @@ export class SignUpConverter {
 		const summarySheet = new SwSummarySheet();
 		const signUpsSummaryList = new SignupsSummaryList();
 
-		signUpsSummaryList.addFrom(startDate ? startDate.toISOString() : fromDate.toISOString());
-		signUpsSummaryList.addTo(endDate ? endDate.toISOString() : toDate.toISOString());
+		signUpsSummaryList.addFrom(formatDate(startDate ? startDate : fromDate));
+		signUpsSummaryList.addTo(formatDate(endDate ? endDate : toDate));
 		signUpsSummaryList.addPromoterId(promoter.promoterId);
 		signUpsSummaryList.addPromoterName(promoter.name);
 		signUpsSummaryList.addSignups(Number(totalSignUps));

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MemberDto } from '../dtos';
 import { Member, PromoterMember } from '../entities';
 import { MemberRow, MemberSheet, MemberTable, PromoterWorkbook } from 'generated/sources';
+import { formatDate } from 'src/utils/formatDate.util';
 
 @Injectable()
 export class MemberConverter {
@@ -16,8 +17,8 @@ export class MemberConverter {
 		memberDto.role = promoterMember?.role;
 		memberDto.status = promoterMember?.status;
 
-		memberDto.createdAt = new Date(member.createdAt);
-		memberDto.updatedAt = new Date(member.updatedAt);
+		memberDto.createdAt = member.createdAt;
+		memberDto.updatedAt = member.updatedAt;
 
 		return memberDto;
 	}
@@ -30,7 +31,7 @@ export class MemberConverter {
 		row.setLastName(member.lastName);
 		row.setEmail(member.email);
 		row.setRole(promoterMember.role);
-		row.setAddedOn(promoterMember.createdAt.toISOString());
+		row.setAddedOn(formatDate(promoterMember.createdAt));
 
 		return row;
 	}

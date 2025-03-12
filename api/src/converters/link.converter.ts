@@ -8,6 +8,7 @@ import { LinkStatsSheet } from '../../generated/sources/sheets/link-stats-sheet/
 import { JSONObject } from '@org.quicko/core';
 import { isAfter, isBefore } from 'date-fns';
 import { conversionTypeEnum } from 'src/enums';
+import { formatDate } from 'src/utils/formatDate.util';
 
 @Injectable()
 export class LinkConverter {
@@ -32,10 +33,10 @@ export class LinkConverter {
 		linkStatsRow.setLinkName(linkStat.name);
 		linkStatsRow.setRefVal(linkStat.refVal);
 		linkStatsRow.setPromoterId(linkStat.promoterId);
-		linkStatsRow.setSignups(linkStat.signups);
-		linkStatsRow.setPurchases(linkStat.purchases);
-		linkStatsRow.setCommission(linkStat.commission);
-		linkStatsRow.setCreatedAt(linkStat.createdAt.toISOString());
+		linkStatsRow.setSignups(Number(linkStat.signups));
+		linkStatsRow.setPurchases(Number(linkStat.purchases));
+		linkStatsRow.setCommission(Number(linkStat.commission));
+		linkStatsRow.setCreatedAt(formatDate(linkStat.createdAt));
 
 		return linkStatsRow;
 	}
@@ -132,8 +133,8 @@ export class LinkConverter {
 		const summarySheet = new LwSummarySheet();
 		const linksSummaryList = new LinkSummaryList();
 
-		linksSummaryList.addFrom(startDate ? startDate.toISOString() : fromDate.toISOString());
-		linksSummaryList.addTo(endDate ? endDate.toISOString() : toDate.toISOString());
+		linksSummaryList.addFrom(formatDate(startDate ? startDate : fromDate));
+		linksSummaryList.addTo(formatDate(endDate ? endDate : toDate));
 		linksSummaryList.addLinksCreated(Number(totalLinks));
 		linksSummaryList.addSignups(Number(totalSignUps));
 		linksSummaryList.addCommissionOnSignups(Number(totalSignUpsCommission));

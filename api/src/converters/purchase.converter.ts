@@ -4,6 +4,7 @@ import { Promoter, Purchase } from '../entities';
 import { PromoterWorkbook, PurchaseRow, PurchaseSheet, PurchasesRow, PurchasesSummaryList, PurchasesTable, PurchaseTable, PurchaseWorkbook, PwPurchasesSheet, PwSummarySheet } from 'generated/sources';
 import { maskInfo } from 'src/utils';
 import { isAfter, isBefore } from 'date-fns';
+import { formatDate } from 'src/utils/formatDate.util';
 
 @Injectable()
 export class PurchaseConverter {
@@ -21,8 +22,8 @@ export class PurchaseConverter {
 		purchaseDto.itemId = purchase.itemId;
 		purchaseDto.contactId = purchase.contact.contactId;
 
-		purchaseDto.createdAt = new Date(purchase.createdAt);
-		purchaseDto.updatedAt = new Date(purchase.updatedAt);
+		purchaseDto.createdAt = purchase.createdAt;
+		purchaseDto.updatedAt = purchase.updatedAt;
 
 		return purchaseDto;
 	}
@@ -38,7 +39,7 @@ export class PurchaseConverter {
 		newPurchaseRow.setAmount(purchase.amount);
 		newPurchaseRow.setItemId(purchase.itemId);
 		newPurchaseRow.setLinkId(purchase.link.linkId);
-		newPurchaseRow.setCreatedAt(purchase.createdAt.toISOString());
+		newPurchaseRow.setCreatedAt(formatDate(purchase.createdAt));
 
 		return newPurchaseRow;
 	}
@@ -98,7 +99,7 @@ export class PurchaseConverter {
 			row.setCommission(Number(commissionAmount));
 			row.setItemId(purchase.itemId);
 			row.setAmount(Number(purchase.amount));
-			row.setPurchaseDate(purchase.createdAt.toISOString());
+			row.setPurchaseDate(formatDate(purchase.createdAt));
 			row.setUtmSource(purchase?.utmParams?.source);
 			row.setUtmMedium(purchase?.utmParams?.medium);
 
@@ -110,8 +111,8 @@ export class PurchaseConverter {
 		const summarySheet = new PwSummarySheet();
 		const purchasesSummaryList = new PurchasesSummaryList();
 
-		purchasesSummaryList.addFrom(startDate ? startDate.toISOString() : fromDate.toISOString());
-		purchasesSummaryList.addTo(endDate ? endDate.toISOString() : toDate.toISOString());
+		purchasesSummaryList.addFrom(formatDate(startDate ? startDate : fromDate));
+		purchasesSummaryList.addTo(formatDate(endDate ? endDate : toDate));
 		purchasesSummaryList.addPromoterId(promoter.promoterId);
 		purchasesSummaryList.addPromoterName(promoter.name);
 		purchasesSummaryList.addPurchases(Number(totalPurchases));
