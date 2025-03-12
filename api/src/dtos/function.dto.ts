@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
-import { triggerEnum, effectEnum } from '../enums';
+import { triggerEnum, effectEnum, statusEnum, functionStatusEnum } from '../enums';
 import {
 	Effect,
 	GenerateCommissionEffect,
@@ -32,6 +32,10 @@ export class FunctionDto {
 	@Expose({ name: 'effect_type' })
 	@IsEnum(effectEnum)
 	effectType: effectEnum;
+
+	@IsOptional()
+	@IsEnum(functionStatusEnum)
+	status?: functionStatusEnum;
 
 	@IsDefined()
 	effect: Effect;
@@ -73,6 +77,10 @@ export class CreateFunctionDto {
 	@Expose({ name: 'effect_type' })
 	@IsEnum(effectEnum)
 	effectType: effectEnum;
+
+	@IsOptional()
+	@IsEnum(functionStatusEnum)
+	status?: functionStatusEnum;
 
 	@IsDefined()
 	@ValidateNested()

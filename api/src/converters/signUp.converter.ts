@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { SignUpDto } from '../dtos';
-import { SignUp } from '../entities';
-import { PromoterWorkbook, SignupRow, SignupSheet, SignupTable } from 'generated/sources';
+import { Promoter, SignUp } from '../entities';
+import { PromoterWorkbook, SignupRow, SignupSheet, SignupsRow, SignupsSummaryList, SignupTable, SignUpWorkbook, SwSignupsSheet, SwSummarySheet } from 'generated/sources';
 import { maskInfo } from 'src/utils';
+import { isBefore, isAfter } from 'date-fns';
+import { SignupsTable } from '../../generated/sources/tables/signups-table/SignupsTable';
+import { conversionTypeEnum } from 'src/enums';
 
 @Injectable()
 export class SignUpConverter {
@@ -53,5 +56,65 @@ export class SignUpConverter {
 		promoterWorkbook.addSheet(signUpSheet);
 
 		return promoterWorkbook;
+	}
+
+	
+
+	convertToReportWorkbook(
+		signUps: SignUp[], 
+		promoter: Promoter, 
+		startDate?: Date, 
+		endDate?: Date,
+	): SignUpWorkbook {
+		const signUpWorkbook = new SignUpWorkbook();
+		
+		const signupsSheet = new SwSignupsSheet();
+		const signupsTable = new SignupsTable();
+		const totalSignUps = signUps.length;
+		let totalCommission = 0;
+
+		let fromDate: Date = signUps[0].createdAt;
+		let toDate: Date = signUps[0].createdAt;
+
+		signUps.forEach((signUp) => {
+			const row = new SignupsRow([]);
+			const commission = signUp.contact.commissions.find(commission => commission.conversionType === conversionTypeEnum.SIGNUP);
+			totalCommission += commission?.amount ?? 0;
+
+			if (!startDate && !endDate) {
+				fromDate = isBefore(signUp.createdAt, fromDate) ? signUp.createdAt : fromDate;
+				toDate = isAfter(signUp.createdAt, toDate) ? signUp.createdAt : toDate;
+			}			
+
+			row.setCommission(commission?.amount ?? 0);
+			row.setContactId(signUp.contactId);
+			row.setEmail(maskInfo(signUp.contact.email));
+			row.setPhone(maskInfo(signUp.contact.phone));
+			row.setSignUpDate(signUp.createdAt.toISOString());
+			row.setUtmSource(signUp?.utmParams?.source);
+			row.setUtmMedium(signUp?.utmParams?.medium);
+
+			signupsTable.addRow(row);
+		});
+
+		signupsSheet.addSignupsTable(signupsTable);
+
+		const summarySheet = new SwSummarySheet();
+		const signUpsSummaryList = new SignupsSummaryList();
+
+		signUpsSummaryList.addFrom(startDate ? startDate.toISOString() : fromDate.toISOString());
+		signUpsSummaryList.addTo(endDate ? endDate.toISOString() : toDate.toISOString());
+		signUpsSummaryList.addPromoterId(promoter.promoterId);
+		signUpsSummaryList.addPromoterName(promoter.name);
+		signUpsSummaryList.addSignups(Number(totalSignUps));
+		signUpsSummaryList.addTotalCommission(Number(totalCommission));
+
+		summarySheet.addSignupsSummaryList(signUpsSummaryList);
+
+		signUpWorkbook.addSwSummary(summarySheet);
+		signUpWorkbook.addSwSignups(signupsSheet);
+
+		return signUpWorkbook;
+
 	}
 }

@@ -192,15 +192,13 @@ export class AuthorizationService {
                         subjectUserId,
                     );
                 } else if (subject === Member) {
+
                     if (!subjectMemberId) {
                         throw new BadRequestException(
-                            `Error. Must provide a ${typeof subject} for performing action on object`,
+                            `Error. Must provide a ${subject} ID for performing action on object`,
                         );
                     }
 
-                    // const member = new Member();
-                    // member.memberId = subjectMemberId;
-                    // return member;
                     return this.memberService.getMemberEntity(subjectMemberId);
                 } else if (subject === ProgramPromoter) {
                     if (!subjectProgramId) {
@@ -226,6 +224,18 @@ export class AuthorizationService {
                         subjectPromoterId,
                     );
                 } else if (subject === PromoterMember) {
+
+                    if (action === 'read_all') {
+
+                        if (!(subjectProgramId && subjectPromoterId)) {
+                            throw new BadRequestException(
+                                `Error. Must provide a Program ID and Promoter ID for performing action on object`,
+                            );
+                        }
+
+                        return this.promoterMemberService.getFirstPromoterMemberRow(subjectProgramId, subjectPromoterId);
+                    }
+
                     if (!subjectPromoterId || !subjectMemberId) {
                         throw new BadRequestException(
                             `Error. Must provide Promoter ID and Member ID for performing action on object`,
@@ -431,16 +441,16 @@ export class AuthorizationService {
 
         const { can: allow, build } = new AbilityBuilder<AppAbility>(createAppAbility);
 
-        console.log('\n\n', promoterMemberPermissions);
-
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
+            allow('read', Promoter, { promoterId });
             allow('read', ReferralView, { promoterId });
             allow('read', ReferralAggregateView, { promoterId });
             allow('read', Commission, { promoterId });
-            allow(['read'], Member, { promoterMembers: { promoterId } });
+            allow('read_all', PromoterMember, { promoterId });
+            allow('read', Member, { promoterMembers: { promoterId } });
             allow(['read'], ReferralView, { promoterId });
-            allow(['read'], Purchase, { promoter: { promoterId } });
-            allow(['read'], SignUp, { promoter: { promoterId } });
+            allow(['read'], Purchase, { promoterId });
+            allow('read', SignUp, { promoterId });
             allow(['read'], Link, { promoterId });
 
             if (role === roleEnum.ADMIN) {

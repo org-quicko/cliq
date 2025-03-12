@@ -14,21 +14,22 @@ import { Promoter } from './promoter.entity';
 import { Purchase } from './purchase.entity';
 import { SignUp } from './signUp.entity';
 import { Commission } from './commission.entity'; 
+import { statusEnum } from 'src/enums';
 
 @Index(['refVal', 'programId'], { unique: true })
 @Entity()
 export class Link {
 	@PrimaryGeneratedColumn('uuid', { name: 'link_id' })
 	linkId: string;
+
+	@Column('varchar')
+	name: string;
  
 	@Column('varchar', { name: 'ref_val' })
 	refVal: string;
 
-	@Column('varchar')
-	source: string;
-
-	@Column('varchar')
-	medium: string;
+	@Column('enum', { enum: statusEnum, default: statusEnum.ACTIVE })
+	status: statusEnum;
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',

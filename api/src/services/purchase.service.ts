@@ -12,7 +12,7 @@ import { CreateContactDto, CreatePurchaseDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { PurchaseConverter } from '../converters/purchase.converter';
-import { contactStatusEnum, referralKeyTypeEnum } from '../enums';
+import { contactStatusEnum, referralKeyTypeEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { PURCHASE_EVENT, PurchaseEvent } from '../events/trigger.event';
 import { ApiKeyService } from './apiKey.service';
@@ -44,7 +44,11 @@ export class PurchaseService {
 		return this.datasource.transaction(async (manager) => {
 			const linkResult = await this.linkService.getLinkEntityByRefVal(
 				body.refVal,
-				programId
+				programId,
+				{
+					// only active links must trigger functions, if they do
+					status: statusEnum.ACTIVE
+				}
 			);
 
 			if (!linkResult.program) {

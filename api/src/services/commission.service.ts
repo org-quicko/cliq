@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Injectable,
 	InternalServerErrorException,
+	NotFoundException,
 } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DataSource, Repository } from 'typeorm';
@@ -81,5 +82,26 @@ export class CommissionService {
 
 		this.logger.info('END: getFirstCommission service');
 		return commissionResult;
+	}
+
+	async getPromoterCommissions(programId: string, promoterId: string) {
+		const commissionsResult = await this.commissionRepository.find({
+			where: {
+				contact: {
+					programId
+				},
+				promoterId
+			},
+			relations: {
+				contact: true,
+			}
+		});
+
+		if (!commissionsResult) {
+			this.logger.warn(`Error. No commissions found for Promoter ${promoterId} in Program ${programId}`);
+			throw new NotFoundException(`Error. No commissions found for Promoter ${promoterId} in Program ${programId}`);
+		}
+
+		return commissionsResult;
 	}
 }

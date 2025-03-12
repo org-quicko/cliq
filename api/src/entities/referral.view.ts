@@ -21,7 +21,7 @@ import {
 			.addSelect('c.contact_id', 'contact_id')
 			.addSelect('SUM(pu.amount)', 'total_revenue')
 			.addSelect('0', 'total_commission')
-			.addSelect('MIN(pu.created_at)', 'created_at') // Capture the earliest purchase timestamp
+			.addSelect('MAX(pu.updated_at)', 'updated_at') // Capture the earliest purchase timestamp
 			.from('contact', 'c')
 			.innerJoin('purchase', 'pu', 'pu.contact_id = c.contact_id')
 			.groupBy('c.program_id')
@@ -37,7 +37,7 @@ import {
 			.addSelect('c.contact_id', 'contact_id')
 			.addSelect('0', 'total_revenue')
 			.addSelect('SUM(com.amount)', 'total_commission')
-			.addSelect('MIN(com.created_at)', 'created_at') // Capture the earliest commission timestamp
+			.addSelect('MAX(com.updated_at)', 'updated_at') // Capture the earliest commission timestamp
 			.from('contact', 'c')
 			.innerJoin('commission', 'com', 'com.contact_id = c.contact_id')
 			.groupBy('c.program_id')
@@ -53,7 +53,7 @@ import {
 			.addSelect('su.contact_id', 'contact_id')
 			.addSelect('0', 'total_revenue')
 			.addSelect('0', 'total_commission')
-			.addSelect('MIN(su.created_at)', 'created_at') // Capture the earliest signup timestamp
+			.addSelect('MAX(su.updated_at)', 'updated_at') // Capture the earliest signup timestamp
 			.from('sign_up', 'su')
 			.innerJoin('contact', 'c', 'c.contact_id = su.contact_id')
 			.groupBy('c.program_id')
@@ -77,7 +77,7 @@ import {
 			.addSelect('combined.contact_id', 'contact_id')
 			.addSelect('SUM(combined.total_revenue)', 'total_revenue')
 			.addSelect('SUM(combined.total_commission)', 'total_commission')
-			.addSelect('MIN(combined.created_at)', 'created_at') // Get the earliest referral date
+			.addSelect('MAX(combined.updated_at)', 'updated_at') // Get the earliest referral date
 			.addSelect(`
         CASE 
         WHEN program.referral_key_type = 'email' THEN contact.email 
@@ -128,8 +128,8 @@ export class ReferralView {
 	@Column('decimal', { name: 'total_commission' })
 	totalCommission: number;
 
-	@CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })
-	createdAt: Date;
+	@CreateDateColumn({ type: 'timestamp with time zone', name: 'updated_at' })
+	updatedAt: Date;
 }
 
 @ViewEntity({

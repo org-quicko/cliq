@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Link } from '../entities';
-import { FindOptionsRelations, Repository } from 'typeorm';
+import { FindOptionsRelations, Repository, FindOptionsWhere } from 'typeorm';
 import { ProgramService } from './program.service';
 import { PromoterService } from './promoter.service';
 import { CreateLinkDto } from '../dtos';
@@ -50,8 +50,6 @@ export class LinkService {
 
 		const newLink = this.linkRepository.create({
 			refVal: body.refVal,
-			source: body.source,
-			medium: body.medium,
 			program: {
 				programId: program.programId,
 			},
@@ -75,21 +73,6 @@ export class LinkService {
 		queryOptions: QueryOptionsInterface = {},
 	) {
 		this.logger.info('START: getAllLinks service');
-		const whereOptions = {};
-
-		if (queryOptions['source']) {
-			whereOptions['source'] = queryOptions.source;
-			delete queryOptions['source'];
-		}
-		if (queryOptions['medium']) {
-			whereOptions['medium'] = queryOptions.medium;
-			delete queryOptions['medium'];
-		}
-		if (queryOptions['url']) {
-			whereOptions['url'] = queryOptions.url;
-			delete queryOptions['url'];
-		}
-
 		const links = await this.linkRepository.find({
 			where: {
 				program: {
@@ -98,7 +81,6 @@ export class LinkService {
 				promoter: {
 					promoterId,
 				},
-				...whereOptions,
 			},
 			...queryOptions,
 		});
@@ -189,12 +171,13 @@ export class LinkService {
 	/**
 	 * Get link by ref val
 	 */
-	async getLinkEntityByRefVal(refVal: string, programId: string) {
+	async getLinkEntityByRefVal(refVal: string, programId: string, whereOptions: FindOptionsWhere<Link> = {}) {
 		this.logger.info('START: getLinkByRefVal service');
 		const linkResult = await this.linkRepository.findOne({
 			where: {
 				refVal,
 				programId,
+				...whereOptions
 			},
 			relations: {
 				program: true,

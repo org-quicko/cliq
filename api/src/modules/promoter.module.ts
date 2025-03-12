@@ -10,6 +10,7 @@ import {
 	ReferralView,
 	ReferralAggregateView,
 	Commission,
+	Link,
 } from '../entities';
 import { PromoterService } from '../services/promoter.service';
 import { PromoterMemberService } from '../services/promoterMember.service';
@@ -35,6 +36,7 @@ import { LinkConverter } from 'src/converters/link.converter';
 			ReferralAggregateView,
 			ReferralView,
 			Commission,
+			Link
 		]),
 		CommissionModule,
 		forwardRef(() => ProgramModule),

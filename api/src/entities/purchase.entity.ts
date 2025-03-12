@@ -10,6 +10,7 @@ import {
 import { Link } from './link.entity';
 import { Promoter } from './promoter.entity';
 import { Contact } from './contact.entity';
+import { UtmParams } from './utmParams';
 
 @Entity()
 export class Purchase {
@@ -24,6 +25,9 @@ export class Purchase {
 
 	@Column('decimal')
 	amount: number;
+
+	@Column({ type: 'jsonb', nullable: true })
+	utmParams: UtmParams;
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',

@@ -8,6 +8,7 @@ import {
 	Min,
 	IsDate,
 } from 'class-validator';
+import { UtmParams } from 'src/entities/utmParams';
 
 export class PurchaseDto {
 	@Expose({ name: 'purchase_id' })
@@ -48,6 +49,10 @@ export class PurchaseDto {
 	@Expose({ name: 'item_id' })
 	@IsString()
 	itemId: string;
+
+	@Expose({ name: 'utm_params' })
+	@IsOptional()
+	utmParams?: UtmParams;
 
 	@Expose({ name: 'contact_id' })
 	@IsUUID()
@@ -90,6 +95,10 @@ export class CreatePurchaseDto {
 	@Expose({ name: 'external_id' })
 	@IsString()
 	externalId?: string;
+
+	@Expose({ name: 'utm_params' })
+	@IsOptional()
+	utmParams?: UtmParams;
 
 	@Expose({ name: 'item_id' })
 	@IsString()

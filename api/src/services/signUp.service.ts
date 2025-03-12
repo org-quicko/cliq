@@ -14,7 +14,7 @@ import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { SIGNUP_EVENT, SignUpEvent } from '../events';
-import { referralKeyTypeEnum } from '../enums';
+import { referralKeyTypeEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -38,7 +38,7 @@ export class SignUpService {
 		private datasource: DataSource,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create SignUp
@@ -50,6 +50,10 @@ export class SignUpService {
 			const linkResult = await this.linkService.getLinkEntityByRefVal(
 				body.refVal,
 				programId,
+				{
+					// only active links must trigger functions, if they do
+					status: statusEnum.ACTIVE
+				}
 			);
 
 			if (!linkResult.programId) {
@@ -111,7 +115,7 @@ export class SignUpService {
 				programResult.programId,
 				{
 					...(programResult.referralKeyType ===
-					referralKeyTypeEnum.EMAIL
+						referralKeyTypeEnum.EMAIL
 						? { email: body.email }
 						: { phone: body.phone }),
 				},
@@ -143,6 +147,7 @@ export class SignUpService {
 				contact: savedContact,
 				link: linkResult,
 				promoterId: linkResult.promoterId,
+				utmParams: body.utmParams
 			});
 
 			const savedSignUp = await signUpRepository.save(newSignUp);
@@ -189,13 +194,13 @@ export class SignUpService {
 				contact: {
 					programId: programId,
 				},
-				promoterId, 
+				promoterId,
 			},
 		});
 
 		if (!signUpResult) {
 			this.logger.warn(`No Signups found for Promoter ${promoterId} in Program ${programId}`);
-			
+
 			throw new BadRequestException(`No Signups found for Promoter ${promoterId} in Program ${programId}`);
 		}
 

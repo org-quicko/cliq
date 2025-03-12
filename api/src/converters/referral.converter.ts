@@ -15,7 +15,7 @@ export class ReferralConverter {
         newReferralRow.setContactInfo(maskInfo(referral.contactInfo));
         newReferralRow.setTotalRevenue(referral.totalRevenue);
         newReferralRow.setTotalCommission(referral.totalCommission);
-        newReferralRow.setCreatedAt(referral.createdAt.toISOString());
+        newReferralRow.setUpdatedAt(referral.updatedAt.toISOString());
 
         return newReferralRow;
     }

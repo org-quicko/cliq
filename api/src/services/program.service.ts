@@ -1,4 +1,5 @@
 import {
+	BadGatewayException,
 	ForbiddenException,
 	Injectable,
 	InternalServerErrorException,
@@ -31,6 +32,8 @@ import {
 	GENERATE_DEFAULT_CIRCLE_EVENT,
 	GenerateDefaultCircleEvent,
 } from '../events/generateDefaultCircle.event';
+import { ProgramWorkbook } from 'generated/sources';
+import * as XLSX from 'xlsx';
 
 @Injectable()
 export class ProgramService {
@@ -64,7 +67,7 @@ export class ProgramService {
 		private eventEmitter: EventEmitter2,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create program
@@ -652,5 +655,71 @@ export class ProgramService {
 
 		this.logger.info(`END: getFirstProgramReferral service`);
 		return referralResult;
+	}
+
+	async getProgramReport(
+		programId: string,
+		startDate?: Date,
+		endDate?: Date,
+	) {
+		this.logger.info(`START: getProgramReport service`);
+
+		const query = this.programRepository
+			.createQueryBuilder("program")
+			.leftJoinAndSelect("program.programPromoters", "programPromoters")
+			.leftJoinAndSelect("programPromoters.promoter", "promoter")
+			.leftJoinAndSelect("promoter.signUps", "signUps")
+			.leftJoinAndSelect("promoter.purchases", "purchases")
+			.leftJoinAndSelect("promoter.commissions", "commissions")
+			.where("program.programId = :programId", { programId });
+
+		if (startDate && endDate) {
+			query
+				.andWhere("signUps.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
+				.andWhere("purchases.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
+				.andWhere("commissions.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() });
+		}
+
+		const programResult = await query.getOne();
+
+		if (!programResult) {
+			this.logger.error(`Error. Failed to get report for Program ${programId} for period: ${startDate} - ${endDate}`);
+			throw new BadGatewayException(`Error. Failed to get report for Program ${programId} for period: ${startDate} - ${endDate}`);
+		}
+
+		const programSheetJsonWorkbook = this.programConverter.convertToReportWorkbook(programResult, startDate, endDate);
+
+		const workbook = ProgramWorkbook.toXlsx();
+
+		// get list and table
+		const programSummaryList = programSheetJsonWorkbook.getProgwSummary().getProgramSummaryList();
+		const promotersTable = programSheetJsonWorkbook.getProgwPromoters().getPromotersTable();
+
+		// all sheets
+		const promotersSheetData: any[] = [promotersTable.getHeader()];
+		const programSummarySheetData: any[] = [];
+
+		// pushing promoters data
+		promotersTable.getRows().map((row) => {
+			promotersSheetData.push(row);
+		});
+
+		// pushing program summary data
+		programSummaryList.getItems().forEach((item) => {
+			programSummarySheetData.push([item.getKey(), item.getValue()]);
+		});
+
+		// entering data to sheet
+		const summarySheet = XLSX.utils.aoa_to_sheet(programSummarySheetData);
+		const promotersSheet = XLSX.utils.aoa_to_sheet(promotersSheetData);
+
+		// adding sheets to workbook
+		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+		XLSX.utils.book_append_sheet(workbook, promotersSheet, 'Promoters');
+
+		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+		this.logger.info(`END: getProgramReport service`);
+		return fileBuffer;
 	}
 }

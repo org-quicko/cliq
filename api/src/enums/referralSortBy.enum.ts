@@ -1,3 +1,3 @@
 export enum referralSortByEnum {
-    CREATED_AT = 'createdAt'
+    UPDATED_AT = 'updatedAt'
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers, Res } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ProgramService } from '../services/program.service';
 import { LoggerService } from '../services/logger.service';
@@ -26,6 +26,10 @@ import {
 } from '../entities';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import { PermissionsGuard } from '../guards/permissions/permissions.guard';
+import { getReportFileName, getStartEndDate } from 'src/utils';
+import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
+import { Response } from 'express';
+import { SkipTransform } from 'src/decorators/skipTransform.decorator';
 
 @ApiTags('Program')
 @Controller('/programs')
@@ -328,6 +332,37 @@ export class ProgramController {
       message: 'Successfully fetched all commissions of program.',
       result,
     };
+  }
+
+  /**
+   * Get program report
+   */
+  @ApiResponse({ status: undefined, description: '' })
+  @SkipTransform()
+  @Permissions('read', Program)
+  @Get(':program_id/report')
+  async getProgramReport(
+    @Headers('x-accept-type') acceptType: string,
+    @Headers('user_id') userId: string,
+    @Param('program_id') programId: string,
+    @Res() res: Response,
+    @Query('report_period') reportPeriod?: reportPeriodEnum,
+    @Query('start_date') startDate?: string,
+    @Query('end_date') endDate?: string,
+  ) {
+    this.logger.info('START: getProgramReport controller');
+
+    const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+
+    const workbookBuffer = await this.programService.getProgramReport(programId, parsedStartDate, parsedEndDate);
+
+    const fileName = getReportFileName('program', reportPeriod, parsedStartDate, parsedEndDate);
+
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    this.logger.info('END: getProgramReport controller');
+    res.send(workbookBuffer);
   }
 
   /**

@@ -36,12 +36,8 @@ export class ReferralService {
         });
 
         if (!referralResult) {
-            this.logger.error(
-                `Error. Failed to get first referral for Program ID: ${programId}.`,
-            );
-            throw new NotFoundException(
-                `Error. Failed to get first link for Program ID: ${programId}.`,
-            );
+            this.logger.error(`Error. Failed to get first referral for Program ID: ${programId}.`);
+            throw new BadRequestException(`Error. Failed to get first referral for Program ID: ${programId}.`);
         }
 
         this.logger.info(`END: getFirstProgramReferral service`);
@@ -69,12 +65,8 @@ export class ReferralService {
             });
 
         if (!referralAggregateResult) {
-            this.logger.error(
-                `Error. Failed to get first referral aggregate for Program ID: ${programId}.`,
-            );
-            throw new NotFoundException(
-                `Error. Failed to get first referral aggregate for Program ID: ${programId}.`,
-            );
+            this.logger.error(`Error. Failed to get first referral aggregate for Program ID: ${programId}.`);
+            throw new BadRequestException(`Error. Failed to get first referral aggregate for Program ID: ${programId}.`);
         }
 
         this.logger.info(`END: getFirstReferralAggregate service`);

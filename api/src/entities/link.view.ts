@@ -8,6 +8,7 @@ import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 't
         return dataSource
             .createQueryBuilder()
             .select('l.link_id', 'link_id')
+            .select('l.name', 'name')
             .addSelect('l.ref_val', 'ref_val')
             .addSelect('l.program_id', 'program_id')
             .addSelect('l.promoter_id', 'promoter_id')
@@ -51,6 +52,9 @@ import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 't
 export class LinkStatsView {
     @ViewColumn({ name: 'link_id' })
     linkId: string;
+
+    @ViewColumn({ name: 'name' })
+    name: string;
 
     @Index()
     @ViewColumn({ name: 'ref_val' })

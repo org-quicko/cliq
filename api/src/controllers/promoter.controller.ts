@@ -103,9 +103,11 @@ export class PromoterController {
 	 * Get all members
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
-	@Permissions('read', Member)
+	@SkipTransform()
+	@Permissions('read_all', PromoterMember)
 	@Get(':promoter_id/members')
 	async getAllMembers(
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Query('role') role: roleEnum,
@@ -116,13 +118,19 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getAllMembers controller');
 
-		const result = await this.promoterService.getAllMembers(promoterId, {
-			email,
-			role,
-			status,
-			skip,
-			take,
-		});
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
+		const result = await this.promoterService.getAllMembers(
+			promoterId,
+			toUseSheetJsonFormat,
+			{
+				email,
+				role,
+				status,
+				skip,
+				take,
+			}
+		);
 
 		this.logger.info('END: getAllMembers controller');
 		return { message: 'Successfully fetched members of promoter.', result };
@@ -253,7 +261,7 @@ export class PromoterController {
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
-		@Query('sort_by') sortBy: referralSortByEnum = referralSortByEnum.CREATED_AT,
+		@Query('sort_by') sortBy: referralSortByEnum = referralSortByEnum.UPDATED_AT,
 		@Query('sort_order') sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING, // latest first
 	) {
 		this.logger.info('START: getPromoterReferrals controller');
@@ -374,6 +382,75 @@ export class PromoterController {
 
 	@ApiResponse({ status: 200, description: 'OK' })
 	@SkipTransform()
+	@Permissions('read', Commission)
+	@Get(':promoter_id/reports/commissions')
+	async getCommissionsReport(
+		@Headers('x-accept-type') acceptType: string,
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Res() res: Response,
+		@Query('report_period') reportPeriod?: reportPeriodEnum,
+		@Query('start_date') startDate?: string,
+		@Query('end_date') endDate?: string,
+	) {
+		this.logger.info('START: getCommissionsReport controller');
+
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+
+		const workbookBuffer = await this.promoterService.getCommissionsReport(
+			programId,
+			promoterId,
+			parsedStartDate,
+			parsedEndDate,
+		);
+
+		const fileName = getReportFileName('commissions', reportPeriod, parsedStartDate, parsedEndDate);
+
+
+		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+		this.logger.info('END: getCommissionsReport controller');
+		res.send(workbookBuffer);
+	}
+
+	@ApiResponse({ status: 200, description: 'OK' })
+	@SkipTransform()
+	@Permissions('read', Commission)
+	@Get(':promoter_id/reports/links')
+	async getLinksReport(
+		@Headers('x-accept-type') acceptType: string,
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Res() res: Response,
+		@Query('report_period') reportPeriod?: reportPeriodEnum,
+		@Query('start_date') startDate?: string,
+		@Query('end_date') endDate?: string,
+	) {
+		this.logger.info('START: getCommissionsReport controller');
+
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+
+		const workbookBuffer = await this.promoterService.getLinksReport(
+			programId,
+			promoterId,
+			parsedStartDate,
+			parsedEndDate,
+		);
+
+		const fileName = getReportFileName('links', reportPeriod, parsedStartDate, parsedEndDate);
+
+
+		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+		this.logger.info('END: getCommissionsReport controller');
+		res.send(workbookBuffer);
+	}
+
+
+	@ApiResponse({ status: 200, description: 'OK' })
+	@SkipTransform()
 	@Permissions('read', ReferralView)
 	@Get(':promoter_id/reports/referrals')
 	async getReferralsReport(
@@ -397,7 +474,7 @@ export class PromoterController {
 		);
 
 		const fileName = getReportFileName('referrals', reportPeriod, parsedStartDate, parsedEndDate);
-		
+
 
 		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
 		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

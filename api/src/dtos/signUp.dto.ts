@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsDate, IsOptional, IsString, IsUUID } from 'class-validator';
+import { UtmParams } from 'src/entities/utmParams';
 
 export class SignUpDto {
 	@IsUUID()
@@ -27,6 +28,10 @@ export class SignUpDto {
 	@Expose({ name: 'last_name' })
 	@IsString()
 	lastName?: string;
+
+	@Expose({ name: 'utm_params' })
+	@IsOptional()
+	utmParams?: UtmParams;
 
 	@IsOptional()
 	@IsString()
@@ -64,6 +69,10 @@ export class CreateSignUpDto {
 	@IsString()
 	lastName?: string;
 
+	@Expose({ name: 'utm_params' })
+	@IsOptional()
+	utmParams?: UtmParams;
+
 	@IsOptional()
 	@Expose({ name: 'external_id' })
 	@IsString()
@@ -74,4 +83,4 @@ export class CreateSignUpDto {
 	phone?: string;
 }
 
-export class UpdateSignUpDto extends PartialType(CreateSignUpDto) {}
+export class UpdateSignUpDto extends PartialType(CreateSignUpDto) { }

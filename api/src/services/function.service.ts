@@ -3,7 +3,7 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import { CreateFunctionDto, PurchaseDto, SignUpDto, UpdateFunctionDto } from 'src/dtos';
+import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -12,6 +12,8 @@ import {
 	Condition,
 	Function,
 	GenerateCommissionEffect,
+	Purchase,
+	SignUp,
 	SwitchCircleEffect,
 } from '../entities';
 import { ProgramService } from './program.service';
@@ -481,12 +483,13 @@ export class FunctionService {
 
 		// SIGNUPS condition
 		if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
-			const numSignUps = (
-				await this.promoterService.getSignUpsForPromoter(
-					payload.programId,
-					payload.promoterId,
-				) as SignUpDto[]
-			).length;
+			const signUps = await this.promoterService.getSignUpsForPromoter(
+				payload.programId,
+				payload.promoterId,
+				false,
+			) as SignUp[];
+
+			const numSignUps = signUps.length;
 
 			evalResult = condition.evaluate({ numSignUps });
 
@@ -499,7 +502,7 @@ export class FunctionService {
 					payload.programId,
 					payload.promoterId,
 					false,
-				) as PurchaseDto[]
+				) as Purchase[]
 			).length;
 
 			evalResult = condition.evaluate({ numPurchases });

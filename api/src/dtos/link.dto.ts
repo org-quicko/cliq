@@ -1,25 +1,27 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
-import { IsDate, IsString, IsUUID } from 'class-validator';
+import { IsDate, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { statusEnum } from 'src/enums';
 
 export class LinkDto {
 	@Expose({ name: 'link_id' })
 	@IsUUID()
 	linkId: string;
 
+	@IsString()
+	name: string;
+
 	@Expose({ name: 'ref_val' })
 	@IsString()
 	refVal: string;
 
+	@IsOptional()
+	@IsEnum(statusEnum)
+	status?: statusEnum;
+
 	@Expose({ name: 'product_path' })
 	@IsString()
 	productPath: string;
-
-	@IsString()
-	source: string;
-
-	@IsString()
-	medium: string;
 
 	@Expose({ name: 'created_at' })
 	@IsDate()
@@ -31,15 +33,18 @@ export class LinkDto {
 }
 
 export class CreateLinkDto {
+
+	@IsString()
+	name: string;
+	
 	@Expose({ name: 'ref_val' })
 	@IsString()
 	refVal: string;
 
-	@IsString({ each: true })
-	source: string;
+	@IsOptional()
+	@IsEnum(statusEnum)
+	status?: statusEnum;
 
-	@IsString({ each: true })
-	medium: string;
 }
 
-export class UpdateLinkDto extends PartialType(CreateLinkDto) {}
+export class UpdateLinkDto extends PartialType(CreateLinkDto) { }

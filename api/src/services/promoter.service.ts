@@ -23,6 +23,7 @@ import {
 	ReferralView,
 	ReferralAggregateView,
 	SignUp,
+	Link,
 } from '../entities';
 import { MemberService } from './member.service';
 import { PromoterConverter } from '../converters/promoter.converter';
@@ -41,7 +42,7 @@ import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { LinkStatsView } from 'src/entities/link.view';
 import { ReferralConverter } from 'src/converters/referral.converter';
 import { LinkConverter } from 'src/converters/link.converter';
-import { PromoterWorkbook } from 'generated/sources';
+import { CommissionWorkbook, LinkWorkbook, PromoterWorkbook, SignUpWorkbook } from 'generated/sources';
 
 @Injectable()
 export class PromoterService {
@@ -58,6 +59,9 @@ export class PromoterService {
 		@InjectRepository(SignUp)
 		private signUpRepository: Repository<SignUp>,
 
+		@InjectRepository(Link)
+		private readonly linkRepository: Repository<Link>,
+
 		@InjectRepository(LinkStatsView)
 		private readonly linkStatsViewRepository: Repository<LinkStatsView>,
 
@@ -69,7 +73,6 @@ export class PromoterService {
 
 		@InjectRepository(ReferralAggregateView)
 		private referralAggregateViewRepository: Repository<ReferralAggregateView>,
-
 
 
 		private programService: ProgramService,
@@ -308,6 +311,7 @@ export class PromoterService {
 	 */
 	async getAllMembers(
 		promoterId: string,
+		toUseSheetJsonFormat: boolean = true,
 		queryOptions: QueryOptionsInterface = {},
 	) {
 		this.logger.info('START: getAllMembers service');
@@ -335,15 +339,15 @@ export class PromoterService {
 			},
 			select: {
 				member: {
+					memberId: true,
 					email: true,
 					firstName: true,
 					lastName: true,
+					createdAt: true
 				},
 			},
 			...queryOptions,
 		});
-
-		console.log(promoterMembers);
 
 		if (!promoterMembers || promoterMembers.length == 0) {
 			this.logger.warn(
@@ -354,11 +358,19 @@ export class PromoterService {
 			);
 		}
 
-		this.logger.info('END: getAllMembers service');
+		if (toUseSheetJsonFormat) {
+			const membersSheetJson = this.memeberConverter.convertToSheetJson(promoterMembers);
+			
+			this.logger.info('END: getAllMembers service');
+			return membersSheetJson;
+		}
 
-		return promoterMembers.map((pm) =>
+		const membersDto = promoterMembers.map((pm) =>
 			this.memeberConverter.convert(pm.member, pm),
 		);
+
+		this.logger.info('END: getAllMembers service');
+		return membersDto;
 	}
 
 	/**
@@ -426,7 +438,9 @@ export class PromoterService {
 				...whereOptions
 			},
 			relations: {
-				contact: true,
+				contact: {
+					commissions: true,
+				},
 				link: true
 			},
 			...queryOptions,
@@ -448,12 +462,8 @@ export class PromoterService {
 			return signUpSheetJson;
 		}
 
-		const signUpDtos = signUpsResult.map((signUp) =>
-			this.signUpConverter.convert(signUp),
-		);
-
 		this.logger.info('END: getSignUpsForPromoter service');
-		return signUpDtos;
+		return signUpsResult;
 	}
 
 	//  * Get contacts for promoter
@@ -539,7 +549,9 @@ export class PromoterService {
 			},
 			relations: {
 				link: true,
-				contact: true,
+				contact: {
+					commissions: true,
+				}
 			},
 			...queryOptions,
 		});
@@ -549,23 +561,17 @@ export class PromoterService {
 			throw new NotFoundException(`No purchases found for ${promoterId}`);
 		}
 
-		console.log(purchases);
-
+		
 		if (toUseSheetJsonFormat) {
 			const purchaseSheetJson = this.purchaseConverter.convertToSheetJson(purchases);
-
+			
 			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
-
+			
 			return purchaseSheetJson;
 		}
-
-		const result = purchases.map((purchase) =>
-			this.purchaseConverter.convert(purchase),
-		);
-
-
+		
 		this.logger.info('END: getPurchasesForPromoter service');
-		return result;
+		return purchases;
 	}
 
 
@@ -677,19 +683,31 @@ export class PromoterService {
 			})
 		} : {};
 
-		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, true, filter) as PromoterWorkbook;
+		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, false, filter) as SignUp[];
+		const promoterResult = await this.getPromoterEntity(promoterId);
 
-		const signUpTable = signUpsResult.getSignupSheet().getSignupTable();
+		const signUpSheetJsonWorkbook = this.signUpConverter.convertToReportWorkbook(signUpsResult, promoterResult, startDate, endDate);
 
-		const workbook = PromoterWorkbook.toXlsx();
-		const sheetData: any[] = [signUpTable.getHeader()];
+		const signUpsTable = signUpSheetJsonWorkbook.getSwSignups().getSignupsTable();
+		const signUpSummaryList = signUpSheetJsonWorkbook.getSwSummary().getSignupsSummaryList();
 
-		signUpTable.getRows().map(row => {
-			sheetData.push(row);
+		const workbook = SignUpWorkbook.toXlsx();
+		const signUpsSheetData: any[] = [signUpsTable.getHeader()];
+		const signUpsSummarySheetData: any[] = [];
+
+		signUpsTable.getRows().map(row => {
+			signUpsSheetData.push(row);
 		});
 
-		const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-		XLSX.utils.book_append_sheet(workbook, worksheet, 'Signups');
+		signUpSummaryList.getItems().forEach((item) => {
+			signUpsSummarySheetData.push([item.getKey(), item.getValue()]);
+		})
+
+		const summarySheet = XLSX.utils.aoa_to_sheet(signUpsSummarySheetData);
+		const signUpsSheet = XLSX.utils.aoa_to_sheet(signUpsSheetData);
+
+		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+		XLSX.utils.book_append_sheet(workbook, signUpsSheet, 'Signups');
 
 		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
@@ -715,20 +733,35 @@ export class PromoterService {
 			})
 		} : {};
 
-		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, true, filter) as PromoterWorkbook;
-		const purchasesTable = purchasesResult.getPurchaseSheet().getPurchaseTable();
+		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
 
-		const workbook = PromoterWorkbook.toXlsx();
-		const sheetData: any[] = [purchasesTable.getHeader()];
+		const promoterResult = await this.getPromoterEntity(promoterId);
+
+		const purchaseSheetJsonWorkbook = this.purchaseConverter.convertToReportWorkbook(purchasesResult, promoterResult, startDate, endDate);
+
+		const purchasesTable = purchaseSheetJsonWorkbook.getPwPurchases().getPurchasesTable();
+		const purchaseSummaryList = purchaseSheetJsonWorkbook.getPwSummary().getPurchasesSummaryList();
+
+		const workbook = SignUpWorkbook.toXlsx();
+		const purchasesSheetData: any[] = [purchasesTable.getHeader()];
+		const purchasesSummarySheetData: any[] = [];
 
 		purchasesTable.getRows().map(row => {
-			sheetData.push(row);
+			purchasesSheetData.push(row);
 		});
 
-		const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-		XLSX.utils.book_append_sheet(workbook, worksheet, 'Purchases');
+		purchaseSummaryList.getItems().forEach((item) => {
+			purchasesSummarySheetData.push([item.getKey(), item.getValue()]);
+		})
+
+		const summarySheet = XLSX.utils.aoa_to_sheet(purchasesSummarySheetData);
+		const purchasesSheet = XLSX.utils.aoa_to_sheet(purchasesSheetData);
+
+		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+		XLSX.utils.book_append_sheet(workbook, purchasesSheet, 'Purchases');
 
 		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
 
 		this.logger.info('END: getPurchasesReport service');
 		return fileBuffer;
@@ -769,6 +802,123 @@ export class PromoterService {
 		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
 		this.logger.info('END: getReferralsReport service');
+		return fileBuffer;
+	}
+
+	async getCommissionsReport(		
+		programId: string,
+		promoterId: string,
+		startDate?: Date,
+		endDate?: Date,
+	) {
+		this.logger.info(`START: getCommissionsReport service`);
+
+		const filter = (startDate && endDate) ? {
+			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+				start: startDate.toISOString(),
+				end: endDate.toISOString(),
+			})
+		} : {};
+
+		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, false, filter) as SignUp[];
+		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
+
+		const promoterResult = await this.getPromoterEntity(promoterId);
+
+		const commissionSheetJsonWorkbook = this.commissionConverter.convertToReportWorkbook(signUpsResult, purchasesResult, promoterResult, startDate, endDate);
+
+		// get both tables and the list
+		const purchasesTable = commissionSheetJsonWorkbook.getCwPurchases().getPurchaseCommissionsTable();
+		const signUpsTable = commissionSheetJsonWorkbook.getCwSignups().getSignupCommissionsTable();
+		const commissionSummaryList = commissionSheetJsonWorkbook.getCwSummary().getCommissionsSummaryList();
+
+		const workbook = CommissionWorkbook.toXlsx();
+
+		// all 3 sheets
+		const purchasesSheetData: any[] = [purchasesTable.getHeader()];
+		const signUpsSheetData: any[] = [signUpsTable.getHeader()];
+		const commissionsSummarySheetData: any[] = [];
+
+		// pushing purchase data
+		purchasesTable.getRows().map(row => {
+			purchasesSheetData.push(row);
+		});
+		
+		// pushing signups data
+		signUpsTable.getRows().map(row => {
+			signUpsSheetData.push(row);
+		});
+		
+		// pushing commissions summary data
+		commissionSummaryList.getItems().forEach((item) => {
+			commissionsSummarySheetData.push([item.getKey(), item.getValue()]);
+		})
+
+		// entering data to sheet
+		const summarySheet = XLSX.utils.aoa_to_sheet(commissionsSummarySheetData);
+		const purchasesSheet = XLSX.utils.aoa_to_sheet(purchasesSheetData);
+		const signUpsSheet = XLSX.utils.aoa_to_sheet(signUpsSheetData);
+
+		// adding sheet to workbook
+		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+		XLSX.utils.book_append_sheet(workbook, purchasesSheet, 'Purchases');
+		XLSX.utils.book_append_sheet(workbook, signUpsSheet, 'Signups');
+
+		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+		this.logger.info(`END: getCommissionsReport service`);
+		return fileBuffer;
+	}
+
+	async getLinksReport(
+		programId: string,
+		promoterId: string,
+		startDate?: Date,
+		endDate?: Date,
+	) {
+		this.logger.info(`START: getLinksReport service`);
+
+		const linksResult = await this.linkRepository.find({
+			where: {
+				programId,
+				promoterId
+			},
+			relations: {
+				commissions: true,
+				signUps: true,
+				purchases: true,
+				program: true,
+			}
+		});
+
+		const linkSheetJsonWorkbook = this.linkConverter.convertToReportWorkbook(linksResult, startDate, endDate);
+
+		const workbook = LinkWorkbook.toXlsx();
+
+		// getting table and list
+		const linksTable = linkSheetJsonWorkbook.getLwLinks().getLinksTable();
+		const linkSummaryList = linkSheetJsonWorkbook.getLwSummary().getLinkSummaryList();
+
+		const linksSheetData: any[] = [linksTable.getHeader()];
+		const linksSummarySheetData: any[] = [];
+
+		linksTable.getRows().map(row => {
+			linksSheetData.push(row);
+		});
+
+		linkSummaryList.getItems().forEach((item) => {
+			linksSummarySheetData.push([item.getKey(), item.getValue()]);
+		})
+
+		const summarySheet = XLSX.utils.aoa_to_sheet(linksSummarySheetData);
+		const linksSheet = XLSX.utils.aoa_to_sheet(linksSheetData);
+
+		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+		XLSX.utils.book_append_sheet(workbook, linksSheet, 'Links');
+
+		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+		this.logger.info(`END: getLinksReport service`);
 		return fileBuffer;
 	}
 
@@ -853,11 +1003,16 @@ export class PromoterService {
 			where: {
 				programId,
 				promoterId
-			}
+			},
 		});
 
+		const programResult = await this.programService.getProgramEntity(programId);
+
 		if (toUseSheetJsonFormat) {
-			const promoterWorkbook = this.linkConverter.convertLinkStatsToSheet(linkStatsResult);
+			const promoterWorkbook = this.linkConverter.convertLinkStatsToSheet(linkStatsResult, {
+				programId,
+				website: programResult.website,
+			});
 			this.logger.info(`START: getPromoterLinkStatistics service: Returning Workbook`);
 			return promoterWorkbook;
 		}
