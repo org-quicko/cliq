@@ -2,13 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { LinkDto } from '../dtos';
 import { Link } from '../entities';
 import { LinkStatsView } from 'src/entities/link.view';
-import { LinksRow, LinksTable, LinkStatsRow, LinkSummaryList, LinkWorkbook, LwLinksSheet, LwSummarySheet, PromoterWorkbook } from 'generated/sources';
+import { LinksRow, LinksTable, LinkStatsRow, LinkSummaryList, LinkWorkbook, LwLinksSheet, LwSummarySheet, PromoterInterfaceWorkbook } from 'generated/sources';
 import { LinkStatsTable } from '../../generated/sources/tables/link-stats-table/LinkStatsTable';
 import { LinkStatsSheet } from '../../generated/sources/sheets/link-stats-sheet/LinkStatsSheet';
 import { JSONObject } from '@org.quicko/core';
-import { isAfter, isBefore } from 'date-fns';
 import { conversionTypeEnum } from 'src/enums';
-import { formatDate } from 'src/utils/formatDate.util';
+import { formatDate } from 'src/utils';
 
 @Injectable()
 export class LinkConverter {
@@ -44,7 +43,7 @@ export class LinkConverter {
 	convertLinkStatsToSheet(linkStats: LinkStatsView[], metadata: {
 		website: string,
 		programId: string,
-	}): PromoterWorkbook {
+	}): PromoterInterfaceWorkbook {
 		const linkStatsTable = new LinkStatsTable();
 
 		linkStats.forEach((linkStat) => {
@@ -57,7 +56,7 @@ export class LinkConverter {
 		const linkStatsSheet = new LinkStatsSheet();
 		linkStatsSheet.addLinkStatsTable(linkStatsTable);
 
-		const promoterWorkbook = new PromoterWorkbook();
+		const promoterWorkbook = new PromoterInterfaceWorkbook();
 		promoterWorkbook.addLinkStatsSheet(linkStatsSheet);
 
 		return promoterWorkbook;
@@ -65,8 +64,8 @@ export class LinkConverter {
 
 	convertToReportWorkbook(
 		links: Link[],
-		startDate?: Date,
-		endDate?: Date,
+		startDate: Date,
+		endDate: Date,
 	): LinkWorkbook {
 		const signUpWorkbook = new LinkWorkbook();
 
@@ -79,9 +78,6 @@ export class LinkConverter {
 		let totalSignUps = 0;
 		let totalPurchases = 0;
 		let totalRevenue = 0;
-
-		let fromDate: Date = links[0].createdAt;
-		let toDate: Date = links[0].createdAt;
 
 		links.forEach((link) => {
 			const row = new LinksRow([]);
@@ -110,11 +106,6 @@ export class LinkConverter {
 			totalPurchasesCommission += Number(purchasesCommission);
 			totalRevenue += Number(revenue);
 
-			if (!startDate && !endDate) {
-				fromDate = isBefore(link.createdAt, fromDate) ? link.createdAt : fromDate;
-				toDate = isAfter(link.createdAt, toDate) ? link.createdAt : toDate;
-			}
-
 			row.setLinkName(link.name);
 			row.setLink(link.program.website + '/?ref=' + link.refVal);
 			row.setSignups(Number(signUps));
@@ -133,9 +124,9 @@ export class LinkConverter {
 		const summarySheet = new LwSummarySheet();
 		const linksSummaryList = new LinkSummaryList();
 
-		linksSummaryList.addFrom(formatDate(startDate ? startDate : fromDate));
-		linksSummaryList.addTo(formatDate(endDate ? endDate : toDate));
-		linksSummaryList.addLinksCreated(Number(totalLinks));
+		linksSummaryList.addFrom(formatDate(startDate));
+		linksSummaryList.addTo(formatDate(endDate));
+		linksSummaryList.addLinks(Number(totalLinks));
 		linksSummaryList.addSignups(Number(totalSignUps));
 		linksSummaryList.addCommissionOnSignups(Number(totalSignUpsCommission));
 		linksSummaryList.addPurchases(Number(totalPurchases));

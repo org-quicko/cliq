@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PromoterMember } from '../entities';
 import { Repository } from 'typeorm';
 import { LoggerService } from './logger.service';
+import { statusEnum } from 'src/enums';
 
 @Injectable()
 export class PromoterMemberService {
@@ -50,7 +51,8 @@ export class PromoterMemberService {
 					programPromoters: {
 						programId
 					}
-				}
+				},
+				status: statusEnum.ACTIVE
 			}
 		});
 

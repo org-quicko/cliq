@@ -5,9 +5,9 @@ import {
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
-import { DataSource, FindOptionsRelations, Repository } from 'typeorm';
+import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Commission, Program, Purchase, ReferralView, User } from '../entities';
+import { Commission, Program, Promoter, Purchase, ReferralView, User } from '../entities';
 import { CreateUserDto } from '../dtos';
 import { ProgramUser } from '../entities/programUser.entity';
 import {
@@ -34,6 +34,8 @@ import {
 } from '../events/generateDefaultCircle.event';
 import { ProgramWorkbook } from 'generated/sources';
 import * as XLSX from 'xlsx';
+import { defaultQueryOptions } from 'src/constants';
+import { snakeCaseToHumanReadable } from 'src/utils';
 
 @Injectable()
 export class ProgramService {
@@ -108,25 +110,18 @@ export class ProgramService {
 	/**
 	 * Get all programs
 	 */
-	async getAllPrograms(queryOptions: QueryOptionsInterface = {}) {
+	async getAllPrograms(whereOptions: FindOptionsWhere<Program> = {}, queryOptions: QueryOptionsInterface = defaultQueryOptions) {
 		this.logger.info('START: getAllPrograms service');
-		const findOptions: object = {};
 
-		if (queryOptions.name) {
-			findOptions['where'] = { name: queryOptions.name };
-		}
-		if (queryOptions.visibility) {
-			findOptions['visibility'] = queryOptions.visibility;
-		}
-		if (queryOptions.skip) {
-			findOptions['skip'] = queryOptions.skip;
-		}
-		if (queryOptions.take) {
-			findOptions['take'] = queryOptions.take;
-		}
+		const programResult = await this.programRepository.find({
+			where: {
+				...whereOptions
+			},
+			...queryOptions
+		})
 
 		this.logger.info('END: getAllPrograms service');
-		return await this.programRepository.find(findOptions);
+		return programResult;
 	}
 
 	/**
@@ -320,23 +315,17 @@ export class ProgramService {
 	 */
 	async getAllUsers(
 		programId: string,
-		queryOptions: QueryOptionsInterface = {},
+		toUseSheetJsonFormat: boolean = true,
+		whereOptions: FindOptionsWhere<ProgramUser> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllUsers service');
 
-		const whereOptions = {};
-
-		if (queryOptions['role']) {
-			whereOptions['role'] = queryOptions.role;
-			delete queryOptions['role'];
-		}
-		if (queryOptions['status']) {
-			whereOptions['status'] = queryOptions.status;
-			delete queryOptions['status'];
-		}
-
 		const programUsersResult = await this.programUserRepository.find({
-			where: { programId, ...whereOptions },
+			where: {
+				programId,
+				...whereOptions
+			},
 			relations: { user: true },
 			...queryOptions,
 		});
@@ -345,6 +334,13 @@ export class ProgramService {
 			throw new NotFoundException(
 				`Error. Users of Program ${programId} not found.`,
 			);
+		}
+
+		if (toUseSheetJsonFormat) {
+			// const membersSheetJson = this.userConverter.convertToSheetJson(promoterMembers);
+
+			this.logger.info('END: getAllUsers service: Returning Workbook');
+			// return membersSheetJson;
 		}
 
 		this.logger.info('END: getAllUsers service');
@@ -413,7 +409,11 @@ export class ProgramService {
 		this.logger.info(`START: getProgramUserRowEntity service`);
 
 		const programUserResult = await this.programUserRepository.findOne({
-			where: { programId, userId },
+			where: {
+				programId,
+				userId,
+				status: statusEnum.ACTIVE
+			},
 		});
 
 		if (!programUserResult) {
@@ -439,18 +439,17 @@ export class ProgramService {
 	 */
 	async getAllPromoters(
 		programId: string,
-		queryOptions: QueryOptionsInterface = {},
+		whereOptions: FindOptionsWhere<Promoter> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info(`START: getAllPromoters service`);
 
-		const whereOptions = {};
-		if (queryOptions['name']) {
-			whereOptions['name'] = queryOptions.name;
-		}
-
 		const programPromotersResult =
 			await this.programPromoterRepository.find({
-				where: { programId, promoter: { ...whereOptions } },
+				where: {
+					programId,
+					...whereOptions
+				},
 				relations: { promoter: true },
 				...queryOptions,
 			});
@@ -475,7 +474,7 @@ export class ProgramService {
 	async getSignUpsInProgram(
 		userId: string,
 		programId: string,
-		queryOptions: QueryOptionsInterface = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info(`START: getSignUpsInProgram service`);
 
@@ -521,7 +520,8 @@ export class ProgramService {
 	async getPurchasesInProgram(
 		userId: string,
 		programId: string,
-		queryOptions: QueryOptionsInterface = {},
+		whereOptions: FindOptionsWhere<Purchase> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info(`START: getPurchasesInProgram service`);
 
@@ -530,11 +530,6 @@ export class ProgramService {
 				`User does not have permission to perform this action!`,
 			);
 			throw new ForbiddenException(`Forbidden Resource`);
-		}
-
-		const externalId = queryOptions.externalId;
-		if (externalId) {
-			delete queryOptions.externalId;
 		}
 
 		const purchases = await this.purchaseRepository.find({
@@ -555,7 +550,7 @@ export class ProgramService {
 						},
 					},
 				},
-				...(externalId && { externalId }),
+				...whereOptions,
 			},
 			...queryOptions,
 		});
@@ -580,7 +575,8 @@ export class ProgramService {
 	async getAllCommissions(
 		userId: string,
 		programId: string,
-		queryOptions: QueryOptionsInterface = {},
+		whereOptions: FindOptionsWhere<Commission> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info(`START: getAllCommissions service`);
 
@@ -595,6 +591,7 @@ export class ProgramService {
 		const programResult = await this.programRepository.findOne({
 			where: {
 				programId,
+				...whereOptions,
 			},
 			relations: {
 				contacts: {
@@ -659,8 +656,8 @@ export class ProgramService {
 
 	async getProgramReport(
 		programId: string,
-		startDate?: Date,
-		endDate?: Date,
+		startDate: Date,
+		endDate: Date,
 	) {
 		this.logger.info(`START: getProgramReport service`);
 
@@ -671,14 +668,10 @@ export class ProgramService {
 			.leftJoinAndSelect("promoter.signUps", "signUps")
 			.leftJoinAndSelect("promoter.purchases", "purchases")
 			.leftJoinAndSelect("promoter.commissions", "commissions")
-			.where("program.programId = :programId", { programId });
-
-		if (startDate && endDate) {
-			query
-				.andWhere("signUps.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
-				.andWhere("purchases.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
-				.andWhere("commissions.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() });
-		}
+			.where("program.programId = :programId", { programId })
+			.andWhere("signUps.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
+			.andWhere("purchases.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
+			.andWhere("commissions.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() });
 
 		const programResult = await query.getOne();
 
@@ -696,7 +689,10 @@ export class ProgramService {
 		const promotersTable = programSheetJsonWorkbook.getProgwPromoters().getPromotersTable();
 
 		// all sheets
-		const promotersSheetData: any[] = [promotersTable.getHeader()];
+		const promotersSheetData: any[] = [snakeCaseToHumanReadable(promotersTable.getHeader())];
+		
+		console.log(snakeCaseToHumanReadable(promotersTable.getHeader()));
+		
 		const programSummarySheetData: any[] = [];
 
 		// pushing promoters data
@@ -706,7 +702,7 @@ export class ProgramService {
 
 		// pushing program summary data
 		programSummaryList.getItems().forEach((item) => {
-			programSummarySheetData.push([item.getKey(), item.getValue()]);
+			programSummarySheetData.push([snakeCaseToHumanReadable(item.getKey()), item.getValue()]);
 		});
 
 		// entering data to sheet

@@ -2,7 +2,7 @@ import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards } f
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FunctionService } from '../services/function.service';
 import { CreateFunctionDto, UpdateFunctionDto } from '../dtos';
-import { conversionTypeEnum, effectEnum } from '../enums';
+import { effectEnum, triggerEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Function } from '../entities';
@@ -16,7 +16,7 @@ export class FunctionController {
 	constructor(
 		private readonly functionService: FunctionService,
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create function
@@ -49,20 +49,28 @@ export class FunctionController {
 	async getAllFunctions(
 		@Param('program_id') programId: string,
 		@Query('circle_name') name: string,
-		@Query('conversion_type') conversionType: conversionTypeEnum,
-		@Query('effect') effect: effectEnum,
+		@Query('trigger') trigger: triggerEnum,
+		@Query('effect_type') effectType: effectEnum,
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
 		this.logger.info('START: getAllFunctions controller');
 
-		const result = await this.functionService.getAllFunctions(programId, {
-			name,
-			conversionType,
-			effect,
-			skip,
-			take,
-		});
+		const result = await this.functionService.getAllFunctions(
+			programId,
+			{
+				name,
+				trigger,
+				circle: {
+					name
+				},
+				effectType,
+			},
+			{
+				skip,
+				take,
+			}
+		);
 
 		this.logger.info('END: getAllFunctions controller');
 		return { message: 'Successfully fetched all functions.', result };

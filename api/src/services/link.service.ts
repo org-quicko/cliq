@@ -12,6 +12,7 @@ import { CreateLinkDto } from '../dtos';
 import { LinkConverter } from '../converters/link.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
+import { defaultQueryOptions } from 'src/constants';
 
 @Injectable()
 export class LinkService {
@@ -70,7 +71,8 @@ export class LinkService {
 	async getAllLinks(
 		programId: string,
 		promoterId: string,
-		queryOptions: QueryOptionsInterface = {},
+		whereOptions: FindOptionsWhere<Link> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllLinks service');
 		const links = await this.linkRepository.find({
@@ -81,6 +83,7 @@ export class LinkService {
 				promoter: {
 					promoterId,
 				},
+				...whereOptions,
 			},
 			...queryOptions,
 		});

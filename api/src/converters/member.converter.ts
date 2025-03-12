@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { MemberDto } from '../dtos';
 import { Member, PromoterMember } from '../entities';
-import { MemberRow, MemberSheet, MemberTable, PromoterWorkbook } from 'generated/sources';
-import { formatDate } from 'src/utils/formatDate.util';
+import { MemberRow, MemberSheet, MemberTable, PromoterInterfaceWorkbook } from 'generated/sources';
+import { formatDate } from 'src/utils';
+import { JSONObject } from '@org.quicko/core';
+import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
+import { defaultQueryOptions } from 'src/constants';
 
 @Injectable()
 export class MemberConverter {
@@ -36,19 +39,24 @@ export class MemberConverter {
 		return row;
 	}
 
-	convertToSheetJson(promoterMembers: PromoterMember[]): PromoterWorkbook {
+	convertToSheetJson(promoterMembers: PromoterMember[], promoterId: string, queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterInterfaceWorkbook {
 
 		const memberTable = new MemberTable();
 		promoterMembers.forEach((promoterMember) => {
 			const member = promoterMember.member;
 			const row = this.getSheetRow(member, promoterMember);
 			memberTable.addRow(row);
-		})
+		});
+
+		memberTable.metadata = new JSONObject({ 
+			promoterId,
+			...queryOptions
+		});
 
 		const membersSheet = new MemberSheet();
 		membersSheet.addMemberTable(memberTable);
 
-		const promoterWorkbook = new PromoterWorkbook();
+		const promoterWorkbook = new PromoterInterfaceWorkbook();
 		promoterWorkbook.addSheet(membersSheet);
 
 		return promoterWorkbook;

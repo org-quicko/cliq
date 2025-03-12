@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
+import { PromoterInterfaceWorkbook } from 'generated/sources';
 
 @Injectable()
 export class UserConverter {
@@ -22,4 +23,35 @@ export class UserConverter {
 
 		return userDto;
 	}
+
+	// getSheetRow(member: User, promoterMember: ProgramUser): MemberRow {
+	// 	const row = new MemberRow([]);
+
+	// 	row.setMemberId(member.memberId);
+	// 	row.setFirstName(member.firstName);
+	// 	row.setLastName(member.lastName);
+	// 	row.setEmail(member.email);
+	// 	row.setRole(promoterMember.role);
+	// 	row.setAddedOn(formatDate(promoterMember.createdAt));
+
+	// 	return row;
+	// }
+
+	// convertToSheetJson(promoterMembers: ProgramUser[]): PromoterInterfaceWorkbook {
+
+	// 	const memberTable = new MemberTable();
+	// 	promoterMembers.forEach((promoterMember) => {
+	// 		const member = promoterMember.member;
+	// 		const row = this.getSheetRow(member, promoterMember);
+	// 		memberTable.addRow(row);
+	// 	})
+
+	// 	const membersSheet = new MemberSheet();
+	// 	membersSheet.addMemberTable(memberTable);
+
+	// 	const promoterWorkbook = new PromoterInterfaceWorkbook();
+	// 	promoterWorkbook.addSheet(membersSheet);
+
+	// 	return promoterWorkbook;
+	// }
 }

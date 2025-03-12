@@ -6,7 +6,7 @@ import {
 import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, FindOptionsWhere } from 'typeorm';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import {
 	Condition,
@@ -41,6 +41,7 @@ import {
 } from '../enums';
 import { plainToInstance } from 'class-transformer';
 import { roundedNumber } from '../utils';
+import { defaultQueryOptions } from 'src/constants';
 
 @Injectable()
 export class FunctionService {
@@ -133,24 +134,10 @@ export class FunctionService {
 	 */
 	async getAllFunctions(
 		programId: string,
-		queryOptions: QueryOptionsInterface = {},
+		whereOptions: FindOptionsWhere<Function> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllFunctions service');
-
-		const whereOptions = {};
-
-		if (queryOptions['name']) {
-			whereOptions['name'] = queryOptions.name;
-			delete queryOptions['name'];
-		}
-		if (queryOptions['conversionType']) {
-			whereOptions['conversionType'] = queryOptions.conversionType;
-			delete queryOptions['conversionType'];
-		}
-		if (queryOptions['effect']) {
-			whereOptions['effect'] = queryOptions.effect;
-			delete queryOptions['effect'];
-		}
 
 		const functionsResult = await this.functionRepository.find({
 			where: {

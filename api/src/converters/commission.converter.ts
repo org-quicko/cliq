@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CommissionDto } from '../dtos';
 import { Commission, Promoter, Purchase, SignUp } from '../entities';
-import { CommissionRow, CommissionsSheet, CommissionsSummaryList, CommissionTable, CommissionWorkbook, CwPurchasesSheet, CwSignupsSheet, CwSummarySheet, PromoterWorkbook, PurchaseCommissionsRow, PurchaseCommissionsTable, SignupCommissionsRow, SignupCommissionsTable } from 'generated/sources';
-import { isAfter, isBefore } from 'date-fns';
+import { CommissionRow, CommissionsSheet, CommissionsSummaryList, CommissionTable, CommissionWorkbook, CwPurchasesSheet, CwSignupsSheet, CwSummarySheet, PromoterInterfaceWorkbook, PurchaseCommissionsRow, PurchaseCommissionsTable, SignupCommissionsRow, SignupCommissionsTable } from 'generated/sources';
 import { conversionTypeEnum } from 'src/enums';
 import { maskInfo } from 'src/utils';
-import { formatDate } from 'src/utils/formatDate.util';
+import { formatDate } from 'src/utils';
 
 @Injectable()
 export class CommissionConverter {
@@ -34,7 +33,7 @@ export class CommissionConverter {
 		return newCommissionRow;
 	}
 
-	convertToSheet(commissions: Commission[]): PromoterWorkbook {
+	convertToSheet(commissions: Commission[]): PromoterInterfaceWorkbook {
 		const newCommissionTable = new CommissionTable();
 
 		commissions.forEach((commission) => {
@@ -46,7 +45,7 @@ export class CommissionConverter {
 		const commissionSheet = new CommissionsSheet();
 		commissionSheet.addCommissionTable(newCommissionTable);
 
-		const promoterWorkbook = new PromoterWorkbook();
+		const promoterWorkbook = new PromoterInterfaceWorkbook();
 		promoterWorkbook.addSheet(commissionSheet);
 
 		return promoterWorkbook;
@@ -56,8 +55,8 @@ export class CommissionConverter {
 		signUps: SignUp[],
 		purchases: Purchase[],
 		promoter: Promoter,
-		startDate?: Date,
-		endDate?: Date,
+		startDate: Date,
+		endDate: Date,
 	): CommissionWorkbook {
 		const commissionWorkbook = new CommissionWorkbook();
 
@@ -70,9 +69,6 @@ export class CommissionConverter {
 		let totalPurchaseCommission: number = 0;
 		let totalRevenue: number = 0;
 
-		let fromDate: Date = purchases[0].createdAt;
-		let toDate: Date = purchases[0].createdAt;
-
 		purchases.forEach((purchase) => {
 			const row = new PurchaseCommissionsRow([]);
 
@@ -83,11 +79,6 @@ export class CommissionConverter {
 
 			totalPurchaseCommission += Number(commissionAmount);
 			totalRevenue += Number(purchase.amount);
-
-			if (!startDate && !endDate) {
-				fromDate = isBefore(purchase.createdAt, fromDate) ? purchase.createdAt : fromDate;
-				toDate = isAfter(purchase.createdAt, toDate) ? purchase.createdAt : toDate;
-			}
 
 			row.setPurchaseId(purchase.purchaseId);
 			row.setContactId(purchase.contact.contactId);
@@ -118,11 +109,6 @@ export class CommissionConverter {
 
 			totalSignUpCommission += Number(commissionAmount);
 
-			if (!startDate && !endDate) {
-				fromDate = isBefore(signUp.createdAt, fromDate) ? signUp.createdAt : fromDate;
-				toDate = isAfter(signUp.createdAt, toDate) ? signUp.createdAt : toDate;
-			}
-
 			row.setContactId(signUp.contact.contactId);
 			row.setCommission(Number(commissionAmount));
 			row.setEmail(maskInfo(signUp.contact.email));
@@ -141,8 +127,8 @@ export class CommissionConverter {
 		const summarySheet = new CwSummarySheet();
 		const commissionsSummaryList = new CommissionsSummaryList();
 
-		commissionsSummaryList.addFrom(formatDate(startDate ? startDate : fromDate));
-		commissionsSummaryList.addTo(formatDate(endDate ? endDate : toDate));
+		commissionsSummaryList.addFrom(formatDate(startDate));
+		commissionsSummaryList.addTo(formatDate(endDate));
 		commissionsSummaryList.addPromoterId(promoter.promoterId);
 		commissionsSummaryList.addPromoterName(promoter.name);
 		commissionsSummaryList.addPurchases(Number(totalPurchases));

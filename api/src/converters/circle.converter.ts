@@ -5,13 +5,16 @@ import { CircleDto } from '../dtos';
 @Injectable()
 export class CircleConverter {
 	convert(circle: Circle): CircleDto {
-		return {
-			circleId: circle.circleId,
-			isDefaultCircle: circle.isDefaultCircle,
-			name: circle.name,
+		const circleDto = new CircleDto();
 
-			createdAt: new Date(circle.createdAt),
-			updatedAt: new Date(circle.updatedAt),
-		};
+		circleDto.circleId = circle.circleId;
+		
+		circleDto.isDefaultCircle = circle.isDefaultCircle;
+		circleDto.name = circle.name;
+		
+		circleDto.createdAt = circle.createdAt;
+		circleDto.updatedAt = circle.updatedAt;
+
+		return circleDto;
 	}
 }

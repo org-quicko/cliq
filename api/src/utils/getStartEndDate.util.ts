@@ -3,16 +3,17 @@ import { subMonths, subWeeks, startOfWeek, startOfMonth, subDays } from 'date-fn
 import { reportPeriodEnum } from '../enums/reportPeriod.enum';
 
 interface StartEndDateInterface {
-    parsedStartDate: Date | undefined;
-    parsedEndDate: Date | undefined;
+    parsedStartDate: Date;
+    parsedEndDate: Date;
 }
 
 export function getStartEndDate(startDate: (string | undefined), endDate: (string | undefined), reportPeriod?: reportPeriodEnum): StartEndDateInterface {
     
+    // by default, a 1 month report shall be generated
     if (!reportPeriod && !(startDate && endDate)) {
         return {
-            parsedStartDate: undefined,
-            parsedEndDate: undefined,
+            parsedStartDate: subMonths(new Date(), 1),
+            parsedEndDate: new Date(),
         };
     }
 

@@ -71,12 +71,15 @@ export class ProgramController {
   ) {
     this.logger.info('START: getAllPrograms controller');
 
-    const result = await this.programService.getAllPrograms({
-      name,
-      visibility,
-      skip,
-      take,
-    });
+    const result = await this.programService.getAllPrograms(
+      {
+        name,
+        visibility
+      },
+      {
+        skip,
+        take,
+      });
 
     this.logger.info('END: getAllPrograms controller');
     return { message: 'Successfully fetched all programs.', result };
@@ -155,9 +158,11 @@ export class ProgramController {
    * Get all users
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', Program)
+  @SkipTransform()
+  @Permissions('read', ProgramUser)
   @Get(':program_id/users')
   async getAllUsers(
+    @Headers('x-accept-type') acceptType: string,
     @Param('program_id') programId: string,
     @Query('status') status?: statusEnum,
     @Query('role') role?: roleEnum,
@@ -165,12 +170,21 @@ export class ProgramController {
     @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getAllUsers controller');
-    const result = await this.programService.getAllUsers(programId, {
-      status,
-      role,
-      skip,
-      take,
-    });
+
+    const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
+    const result = await this.programService.getAllUsers(
+      programId,
+      toUseSheetJsonFormat,
+      {
+        status,
+        role,
+      },
+      {
+        skip,
+        take,
+      }
+    );
     this.logger.info('END: getAllUsers controller');
     return {
       message: 'Successfully fetched all users of program.',
@@ -228,11 +242,16 @@ export class ProgramController {
     @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getAllPromoters controller');
-    const result = await this.programService.getAllPromoters(programId, {
-      name,
-      skip,
-      take,
-    });
+    const result = await this.programService.getAllPromoters(
+      programId,
+      {
+        name,
+      },
+      {
+        skip,
+        take,
+      }
+    );
     this.logger.info('END: getAllPromoters controller');
     return {
       message: 'Successfully fetched all promoters of program.',
@@ -289,7 +308,9 @@ export class ProgramController {
       userId,
       programId,
       {
-        itemId,
+        itemId
+      },
+      {
         skip,
         take,
       },
@@ -322,6 +343,8 @@ export class ProgramController {
       programId,
       {
         conversionType,
+      },
+      {
         skip,
         take,
       },
@@ -356,7 +379,7 @@ export class ProgramController {
 
     const workbookBuffer = await this.programService.getProgramReport(programId, parsedStartDate, parsedEndDate);
 
-    const fileName = getReportFileName('program', reportPeriod, parsedStartDate, parsedEndDate);
+    const fileName = getReportFileName('Program');
 
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

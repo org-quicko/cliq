@@ -21,8 +21,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "generate": "npm run generateSchema && npm run generateObjects",
-    "generateSchema": "excel-to-schema --input ../resources/excel/PromoterWorkbook.xlsx --output ./generated/schemas/PromoterWorkbook.json",
-    "generateObjects": "schema-to-objects --input ./generated/schemas/PromoterWorkbook.json --output ./generated/sources"
+    "generateSchema": "excel-to-schema --input ../resources/excel/PromoterInterfaceWorkbook.xlsx --output ./generated/schemas/PromoterInterfaceWorkbook.json",
+    "generateObjects": "schema-to-objects --input ./generated/schemas/PromoterInterfaceWorkbook.json --output ./generated/sources"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",

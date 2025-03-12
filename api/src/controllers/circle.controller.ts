@@ -15,7 +15,7 @@ export class CircleController {
 	constructor(
 		private readonly circleService: CircleService,
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create circle
@@ -51,11 +51,15 @@ export class CircleController {
 	) {
 		this.logger.info('START: getAllCircles controller');
 
-		const result = await this.circleService.getAllCircles(programId, {
-			name,
-			skip,
-			take,
-		});
+		const result = await this.circleService.getAllCircles(
+			programId,
+			{
+				name,
+			},
+			{
+				skip,
+				take,
+			});
 
 		this.logger.info('END: getAllCircles controller');
 		return { message: 'Successfully fetched all circles.', result };
@@ -95,11 +99,16 @@ export class CircleController {
 	) {
 		this.logger.info('START: getAllPromoters controller');
 
-		const result = await this.circleService.getAllPromoters(circleId, {
-			name,
-			skip,
-			take,
-		});
+		const result = await this.circleService.getAllPromoters(
+			circleId,
+			{
+				name,
+			},
+			{
+				skip,
+				take,
+			}
+		);
 
 		this.logger.info('END: getAllPromoters controller');
 		return { message: 'Successfully fetched promoters of circle.', result };

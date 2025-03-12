@@ -14,7 +14,6 @@ import { AuthGuard } from '../guards/auth/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
 	Commission,
-	Member,
 	Promoter,
 	PromoterMember,
 	Purchase,
@@ -124,9 +123,10 @@ export class PromoterController {
 			promoterId,
 			toUseSheetJsonFormat,
 			{
-				email,
 				role,
 				status,
+			},
+			{
 				skip,
 				take,
 			}
@@ -305,6 +305,8 @@ export class PromoterController {
 			toUseSheetJsonFormat,
 			{
 				conversionType,
+			},
+			{
 				skip,
 				take,
 			},
@@ -341,7 +343,7 @@ export class PromoterController {
 			parsedEndDate,
 		);
 
-		const fileName = getReportFileName('signups', reportPeriod, parsedStartDate, parsedEndDate);
+		const fileName = getReportFileName('Signups');
 
 		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
 		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -372,7 +374,7 @@ export class PromoterController {
 			parsedEndDate,
 		);
 
-		const fileName = getReportFileName('purchases', reportPeriod, parsedStartDate, parsedEndDate);
+		const fileName = getReportFileName('Purchases');
 		console.log(fileName);
 
 		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
@@ -404,7 +406,7 @@ export class PromoterController {
 			parsedEndDate,
 		);
 
-		const fileName = getReportFileName('commissions', reportPeriod, parsedStartDate, parsedEndDate);
+		const fileName = getReportFileName('Commissions');
 
 
 		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
@@ -438,7 +440,7 @@ export class PromoterController {
 			parsedEndDate,
 		);
 
-		const fileName = getReportFileName('links', reportPeriod, parsedStartDate, parsedEndDate);
+		const fileName = getReportFileName('Links');
 
 
 		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
@@ -473,7 +475,7 @@ export class PromoterController {
 			parsedEndDate,
 		);
 
-		const fileName = getReportFileName('referrals', reportPeriod, parsedStartDate, parsedEndDate);
+		const fileName = getReportFileName('Referrals');
 
 
 		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);

@@ -49,10 +49,7 @@ export class LinkController {
 	async getAllLinks(
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
-
-		@Query('source') source: string,
-		@Query('medium') medium: string,
-		@Query('url') url: string,
+		@Query('name') name: string,
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
@@ -62,9 +59,9 @@ export class LinkController {
 			programId,
 			promoterId,
 			{
-				url,
-				source,
-				medium,
+				name,
+			},
+			{
 				skip,
 				take,
 			},

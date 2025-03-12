@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OnEvent } from '@nestjs/event-emitter';
-import { Repository, FindOptionsRelations, DataSource } from 'typeorm';
+import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
 import { AddPromoterToCircleDto, CreateCircleDto } from '../dtos';
 import { Circle, CirclePromoter } from '../entities';
 import { ProgramService } from './program.service';
@@ -19,6 +19,7 @@ import {
 	SWITCH_CIRCLE_EVENT,
 	SwitchCircleEvent,
 } from '../events';
+import { defaultQueryOptions } from 'src/constants';
 
 @Injectable()
 export class CircleService {
@@ -85,14 +86,10 @@ export class CircleService {
 	 */
 	async getAllCircles(
 		programId: string,
-		queryOptions: QueryOptionsInterface = {},
+		whereOptions: FindOptionsWhere<Circle> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllCircles service');
-		const whereOptions = {};
-		if (queryOptions['name']) {
-			whereOptions['name'] = queryOptions.name;
-			delete queryOptions['name'];
-		}
 
 		const circles = await this.circleRepository.find({
 			where: {
@@ -100,12 +97,6 @@ export class CircleService {
 					programId,
 				},
 				...whereOptions,
-			},
-			select: {
-				circleId: true,
-				isDefaultCircle: true,
-				name: true,
-				createdAt: true,
 			},
 			...queryOptions,
 		});
@@ -158,14 +149,10 @@ export class CircleService {
 	 */
 	async getAllPromoters(
 		circleId: string,
-		queryOptions: QueryOptionsInterface = {},
+		whereOptions: FindOptionsWhere<Circle> = {},
+		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllPromoters service');
-		const whereOptions = {};
-		if (queryOptions['name']) {
-			whereOptions['name'] = queryOptions.name;
-			delete queryOptions['name'];
-		}
 
 		const promoters = await this.circlePromoterRepository.find({
 			where: {

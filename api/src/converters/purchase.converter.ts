@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PurchaseDto } from '../dtos';
 import { Promoter, Purchase } from '../entities';
-import { PromoterWorkbook, PurchaseRow, PurchaseSheet, PurchasesRow, PurchasesSummaryList, PurchasesTable, PurchaseTable, PurchaseWorkbook, PwPurchasesSheet, PwSummarySheet } from 'generated/sources';
+import { PromoterInterfaceWorkbook, PurchaseRow, PurchaseSheet, PurchasesRow, PurchasesSummaryList, PurchasesTable, PurchaseTable, PurchaseWorkbook, PwPurchasesSheet, PwSummarySheet } from 'generated/sources';
 import { maskInfo } from 'src/utils';
-import { isAfter, isBefore } from 'date-fns';
-import { formatDate } from 'src/utils/formatDate.util';
+import { formatDate } from 'src/utils';
+import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
+import { defaultQueryOptions } from 'src/constants';
+import { JSONObject } from '@org.quicko/core';
 
 @Injectable()
 export class PurchaseConverter {
@@ -44,18 +46,22 @@ export class PurchaseConverter {
 		return newPurchaseRow;
 	}
 
-	convertToSheetJson(purchases: Purchase[]): PromoterWorkbook {
+	convertToSheetJson(purchases: Purchase[], queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterInterfaceWorkbook {
 
-		const newPurchaseTable = new PurchaseTable();
+		const purchaseTable = new PurchaseTable();
 		purchases.forEach((purchase) => {
 			const newPurchaseRow = this.getSheetRow(purchase);
-			newPurchaseTable.addRow(newPurchaseRow);
+			purchaseTable.addRow(newPurchaseRow);
+		});
+
+		purchaseTable.metadata = new JSONObject({
+			...queryOptions
 		});
 
 		const purchaseSheet = new PurchaseSheet();
-		purchaseSheet.addPurchaseTable(newPurchaseTable);
+		purchaseSheet.addPurchaseTable(purchaseTable);
 
-		const promoterWorkbook = new PromoterWorkbook();
+		const promoterWorkbook = new PromoterInterfaceWorkbook();
 		promoterWorkbook.addSheet(purchaseSheet);
 
 		return promoterWorkbook;
@@ -64,8 +70,8 @@ export class PurchaseConverter {
 	convertToReportWorkbook(
 		purchases: Purchase[],
 		promoter: Promoter,
-		startDate?: Date,
-		endDate?: Date,
+		startDate: Date,
+		endDate: Date,
 	): PurchaseWorkbook {
 		const purchaseWorkbook = new PurchaseWorkbook();
 
@@ -74,9 +80,6 @@ export class PurchaseConverter {
 		const totalPurchases = purchases.length;
 		let totalCommission = 0;
 		let totalRevenue = 0;
-
-		let fromDate: Date = purchases[0].createdAt;
-		let toDate: Date = purchases[0].createdAt;
 
 		purchases.forEach((purchase) => {
 			const row = new PurchasesRow([]);
@@ -88,11 +91,6 @@ export class PurchaseConverter {
 
 			totalCommission += Number(commissionAmount);
 			totalRevenue += Number(purchase.amount);
-
-			if (!startDate && !endDate) {
-				fromDate = isBefore(purchase.createdAt, fromDate) ? purchase.createdAt : fromDate;
-				toDate = isAfter(purchase.createdAt, toDate) ? purchase.createdAt : toDate;
-			}
 
 			row.setPurchaseId(purchase.purchaseId);
 			row.setContactId(purchase.contact.contactId);
@@ -111,8 +109,8 @@ export class PurchaseConverter {
 		const summarySheet = new PwSummarySheet();
 		const purchasesSummaryList = new PurchasesSummaryList();
 
-		purchasesSummaryList.addFrom(formatDate(startDate ? startDate : fromDate));
-		purchasesSummaryList.addTo(formatDate(endDate ? endDate : toDate));
+		purchasesSummaryList.addFrom(formatDate(startDate));
+		purchasesSummaryList.addTo(formatDate(endDate));
 		purchasesSummaryList.addPromoterId(promoter.promoterId);
 		purchasesSummaryList.addPromoterName(promoter.name);
 		purchasesSummaryList.addPurchases(Number(totalPurchases));

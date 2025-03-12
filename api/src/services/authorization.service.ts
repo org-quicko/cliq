@@ -152,7 +152,6 @@ export class AuthorizationService {
                 const subjectMemberId = request.params.member_id as string;
                 const subjectPromoterId = request.params.promoter_id as string;
 
-                console.log(subject);
                 if (subject === User) {
                     if (action === 'read' || action === 'create')
                         return subject;
@@ -253,10 +252,6 @@ export class AuthorizationService {
                         );
                     }
 
-                    // const link = new Link();
-                    // link.programId = subjectProgramId;
-                    // link.promoterId = subjectPromoterId;
-                    // return link;
                     const link = this.linkService.getFirstLink(
                         subjectProgramId,
                         subjectPromoterId,
@@ -269,9 +264,6 @@ export class AuthorizationService {
                         );
                     }
 
-                    // const circle = new Circle();
-                    // circle.programId = subjectProgramId;
-                    // return circle;
                     return this.circleService.getFirstCircleOfProgram(
                         subjectProgramId,
                     );
@@ -282,9 +274,6 @@ export class AuthorizationService {
                         );
                     }
 
-                    // const func = new Function();
-                    // func.programId = subjectProgramId;
-                    // return func;
                     return this.functionService.getFirstFunctionOfProgram(
                         subjectProgramId,
                     );
@@ -448,10 +437,10 @@ export class AuthorizationService {
             allow('read', Commission, { promoterId });
             allow('read_all', PromoterMember, { promoterId });
             allow('read', Member, { promoterMembers: { promoterId } });
-            allow(['read'], ReferralView, { promoterId });
-            allow(['read'], Purchase, { promoterId });
+            allow('read', ReferralView, { promoterId });
+            allow('read', Purchase, { promoterId });
             allow('read', SignUp, { promoterId });
-            allow(['read'], Link, { promoterId });
+            allow('read', Link, { promoterId });
 
             if (role === roleEnum.ADMIN) {
                 // allow update program or invite other users to the program
@@ -467,7 +456,7 @@ export class AuthorizationService {
             }
         }
 
-        allow(['update', 'delete'], Member, { memberId: member.memberId });
+        allow(['read', 'update', 'delete'], Member, { memberId: member.memberId });
 
         const ability = build({
             detectSubjectType: (item) =>

@@ -4,7 +4,7 @@ import { Program } from '../entities';
 import { LoggerService } from 'src/services/logger.service';
 import { ProgramSummaryList, ProgramWorkbook, ProgwPromotersSheet, ProgwSummarySheet, PromotersRow, PromotersTable } from 'generated/sources';
 import { conversionTypeEnum } from 'src/enums';
-import { formatDate } from 'src/utils/formatDate.util';
+import { formatDate } from 'src/utils';
 
 @Injectable()
 export class ProgramConverter {
@@ -37,8 +37,8 @@ export class ProgramConverter {
 
 	convertToReportWorkbook(
 		program: Program,
-		startDate?: Date,
-		endDate?: Date,
+		startDate: Date,
+		endDate: Date,
 	): ProgramWorkbook {
 		const programWorkbook = new ProgramWorkbook();
 
@@ -51,10 +51,6 @@ export class ProgramConverter {
 		let totalPurchasesCommission = 0;
 		let totalSignUpsCommission = 0;
 		const totalPromoters = program.programPromoters.length;
-
-
-		const fromDate: Date = program.createdAt;
-		const toDate: Date = new Date();
 
 		program.programPromoters.forEach((programPromoter) => {
 			const promoter = programPromoter.promoter;
@@ -103,8 +99,8 @@ export class ProgramConverter {
 
 		const dateFormat = program.dateFormat;
 
-		programSummaryList.addFrom(formatDate(startDate ? startDate : fromDate, dateFormat));
-		programSummaryList.addTo(formatDate(endDate ? endDate : toDate, dateFormat));
+		programSummaryList.addFrom(formatDate(startDate, dateFormat));
+		programSummaryList.addTo(formatDate(endDate, dateFormat));
 		programSummaryList.addPromoters(Number(totalPromoters))
 		programSummaryList.addProgramId(program.programId);
 		programSummaryList.addSignups(Number(totalSignUps));

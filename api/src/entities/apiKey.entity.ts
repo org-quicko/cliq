@@ -18,12 +18,10 @@ export class ApiKey {
 	@PrimaryGeneratedColumn('uuid', { name: 'api_key_id' })
 	apiKeyId: string;
 
-	// TODO: add char instead of varchar
 	@Index()
 	@Column('varchar', { unique: true })
 	key: string;
 
-	// TODO: add char instead of varchar
 	@Column('varchar')
 	secret: string;
 

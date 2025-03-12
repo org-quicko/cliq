@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PromoterWorkbook, ReferralAggregateRow, ReferralAggregateSheet, ReferralAggregateTable, ReferralRow, ReferralSheet, ReferralTable } from "generated/sources";
+import { PromoterInterfaceWorkbook, ReferralAggregateRow, ReferralAggregateSheet, ReferralAggregateTable, ReferralRow, ReferralSheet, ReferralTable } from "generated/sources";
 import { ReferralView, ReferralAggregateView } from "src/entities";
 import { maskInfo } from "src/utils";
 import { formatDate } from "src/utils/formatDate.util";
@@ -21,7 +21,7 @@ export class ReferralConverter {
         return newReferralRow;
     }
 
-    convertReferralViewToSheet(referrals: ReferralView[]): PromoterWorkbook {
+    convertReferralViewToSheet(referrals: ReferralView[]): PromoterInterfaceWorkbook {
         const newReferralTable = new ReferralTable();
         referrals.forEach((referral) => {
             const newReferralRow = this.getReferralViewSheetRow(referral);
@@ -31,7 +31,7 @@ export class ReferralConverter {
         const referralSheet = new ReferralSheet();
         referralSheet.addReferralTable(newReferralTable);
 
-        const promoterWorkbook = new PromoterWorkbook();
+        const promoterWorkbook = new PromoterInterfaceWorkbook();
         promoterWorkbook.addSheet(referralSheet);
 
         return promoterWorkbook;
@@ -51,7 +51,7 @@ export class ReferralConverter {
         return newReferralAggregateRow;
     }
 
-    convertReferralAggregateViewToSheet(referralAggs: ReferralAggregateView[]): PromoterWorkbook {
+    convertReferralAggregateViewToSheet(referralAggs: ReferralAggregateView[]): PromoterInterfaceWorkbook {
         const newReferralAggregateTable = new ReferralAggregateTable();
 
         referralAggs.forEach((referralAgg) => {
@@ -62,7 +62,7 @@ export class ReferralConverter {
         const referralAggregateSheet = new ReferralAggregateSheet();
         referralAggregateSheet.addReferralAggregateTable(newReferralAggregateTable);
 
-        const promoterWorkbook = new PromoterWorkbook();
+        const promoterWorkbook = new PromoterInterfaceWorkbook();
         promoterWorkbook.addSheet(referralAggregateSheet);
 
         return promoterWorkbook;
