@@ -25,7 +25,7 @@ export class SignUp {
 	@PrimaryColumn('uuid', { name: 'contact_id' })
 	contactId: string;
 
-	@Column({ type: 'jsonb', nullable: true })
+	@Column({ type: 'jsonb', nullable: true, name: 'utm_params' })
 	utmParams: UtmParams;
 
 	@CreateDateColumn({

@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityNotFoundError } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from '../dtos';
-import { User } from '../entities';
+import { ProgramUser, User } from '../entities';
 import { UserConverter } from '../converters/user.converter';
 import { LoggerService } from './logger.service';
-import { roleEnum } from 'src/enums';
+import { roleEnum, statusEnum } from 'src/enums';
 
 @Injectable()
 export class UserService {
@@ -14,6 +14,9 @@ export class UserService {
 	constructor(
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
+
+		@InjectRepository(ProgramUser)
+		private readonly programUserRepository: Repository<ProgramUser>,
 
 		private userConverter: UserConverter,
 
@@ -136,5 +139,70 @@ export class UserService {
 
 		await this.userRepository.delete({ userId: userId });
 		this.logger.info('END: deleteUser service');
+	}
+
+	async leaveProgram(userId: string, programId: string) {
+		this.logger.info(`START: leaveProgram service`);
+
+		const canLeave = await this.canLeaveProgram(programId, userId);
+		if (!canLeave) {
+			this.logger.error(`Error. Cannot leave program due to being the only admin/super admin in the program`);
+			throw new BadRequestException(`Error. Cannot leave program due to being the only admin/super admin in the program`);
+		}
+
+		await this.programUserRepository.update({ programId, userId }, {
+			status: statusEnum.INACTIVE
+		});
+
+		this.logger.info(`START: leaveProgram service`);
+	}
+
+	private async canLeaveProgram(programId: string, userId: string) {
+		this.logger.info(`START: canLeaveProgram service`);
+
+		const adminResult = await this.programUserRepository.find({
+			where: {
+				programId,
+				role: roleEnum.ADMIN,
+			}
+		});
+
+		const superAdminResult = await this.programUserRepository.findOne({
+			where: {
+				programId,
+				role: roleEnum.SUPER_ADMIN
+			}
+		});
+
+		let canLeave = true;
+
+		if (adminResult.length > 1) {
+			canLeave = true;
+		}
+		else if (adminResult.length === 0) {
+			
+			// only super admin is left
+			if (superAdminResult) {
+				canLeave = true;
+			} else {
+				canLeave = false;
+			}
+		}
+		// at least 1 admin is present
+		else if (adminResult.length === 1) {
+			if (adminResult[0].userId === userId) {
+
+				// no super admin, and the user is the only remaining admin => cannot leave the program
+				if (!superAdminResult) {
+					canLeave = false;
+				} 
+			} else {
+				// this user ain't the admin, can leave 
+				canLeave = true;
+			}
+		}
+
+		this.logger.info(`END: canLeaveProgram service`);
+		return canLeave;
 	}
 }

@@ -1,22 +1,28 @@
 import {
+	BadRequestException,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberConverter } from 'src/converters/member.converter';
 import { CreateMemberDto, UpdateMemberDto } from 'src/dtos';
-import { Member } from 'src/entities';
+import { Member, PromoterMember } from 'src/entities';
 import { Repository, FindOptionsRelations } from 'typeorm';
 import { LoggerService } from './logger.service';
+import { roleEnum, statusEnum } from 'src/enums';
 
 @Injectable()
 export class MemberService {
 	constructor(
 		@InjectRepository(Member)
 		private readonly memberRepository: Repository<Member>,
+		
+		@InjectRepository(PromoterMember)
+		private readonly promoterMemberRepository: Repository<PromoterMember>,
+
 		private memberConverter: MemberConverter,
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Member sign up
@@ -157,8 +163,8 @@ export class MemberService {
 		this.logger.info('END: deleteMember service');
 	}
 
-	async memberExists(email: string, programId: string) {
-		this.logger.info('START: memberExists service');
+	async memberExistsInAnyPromoter(email: string, programId: string) {
+		this.logger.info('START: memberExistsInAnyPromoter service');
 		const member = await this.memberRepository.findOne({
 			where: {
 				email: email,
@@ -168,10 +174,69 @@ export class MemberService {
 			},
 			relations: {
 				program: true,
+				promoterMembers: true,
 			},
 		});
-		console.log('member: ', member);
-		this.logger.info('END: memberExists service');
-		return member;
+
+		let exists = false;
+
+		if (member?.promoterMembers) {
+			for (const promoterMember of member.promoterMembers) {
+				if (promoterMember.status === statusEnum.ACTIVE) {
+					exists = true;
+					break;
+				}
+			}
+		}
+
+		this.logger.info('END: memberExistsInAnyPromoter service');
+		return exists;
+	}
+
+	async leavePromoter(memberId: string, promoterId: string) {
+		this.logger.info(`START: leavePromoter service`);
+
+		const canLeave = await this.canLeavePromoter(promoterId, memberId);
+		if (!canLeave) {
+			this.logger.error(`Error. Cannot leave promoter due to being the only admin in the promoter`);
+			throw new BadRequestException(`Error. Cannot leave program due to being the only admin in the promoter`);
+		}
+
+		await this.promoterMemberRepository.update({ promoterId, memberId }, {
+			status: statusEnum.INACTIVE
+		});
+
+		this.logger.info(`START: leavePromoter service`);
+	}
+
+	private async canLeavePromoter(promoterId: string, memberId: string) {
+		this.logger.info(`START: canLeavePromoter service`);
+
+		const adminResult = await this.promoterMemberRepository.find({
+			where: {
+				promoterId,
+				role: roleEnum.ADMIN,
+			}
+		});
+
+		let canLeave = true;
+
+		if (adminResult.length > 1) {
+			canLeave = true;
+		}
+		// at least 1 admin is present
+		else if (adminResult.length === 1) {
+
+			//user is the admin, the only admin, thus cannot leave
+			if (adminResult[0].memberId === memberId) {
+				canLeave = false;
+			} else {
+				// this user ain't the admin, can leave 
+				canLeave = true;
+			}
+		}
+
+		this.logger.info(`END: canLeavePromoter service`);
+		return canLeave;
 	}
 }

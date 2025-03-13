@@ -91,8 +91,13 @@ export class SignUpConverter {
 			row.setEmail(maskInfo(signUp.contact.email));
 			row.setPhone(maskInfo(signUp.contact.phone));
 			row.setSignUpDate(formatDate(signUp.createdAt));
-			row.setUtmSource(signUp?.utmParams?.source);
-			row.setUtmMedium(signUp?.utmParams?.medium);
+			row.setExternalId(signUp.contact.externalId);
+			row.setUtmId(signUp?.utmParams?.utmId);
+			row.setUtmSource(signUp?.utmParams?.utmSource);
+			row.setUtmMedium(signUp?.utmParams?.utmMedium);
+			row.setUtmCampaign(signUp?.utmParams?.utmCampaign);
+			row.setUtmTerm(signUp?.utmParams?.utmTerm);
+			row.setUtmContent(signUp?.utmParams?.utmContent);
 
 			signupsTable.addRow(row);
 		});

@@ -98,8 +98,13 @@ export class PurchaseConverter {
 			row.setItemId(purchase.itemId);
 			row.setAmount(Number(purchase.amount));
 			row.setPurchaseDate(formatDate(purchase.createdAt));
-			row.setUtmSource(purchase?.utmParams?.source);
-			row.setUtmMedium(purchase?.utmParams?.medium);
+			row.setExternalId(purchase.contact.externalId);
+			row.setUtmId(purchase?.utmParams?.utmId);
+			row.setUtmSource(purchase?.utmParams?.utmSource);
+			row.setUtmMedium(purchase?.utmParams?.utmMedium);
+			row.setUtmCampaign(purchase?.utmParams?.utmCampaign);
+			row.setUtmTerm(purchase?.utmParams?.utmTerm);
+			row.setUtmContent(purchase?.utmParams?.utmContent);
 
 			purchasesTable.addRow(row);
 		});

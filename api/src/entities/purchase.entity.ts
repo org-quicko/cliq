@@ -26,7 +26,7 @@ export class Purchase {
 	@Column('decimal')
 	amount: number;
 
-	@Column({ type: 'jsonb', nullable: true })
+	@Column({ type: 'jsonb', nullable: true, name: 'utm_params' })
 	utmParams: UtmParams;
 
 	@CreateDateColumn({

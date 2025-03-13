@@ -7,7 +7,7 @@ import { LoggerService } from '../services/logger.service';
 import { MemberAuthService } from '../services/memberAuth.service';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
-import { Member } from '../entities';
+import { Member, Promoter } from '../entities';
 import { PermissionsGuard } from 'src/guards/permissions/permissions.guard';
 
 @ApiTags('Member')
@@ -53,7 +53,7 @@ export class MemberController {
 		});
 
 		this.logger.info('END: login controller');
-		return { message: 'Successfully logged in user.', result };
+		return { message: 'Successfully logged in member.', result };
 	}
 
 	/**
@@ -111,5 +111,24 @@ export class MemberController {
 
 		this.logger.info('END: deleteUser controller');
 		return { message: 'Successfully deleted member.' };
+	}
+
+	/**
+	* Leave promoter
+	*/
+	@ApiResponse({ status: 204, description: 'No Content' })
+	@UseGuards(AuthGuard, PermissionsGuard)
+	@Permissions('leave', Promoter)
+	@Patch(':member_id/promoters/:promoter_id')
+	async leavePromoter(
+		@Param('member_id') memberId: string,
+		@Param('promoter_id') promoterId: string,
+	) {
+		this.logger.info('START: leavePromoter controller');
+
+		const result = await this.memberService.leavePromoter(memberId, promoterId);
+
+		this.logger.info('END: leavePromoter controller');
+		return { message: `Successfully left promoter ${promoterId}.`, result };
 	}
 }

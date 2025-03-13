@@ -81,12 +81,18 @@ export class CommissionConverter {
 			totalRevenue += Number(purchase.amount);
 
 			row.setPurchaseId(purchase.purchaseId);
+			row.setPurchaseDate(formatDate(purchase.createdAt));
 			row.setContactId(purchase.contact.contactId);
 			row.setCommission(Number(commissionAmount));
 			row.setItemId(purchase.itemId);
 			row.setAmount(Number(purchase.amount));
-			row.setUtmSource(purchase?.utmParams?.source);
-			row.setUtmMedium(purchase?.utmParams?.medium);
+			row.setExternalId(purchase.contact.externalId);
+			row.setUtmId(purchase?.utmParams?.utmId);
+			row.setUtmSource(purchase?.utmParams?.utmSource);
+			row.setUtmMedium(purchase?.utmParams?.utmMedium);
+			row.setUtmCampaign(purchase?.utmParams?.utmCampaign);
+			row.setUtmTerm(purchase?.utmParams?.utmTerm);
+			row.setUtmContent(purchase?.utmParams?.utmContent);
 
 			purchasesTable.addRow(row);
 		});
@@ -114,8 +120,13 @@ export class CommissionConverter {
 			row.setEmail(maskInfo(signUp.contact.email));
 			row.setPhone(maskInfo(signUp.contact.phone));
 			row.setSignUpDate(formatDate(signUp.createdAt));
-			row.setUtmSource(signUp?.utmParams?.source);
-			row.setUtmMedium(signUp?.utmParams?.medium);
+			row.setExternalId(signUp.contact.externalId);
+			row.setUtmId(signUp?.utmParams?.utmId);
+			row.setUtmSource(signUp?.utmParams?.utmSource);
+			row.setUtmMedium(signUp?.utmParams?.utmMedium);
+			row.setUtmCampaign(signUp?.utmParams?.utmCampaign);
+			row.setUtmTerm(signUp?.utmParams?.utmTerm);
+			row.setUtmContent(signUp?.utmParams?.utmContent);
 
 			signUpsTable.addRow(row);
 		});

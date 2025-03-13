@@ -55,6 +55,7 @@ export const actions = [
     'invite_user',
     'invite_member',
     'remove_user',
+    'leave',
     'remove_member',
     'include_promoter',
     'remove_promoter',
@@ -409,7 +410,7 @@ export class AuthorizationService {
         allow(['update', 'delete'], User, { userId: user.userId });
 
         allow('read', User);
-
+        allow('leave', Program);
         allow('read', Purchase);
         allow('read', SignUp);
         allow('read', Commission);
@@ -431,7 +432,7 @@ export class AuthorizationService {
         const { can: allow, build } = new AbilityBuilder<AppAbility>(createAppAbility);
 
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
-            allow('read', Promoter, { promoterId });
+            allow(['read', 'leave'], Promoter, { promoterId });
             allow('read', ReferralView, { promoterId });
             allow('read', ReferralAggregateView, { promoterId });
             allow('read', Commission, { promoterId });

@@ -36,17 +36,17 @@ import { PurchaseConverter } from '../converters/purchase.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { roleEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
-import { SignUpConverter } from 'src/converters/signUp.converter';
-import { CommissionConverter } from 'src/converters/commission.converter';
+import { SignUpConverter } from '../converters/signUp.converter';
+import { CommissionConverter } from '../converters/commission.converter';
 import { ProgramService } from './program.service';
-import { sortOrderEnum } from 'src/enums/sortOrder.enum';
-import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
-import { LinkStatsView } from 'src/entities/link.view';
-import { ReferralConverter } from 'src/converters/referral.converter';
-import { LinkConverter } from 'src/converters/link.converter';
+import { sortOrderEnum } from '../enums/sortOrder.enum';
+import { referralSortByEnum } from '../enums/referralSortBy.enum';
+import { LinkStatsView } from '../entities/link.view';
+import { ReferralConverter } from '../converters/referral.converter';
+import { LinkConverter } from '../converters/link.converter';
 import { CommissionWorkbook, LinkWorkbook, PromoterInterfaceWorkbook, SignUpWorkbook } from 'generated/sources';
-import { defaultQueryOptions } from 'src/constants';
-import { snakeCaseToHumanReadable } from 'src/utils';
+import { defaultQueryOptions } from '../constants';
+import { snakeCaseToHumanReadable } from '../utils';
 
 @Injectable()
 export class PromoterService {
@@ -110,9 +110,9 @@ export class PromoterService {
 
 			const memberResult = await this.memberService.getMemberEntity(memberId);
 
-			if (await this.memberService.memberExists(memberResult.email, programId)) {
-				this.logger.error(`Error. Member ${memberResult.email} already exists in Program ${programId}`);
-				throw new UnauthorizedException(`Error. Member ${memberResult.email} already exists in Program ${programId}`);
+			if (await this.memberService.memberExistsInAnyPromoter(memberResult.email, programId)) {
+				this.logger.error(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
+				throw new UnauthorizedException(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
 			}
 
 			const promoterRepository = manager.getRepository(Promoter);
@@ -222,20 +222,32 @@ export class PromoterService {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: inviteMember service');
 
-			// First check if member exists
-			const existingMember = await this.memberService.memberExists(
+			// First check if member exists in any promoter (returns false if account doesn't exist at all)
+			const memberExistsInAnyPromoter = await this.memberService.memberExistsInAnyPromoter(
 				body.email,
 				programId,
 			);
-			console.log('existingMember:', existingMember);
+
+			// member does exist in at least 1 promoter => deny entry in another promoter
+			if (memberExistsInAnyPromoter) {
+				this.logger.error(`Error. Member already exists in a promoter, cannot join another promoter.`);
+				throw new ConflictException(`Error. Member already exists in a promoter, cannot join another promoter.`);
+			}
+
+			// now get the member and check if the member account exists
+			const existingMember = (await this.memberService.getMemberByEmail(body.email));
+
 			if (existingMember) {
+
 				// Check if there's an existing promoter-member relationship
 				const promoterMember =
 					await this.promoterMemberService.getPromoterMemberRowEntity(
 						promoterId,
 						existingMember.memberId,
 					);
+
 				console.log('promoter_member:', promoterMember);
+				
 				// If promoter-member relationship exists
 				if (promoterMember) {
 					// Only allow reactivation if status is INACTIVE
@@ -282,6 +294,7 @@ export class PromoterService {
 				} as InviteMemberDto;
 			}
 
+			
 			// If member doesn't exist, create new member and promoter-member relationship
 			const newMember = await this.memberService.memberSignUp(programId, {
 				email: body.email,

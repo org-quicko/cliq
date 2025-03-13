@@ -8,6 +8,6 @@ export function snakeCaseToHumanReadable(input: JSONArray | string): string[] | 
     }
 
     return input.split('_')
-        .map(part => part[0].toLocaleUpperCase() + part.slice(1))
+        .map(part => part === 'utm' ? 'UTM' : part[0].toLocaleUpperCase() + part.slice(1))
         .join(' ');
 }
