@@ -19,6 +19,7 @@ import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoterService } from './programPromoter.service';
+import { signUpEntityName } from '../constants';
 
 @Injectable()
 export class SignUpService {
@@ -160,13 +161,19 @@ export class SignUpService {
 			}
 
 			const signUpCreatedEvent = new SignUpCreatedEvent(
-				'urn:org.quicko.cliq.signup',
+				savedContact.programId,
+				'urn:POST:/signups',
 				{
-					triggerType: triggerEnum.SIGNUP,
-					contactId: savedContact.contactId,
-					promoterId: linkResult.promoterId,
-					programId: programResult.programId,
-					linkId: linkResult.linkId,
+					[signUpEntityName]: {
+						"@entity": signUpEntityName,
+						contactId: savedContact.contactId,
+						triggerType: triggerEnum.SIGNUP,
+						promoterId: linkResult.promoterId,
+						linkId: linkResult.linkId,
+						createdAt: savedSignUp.createdAt,
+						updatedAt: savedSignUp.updatedAt,
+						utmParams: savedSignUp.utmParams,
+					}
 				},
 				savedSignUp.contactId,
 			);

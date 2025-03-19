@@ -6,8 +6,8 @@ import { AuthGuard } from '../guards/auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import { ApiKey } from '../entities';
-import { UpdateApiKeyDto } from 'src/dtos/apiKey.dto';
 import { statusEnum } from 'src/enums';
+import { UpdateApiKeyDto } from 'src/dtos';
 
 @ApiTags('ApiKey')
 @UseGuards(AuthGuard, PermissionsGuard)

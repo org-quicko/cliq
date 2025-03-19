@@ -14,7 +14,7 @@ import { CircleConverter } from '../converters/circle.converter';
 import { PromoterConverter } from '../converters/promoter.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
-import { defaultQueryOptions } from 'src/constants';
+import { defaultQueryOptions } from '../constants';
 
 @Injectable()
 export class CircleService {

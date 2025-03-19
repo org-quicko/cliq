@@ -12,8 +12,8 @@ import { ApiKey } from '../entities';
 import { LoggerService } from './logger.service';
 import { statusEnum } from '../enums';
 import { ProgramService } from './program.service';
-import { UpdateApiKeyDto } from 'src/dtos/apiKey.dto';
 import { ApiKeyConverter } from '../converters/apiKey.converter';
+import { UpdateApiKeyDto } from 'src/dtos';
 
 @Injectable()
 export class ApiKeyService {

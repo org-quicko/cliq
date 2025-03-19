@@ -345,7 +345,7 @@ export class FunctionService {
 		const functionsResult = await this.functionRepository.find({
 			where: {
 				program: {
-					programId: event.data.programId,
+					programId: event.programId,
 				},
 			},
 			relations: {
@@ -353,6 +353,8 @@ export class FunctionService {
 				conditions: true,
 			},
 		});
+
+		const eventEntityPayload = Object.values(event.data)[0];
 
 		// function should not be triggered, if:
 		// 1. Function is inactive
@@ -363,10 +365,10 @@ export class FunctionService {
 			if (
 				!(
 					func.status === functionStatusEnum.ACTIVE &&
-					func.trigger === event.data.triggerType &&
+					func.trigger === eventEntityPayload.triggerType &&
 					(await this.circleService.promoterExistsInCircle(
 						func.circle.circleId,
-						event.data.promoterId,
+						eventEntityPayload.promoterId,
 					)) &&
 					(await this.evaluateAllConditions(func.conditions, event))
 				)
@@ -392,13 +394,15 @@ export class FunctionService {
 	private async triggerFunction(func: Function, event: TriggerEvent) {
 		this.logger.info(`START: triggerFunction service`);
 
+		const eventEntityPayload = Object.values(event.data)[0];
+
 		if (func.effect instanceof SwitchCircleEffect) {
 
 			const switchCircleDto = new SwitchCircleDto();
 			switchCircleDto.currentCircleId = func.circle.circleId;
 			switchCircleDto.targetCircleId = func.effect.targetCircleId;
-			switchCircleDto.programId = event.data.programId;
-			switchCircleDto.promoterId = event.data.promoterId;
+			switchCircleDto.programId = event.programId;
+			switchCircleDto.promoterId = eventEntityPayload.promoterId;
 
 			await this.circleService.switchPromoterCircle(switchCircleDto);
 
@@ -406,8 +410,8 @@ export class FunctionService {
 			let commissionAmount = 0;
 
 
-			const revenue: number = event.data.amount ?? 0;
-			const conversionType = event.data.triggerType === triggerEnum.SIGNUP
+			const revenue: number = eventEntityPayload.amount ?? 0;
+			const conversionType = eventEntityPayload.triggerType === triggerEnum.SIGNUP
 			? conversionTypeEnum.SIGNUP
 			: conversionTypeEnum.PURCHASE;
 
@@ -418,10 +422,10 @@ export class FunctionService {
 			}
 
 			const createCommissionDto = new CreateCommissionDto();
-			createCommissionDto.contactId = event.data.contactId;
+			createCommissionDto.contactId = eventEntityPayload.contactId;
 			createCommissionDto.conversionType = conversionType;
-			createCommissionDto.promoterId = event.data.promoterId;
-			createCommissionDto.linkId = event.data.linkId;
+			createCommissionDto.promoterId = eventEntityPayload.promoterId;
+			createCommissionDto.linkId = eventEntityPayload.linkId;
 			createCommissionDto.revenue = revenue;
 			createCommissionDto.amount = commissionAmount;
 
@@ -460,11 +464,13 @@ export class FunctionService {
 
 		let evalResult: boolean;
 
+		const eventEntityPayload = Object.values(event.data)[0];
+
 		// SIGNUPS condition
 		if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
 			const signUps = await this.promoterService.getSignUpsForPromoter(
-				event.data.programId,
-				event.data.promoterId,
+				event.programId,
+				eventEntityPayload.promoterId,
 				false,
 			) as SignUp[];
 
@@ -478,8 +484,8 @@ export class FunctionService {
 		) {
 			const numPurchases = (
 				await this.promoterService.getPurchasesForPromoter(
-					event.data.programId,
-					event.data.promoterId,
+					event.programId,
+					eventEntityPayload.promoterId,
 					false,
 				) as Purchase[]
 			).length;
@@ -487,7 +493,7 @@ export class FunctionService {
 			evalResult = condition.evaluate({ numPurchases });
 			// ITEM ID condition
 		} else if (condition.parameter === conditionParameterEnum.ITEM_ID) {
-			if (!event.data.itemId) {
+			if (!eventEntityPayload.itemId) {
 				this.logger.warn(
 					`Error. API event requires item ID for this function condition.`,
 				);
@@ -496,7 +502,7 @@ export class FunctionService {
 				);
 			}
 
-			evalResult = condition.evaluate({ itemId: event.data.itemId });
+			evalResult = condition.evaluate({ itemId: eventEntityPayload.itemId });
 		} else {
 			evalResult = false;
 		}

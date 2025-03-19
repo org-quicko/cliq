@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ApiKeyDto } from 'src/dtos/apiKey.dto';
+import { ApiKeyDto } from 'src/dtos';
 import { ApiKey } from 'src/entities';
 
 @Injectable()

@@ -17,6 +17,7 @@ import { LoggerService } from './logger.service';
 import { PURCHASE_CREATED, PurchaseCreatedEvent } from '../events';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import { purchaseEntityName } from 'src/constants';
 
 @Injectable()
 export class PurchaseService {
@@ -158,15 +159,21 @@ export class PurchaseService {
 			);
 
 			const purchaseCreatedEvent = new PurchaseCreatedEvent(
-				'urn:org.quicko.cliq.purchase',
+				associatedContact.programId,
+				'urn:POST:/purchases',
 				{
-					triggerType: triggerEnum.PURCHASE,
-					contactId: associatedContact.contactId,
-					promoterId: promoterResult.promoterId,
-					programId: programResult.programId,
-					linkId: linkResult.linkId,
-					itemId: savedPurchase.itemId,
-					amount: savedPurchase.amount,
+					[purchaseEntityName]: {
+						"@entity": purchaseEntityName,
+						triggerType: triggerEnum.PURCHASE,
+						contactId: associatedContact.contactId,
+						promoterId: promoterResult.promoterId,
+						linkId: linkResult.linkId,
+						itemId: savedPurchase.itemId,
+						amount: savedPurchase.amount,
+						createdAt: savedPurchase.createdAt,
+						updatedAt: savedPurchase.updatedAt,
+						utmParams: savedPurchase.utmParams,
+					}
 				},
 				savedPurchase.purchaseId,
 			);
@@ -188,7 +195,7 @@ export class PurchaseService {
 
 		const purchaseResult = await this.purchaseRepository.findOne({
 			where: {
-				...(programId && {contact: { programId }}),
+				...(programId && { contact: { programId } }),
 				...(promoterId && { promoterId }),
 			},
 			relations: {
