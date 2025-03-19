@@ -9,6 +9,7 @@ import {
 
 @EventSubscriber()
 export class MaterializedViewSubscriber implements EntitySubscriberInterface {
+
 	async afterInsert(event: InsertEvent<any>): Promise<void> {
 		// Check if the inserted entity is one of the ones that should trigger a refresh
 		if (
@@ -29,9 +30,15 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 
 	async afterRemove(event: RemoveEvent<any>): Promise<void> {
 		if (event.entity instanceof Link) {
-			await event.queryRunner.query(
-				`REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
-			);
+			try {
+				await event.queryRunner.startTransaction();
+				await event.queryRunner.query(
+					`REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+				);
+				await event.queryRunner.commitTransaction();
+			} catch (error) {
+				await event.queryRunner.rollbackTransaction();
+			} 
 		}
 	}
 
@@ -40,6 +47,8 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 	): Promise<void> {
 
 		try {
+			await event.queryRunner.startTransaction();
+
 			await event.queryRunner.query(`
                 CREATE UNIQUE INDEX IF NOT EXISTS ${referralMVName}_idx 
                 ON ${referralMVName} (program_id, promoter_id, contact_id);
@@ -52,7 +61,7 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 			await event.queryRunner.query(`
                 CREATE UNIQUE INDEX IF NOT EXISTS ${referralMVName}_aggregate_idx 
                 ON ${referralAggregateMVName} (program_id, promoter_id);
-            `);
+			`);
 
 			await event.queryRunner.query(
 				`REFRESH MATERIALIZED VIEW ${referralAggregateMVName};`,
@@ -63,8 +72,9 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 			);
 
 			console.log('Materialized views refreshed successfully.');
+			await event.queryRunner.commitTransaction();
 		} catch (error) {
-			console.error('Error refreshing materialized views:', error);
-		}
+			await event.queryRunner.rollbackTransaction();
+		} 
 	}
 }

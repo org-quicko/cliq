@@ -5,8 +5,8 @@ import { AddPromoterToCircleDto, CreateCircleDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Circle } from '../entities';
-import { AuthGuard } from '../guards/auth/auth.guard';
-import { PermissionsGuard } from '../guards/permissions/permissions.guard';
+import { AuthGuard } from '../guards/auth.guard';
+import { PermissionsGuard } from '../guards/permissions.guard';
 
 @ApiTags('Circle')
 @Controller('/programs/:program_id/circles')

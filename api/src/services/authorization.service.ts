@@ -27,7 +27,7 @@ import {
     SignUp,
     User,
 } from '../entities';
-import { roleEnum } from '../enums';
+import { roleEnum, statusEnum } from '../enums';
 import { UserService } from './user.service';
 import { ProgramService } from './program.service';
 import { LinkService } from './link.service';
@@ -124,7 +124,9 @@ export class AuthorizationService {
         const programUserPermissions = {};
 
         user.programUsers.forEach((programUser) => {
-            programUserPermissions[programUser.programId] = programUser.role;
+            if (programUser.status === statusEnum.ACTIVE) {
+                programUserPermissions[programUser.programId] = programUser.role;
+            }
         });
 
         return programUserPermissions;
@@ -133,8 +135,10 @@ export class AuthorizationService {
     getPromoterMemberPermissions(member: Member) {
         const promoterMemberPermissions = {};
         member.promoterMembers.forEach((promoterMember) => {
-            promoterMemberPermissions[promoterMember.promoterId] =
-                promoterMember.role;
+
+            if (promoterMember.status === statusEnum.ACTIVE) {
+                promoterMemberPermissions[promoterMember.promoterId] = promoterMember.role;
+            }
         });
 
         return promoterMemberPermissions;
@@ -358,9 +362,7 @@ export class AuthorizationService {
 
         const programUserPermissions = this.getProgramUserPermissions(user);
 
-        const { can: allow, build } = new AbilityBuilder<AppAbility>(
-            createAbility,
-        );
+        const { can: allow, build } = new AbilityBuilder<AppAbility>(createAbility);
 
         // can manage all if user is super admin (except for the things listed below)
         if (user.role === roleEnum.SUPER_ADMIN) {
@@ -368,9 +370,7 @@ export class AuthorizationService {
             allow('read', Promoter);
         }
 
-        for (const [programId, role] of Object.entries(
-            programUserPermissions,
-        )) {
+        for (const [programId, role] of Object.entries(programUserPermissions)) {
             allow(
                 'read',
                 [
@@ -381,12 +381,13 @@ export class AuthorizationService {
                     Circle,
                     Program,
                     Function,
-                    ApiKey,
                 ],
                 { programId },
             );
 
             if (role === roleEnum.ADMIN || role === roleEnum.SUPER_ADMIN) {
+                allow('manage', ApiKey, { programId });
+
                 // can update program or invite other users to the program
                 allow(['update', 'invite_user'], Program, { programId });
 
@@ -405,15 +406,16 @@ export class AuthorizationService {
             } else if (role === roleEnum.EDITOR) {
                 allow('manage', [Link, Circle, Function], { programId });
             }
+            
+            allow('read', Purchase, { contact: { programId } });
+            allow('read', SignUp, { contact: { programId } });
+            allow('read', Commission, { contact: { programId } });
         }
 
         allow(['update', 'delete'], User, { userId: user.userId });
 
         allow('read', User);
         allow('leave', Program);
-        allow('read', Purchase);
-        allow('read', SignUp);
-        allow('read', Commission);
 
         const ability = build({
             detectSubjectType: (item) =>
@@ -423,6 +425,63 @@ export class AuthorizationService {
         this.logger.info(`END: getUserAbility service`);
         return ability;
     }
+
+    /**
+     * Assigns program admin and super admin permissions.
+     */
+    private assignAdminPermissions(abilityBuilder: AbilityBuilder<AppAbility>, programId: string) {
+
+        const { can: allow } = abilityBuilder;
+
+        allow('manage', ApiKey, { programId });
+
+        // TODO: ensure that user cannot add promoter for different program in service
+        allow('manage', Promoter, { programPromoters: { programId } });
+
+        // Can update program or invite other users to the program
+        allow(['update', 'invite_user'], Program, { programId });
+
+        // Can change other users' roles & permissions (excluding super admin)
+        allow(['change_role', 'remove_user'], ProgramUser, {
+            programId,
+            role: { $ne: roleEnum.SUPER_ADMIN },
+        });
+
+        allow('invite_user', ProgramUser, { programId });
+
+        // Can manage circles, functions, and links
+        allow('manage', [Link, Circle, Function], { programId });
+
+        allow('manage', [ApiKey], { programId });
+
+        allow('read', Purchase, { contact: { programId } });
+        allow('read', SignUp, { contact: { programId } });
+        allow('read', Commission, { contact: { programId } });
+    }
+
+    getApiUserAbility(programId: string) {
+        this.logger.info(`START: getApiUserAbility service`);
+
+        const abilityBuilder = new AbilityBuilder<AppAbility>(createAbility);
+        const { can: allow, build } = abilityBuilder;
+
+        allow('manage', [Promoter, PromoterMember, Member]);
+        this.assignAdminPermissions(abilityBuilder, programId);
+
+        allow('read', Program, { programId });
+        allow('read', Purchase);
+        allow('read', SignUp);
+        allow('read', Commission);
+
+        const ability = build({
+            detectSubjectType: (item) => item.constructor as ExtractSubjectType<subjectsType>,
+        });
+
+
+        this.logger.info(`END: getApiUserAbility service`);
+        return ability;
+    }
+
 
     getMemberAbility(member: Member) {
         this.logger.info(`START: getMemberAbility service`);
@@ -467,4 +526,5 @@ export class AuthorizationService {
         this.logger.info(`END: getMemberAbility service`);
         return ability;
     }
+
 }

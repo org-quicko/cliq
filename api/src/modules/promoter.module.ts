@@ -15,14 +15,14 @@ import {
 import { PromoterService } from '../services/promoter.service';
 import { PromoterMemberService } from '../services/promoterMember.service';
 import { PromoterConverter } from '../converters/promoter.converter';
-import { MemberConverter } from '../converters/member.converter';
-import { ContactConverter } from '../converters/contact.converter';
-import { PurchaseConverter } from '../converters/purchase.converter';
 import { CommissionModule } from './commission.module';
-import { SignUpConverter } from 'src/converters/signUp.converter';
 import { ProgramModule } from './program.module';
 import { LinkStatsView } from 'src/entities/link.view';
-import { LinkConverter } from 'src/converters/link.converter';
+import { ReferralModule } from './referral.module';
+import { LinkModule } from './link.module';
+import { ContactModule } from './contact.module';
+import { PurchaseModule } from './purchase.module';
+import { SignUpModule } from './signUp.module';
 
 @Module({
 	imports: [
@@ -39,24 +39,15 @@ import { LinkConverter } from 'src/converters/link.converter';
 			Link
 		]),
 		CommissionModule,
+		ContactModule,
+		PurchaseModule,
+		ReferralModule,
+		SignUpModule,
+		forwardRef(() => LinkModule),
 		forwardRef(() => ProgramModule),
 	],
 	controllers: [PromoterController],
-	providers: [
-		PromoterService,
-		PromoterMemberService,
-		PromoterConverter,
-		MemberConverter,
-		ContactConverter,
-		LinkConverter,
-		PurchaseConverter,
-		SignUpConverter,
-	],
-	exports: [
-		PromoterService,
-		PromoterConverter,
-		PromoterMemberService,
-		CommissionModule,
-	],
+	providers: [PromoterService, PromoterMemberService, PromoterConverter],
+	exports: [PromoterService, PromoterConverter, PromoterMemberService],
 })
 export class PromoterModule {}

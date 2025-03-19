@@ -8,12 +8,19 @@ import { FunctionConverter } from '../converters/function.converter';
 import { CircleModule } from './circle.module';
 import { Condition } from '../entities';
 import { ConditionConverter } from 'src/converters/condition.converter';
+import { PromoterModule } from './promoter.module';
+import { CommissionModule } from './commission.module';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Function, Condition]),
+		TypeOrmModule.forFeature([
+			Function, 
+			Condition,
+		]),
 		ProgramModule,
+		PromoterModule,
 		CircleModule,
+		CommissionModule,
 	],
 	controllers: [FunctionController],
 	providers: [FunctionService, ConditionConverter, FunctionConverter],

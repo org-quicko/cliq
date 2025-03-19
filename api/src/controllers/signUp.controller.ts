@@ -3,7 +3,7 @@ import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CreateSignUpDto } from '../dtos';
 import { SignUpService } from '../services/signUp.service';
 import { LoggerService } from '../services/logger.service';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('SignUp')
 @UseGuards(AuthGuard)

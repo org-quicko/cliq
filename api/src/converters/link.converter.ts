@@ -107,7 +107,7 @@ export class LinkConverter {
 			totalRevenue += Number(revenue);
 
 			row.setLinkName(link.name);
-			row.setLink(link.program.website + '/?ref=' + link.refVal);
+			row.setLink(link.program.website + '?ref=' + link.refVal);
 			row.setSignups(Number(signUps));
 			row.setSignups(Number(signUps));
 			row.setPurchases(Number(purchases));

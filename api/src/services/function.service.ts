@@ -3,7 +3,7 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
+import { CreateCommissionDto, CreateFunctionDto, SwitchCircleDto, UpdateFunctionDto } from 'src/dtos';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, FindOptionsWhere } from 'typeorm';
@@ -19,13 +19,8 @@ import {
 import { ProgramService } from './program.service';
 import { FunctionConverter } from '../converters/function.converter';
 import {
-	GENERATE_COMMISSION_EVENT,
-	GenerateCommissionEvent,
-	PURCHASE_EVENT,
-	SIGNUP_EVENT,
-	SWITCH_CIRCLE_EVENT,
-	SwitchCircleEvent,
-	TRIGGER_EVENT,
+	PURCHASE_CREATED,
+	SIGNUP_CREATED,
 	TriggerEvent,
 } from '../events';
 import { LoggerService } from './logger.service';
@@ -42,6 +37,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { roundedNumber } from '../utils';
 import { defaultQueryOptions } from 'src/constants';
+import { CommissionService } from './commission.service';
 
 @Injectable()
 export class FunctionService {
@@ -52,6 +48,7 @@ export class FunctionService {
 		private programService: ProgramService,
 		private promoterService: PromoterService,
 		private circleService: CircleService,
+		private commissionService: CommissionService,
 
 		private functionConverter: FunctionConverter,
 
@@ -60,7 +57,7 @@ export class FunctionService {
 		private datasource: DataSource,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create function
@@ -69,8 +66,7 @@ export class FunctionService {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: createFunction service');
 
-			const programResult =
-				await this.programService.getProgramEntity(programId);
+			const programResult = await this.programService.getProgramEntity(programId);
 			const circleResult = await this.circleService.getCircleEntity(
 				body.circleId,
 			);
@@ -102,16 +98,16 @@ export class FunctionService {
 
 			const conditions = body.conditions
 				? await Promise.all(
-						body.conditions?.map(async (conditionDto) => {
-							const newCondition = conditionRepository.create({
-								parameter: conditionDto.condition.parameter,
-								operator: conditionDto.condition.operator,
-								value: String(conditionDto.condition.value), // Store as string
-							});
+					body.conditions?.map(async (conditionDto) => {
+						const newCondition = conditionRepository.create({
+							parameter: conditionDto.condition.parameter,
+							operator: conditionDto.condition.operator,
+							value: String(conditionDto.condition.value), // Store as string
+						});
 
-							return conditionRepository.save(newCondition); // Ensure it's saved
-						}),
-					)
+						return conditionRepository.save(newCondition); // Ensure it's saved
+					}),
+				)
 				: [];
 
 			const newFunction = functionRepository.create({
@@ -341,16 +337,15 @@ export class FunctionService {
 		this.logger.info('END: deleteFunction service');
 	}
 
-	@OnEvent(TRIGGER_EVENT)
-	@OnEvent(SIGNUP_EVENT)
-	@OnEvent(PURCHASE_EVENT)
-	async triggerProgramFunctions(payload: TriggerEvent) {
+	@OnEvent(SIGNUP_CREATED)
+	@OnEvent(PURCHASE_CREATED)
+	async triggerProgramFunctions(event: TriggerEvent) {
 		this.logger.info('START: triggerProgramFunctions service');
 
 		const functionsResult = await this.functionRepository.find({
 			where: {
 				program: {
-					programId: payload.programId,
+					programId: event.data.programId,
 				},
 			},
 			relations: {
@@ -368,12 +363,12 @@ export class FunctionService {
 			if (
 				!(
 					func.status === functionStatusEnum.ACTIVE &&
-					func.trigger === payload.triggerType &&
+					func.trigger === event.data.triggerType &&
 					(await this.circleService.promoterExistsInCircle(
 						func.circle.circleId,
-						payload.promoterId,
+						event.data.promoterId,
 					)) &&
-					(await this.evaluateAllConditions(func.conditions, payload))
+					(await this.evaluateAllConditions(func.conditions, event))
 				)
 			) {
 				this.logger.info(
@@ -387,53 +382,50 @@ export class FunctionService {
 					? plainToInstance(GenerateCommissionEffect, func.effect)
 					: plainToInstance(SwitchCircleEffect, func.effect);
 
-			this.triggerFunction(func, payload);
+			await this.triggerFunction(func, event);
 		}
 
 		this.logger.info('END: triggerProgramFunctions service');
 		return;
 	}
 
-	private triggerFunction(func: Function, payload: TriggerEvent) {
+	private async triggerFunction(func: Function, event: TriggerEvent) {
 		this.logger.info(`START: triggerFunction service`);
 
 		if (func.effect instanceof SwitchCircleEffect) {
-			const switchCircleEvent = new SwitchCircleEvent(
-				payload.programId,
-				payload.promoterId,
-				func.circle.circleId,
-				func.effect.targetCircleId,
-			);
-			this.eventEmitter.emit(SWITCH_CIRCLE_EVENT, switchCircleEvent);
+
+			const switchCircleDto = new SwitchCircleDto();
+			switchCircleDto.currentCircleId = func.circle.circleId;
+			switchCircleDto.targetCircleId = func.effect.targetCircleId;
+			switchCircleDto.programId = event.data.programId;
+			switchCircleDto.promoterId = event.data.promoterId;
+
+			await this.circleService.switchPromoterCircle(switchCircleDto);
+
 		} else if (func.effect instanceof GenerateCommissionEffect) {
 			let commissionAmount = 0;
-			if (
-				func.effect.commission.commissionType ===
-				commissionTypeEnum.FIXED
-			) {
+
+
+			const revenue: number = event.data.amount ?? 0;
+			const conversionType = event.data.triggerType === triggerEnum.SIGNUP
+			? conversionTypeEnum.SIGNUP
+			: conversionTypeEnum.PURCHASE;
+
+			if (func.effect.commission.commissionType === commissionTypeEnum.FIXED) {
 				commissionAmount = func.effect.commission.commissionValue;
 			} else {
-				commissionAmount = roundedNumber(
-					(payload.amount! * func.effect.commission.commissionValue) /
-						100,
-					2,
-				);
+				commissionAmount = roundedNumber((revenue * func.effect.commission.commissionValue) / 100, 2);
 			}
 
-			const generateCommissionEvent = new GenerateCommissionEvent(
-				payload.contactId,
-				payload.triggerType === triggerEnum.SIGNUP
-					? conversionTypeEnum.SIGNUP
-					: conversionTypeEnum.PURCHASE,
-				payload.promoterId,
-				payload.linkId,
-				payload.amount,
-				commissionAmount,
-			);
-			this.eventEmitter.emit(
-				GENERATE_COMMISSION_EVENT,
-				generateCommissionEvent,
-			);
+			const createCommissionDto = new CreateCommissionDto();
+			createCommissionDto.contactId = event.data.contactId;
+			createCommissionDto.conversionType = conversionType;
+			createCommissionDto.promoterId = event.data.promoterId;
+			createCommissionDto.linkId = event.data.linkId;
+			createCommissionDto.revenue = revenue;
+			createCommissionDto.amount = commissionAmount;
+
+			await this.commissionService.createCommission(createCommissionDto);
 		}
 
 		this.logger.info(`END: triggerFunction service`);
@@ -441,15 +433,15 @@ export class FunctionService {
 
 	private async evaluateAllConditions(
 		conditions: Condition[],
-		payload: TriggerEvent,
+		event: TriggerEvent,
 	) {
 		this.logger.info(`START: evaluateAllConditions service`);
 
 		for (const condition of conditions) {
-			if (!(await this.evaluateCondition(condition, payload))) {
+			if (!(await this.evaluateCondition(condition, event))) {
 				this.logger
 					.info(`END: evaluateAllConditions service: false condition encountered:\
-           ${JSON.stringify(condition, null, 2)} for payload: ${JSON.stringify(payload, null, 2)}.`);
+           ${JSON.stringify(condition, null, 2)} for event: ${JSON.stringify(event, null, 2)}.`);
 				return false;
 			}
 		}
@@ -462,7 +454,7 @@ export class FunctionService {
 
 	private async evaluateCondition(
 		condition: Condition,
-		payload: TriggerEvent,
+		event: TriggerEvent,
 	) {
 		this.logger.info(`START: evaluateCondition service`);
 
@@ -471,8 +463,8 @@ export class FunctionService {
 		// SIGNUPS condition
 		if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
 			const signUps = await this.promoterService.getSignUpsForPromoter(
-				payload.programId,
-				payload.promoterId,
+				event.data.programId,
+				event.data.promoterId,
 				false,
 			) as SignUp[];
 
@@ -486,26 +478,25 @@ export class FunctionService {
 		) {
 			const numPurchases = (
 				await this.promoterService.getPurchasesForPromoter(
-					payload.programId,
-					payload.promoterId,
+					event.data.programId,
+					event.data.promoterId,
 					false,
 				) as Purchase[]
 			).length;
 
 			evalResult = condition.evaluate({ numPurchases });
-			console.log(payload.promoterId, numPurchases, evalResult);
 			// ITEM ID condition
 		} else if (condition.parameter === conditionParameterEnum.ITEM_ID) {
-			if (!payload.itemId) {
+			if (!event.data.itemId) {
 				this.logger.warn(
-					`Error. API payload requires item ID for this function condition.`,
+					`Error. API event requires item ID for this function condition.`,
 				);
 				throw new BadRequestException(
-					`Error. API payload requires item ID for this function condition.`,
+					`Error. API event requires item ID for this function condition.`,
 				);
 			}
 
-			evalResult = condition.evaluate({ itemId: payload.itemId });
+			evalResult = condition.evaluate({ itemId: event.data.itemId });
 		} else {
 			evalResult = false;
 		}

@@ -1,4 +1,4 @@
-import { BadRequestException, CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable, NotFoundException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { ForbiddenError } from '@casl/ability';
@@ -7,11 +7,12 @@ import {
 	AppAbility,
 	AuthorizationService,
 	subjectsType,
-} from '../../services/authorization.service';
-import { CHECK_PERMISSIONS_KEY } from '../../decorators/permissions.decorator';
-import { LoggerService } from '../../services/logger.service';
-import { MemberService } from '../../services/member.service';
-import { UserService } from '../../services/user.service';
+} from '../services/authorization.service';
+import { CHECK_PERMISSIONS_KEY } from '../decorators/permissions.decorator';
+import { LoggerService } from '../services/logger.service';
+import { MemberService } from '../services/member.service';
+import { UserService } from '../services/user.service';
+import { ApiKeyService } from 'src/services/apiKey.service';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -20,12 +21,14 @@ export class PermissionsGuard implements CanActivate {
 
 		private userService: UserService,
 
-		private AuthorizationService: AuthorizationService,
+		private authorizationService: AuthorizationService,
 
 		private memberService: MemberService,
 
+		private apiKeyService: ApiKeyService,
+
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const requiredPermissions = this.reflector.get<
@@ -39,12 +42,12 @@ export class PermissionsGuard implements CanActivate {
 		const request: Request = context.switchToHttp().getRequest();
 		const user_id = request.headers.user_id as string;
 		const member_id = request.headers.member_id as string;
-		let entityType: 'User' | 'Member';
+		const api_key_id = request.headers.api_key_id as string;
+		const program_id = request.headers.program_id as string;
+		let entityType: 'User' | 'Member' | 'Api User';
 
-		if (!member_id) {
-			if (!user_id) {
-				return false; // Shouldn't happen since AuthGuard ensures member is set
-			}
+		if (!member_id && !user_id && !api_key_id) {
+			return false;
 		}
 
 		let ability: AppAbility;
@@ -55,21 +58,27 @@ export class PermissionsGuard implements CanActivate {
 			if (!memberEntity) {
 				return false;
 			}
-			ability = this.AuthorizationService.getMemberAbility(memberEntity);
+			ability = this.authorizationService.getMemberAbility(memberEntity);
 			entityType = 'Member';
-		} else {
+		}  
+		else if (api_key_id) {
+			
+			ability = this.authorizationService.getApiUserAbility(program_id);
+			entityType = 'Api User';
+		}
+		else {
 			const userEntity = await this.userService.getUserEntity(user_id);
 			if (!userEntity) {
 				return false;
 			}
 
 			// Generate user's ability
-			ability = this.AuthorizationService.getUserAbility(userEntity);
+			ability = this.authorizationService.getUserAbility(userEntity);
 			entityType = 'User';
 		}
 
 		try {
-			const subjectObjects = await this.AuthorizationService.getSubjects(
+			const subjectObjects = await this.authorizationService.getSubjects(
 				request,
 				requiredPermissions,
 			);
@@ -87,7 +96,7 @@ export class PermissionsGuard implements CanActivate {
 
 			return true;
 		} catch (error) {
-			if (error instanceof BadRequestException) {
+			if (error instanceof BadRequestException || error instanceof NotFoundException) {
 				this.logger.warn(error.message);
 				throw error;
 			}

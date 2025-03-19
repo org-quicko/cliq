@@ -11,7 +11,7 @@ export class ProgramPromoterService {
 		private programPromoterRepository: Repository<ProgramPromoter>,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	async getFirstProgramPromoter(programId: string) {
 		this.logger.info('START: getProgramPromoterRowEntity service');

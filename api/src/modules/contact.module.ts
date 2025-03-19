@@ -1,17 +1,16 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ContactService } from '../services/contact.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { ContactController } from "../controllers/contact.controller";
 import { Contact } from '../entities/contact.entity';
 import { ContactConverter } from '../converters/contact.converter';
-import { LinkModule } from './link.module';
+import { ProgramModule } from './program.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Contact]), LinkModule],
-	controllers: [
-		// ContactController
+	imports: [
+		TypeOrmModule.forFeature([Contact]), 
+		forwardRef(() => ProgramModule)
 	],
 	providers: [ContactService, ContactConverter],
-	exports: [ContactService, ContactConverter, LinkModule],
+	exports: [ContactService, ContactConverter],
 })
 export class ContactModule {}

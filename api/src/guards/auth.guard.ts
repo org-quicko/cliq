@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { ApiKeyService } from '../../services/apiKey.service';
-import { UserService } from '../../services/user.service';
-import { MemberService } from '../../services/member.service';
-import { LoggerService } from '../../services/logger.service';
+import { ApiKeyService } from '../services/apiKey.service';
+import { UserService } from '../services/user.service';
+import { MemberService } from '../services/member.service';
+import { LoggerService } from '../services/logger.service';
 import { audienceEnum } from 'src/enums/audience.enum';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
 	) {}
 
 	async canActivate(context: ExecutionContext) {
-		this.logger.info(`START: canActivate function - AuthApiKeyGuard`);
+		this.logger.info(`START: canActivate function - AuthGuard`);
 
 		const request: Request = context.switchToHttp().getRequest();
 
@@ -39,7 +39,7 @@ export class AuthGuard implements CanActivate {
 				request.headers.api_key_id = apiKey.apiKeyId;
 				request.headers.program_id = apiKey.programId;
 				this.logger.info(
-					`END: canActivate function - AuthApiKeyGuard (authenticated via API Key)`,
+					`END: canActivate function - AuthGuard (authenticated via API Key)`,
 				);
 				return true;
 			}
@@ -57,6 +57,7 @@ export class AuthGuard implements CanActivate {
 
 		const token = authorization.split(' ')[1];
 		if (!token) {
+			console.log(authorization);
 			this.logger.error('Invalid token format');
 			throw new UnauthorizedException('Invalid token format');
 		}
@@ -70,7 +71,7 @@ export class AuthGuard implements CanActivate {
 				);
 				if (user) {
 					request.headers.user_id = user.userId;
-					this.logger.info(`END: canActivate function - AuthApiKeyGuard (authenticated user)`);
+					this.logger.info(`END: canActivate function - AuthGuard (authenticated user)`);
 					return true;
 				}
 			} else {
@@ -80,7 +81,7 @@ export class AuthGuard implements CanActivate {
 				if (member) {
 					request.headers.member_id = member.memberId;
 					this.logger.info(
-						`END: canActivate function - AuthApiKeyGuard (authenticated member)`,
+						`END: canActivate function - AuthGuard (authenticated member)`,
 					);
 					return true;
 				}

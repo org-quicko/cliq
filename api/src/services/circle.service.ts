@@ -1,24 +1,19 @@
 import {
 	BadRequestException,
+	forwardRef,
+	Inject,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OnEvent } from '@nestjs/event-emitter';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
-import { AddPromoterToCircleDto, CreateCircleDto } from '../dtos';
+import { AddPromoterToCircleDto, CreateCircleDto, SwitchCircleDto } from '../dtos';
 import { Circle, CirclePromoter } from '../entities';
 import { ProgramService } from './program.service';
 import { CircleConverter } from '../converters/circle.converter';
 import { PromoterConverter } from '../converters/promoter.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
-import {
-	GENERATE_DEFAULT_CIRCLE_EVENT,
-	GenerateDefaultCircleEvent,
-	SWITCH_CIRCLE_EVENT,
-	SwitchCircleEvent,
-} from '../events';
 import { defaultQueryOptions } from 'src/constants';
 
 @Injectable()
@@ -28,6 +23,8 @@ export class CircleService {
 		private readonly circleRepository: Repository<Circle>,
 		@InjectRepository(CirclePromoter)
 		private readonly circlePromoterRepository: Repository<CirclePromoter>,
+
+		@Inject(forwardRef(() => ProgramService))
 		private programService: ProgramService,
 
 		private circleConverter: CircleConverter,
@@ -37,18 +34,6 @@ export class CircleService {
 
 		private logger: LoggerService,
 	) {}
-
-	@OnEvent(GENERATE_DEFAULT_CIRCLE_EVENT)
-	async generateDefaultCircle(payload: GenerateDefaultCircleEvent) {
-		this.logger.info('START: generateDefaultCircle service');
-
-		await this.createCircle(payload.programId, {
-			name: 'DEFAULT_CIRCLE',
-			isDefaultCircle: true,
-		} as CreateCircleDto);
-
-		this.logger.info('END: generateDefaultCircle service');
-	}
 
 	/**
 	 * Create circle
@@ -320,22 +305,20 @@ export class CircleService {
 		return exists;
 	}
 
-	@OnEvent(SWITCH_CIRCLE_EVENT)
-	private async switchPromoterCircle(payload: SwitchCircleEvent) {
+	async switchPromoterCircle(switchCircleDto: SwitchCircleDto) {
 		this.logger.info('START: switchPromoterCircle service');
 		try {
 			return this.datasource.transaction(async (manager) => {
-				const circlePromoterRepository =
-					manager.getRepository(CirclePromoter);
+				const circlePromoterRepository = manager.getRepository(CirclePromoter);
 
 				// remove relation from old circle -> DO NOT use delete(), use remove(), the latter respects relations
 				const circlePromoter = await circlePromoterRepository.findOne({
 					where: {
 						circle: {
-							circleId: payload.currentCircleId,
+							circleId: switchCircleDto.currentCircleId,
 						},
 						promoter: {
-							promoterId: payload.promoterId,
+							promoterId: switchCircleDto.promoterId,
 						},
 					},
 				});
@@ -352,12 +335,12 @@ export class CircleService {
 				await circlePromoterRepository.remove(circlePromoter);
 
 				// add relation to new circle
-				const newCirclePromoter = this.circlePromoterRepository.create({
+				const newCirclePromoter = circlePromoterRepository.create({
 					circle: {
-						circleId: payload.targetCircleId,
+						circleId: switchCircleDto.targetCircleId,
 					},
 					promoter: {
-						promoterId: payload.promoterId,
+						promoterId: switchCircleDto.promoterId,
 					},
 				});
 

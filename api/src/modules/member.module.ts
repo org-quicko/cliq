@@ -12,7 +12,10 @@ import { PromoterModule } from './promoter.module';
 @Global()
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Member, PromoterMember]),
+		TypeOrmModule.forFeature([
+			Member, 
+			PromoterMember
+		]),
 		JwtModule.register({
 			global: true,
 			secret: process.env.JWT_SECRET!,

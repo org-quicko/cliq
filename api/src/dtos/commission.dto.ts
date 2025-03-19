@@ -54,10 +54,9 @@ export class CreateCommissionDto {
 	@Min(0, { message: 'amount entered must be non negative.' })
 	amount: number;
 
-	@IsOptional()
 	@IsNumber({ allowInfinity: false })
 	@Min(0, { message: 'revenue entered must be non negative.' })
-	revenue?: number;
+	revenue: number;
 }
 
 export class UpdateCommissionDto extends PartialType(CreateCommissionDto) {}

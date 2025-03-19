@@ -7,8 +7,6 @@ import {
 } from '@nestjs/common';
 import { utilities, WinstonModule } from 'nest-winston';
 import { useContainer } from 'class-validator';
-import * as express from 'express';
-import * as path from 'path';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './exceptionFilters/globalExceptionFilter';
@@ -57,7 +55,7 @@ async function bootstrap() {
 		}),
 	);
 
-	app.use('/public', express.static(path.join(__dirname, '..', 'public')));
+	app.enableCors();
 
 	app.useGlobalFilters(new HttpExceptionFilter());
 

@@ -3,7 +3,7 @@ import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { PurchaseService } from '../services/purchase.service';
 import { CreatePurchaseDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('Purchase')
 @UseGuards(AuthGuard)

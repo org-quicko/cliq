@@ -1,55 +1,53 @@
-import { triggerEnum } from '../enums';
+import { PurchaseCreatedEventData, SignUpCreatedEventData, TriggerEventData } from 'src/interfaces/eventData.interface';
+import { BaseEvent } from './BaseEvent';
 
-export class TriggerEvent {
+export abstract class TriggerEvent extends BaseEvent {
 	constructor(
-		public triggerType: triggerEnum,
-		public contactId: string,
-		public promoterId: string,
-		public programId: string,
-		public linkId: string,
-		public itemId?: string,
-		public amount?: number,
-	) { }
-}
-
-export class SignUpEvent extends TriggerEvent {
-	constructor(
-		public contactId: string,
-		public promoterId: string,
-		public programId: string,
-		public linkId: string,
+		public source: string,
+		public type: string,
+		public data: TriggerEventData,
+		public subject?: string,
 	) {
 		super(
-			triggerEnum.SIGNUP, 
-			contactId, 
-			promoterId, 
-			programId, 
-			linkId, 
+			source,
+			type,
+			data,
+			subject,
 		);
 	}
 }
 
-export class PurchaseEvent extends TriggerEvent {
+export class SignUpCreatedEvent extends TriggerEvent {
+	
 	constructor(
-		public contactId: string,
-		public promoterId: string,
-		public programId: string,
-		public linkId: string,
-		public itemId: string,
-		public amount: number,
+		public source: string,
+		public data: SignUpCreatedEventData,
+		public signUpId?: string,
 	) {
 		super(
-			triggerEnum.PURCHASE,
-			contactId,
-			promoterId,
-			programId,
-			linkId,
-			itemId,
-			amount,
+			source,
+			SIGNUP_CREATED,
+			data,
+			signUpId
+		);
+	}
+
+}
+
+export class PurchaseCreatedEvent extends TriggerEvent {
+	constructor(
+		public source: string,
+		public data: PurchaseCreatedEventData,
+		public purchaseId?: string,
+	) {
+		super(
+			source,
+			PURCHASE_CREATED,
+			data,
+			purchaseId,
 		);
 	}
 }
 
-export const TRIGGER_EVENT = 'trigger_event';
-export const SIGNUP_EVENT = 'signup_event';
-export const PURCHASE_EVENT = 'purchase_event';
+export const SIGNUP_CREATED = 'signup.created';
+export const PURCHASE_CREATED = 'purchase.created';

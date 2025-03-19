@@ -13,8 +13,8 @@ import { CreateContactDto, CreateSignUpDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { SignUpConverter } from '../converters/signUp.converter';
-import { SIGNUP_EVENT, SignUpEvent } from '../events';
-import { referralKeyTypeEnum, statusEnum } from '../enums';
+import { SIGNUP_CREATED, SignUpCreatedEvent } from '../events';
+import { referralKeyTypeEnum, statusEnum, triggerEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -159,14 +159,19 @@ export class SignUpService {
 				);
 			}
 
-			const signUpCreatedEvent = new SignUpEvent(
-				savedContact.contactId,
-				linkResult.promoterId,
-				programResult.programId,
-				linkResult.linkId,
+			const signUpCreatedEvent = new SignUpCreatedEvent(
+				'urn:org.quicko.cliq.signup',
+				{
+					triggerType: triggerEnum.SIGNUP,
+					contactId: savedContact.contactId,
+					promoterId: linkResult.promoterId,
+					programId: programResult.programId,
+					linkId: linkResult.linkId,
+				},
+				savedSignUp.contactId,
 			);
 
-			this.eventEmitter.emit(SIGNUP_EVENT, signUpCreatedEvent);
+			this.eventEmitter.emit(SIGNUP_CREATED, signUpCreatedEvent);
 
 			const signUpDto = this.signUpConverter.convert(savedSignUp);
 
@@ -191,17 +196,17 @@ export class SignUpService {
 
 		const signUpResult = await this.signUpRepository.findOne({
 			where: {
-				contact: {
-					programId: programId,
-				},
-				promoterId,
+				...(programId && {contact: { programId }}),
+				...(promoterId && { promoterId }),
 			},
+			relations: {
+				contact: true
+			}
 		});
 
 		if (!signUpResult) {
-			this.logger.warn(`No Signups found for Promoter ${promoterId} in Program ${programId}`);
-
-			throw new BadRequestException(`No Signups found for Promoter ${promoterId} in Program ${programId}`);
+			this.logger.warn(`No Signups found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
+			throw new NotFoundException(`No Signups found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
 		}
 
 		this.logger.info('END: getFirstSignUp service');

@@ -19,6 +19,7 @@ import { LoggerModule } from './modules/logger.module';
 import { AuthModule } from './modules/auth.module';
 import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
 import { ApiKeyModule } from './modules/apiKey.module';
+import { ReferralModule } from './modules/referral.module';
 
 @Module({
 	imports: [
@@ -49,6 +50,7 @@ import { ApiKeyModule } from './modules/apiKey.module';
 		MemberModule,
 		PromoterModule,
 		PurchaseModule,
+		ReferralModule,
 		SignUpModule,
 		LoggerModule,
 	],

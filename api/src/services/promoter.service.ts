@@ -554,13 +554,6 @@ export class PromoterService {
 			select: {
 				purchaseId: true,
 				amount: true,
-				contact: {
-					contactId: true,
-					email: true,
-					firstName: true,
-					lastName: true,
-					phone: true,
-				},
 				createdAt: true,
 				itemId: true,
 			},

@@ -5,10 +5,10 @@ import { MemberService } from '../services/member.service';
 import { CreateMemberDto, MemberDto, UpdateMemberDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { MemberAuthService } from '../services/memberAuth.service';
-import { AuthGuard } from '../guards/auth/auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Member, Promoter } from '../entities';
-import { PermissionsGuard } from 'src/guards/permissions/permissions.guard';
+import { PermissionsGuard } from 'src/guards/permissions.guard';
 
 @ApiTags('Member')
 @Controller('/programs/:program_id/members')

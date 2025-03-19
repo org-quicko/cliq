@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers, Res } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers, Res, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ProgramService } from '../services/program.service';
 import { LoggerService } from '../services/logger.service';
@@ -24,8 +24,8 @@ import {
   ReferralView,
   SignUp,
 } from '../entities';
-import { AuthGuard } from '../guards/auth/auth.guard';
-import { PermissionsGuard } from '../guards/permissions/permissions.guard';
+import { AuthGuard } from '../guards/auth.guard';
+import { PermissionsGuard } from '../guards/permissions.guard';
 import { getReportFileName, getStartEndDate } from 'src/utils';
 import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
 import { Response } from 'express';
@@ -366,7 +366,6 @@ export class ProgramController {
   @Get(':program_id/report')
   async getProgramReport(
     @Headers('x-accept-type') acceptType: string,
-    @Headers('user_id') userId: string,
     @Param('program_id') programId: string,
     @Res() res: Response,
     @Query('report_period') reportPeriod?: reportPeriodEnum,
@@ -374,6 +373,11 @@ export class ProgramController {
     @Query('end_date') endDate?: string,
   ) {
     this.logger.info('START: getProgramReport controller');
+
+    if (acceptType !== 'application/json;format=sheet-json') {
+      this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
+      throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+    }
 
     const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
 

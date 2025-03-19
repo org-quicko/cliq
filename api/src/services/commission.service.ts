@@ -4,12 +4,10 @@ import {
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateCommissionDto } from '../dtos';
 import { Commission } from '../entities';
 import { LoggerService } from './logger.service';
-import { GENERATE_COMMISSION_EVENT, GenerateCommissionEvent } from '../events';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -18,33 +16,14 @@ export class CommissionService {
 		@InjectRepository(Commission)
 		private readonly commissionRepository: Repository<Commission>,
 
-		private datasource: DataSource,
-
 		private logger: LoggerService,
 	) {}
 
-	@OnEvent(GENERATE_COMMISSION_EVENT)
-	private async createCommission(payload: GenerateCommissionEvent) {
-		return this.datasource.transaction(async (manager) => {
+	async createCommission(createCommissionDto: CreateCommissionDto) {
 			this.logger.info(`START: createCommission service`);
 
-			const commissionRepository = manager.getRepository(Commission);
-
-			const createCommissionDto = new CreateCommissionDto();
-			createCommissionDto.amount = payload.amount;
-			createCommissionDto.contactId = payload.contactId;
-			createCommissionDto.linkId = payload.linkId;
-			createCommissionDto.conversionType = payload.conversionType;
-			createCommissionDto.promoterId = payload.promoterId;
-
-			if (payload.revenue) {
-				createCommissionDto.revenue = payload.revenue;
-			}
-
-			const newCommission =
-				commissionRepository.create(createCommissionDto);
-			const savedCommission =
-				await commissionRepository.save(newCommission);
+			const newCommission = this.commissionRepository.create(createCommissionDto);
+			const savedCommission = await this.commissionRepository.save(newCommission);
 
 			if (!savedCommission) {
 				this.logger.error(`Failed to save commission.`);
@@ -55,7 +34,6 @@ export class CommissionService {
 
 			this.logger.info(`END: createCommission service`);
 			return savedCommission;
-		});
 	}
 
 	async getFirstCommission(programId?: string, promoterId?: string) {
@@ -69,15 +47,17 @@ export class CommissionService {
 
 		const commissionResult = await this.commissionRepository.findOne({
 			where: {
-				contact: {
-					programId: programId,
-				},
-				promoterId,
+				...(programId && {contact: { programId }}),
+				...(promoterId && { promoterId }),
 			},
+			relations: {
+				contact: true,
+			}
 		});
 
 		if (!commissionResult) {
-			throw new BadRequestException();
+			this.logger.warn(`No Commissions found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
+			throw new NotFoundException(`No Commissions found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
 		}
 
 		this.logger.info('END: getFirstCommission service');

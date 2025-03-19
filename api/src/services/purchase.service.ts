@@ -12,9 +12,9 @@ import { CreateContactDto, CreatePurchaseDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { PurchaseConverter } from '../converters/purchase.converter';
-import { contactStatusEnum, referralKeyTypeEnum, statusEnum } from '../enums';
+import { contactStatusEnum, referralKeyTypeEnum, statusEnum, triggerEnum } from '../enums';
 import { LoggerService } from './logger.service';
-import { PURCHASE_EVENT, PurchaseEvent } from '../events/trigger.event';
+import { PURCHASE_CREATED, PurchaseCreatedEvent } from '../events';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -157,16 +157,21 @@ export class PurchaseService {
 				{ status: contactStatusEnum.ACTIVE, updatedAt: () => `NOW()` },
 			);
 
-			const purchaseCreatedEvent = new PurchaseEvent(
-				associatedContact.contactId,
-				promoterResult.promoterId,
-				programResult.programId,
-				linkResult.linkId,
-				savedPurchase.itemId,
-				savedPurchase.amount,
+			const purchaseCreatedEvent = new PurchaseCreatedEvent(
+				'urn:org.quicko.cliq.purchase',
+				{
+					triggerType: triggerEnum.PURCHASE,
+					contactId: associatedContact.contactId,
+					promoterId: promoterResult.promoterId,
+					programId: programResult.programId,
+					linkId: linkResult.linkId,
+					itemId: savedPurchase.itemId,
+					amount: savedPurchase.amount,
+				},
+				savedPurchase.purchaseId,
 			);
 
-			this.eventEmitter.emit(PURCHASE_EVENT, purchaseCreatedEvent);
+			this.eventEmitter.emit(PURCHASE_CREATED, purchaseCreatedEvent);
 
 			return this.purchaseConverter.convert(savedPurchase);
 		});
@@ -183,19 +188,18 @@ export class PurchaseService {
 
 		const purchaseResult = await this.purchaseRepository.findOne({
 			where: {
-				contact: {
-					programId: programId,
-				},
-				promoter: {
-					promoterId,
-				},
+				...(programId && {contact: { programId }}),
+				...(promoterId && { promoterId }),
 			},
+			relations: {
+				contact: true
+			}
 		});
 
 		if (!purchaseResult) {
-			this.logger.warn(`No Purchases found for Promoter ${promoterId} in Program ${programId}`);
+			this.logger.warn(`No Purchases found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
 
-			throw new BadRequestException(`No Purchases found for Promoter ${promoterId} in Program ${programId}`);
+			throw new NotFoundException(`No Purchases found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
 		}
 
 		this.logger.info('END: getFirstPurchase service');

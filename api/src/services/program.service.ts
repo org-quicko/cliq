@@ -1,14 +1,15 @@
 import {
 	BadGatewayException,
-	BadRequestException,
 	ForbiddenException,
+	forwardRef,
+	Inject,
 	Injectable,
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
 import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Commission, Program, Promoter, Purchase, ReferralView, User } from '../entities';
+import { Circle, Commission, Program, Promoter, Purchase, ReferralView, User } from '../entities';
 import { CreateUserDto } from '../dtos';
 import { ProgramUser } from '../entities/programUser.entity';
 import {
@@ -29,14 +30,12 @@ import { roleEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from 'src/converters/signUp.converter';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import {
-	GENERATE_DEFAULT_CIRCLE_EVENT,
-	GenerateDefaultCircleEvent,
-} from '../events/generateDefaultCircle.event';
+
 import { ProgramWorkbook } from 'generated/sources';
 import * as XLSX from 'xlsx';
 import { defaultQueryOptions } from 'src/constants';
 import { snakeCaseToHumanReadable } from 'src/utils';
+import { CircleService } from './circle.service';
 
 @Injectable()
 export class ProgramService {
@@ -57,6 +56,9 @@ export class ProgramService {
 		private readonly referralViewRepository: Repository<ReferralView>,
 
 		private userService: UserService,
+
+		@Inject(forwardRef(() => CircleService))
+		private circleService: CircleService,
 
 		private programConverter: ProgramConverter,
 		private promoterConverter: PromoterConverter,
@@ -81,6 +83,7 @@ export class ProgramService {
 
 			const programRepository = manager.getRepository(Program);
 			const programUserRepository = manager.getRepository(ProgramUser);
+			const circleRepository = manager.getRepository(Circle);
 
 			const programEntity = programRepository.create(body);
 			const savedProgram = await programRepository.save(programEntity);
@@ -92,15 +95,11 @@ export class ProgramService {
 				role: roleEnum.SUPER_ADMIN,
 			});
 
-			console.log(savedProgram);
-			// create default circle for program
-			const generateDefaultCircleEvent = new GenerateDefaultCircleEvent(
-				savedProgram.programId,
-			);
-			this.eventEmitter.emit(
-				GENERATE_DEFAULT_CIRCLE_EVENT,
-				generateDefaultCircleEvent,
-			);
+			await circleRepository.save({
+				name: 'DEFAULT_CIRCLE',
+				isDefaultCircle: true,
+				program: savedProgram,
+			});
 
 			const programDto = this.programConverter.convert(savedProgram);
 			this.logger.info('END: createProgram service');
@@ -691,9 +690,9 @@ export class ProgramService {
 
 		// all sheets
 		const promotersSheetData: any[] = [snakeCaseToHumanReadable(promotersTable.getHeader())];
-		
+
 		console.log(snakeCaseToHumanReadable(promotersTable.getHeader()));
-		
+
 		const programSummarySheetData: any[] = [];
 
 		// pushing promoters data

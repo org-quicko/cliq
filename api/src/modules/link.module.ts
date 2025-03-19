@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PromoterModule } from '../modules/promoter.module';
 import { ProgramModule } from './program.module';
@@ -9,9 +9,16 @@ import { LinkConverter } from '../converters/link.converter';
 import { LinkStatsView } from 'src/entities/link.view';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Link, LinkStatsView]), ProgramModule, PromoterModule],
+	imports: [
+		TypeOrmModule.forFeature([
+			Link, 
+			LinkStatsView
+		]), 
+		forwardRef(() => ProgramModule), 
+		forwardRef(() => PromoterModule),
+	],
 	controllers: [LinkController],
 	providers: [LinkService, LinkConverter],
-	exports: [LinkService, ProgramModule, PromoterModule, LinkConverter],
+	exports: [LinkService, LinkConverter],
 })
 export class LinkModule {}

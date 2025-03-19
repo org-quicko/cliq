@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, UseGuards, Req, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, UseGuards, Req, Headers, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { PromoterService } from '../services/promoter.service';
@@ -10,7 +10,7 @@ import {
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { roleEnum, statusEnum, conversionTypeEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
-import { AuthGuard } from '../guards/auth/auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
 	Commission,
@@ -22,7 +22,7 @@ import {
 	SignUp,
 	Link,
 } from '../entities';
-import { PermissionsGuard } from '../guards/permissions/permissions.guard';
+import { PermissionsGuard } from '../guards/permissions.guard';
 import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
@@ -334,6 +334,12 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getSignUpsReport controller');
 
+		if (acceptType !== 'application/json;format=sheet-json') {
+			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
+			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+		}
+
+
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
 
 		const workbookBuffer = await this.promoterService.getSignUpsReport(
@@ -364,6 +370,12 @@ export class PromoterController {
 		@Query('end_date') endDate?: string,
 	) {
 		this.logger.info('START: getPurchasesReport controller');
+
+		if (acceptType !== 'application/json;format=sheet-json') {
+			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
+			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+		}
+
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
 
@@ -396,6 +408,12 @@ export class PromoterController {
 		@Query('end_date') endDate?: string,
 	) {
 		this.logger.info('START: getCommissionsReport controller');
+
+		if (acceptType !== 'application/json;format=sheet-json') {
+			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
+			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+		}
+
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
 
@@ -431,6 +449,12 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getCommissionsReport controller');
 
+		if (acceptType !== 'application/json;format=sheet-json') {
+			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
+			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+		}
+
+
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
 
 		const workbookBuffer = await this.promoterService.getLinksReport(
@@ -465,6 +489,12 @@ export class PromoterController {
 		@Query('end_date') endDate?: string,
 	) {
 		this.logger.info('START: getReferralsReport controller');
+
+		if (acceptType !== 'application/json;format=sheet-json') {
+			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
+			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+		}
+
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
 

@@ -7,8 +7,8 @@ import { Program, User } from '../entities';
 import { plainToInstance } from 'class-transformer';
 import { UserAuthService } from '../services/userAuth.service';
 import { Permissions } from '../decorators/permissions.decorator';
-import { AuthGuard } from '../guards/auth/auth.guard';
-import { PermissionsGuard } from '../guards/permissions/permissions.guard';
+import { AuthGuard } from '../guards/auth.guard';
+import { PermissionsGuard } from '../guards/permissions.guard';
 
 @ApiTags('User')
 @Controller('/users')

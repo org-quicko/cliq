@@ -17,7 +17,7 @@ export class ReferralService {
     ) { }
 
     async getFirstReferral(programId?: string, promoterId?: string) {
-        this.logger.info(`START: getFirstProgramReferral service`);
+        this.logger.info(`START: getFirstReferral service`);
 
         if (!programId && !promoterId) {
             this.logger.error(
@@ -28,25 +28,27 @@ export class ReferralService {
             );
         }
 
+        
         const referralResult = await this.referralViewRepository.findOne({
             where: {
-                programId,
-                promoterId,
+                ...(programId && { programId }),
+				...(promoterId && { promoterId }),
             },
         });
 
         if (!referralResult) {
-            this.logger.error(`Error. Failed to get first referral for Program ID: ${programId}.`);
-            throw new BadRequestException(`Error. Failed to get first referral for Program ID: ${programId}.`);
+            this.logger.warn(`No Referrals found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
+			throw new NotFoundException(`No Referrals found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
         }
 
-        this.logger.info(`END: getFirstProgramReferral service`);
+        this.logger.info(`END: getFirstReferral service`);
         return referralResult;
     }
 
     async getFirstReferralAggregate(programId?: string, promoterId?: string) {
         this.logger.info(`START: getFirstReferralAggregate service`);
 
+        
         if (!programId && !promoterId) {
             this.logger.error(
                 `Error. Must pass at least one of Program ID or Promoter ID to get referral aggregate result.`,
