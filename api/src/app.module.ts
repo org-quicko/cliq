@@ -17,9 +17,11 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SignUpModule } from './modules/signUp.module';
 import { LoggerModule } from './modules/logger.module';
 import { AuthModule } from './modules/auth.module';
-import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
 import { ApiKeyModule } from './modules/apiKey.module';
 import { ReferralModule } from './modules/referral.module';
+import { BullModule } from '@nestjs/bullmq';
+import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
+import { WebhookModule } from './modules/webhook.module';
 
 @Module({
 	imports: [
@@ -32,13 +34,19 @@ import { ReferralModule } from './modules/referral.module';
 			database: process.env.DB_NAME,
 			autoLoadEntities: true,
 			synchronize: true,
-			logging: true,
+			logging: true, // TODO: implement logging levels for typeorm
 			poolSize: 10,
 			connectTimeoutMS: 2000,
 			maxQueryExecutionTime: 5000,
 			subscribers: [MaterializedViewSubscriber],
 		}),
 		EventEmitterModule.forRoot(),
+		BullModule.forRoot({
+			connection: {
+				host: 'localhost',
+				port: parseInt(process.env.REDIS_PORT ?? '6379'),
+			},
+		}),
 		AuthModule,
 		ApiKeyModule,
 		UserModule,
@@ -52,10 +60,11 @@ import { ReferralModule } from './modules/referral.module';
 		PurchaseModule,
 		ReferralModule,
 		SignUpModule,
+		WebhookModule,
 		LoggerModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, Logger],
 	exports: [Logger],
 })
-export class AppModule {}
+export class AppModule { }

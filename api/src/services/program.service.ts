@@ -691,8 +691,6 @@ export class ProgramService {
 		// all sheets
 		const promotersSheetData: any[] = [snakeCaseToHumanReadable(promotersTable.getHeader())];
 
-		console.log(snakeCaseToHumanReadable(promotersTable.getHeader()));
-
 		const programSummarySheetData: any[] = [];
 
 		// pushing promoters data

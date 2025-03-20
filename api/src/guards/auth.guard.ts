@@ -1,24 +1,28 @@
 import {
 	CanActivate,
 	ExecutionContext,
+	forwardRef,
+	Inject,
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { ApiKeyService } from '../services/apiKey.service';
 import { UserService } from '../services/user.service';
 import { MemberService } from '../services/member.service';
 import { LoggerService } from '../services/logger.service';
 import { audienceEnum } from 'src/enums/audience.enum';
+import { ApiKeyGuard } from './apiKey.guard';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
 	constructor(
 		private jwtService: JwtService,
-		private apiKeyService: ApiKeyService,
 		private userService: UserService,
 		private memberService: MemberService,
+
+		private apiKeyGuard: ApiKeyGuard, 
+
 		private logger: LoggerService,
 	) {}
 
@@ -31,20 +35,7 @@ export class AuthGuard implements CanActivate {
 		const secret: string = request.headers['x-api-secret'] as string;
 
 		if (key && secret) {
-			const apiKey = await this.apiKeyService.validateKeyAndSecret(
-				key,
-				secret,
-			);
-			if (apiKey) {
-				request.headers.api_key_id = apiKey.apiKeyId;
-				request.headers.program_id = apiKey.programId;
-				this.logger.info(
-					`END: canActivate function - AuthGuard (authenticated via API Key)`,
-				);
-				return true;
-			}
-			this.logger.error('Invalid API key or secret.');
-			throw new UnauthorizedException('Invalid API key or secret.');
+			return this.apiKeyGuard.canActivate(context);
 		}
 
 		const authorization = request.headers.authorization;
@@ -57,7 +48,6 @@ export class AuthGuard implements CanActivate {
 
 		const token = authorization.split(' ')[1];
 		if (!token) {
-			console.log(authorization);
 			this.logger.error('Invalid token format');
 			throw new UnauthorizedException('Invalid token format');
 		}

@@ -246,8 +246,6 @@ export class PromoterService {
 						existingMember.memberId,
 					);
 
-				console.log('promoter_member:', promoterMember);
-				
 				// If promoter-member relationship exists
 				if (promoterMember) {
 					// Only allow reactivation if status is INACTIVE

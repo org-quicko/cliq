@@ -16,3 +16,4 @@ export * from './purchase.dto';
 export * from './signUp.dto';
 export * from './switchCircle.dto';
 export * from './user.dto';
+export * from './webhook.dto';

@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
+    "@nestjs/bullmq": "^11.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/devtools-integration": "^0.2.0",
@@ -38,6 +39,7 @@
     "@org.quicko/core": "^8.0.1-SNAPSHOT",
     "@types/json2csv": "^5.0.7",
     "bcrypt": "^5.1.1",
+    "bullmq": "^5.44.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",

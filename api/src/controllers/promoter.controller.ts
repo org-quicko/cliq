@@ -387,7 +387,6 @@ export class PromoterController {
 		);
 
 		const fileName = getReportFileName('Purchases');
-		console.log(fileName);
 
 		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
 		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

@@ -9,6 +9,7 @@ import { map } from 'rxjs/operators';
 import { snakeCase } from 'lodash';
 import { Observable } from 'rxjs';
 import { SKIP_TRANSFORM_KEY } from 'src/decorators/skipTransform.decorator';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<T, Response> {
@@ -32,30 +33,31 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response> {
 				const response = {
 					code: context.switchToHttp().getResponse().statusCode,
 					message: data.message,
-					data: this.convertToSnakeCase(data.result),
+					data: this.instanceToPlainNested(data.result),
 				};
 
-				return this.convertToSnakeCase(response);
+				return response as any;
 			}),
 		);
 	}
 
-	private convertToSnakeCase(obj: any): any {
+	private instanceToPlainNested(obj: any) {
 		if (obj instanceof Date) {
-			return obj;
+			return instanceToPlain(obj);
 		}
 
 		if (Array.isArray(obj)) {
-			return obj.map((item) => this.convertToSnakeCase(item));
+			return obj.map(item => this.instanceToPlainNested(item));
 		} else if (obj !== null && typeof obj === 'object') {
 			return Object.fromEntries(
 				Object.entries(obj).map(([key, value]) => [
 					snakeCase(key),
-					this.convertToSnakeCase(value),
-				]),
+					this.instanceToPlainNested(value),
+				])
 			);
 		}
-		return obj;
+
+		return instanceToPlain(obj);
 	}
 
 }

@@ -26,6 +26,7 @@ import {
     ReferralAggregateView,
     SignUp,
     User,
+    Webhook,
 } from '../entities';
 import { roleEnum, statusEnum } from '../enums';
 import { UserService } from './user.service';
@@ -43,6 +44,7 @@ import { CommissionService } from './commission.service';
 import { SignUpService } from './signUp.service';
 import { PurchaseService } from './purchase.service';
 import { ReferralService } from './referral.service';
+import { WebhookService } from './webhook.service';
 
 // manage is a keyword in CASL that means the admin can do anything
 export const actions = [
@@ -62,6 +64,19 @@ export const actions = [
     'change_role',
     'operate_in',
 ] as const;
+
+// these types are in order to check nested properties
+type FlatPurchase = Purchase & {
+    'contact.programId': Purchase['contact']['programId']
+};
+
+type FlatSignUp = SignUp & {
+    'contact.programId': SignUp['contact']['programId']
+};
+
+type FlatCommission = Commission & {
+    'contact.programId': Commission['contact']['programId']
+};
 
 export type actionsType = (typeof actions)[number];
 export type subjectsType =
@@ -84,6 +99,7 @@ export type subjectsType =
         | typeof ReferralAggregateView
         | typeof SignUp
         | typeof User
+        | typeof Webhook
     >
     | 'all';
 
@@ -116,6 +132,7 @@ export class AuthorizationService {
         private programPromoterService: ProgramPromoterService,
         private promoterMemberService: PromoterMemberService,
         private referralService: ReferralService,
+        private webhookService: WebhookService,
 
         private logger: LoggerService,
     ) { }
@@ -347,7 +364,19 @@ export class AuthorizationService {
                         subjectProgramId,
                         subjectPromoterId,
                     );
-                } else {
+                } else if (subject === Webhook) {
+                    if (action === 'create') return subject;
+
+                    const subjectProgramId = request.headers.program_id as string;
+
+                    if (!subjectProgramId) {
+                        this.logger.error(`Error. Must provide Program ID for performing action on object.`);
+                        throw new BadRequestException(`Error. Must provide Program ID for performing action on object.`);
+                    }
+
+                    return this.webhookService.getFirstWebhook(subjectProgramId);
+                }
+                else {
                     return subject;
                 }
             }),
@@ -386,7 +415,7 @@ export class AuthorizationService {
             );
 
             if (role === roleEnum.ADMIN || role === roleEnum.SUPER_ADMIN) {
-                allow('manage', ApiKey, { programId });
+                allow('manage', [ApiKey, Webhook], { programId });
 
                 // can update program or invite other users to the program
                 allow(['update', 'invite_user'], Program, { programId });
@@ -406,10 +435,10 @@ export class AuthorizationService {
             } else if (role === roleEnum.EDITOR) {
                 allow('manage', [Link, Circle, Function], { programId });
             }
-            
-            allow('read', Purchase, { contact: { programId } });
-            allow('read', SignUp, { contact: { programId } });
-            allow('read', Commission, { contact: { programId } });
+
+            allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
+            allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
+            allow<FlatCommission>('read', Commission, { 'contact.programId': programId });
         }
 
         allow(['update', 'delete'], User, { userId: user.userId });
@@ -468,15 +497,15 @@ export class AuthorizationService {
         allow('manage', [Promoter, PromoterMember, Member]);
         this.assignAdminPermissions(abilityBuilder, programId);
 
+        allow('manage', [ApiKey, Webhook], { programId });
         allow('read', Program, { programId });
-        allow('read', Purchase);
-        allow('read', SignUp);
-        allow('read', Commission);
+        allow('read', Purchase, { contact: { programId } });
+        allow('read', SignUp, { contact: { programId } });
+        allow('read', Commission, { contact: { programId } });
 
         const ability = build({
             detectSubjectType: (item) => item.constructor as ExtractSubjectType<subjectsType>,
         });
-
 
         this.logger.info(`END: getApiUserAbility service`);
         return ability;

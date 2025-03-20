@@ -10,6 +10,8 @@ import { ProgramModule } from './program.module';
 import { PromoterModule } from './promoter.module';
 import { ReferralModule } from './referral.module';
 import { CommissionModule } from './commission.module';
+import { WebhookModule } from './webhook.module';
+import { ApiKeyGuard } from 'src/guards/apiKey.guard';
 
 @Global()
 @Module({
@@ -23,8 +25,9 @@ import { CommissionModule } from './commission.module';
 		PurchaseModule,
 		ReferralModule,
 		SignUpModule,
+		WebhookModule,
 	],
-	providers: [AuthorizationService, AuthGuard],
-	exports: [AuthorizationService, AuthGuard],
+	providers: [AuthorizationService, AuthGuard, ApiKeyGuard],
+	exports: [AuthorizationService, AuthGuard, ApiKeyGuard],
 })
 export class AuthModule {}

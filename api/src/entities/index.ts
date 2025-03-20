@@ -18,3 +18,4 @@ export * from './programUser.entity';
 export * from './user.entity';
 export * from './referral.view';
 export * from './signUp.entity';
+export * from './webhook.entity';

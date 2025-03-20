@@ -13,8 +13,8 @@ export class ApiKeyConverter {
 		apiKeyDto.secret = secret;
 		apiKeyDto.status = apiKey.status;
 
-		apiKeyDto.createdAt = new Date(apiKey.createdAt);
-		apiKeyDto.updatedAt = new Date(apiKey.updatedAt);
+		apiKeyDto.createdAt = apiKey.createdAt;
+		apiKeyDto.updatedAt = apiKey.updatedAt;
 
 		return apiKeyDto;
 	}

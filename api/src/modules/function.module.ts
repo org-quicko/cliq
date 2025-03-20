@@ -10,6 +10,7 @@ import { Condition } from '../entities';
 import { ConditionConverter } from 'src/converters/condition.converter';
 import { PromoterModule } from './promoter.module';
 import { CommissionModule } from './commission.module';
+import { FunctionTriggerService } from 'src/services/functionTrigger.service';
 
 @Module({
 	imports: [
@@ -23,7 +24,7 @@ import { CommissionModule } from './commission.module';
 		CommissionModule,
 	],
 	controllers: [FunctionController],
-	providers: [FunctionService, ConditionConverter, FunctionConverter],
+	providers: [FunctionService, FunctionTriggerService, ConditionConverter, FunctionConverter],
 	exports: [FunctionService, ConditionConverter, FunctionConverter],
 })
-export class FunctionModule {}
+export class FunctionModule { }

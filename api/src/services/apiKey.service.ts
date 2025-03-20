@@ -79,12 +79,8 @@ export class ApiKeyService {
 		const keyExists = await this.keyExistsInProgram(programId, apiKeyId);
 
 		if (!keyExists) {
-			this.logger.error(
-				`Error. Failed to find API key ${apiKeyId} in Program ${programId}`,
-			);
-			throw new BadRequestException(
-				`Error. Failed to find API key ${apiKeyId} in Program ${programId}`,
-			);
+			this.logger.error(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
+			throw new BadRequestException(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
 		}
 
 		await this.apiKeyRepository.update(
@@ -97,6 +93,13 @@ export class ApiKeyService {
 
 	async deleteKey(programId: string, apiKeyId: string) {
 		this.logger.info(`START: deleteKey service`);
+
+		const keyExists = await this.keyExistsInProgram(programId, apiKeyId);
+
+		if (!keyExists) {
+			this.logger.error(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
+			throw new BadRequestException(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
+		}
 
 		await this.apiKeyRepository.delete({ programId, apiKeyId });
 
