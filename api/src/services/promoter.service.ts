@@ -41,12 +41,15 @@ import { CommissionConverter } from '../converters/commission.converter';
 import { ProgramService } from './program.service';
 import { sortOrderEnum } from '../enums/sortOrder.enum';
 import { referralSortByEnum } from '../enums/referralSortBy.enum';
-import { LinkStatsView } from '../entities/link.view';
+import { LinkStatsView } from '../entities/linkStats.view';
 import { ReferralConverter } from '../converters/referral.converter';
 import { LinkConverter } from '../converters/link.converter';
-import { CommissionWorkbook, LinkWorkbook, PromoterInterfaceWorkbook, SignUpWorkbook } from 'generated/sources';
 import { defaultQueryOptions } from '../constants';
 import { snakeCaseToHumanReadable } from '../utils';
+import { CommissionWorkbook } from 'generated/sources/Commission';
+import { LinkWorkbook } from 'generated/sources/Link';
+import { PromoterInterfaceWorkbook } from 'generated/sources/PromoterInterface';
+import { SignUpWorkbook } from 'generated/sources/SignUp';
 
 @Injectable()
 export class PromoterService {
@@ -235,8 +238,7 @@ export class PromoterService {
 			}
 
 			// now get the member and check if the member account exists
-			const existingMember = (await this.memberService.getMemberByEmail(body.email));
-
+			const existingMember = (await this.memberService.getMemberByEmail(programId, body.email));
 			if (existingMember) {
 
 				// Check if there's an existing promoter-member relationship
@@ -248,6 +250,7 @@ export class PromoterService {
 
 				// If promoter-member relationship exists
 				if (promoterMember) {
+
 					// Only allow reactivation if status is INACTIVE
 					if (promoterMember.status === statusEnum.INACTIVE) {
 						await this.promoterMemberRepository.update(
@@ -257,7 +260,7 @@ export class PromoterService {
 							},
 							{
 								status: statusEnum.ACTIVE,
-								updatedAt: Date.now(),
+								updatedAt: () => `NOW()`,
 							},
 						);
 

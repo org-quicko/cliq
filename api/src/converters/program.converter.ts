@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ProgramDto } from '../dtos';
 import { Program } from '../entities';
 import { LoggerService } from 'src/services/logger.service';
-import { ProgramSummaryList, ProgramWorkbook, ProgwPromotersSheet, ProgwSummarySheet, PromotersRow, PromotersTable } from 'generated/sources';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
+import { ProgramWorkbook, ProgwPromotersSheet, PromotersTable, PromotersRow, ProgwSummarySheet, ProgramSummaryList } from 'generated/sources/Program';
 
 @Injectable()
 export class ProgramConverter {

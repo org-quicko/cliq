@@ -6,7 +6,7 @@ import { Link } from '../entities';
 import { LinkController } from '../controllers/link.controller';
 import { LinkService } from '../services/link.service';
 import { LinkConverter } from '../converters/link.converter';
-import { LinkStatsView } from 'src/entities/link.view';
+import { LinkStatsView } from 'src/entities/linkStats.view';
 
 @Module({
 	imports: [

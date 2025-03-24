@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { LinkDto } from '../dtos';
 import { Link } from '../entities';
-import { LinkStatsView } from 'src/entities/link.view';
-import { LinksRow, LinksTable, LinkStatsRow, LinkSummaryList, LinkWorkbook, LwLinksSheet, LwSummarySheet, PromoterInterfaceWorkbook } from 'generated/sources';
-import { LinkStatsTable } from '../../generated/sources/tables/link-stats-table/LinkStatsTable';
-import { LinkStatsSheet } from '../../generated/sources/sheets/link-stats-sheet/LinkStatsSheet';
+import { LinkStatsView } from 'src/entities/linkStats.view';
 import { JSONObject } from '@org.quicko/core';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
+import { LinkWorkbook, LwLinksSheet, LinksTable, LinksRow, LwSummarySheet, LinkSummaryList } from 'generated/sources/Link';
+import { LinkStatsRow, PromoterInterfaceWorkbook, LinkStatsTable, LinkStatsSheet } from 'generated/sources/PromoterInterface';
 
 @Injectable()
 export class LinkConverter {

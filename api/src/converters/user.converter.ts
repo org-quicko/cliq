@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
-import { PromoterInterfaceWorkbook } from 'generated/sources';
 
 @Injectable()
 export class UserConverter {

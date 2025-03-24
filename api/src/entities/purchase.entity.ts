@@ -10,7 +10,7 @@ import {
 import { Link } from './link.entity';
 import { Promoter } from './promoter.entity';
 import { Contact } from './contact.entity';
-import { UtmParams } from './utmParams';
+import { UtmParams } from 'src/classes';
 
 @Entity()
 export class Purchase {

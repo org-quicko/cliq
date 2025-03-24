@@ -20,8 +20,8 @@ import { AuthModule } from './modules/auth.module';
 import { ApiKeyModule } from './modules/apiKey.module';
 import { ReferralModule } from './modules/referral.module';
 import { BullModule } from '@nestjs/bullmq';
-import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
 import { WebhookModule } from './modules/webhook.module';
+import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
 
 @Module({
 	imports: [

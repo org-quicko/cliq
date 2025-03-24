@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsDate, IsOptional, IsString, IsUUID } from 'class-validator';
-import { UtmParams } from 'src/entities/utmParams';
+import { UtmParams } from 'src/classes';
 
 export class SignUpDto {
 	@IsUUID()

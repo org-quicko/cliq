@@ -8,7 +8,7 @@ import {
 	Min,
 	IsDate,
 } from 'class-validator';
-import { UtmParams } from 'src/entities/utmParams';
+import { UtmParams } from 'src/classes';
 
 export class PurchaseDto {
 	@Expose({ name: 'purchase_id' })

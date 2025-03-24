@@ -30,6 +30,7 @@ import { getReportFileName, getStartEndDate } from 'src/utils';
 import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
 import { Response } from 'express';
 import { SkipTransform } from 'src/decorators/skipTransform.decorator';
+import { SkipPermissions } from 'src/decorators/skipPermissions.decorator';
 
 @ApiTags('Program')
 @Controller('/programs')
@@ -90,7 +91,8 @@ export class ProgramController {
    * Get program
    */
   @ApiResponse({ status: undefined, description: '' })
-  @Permissions('read', Program)
+  // @Permissions('read', Program)
+  @SkipPermissions()
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {
     this.logger.info('START: getProgram controller');

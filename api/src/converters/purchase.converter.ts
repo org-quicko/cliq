@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PurchaseDto } from '../dtos';
 import { Promoter, Purchase } from '../entities';
-import { PromoterInterfaceWorkbook, PurchaseRow, PurchaseSheet, PurchasesRow, PurchasesSummaryList, PurchasesTable, PurchaseTable, PurchaseWorkbook, PwPurchasesSheet, PwSummarySheet } from 'generated/sources';
 import { maskInfo } from 'src/utils';
 import { formatDate } from 'src/utils';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
 import { JSONObject } from '@org.quicko/core';
+import { PurchaseRow, PromoterInterfaceWorkbook, PurchaseTable, PurchaseSheet } from 'generated/sources/PromoterInterface';
+import { PurchaseWorkbook, PwPurchasesSheet, PurchasesTable, PurchasesRow, PwSummarySheet, PurchasesSummaryList } from 'generated/sources/Purchase';
 
 @Injectable()
 export class PurchaseConverter {

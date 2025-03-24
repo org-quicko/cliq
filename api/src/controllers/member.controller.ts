@@ -42,15 +42,21 @@ export class MemberController {
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
 	@Post('login')
-	async login(@Body() body: any) {
+	async login(
+		@Param('program_id') programId: string, 
+		@Body() body: any,
+	) {
 		this.logger.info('START: login controller');
 
 		const transformedBody = plainToInstance(MemberDto, body);
 
-		const result = await this.memberAuthService.authenticateMember({
-			email: transformedBody.email,
-			password: transformedBody.password,
-		});
+		const result = await this.memberAuthService.authenticateMember(
+			programId,
+			{
+				email: transformedBody.email,
+				password: transformedBody.password,
+			}
+		);
 
 		this.logger.info('END: login controller');
 		return { message: 'Successfully logged in member.', result };
@@ -130,5 +136,22 @@ export class MemberController {
 
 		this.logger.info('END: leavePromoter controller');
 		return { message: `Successfully left promoter ${promoterId}.`, result };
+	}
+
+	/**
+	* Get promoter of member.
+	* Given that a member can only be part of one promoter inside a given program (thus every member ID) is
+	* associated with only one promoter.
+	*/
+	@ApiResponse({ status: 200, description: 'OK' })
+	@UseGuards(AuthGuard, PermissionsGuard)
+	@Get(':member_id/promoter')
+	async getPromoterOfMember(@Param('member_id') memberId: string) {
+		this.logger.info('START: getPromoterOfMemberInProgram controller');
+
+		const result = await this.memberService.getPromoterOfMember(memberId);
+
+		this.logger.info('END: getPromoterOfMemberInProgram controller');
+		return { message: `Successfully fetched promoter of Member ${memberId}.`, result };
 	}
 }

@@ -13,6 +13,8 @@ import { MemberService } from '../services/member.service';
 import { LoggerService } from '../services/logger.service';
 import { audienceEnum } from 'src/enums/audience.enum';
 import { ApiKeyGuard } from './apiKey.guard';
+import { Reflector } from '@nestjs/core';
+import { SKIP_PERMISSIONS_KEY } from 'src/decorators/skipPermissions.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -21,15 +23,24 @@ export class AuthGuard implements CanActivate {
 		private userService: UserService,
 		private memberService: MemberService,
 
-		private apiKeyGuard: ApiKeyGuard, 
+		private apiKeyGuard: ApiKeyGuard,
+
+		private readonly reflector: Reflector,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	async canActivate(context: ExecutionContext) {
 		this.logger.info(`START: canActivate function - AuthGuard`);
 
 		const request: Request = context.switchToHttp().getRequest();
+
+		const skipPermissions = this.reflector.getAllAndOverride<boolean>(
+			SKIP_PERMISSIONS_KEY,
+			[context.getHandler(), context.getClass()],
+		);
+
+		if (skipPermissions) return true;
 
 		const key: string = request.headers['x-api-key'] as string;
 		const secret: string = request.headers['x-api-secret'] as string;
@@ -40,9 +51,9 @@ export class AuthGuard implements CanActivate {
 
 		const authorization = request.headers.authorization;
 		if (!authorization) {
-			this.logger.error('Missing authentication token and API key');
+			this.logger.error('Missing authentication token');
 			throw new UnauthorizedException(
-				'Missing authentication token and API key',
+				'Missing authentication token',
 			);
 		}
 

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { SignUpDto } from '../dtos';
 import { Promoter, SignUp } from '../entities';
-import { PromoterInterfaceWorkbook, SignupRow, SignupSheet, SignupsRow, SignupsSummaryList, SignupTable, SignUpWorkbook, SwSignupsSheet, SwSummarySheet } from 'generated/sources';
 import { maskInfo } from 'src/utils';
-import { SignupsTable } from '../../generated/sources/tables/signups-table/SignupsTable';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
 import { JSONObject } from '@org.quicko/core';
+import { SignupsRow, SignupsSummaryList, SignupsTable, SignUpWorkbook, SwSignupsSheet, SwSummarySheet } from 'generated/sources/SignUp';
+import { SignupRow, PromoterInterfaceWorkbook, SignupTable, SignupSheet } from 'generated/sources/PromoterInterface';
 
 @Injectable()
 export class SignUpConverter {

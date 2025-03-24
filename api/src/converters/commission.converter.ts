@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CommissionDto } from '../dtos';
 import { Commission, Promoter, Purchase, SignUp } from '../entities';
-import { CommissionRow, CommissionsSheet, CommissionsSummaryList, CommissionTable, CommissionWorkbook, CwPurchasesSheet, CwSignupsSheet, CwSummarySheet, PromoterInterfaceWorkbook, PurchaseCommissionsRow, PurchaseCommissionsTable, SignupCommissionsRow, SignupCommissionsTable } from 'generated/sources';
 import { conversionTypeEnum } from 'src/enums';
 import { maskInfo } from 'src/utils';
 import { formatDate } from 'src/utils';
+import { CommissionWorkbook, CwPurchasesSheet, PurchaseCommissionsTable, PurchaseCommissionsRow, CwSignupsSheet, SignupCommissionsTable, SignupCommissionsRow, CwSummarySheet, CommissionsSummaryList } from 'generated/sources/Commission';
+import { CommissionRow, PromoterInterfaceWorkbook, CommissionTable, CommissionsSheet } from 'generated/sources/PromoterInterface';
 
 @Injectable()
 export class CommissionConverter {

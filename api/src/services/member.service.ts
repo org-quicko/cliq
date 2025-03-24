@@ -10,6 +10,7 @@ import { Member, PromoterMember } from 'src/entities';
 import { Repository, FindOptionsRelations } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { roleEnum, statusEnum } from 'src/enums';
+import { PromoterConverter } from 'src/converters/promoter.converter';
 
 @Injectable()
 export class MemberService {
@@ -21,6 +22,8 @@ export class MemberService {
 		private readonly promoterMemberRepository: Repository<PromoterMember>,
 
 		private memberConverter: MemberConverter,
+		private promoterConverter: PromoterConverter,
+
 		private logger: LoggerService,
 	) { }
 
@@ -113,10 +116,15 @@ export class MemberService {
 		return memberResult;
 	}
 
-	async getMemberByEmail(email: string): Promise<Member | null> {
+	async getMemberByEmail(programId: string, email: string): Promise<Member | null> {
 		this.logger.info('START: getMemberByEmail service');
 		const memberResult = await this.memberRepository.findOne({
-			where: { email: email },
+			where: { 
+				email,
+				program: {
+					programId
+				},
+			},
 			relations: { promoterMembers: true },
 		});
 		this.logger.info('END: getMemberByEmail service');
@@ -207,6 +215,28 @@ export class MemberService {
 		});
 
 		this.logger.info(`START: leavePromoter service`);
+	}
+
+	async getPromoterOfMember(memberId: string) {
+		this.logger.info(`START: getPromoterOfMember service`);
+
+		const promoterMemberResult = await this.promoterMemberRepository.findOne({
+			where: {
+				memberId,
+			},
+			relations: {
+				promoter: true,
+			},
+		});
+
+		if (!promoterMemberResult) {
+			this.logger.error(`Error. Member ${memberId} isn't part of any promoter!`);
+			throw new NotFoundException(`Error. Member ${memberId} isn't part of any promoter!`);
+		}
+		const promoterDto = this.promoterConverter.convert(promoterMemberResult.promoter);
+
+		this.logger.info(`END: getPromoterOfMember service`);
+		return promoterDto;
 	}
 
 	private async canLeavePromoter(promoterId: string, memberId: string) {

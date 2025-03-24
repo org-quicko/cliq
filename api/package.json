@@ -9,7 +9,7 @@
     "build": "nest build",
     "clean": "npm cache clean --force",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "install-snapshot": "npm --userconfig ~/npmrc/snapshot.npmrc install",
+    "install-snapshot": "npm --userconfig ~/npmrc/snapshot.npmrc install && npm run generate",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -21,8 +21,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "generate": "npm run generateSchema && npm run generateObjects",
-    "generateSchema": "excel-to-schema --input ../resources/excel/PromoterInterfaceWorkbook.xlsx --output ./generated/schemas/PromoterInterfaceWorkbook.json",
-    "generateObjects": "schema-to-objects --input ./generated/schemas/PromoterInterfaceWorkbook.json --output ./generated/sources"
+    "generateSchema": "excel-to-schema --input ./resources/excel/ --output ./generated/schemas/",
+    "generateObjects": "schema-to-objects --input ./generated/schemas/ --output ./generated/sources"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
@@ -61,7 +61,8 @@
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
     "@org.quicko/postman-to-openapi-generator": "1.0.0-SNAPSHOT",
-    "@org.quicko/sheet-generator": "^6.0.4-SNAPSHOT",
+    "@org.quicko/openapi-to-nestjs-generator": "1.0.0-SNAPSHOT",
+    "@org.quicko/sheet-generator": "^6.0.2-RC",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
     "@types/bcrypt": "^5.0.2",

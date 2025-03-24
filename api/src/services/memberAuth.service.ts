@@ -19,9 +19,9 @@ export class MemberAuthService {
 		private logger: LoggerService,
 	) {}
 
-	async authenticateMember(input: AuthInput): Promise<AuthResult> {
+	async authenticateMember(programId: string, input: AuthInput): Promise<AuthResult> {
 		this.logger.info(`START: authenticateMember service`);
-		const entity = await this.validateMember(input);
+		const entity = await this.validateMember(programId, input);
 
 		if (!entity) {
 			throw new UnauthorizedException({
@@ -36,10 +36,11 @@ export class MemberAuthService {
 		return authResult;
 	}
 
-	async validateMember(input: AuthInput): Promise<MemberLoginData | null> {
+	async validateMember(programId: string, input: AuthInput): Promise<MemberLoginData | null> {
 		this.logger.info(`START: validateMember service`);
 
 		const entity: Member | null = await this.memberService.getMemberByEmail(
+			programId,
 			input.email,
 		);
 

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { MemberDto } from '../dtos';
 import { Member, PromoterMember } from '../entities';
-import { MemberRow, MemberSheet, MemberTable, PromoterInterfaceWorkbook } from 'generated/sources';
 import { formatDate } from 'src/utils';
 import { JSONObject } from '@org.quicko/core';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
+import { MemberRow, PromoterInterfaceWorkbook, MemberTable, MemberSheet } from 'generated/sources/PromoterInterface';
 
 @Injectable()
 export class MemberConverter {

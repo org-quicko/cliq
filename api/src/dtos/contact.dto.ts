@@ -1,7 +1,7 @@
-import { PartialType } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
 import { IsDate, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { contactStatusEnum } from '../enums';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class ContactDto {
 	@Expose({ name: 'contact_id' })

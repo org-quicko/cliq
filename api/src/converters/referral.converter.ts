@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PromoterInterfaceWorkbook, ReferralAggregateRow, ReferralAggregateSheet, ReferralAggregateTable, ReferralRow, ReferralSheet, ReferralTable } from "generated/sources";
+import { ReferralRow, PromoterInterfaceWorkbook, ReferralTable, ReferralSheet, ReferralAggregateRow, ReferralAggregateTable, ReferralAggregateSheet } from "generated/sources/PromoterInterface";
 import { ReferralView, ReferralAggregateView } from "src/entities";
 import { maskInfo } from "src/utils";
 import { formatDate } from "src/utils/formatDate.util";

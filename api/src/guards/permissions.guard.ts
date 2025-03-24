@@ -31,9 +31,7 @@ export class PermissionsGuard implements CanActivate {
 	) { }
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const requiredPermissions = this.reflector.get<
-			{ action: actionsType; subject: subjectsType }[]
-		>(CHECK_PERMISSIONS_KEY, context.getHandler());
+		const requiredPermissions = this.reflector.get<{ action: actionsType; subject: subjectsType }[]>(CHECK_PERMISSIONS_KEY, context.getHandler());
 
 		if (!requiredPermissions) {
 			return true; // No permissions required, allow access

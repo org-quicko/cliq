@@ -31,11 +31,11 @@ import { LoggerService } from './logger.service';
 import { SignUpConverter } from 'src/converters/signUp.converter';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { ProgramWorkbook } from 'generated/sources';
 import * as XLSX from 'xlsx';
 import { defaultQueryOptions } from 'src/constants';
 import { snakeCaseToHumanReadable } from 'src/utils';
 import { CircleService } from './circle.service';
+import { ProgramWorkbook } from 'generated/sources/Program';
 
 @Injectable()
 export class ProgramService {

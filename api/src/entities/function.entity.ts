@@ -13,8 +13,8 @@ import { Program } from './program.entity';
 // import { Condition } from './condition';
 import { effectEnum, triggerEnum } from '../enums';
 import { Condition } from './condition.entity';
-import { Effect } from './effect';
 import { functionStatusEnum } from 'src/enums/functionStatus.enum';
+import { Effect } from 'src/classes';
 
 @Entity()
 export class Function {
