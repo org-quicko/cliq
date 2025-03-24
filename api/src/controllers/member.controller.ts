@@ -48,7 +48,7 @@ export class MemberController {
 	) {
 		this.logger.info('START: login controller');
 
-		const transformedBody = plainToInstance(MemberDto, body);
+		const transformedBody = plainToInstance(CreateMemberDto, body);
 
 		const result = await this.memberAuthService.authenticateMember(
 			programId,

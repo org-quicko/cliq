@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityNotFoundError } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from '../dtos';
@@ -34,23 +34,27 @@ export class UserService {
 	 * User sign up
 	 */
 	async userSignUp(body: CreateUserDto) {
-		this.logger.info('START: userSignUp service');
-
-		const userEntity = this.userRepository.create(body);
-
-		if (await this.isFirstUserSignUp()) {
-			userEntity.role = roleEnum.SUPER_ADMIN;
+		try {
+			this.logger.info('START: userSignUp service');
+	
+			const userEntity = this.userRepository.create(body);
+	
+			if (await this.isFirstUserSignUp()) {
+				userEntity.role = roleEnum.SUPER_ADMIN;
+			}
+	
+			// has to be saved as an entity otherwise password hashing won't be triggered
+			const newUser = await this.userRepository.save(userEntity);
+	
+			this.logger.info('END: userSignUp service');
+			return this.userConverter.convert(newUser);
+		
+		} catch (error) {
+			if (error instanceof Error) {
+				this.logger.error(error.message);
+				throw new InternalServerErrorException(error.message);
+			}
 		}
-
-		// has to be saved as an entity otherwise password hashing won't be triggered
-		const newUser = await this.userRepository.save(userEntity);
-
-		if (!newUser) {
-			throw new Error('Failed to sign up user.');
-		}
-
-		this.logger.info('END: userSignUp service');
-		return newUser;
 	}
 
 	/**

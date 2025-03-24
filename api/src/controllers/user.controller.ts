@@ -42,7 +42,7 @@ export class UserController {
 	async login(@Body() body: any) {
 		this.logger.info('START: login controller');
 
-		const transformedBody = plainToInstance(UserDto, body);
+		const transformedBody = plainToInstance(CreateUserDto, body);
 
 		const result = await this.userAuthService.authenticateUser({
 			email: transformedBody.email,

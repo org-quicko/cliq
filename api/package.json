@@ -22,7 +22,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "generate": "npm run generateSchema && npm run generateObjects",
     "generateSchema": "excel-to-schema --input ./resources/excel/ --output ./generated/schemas/",
-    "generateObjects": "schema-to-objects --input ./generated/schemas/ --output ./generated/sources"
+    "generateObjects": "schema-to-objects --input ./generated/schemas/ --output ./generated/sources",
+    "postman-to-openapi": "postman-to-openapi -i <path-to-postman-collection>",
+    "openapi-to-nestjs": "openapi-to-nestjs --input ./generated/openapi/openapi.json --output ./src"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
@@ -60,8 +62,8 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
-    "@org.quicko/postman-to-openapi-generator": "1.0.0-SNAPSHOT",
-    "@org.quicko/openapi-to-nestjs-generator": "1.0.0-SNAPSHOT",
+    "@org.quicko/postman-to-openapi-generator": "^1.0.0-alpha.0",
+    "@org.quicko/openapi-to-nestjs-generator": "^1.0.0-SNAPSHOT",
     "@org.quicko/sheet-generator": "^6.0.2-RC",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",

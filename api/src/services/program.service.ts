@@ -481,7 +481,7 @@ export class ProgramService {
 		// will throw error if user isn't in the program
 		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
 			this.logger.error(
-				`User does not have permission to perform this action!`,
+				`User does not have permission to perform this action! Not part of this program!`,
 			);
 			throw new ForbiddenException(`Forbidden Resource`);
 		}
@@ -527,7 +527,7 @@ export class ProgramService {
 
 		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
 			this.logger.error(
-				`User does not have permission to perform this action!`,
+				`User does not have permission to perform this action! Not part of this program!`,
 			);
 			throw new ForbiddenException(`Forbidden Resource`);
 		}
@@ -583,7 +583,7 @@ export class ProgramService {
 		// will throw error if user isn't in the program
 		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
 			this.logger.error(
-				`User does not have permission to perform this action!`,
+				`User does not have permission to perform this action! Not part of this program!`,
 			);
 			throw new ForbiddenException(`Forbidden Resource`);
 		}

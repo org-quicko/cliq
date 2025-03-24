@@ -290,6 +290,8 @@ export class AuthorizationService {
                         subjectProgramId,
                     );
                 } else if (subject === Function) {
+                    if (action === 'create') return subject;
+                    
                     if (!subjectProgramId) {
                         throw new BadRequestException(
                             `Error. Must provide Program ID for performing action on object.`,

@@ -11,9 +11,6 @@ export class UserDto {
 	@IsString()
 	email: string;
 
-	@IsString()
-	password: string;
-
 	@Expose({ name: 'first_name' })
 	@IsString()
 	firstName: string;
@@ -50,12 +47,14 @@ export class CreateUserDto {
 	password: string;
 
 	@Expose({ name: 'first_name' })
+	@IsOptional()
 	@IsString()
-	firstName: string;
-
+	firstName?: string;
+	
 	@Expose({ name: 'last_name' })
+	@IsOptional()
 	@IsString()
-	lastName: string;
+	lastName?: string;
 
 	@IsOptional()
 	@IsEnum(roleEnum)

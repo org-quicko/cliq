@@ -18,9 +18,6 @@ export class MemberDto {
 	@IsEmail()
 	email: string;
 
-	@IsString()
-	password: string;
-
 	@Expose({ name: 'first_name' })
 	@IsString()
 	firstName: string;
@@ -54,12 +51,14 @@ export class CreateMemberDto {
 	password: string;
 
 	@Expose({ name: 'first_name' })
+	@IsOptional()
 	@IsString()
-	firstName: string;
-
+	firstName?: string;
+	
 	@Expose({ name: 'last_name' })
+	@IsOptional()
 	@IsString()
-	lastName: string;
+	lastName?: string;
 }
 
 export class UpdateMemberDto extends PartialType(CreateMemberDto) {}

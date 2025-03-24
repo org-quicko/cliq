@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FunctionService } from '../services/function.service';
 import { CreateFunctionDto, UpdateFunctionDto } from '../dtos';
@@ -26,12 +26,14 @@ export class FunctionController {
 	@Permissions('create', Function)
 	@Post()
 	async createFunction(
+		@Headers('user_id') userId: string,
 		@Param('program_id') programId: string,
 		@Body() body: CreateFunctionDto,
 	) {
 		this.logger.info('START: createFunction controller');
 
 		const result = await this.functionService.createFunction(
+			userId,
 			programId,
 			body,
 		);

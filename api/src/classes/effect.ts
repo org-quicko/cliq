@@ -10,7 +10,7 @@ import {
 import { Expose, Type } from 'class-transformer';
 import { commissionTypeEnum } from '../enums/commissionType.enum';
 
-export class PercentageCommissionEffect {
+export class PercentageCommission {
 	@Expose({ name: 'commission_type' })
 	@IsEnum(commissionTypeEnum)
 	commissionType: commissionTypeEnum.PERCENTAGE;
@@ -22,7 +22,7 @@ export class PercentageCommissionEffect {
 	commissionValue: number;
 }
 
-export class FixedCommissionEffect {
+export class FixedCommission {
 	@Expose({ name: 'commission_type' })
 	@IsEnum(commissionTypeEnum)
 	commissionType: commissionTypeEnum.FIXED;
@@ -41,18 +41,18 @@ export class GenerateCommissionEffect {
 			property: 'commission_type',
 			subTypes: [
 				{
-					value: PercentageCommissionEffect,
+					value: PercentageCommission,
 					name: commissionTypeEnum.PERCENTAGE,
 				},
 				{
-					value: FixedCommissionEffect,
+					value: FixedCommission,
 					name: commissionTypeEnum.FIXED,
 				},
 			],
 		},
 		keepDiscriminatorProperty: true,
 	})
-	commission: PercentageCommissionEffect | FixedCommissionEffect;
+	commission: PercentageCommission | FixedCommission;
 }
 
 export class SwitchCircleEffect {

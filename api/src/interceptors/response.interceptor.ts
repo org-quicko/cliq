@@ -33,31 +33,11 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response> {
 				const response = {
 					code: context.switchToHttp().getResponse().statusCode,
 					message: data.message,
-					data: this.instanceToPlainNested(data.result),
+					data: instanceToPlain(data.result),
 				};
 
 				return response as any;
 			}),
 		);
 	}
-
-	private instanceToPlainNested(obj: any) {
-		if (obj instanceof Date) {
-			return instanceToPlain(obj);
-		}
-
-		if (Array.isArray(obj)) {
-			return obj.map(item => this.instanceToPlainNested(item));
-		} else if (obj !== null && typeof obj === 'object') {
-			return Object.fromEntries(
-				Object.entries(obj).map(([key, value]) => [
-					snakeCase(key),
-					this.instanceToPlainNested(value),
-				])
-			);
-		}
-
-		return instanceToPlain(obj);
-	}
-
 }

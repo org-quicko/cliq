@@ -35,7 +35,7 @@ export class ApiKeyService {
 			!this.programService.checkIfUserExistsInProgram(programId, userId)
 		) {
 			this.logger.error(
-				`User ${userId} does not have permission to perform this action!`,
+				`User ${userId} does not have permission to perform this action! Not part of this program!`,
 			);
 			throw new ForbiddenException(`Forbidden Resource`);
 		}

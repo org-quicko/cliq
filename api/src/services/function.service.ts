@@ -1,10 +1,11 @@
 import {
 	Injectable,
 	NotFoundException,
+	UnauthorizedException,
 } from '@nestjs/common';
 import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, FindOptionsWhere } from 'typeorm';
+import { Repository, DataSource, FindOptionsWhere, EntityManager } from 'typeorm';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import {
 	Condition,
@@ -36,9 +37,14 @@ export class FunctionService {
 	/**
 	 * Create function
 	 */
-	async createFunction(programId: string, body: CreateFunctionDto) {
+	async createFunction(userId: string, programId: string, body: CreateFunctionDto) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: createFunction service');
+
+			if (!await this.programService.checkIfUserExistsInProgram(programId, userId)) {
+				this.logger.error(`User does not have permission to perform this action! Not part of this program!`);
+				throw new UnauthorizedException(`User does not have permission to perform this action! Not part of this program!`);
+			}
 
 			const programResult = await this.programService.getProgramEntity(programId);
 			const circleResult = await this.circleService.getCircleEntity(
@@ -91,8 +97,11 @@ export class FunctionService {
 				conditions,
 			});
 
+			
 			const savedFunction = await functionRepository.save(newFunction);
 			const functionDto = this.functionConverter.convert(savedFunction);
+			
+			console.log(savedFunction, functionDto);
 
 			this.logger.info('END: createFunction service');
 			return functionDto;
@@ -171,7 +180,7 @@ export class FunctionService {
 	}
 
 	async getFirstFunctionOfProgram(programId: string) {
-		this.logger.info('START: getRandomFunction service');
+		this.logger.info('START: getFirstFunctionOfProgram service');
 
 		const functionResult = await this.functionRepository.findOne({
 			where: {
@@ -181,11 +190,11 @@ export class FunctionService {
 
 		if (!functionResult) {
 			throw new NotFoundException(
-				`Error. Failed to get random function for Program ID: ${programId}.`,
+				`Error. Failed to get first function for Program ID: ${programId}.`,
 			);
 		}
 
-		this.logger.info('END: getRandomFunction service');
+		this.logger.info('END: getFirstFunctionOfProgram service');
 		return functionResult;
 	}
 
