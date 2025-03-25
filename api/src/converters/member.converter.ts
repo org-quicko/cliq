@@ -5,7 +5,7 @@ import { formatDate } from 'src/utils';
 import { JSONObject } from '@org.quicko/core';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
-import { MemberRow, PromoterInterfaceWorkbook, MemberTable, MemberSheet } from 'generated/sources/PromoterInterface';
+import { MemberRow, MemberSheet, MemberTable, PromoterWorkbook } from 'generated/sources/Promoter';
 
 @Injectable()
 export class MemberConverter {
@@ -39,7 +39,7 @@ export class MemberConverter {
 		return row;
 	}
 
-	convertToSheetJson(promoterMembers: PromoterMember[], promoterId: string, queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterInterfaceWorkbook {
+	convertToSheetJson(promoterMembers: PromoterMember[], promoterId: string, queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterWorkbook {
 
 		const memberTable = new MemberTable();
 		promoterMembers.forEach((promoterMember) => {
@@ -56,7 +56,7 @@ export class MemberConverter {
 		const membersSheet = new MemberSheet();
 		membersSheet.addMemberTable(memberTable);
 
-		const promoterWorkbook = new PromoterInterfaceWorkbook();
+		const promoterWorkbook = new PromoterWorkbook();
 		promoterWorkbook.addSheet(membersSheet);
 
 		return promoterWorkbook;

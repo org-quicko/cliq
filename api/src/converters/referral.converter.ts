@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { ReferralRow, PromoterInterfaceWorkbook, ReferralTable, ReferralSheet, ReferralAggregateRow, ReferralAggregateTable, ReferralAggregateSheet } from "generated/sources/PromoterInterface";
+import { PromoterWorkbook, ReferralRow, ReferralSheet, ReferralSummaryRow, ReferralSummarySheet, ReferralSummaryTable, ReferralTable } from "generated/sources/Promoter";
 import { ReferralView, ReferralAggregateView } from "src/entities";
 import { maskInfo } from "src/utils";
 import { formatDate } from "src/utils/formatDate.util";
@@ -21,7 +21,7 @@ export class ReferralConverter {
         return newReferralRow;
     }
 
-    convertReferralViewToSheet(referrals: ReferralView[]): PromoterInterfaceWorkbook {
+    convertReferralViewToSheet(referrals: ReferralView[]): PromoterWorkbook {
         const newReferralTable = new ReferralTable();
         referrals.forEach((referral) => {
             const newReferralRow = this.getReferralViewSheetRow(referral);
@@ -31,38 +31,32 @@ export class ReferralConverter {
         const referralSheet = new ReferralSheet();
         referralSheet.addReferralTable(newReferralTable);
 
-        const promoterWorkbook = new PromoterInterfaceWorkbook();
+        const promoterWorkbook = new PromoterWorkbook();
         promoterWorkbook.addSheet(referralSheet);
 
         return promoterWorkbook;
     }
 
-    private getReferralAggregateViewSheetRow(referralAgg: ReferralAggregateView): ReferralAggregateRow {
-
-        const newReferralAggregateRow = new ReferralAggregateRow([]);
-
-        newReferralAggregateRow.setProgramId(referralAgg.programId);
-        newReferralAggregateRow.setPromoterId(referralAgg.promoterId);
-        newReferralAggregateRow.setTotalSignups(Number(referralAgg.totalSignUps));
-        newReferralAggregateRow.setTotalPurchases(Number(referralAgg.totalPurchases));
-        newReferralAggregateRow.setTotalRevenue(Number(referralAgg.totalRevenue));
-        newReferralAggregateRow.setTotalCommission(Number(referralAgg.totalCommission));
-
-        return newReferralAggregateRow;
-    }
-
-    convertReferralAggregateViewToSheet(referralAggs: ReferralAggregateView[]): PromoterInterfaceWorkbook {
-        const newReferralAggregateTable = new ReferralAggregateTable();
+    convertReferralAggregateViewToSheet(referralAggs: ReferralAggregateView[]): PromoterWorkbook {
+        const newReferralSummaryTable = new ReferralSummaryTable();
 
         referralAggs.forEach((referralAgg) => {
-            const newReferralAggregateRow = this.getReferralAggregateViewSheetRow(referralAgg);
-            newReferralAggregateTable.addRow(newReferralAggregateRow);
+            const row = new ReferralSummaryRow([]);
+
+            row.setProgramId(referralAgg.programId);
+            row.setPromoterId(referralAgg.promoterId);
+            row.setTotalSignups(Number(referralAgg.totalSignUps));
+            row.setTotalPurchases(Number(referralAgg.totalPurchases));
+            row.setTotalRevenue(Number(referralAgg.totalRevenue));
+            row.setTotalCommission(Number(referralAgg.totalCommission));
+
+            newReferralSummaryTable.addRow(row);
         });
 
-        const referralAggregateSheet = new ReferralAggregateSheet();
-        referralAggregateSheet.addReferralAggregateTable(newReferralAggregateTable);
+        const referralAggregateSheet = new ReferralSummarySheet();
+        referralAggregateSheet.addReferralSummaryTable(newReferralSummaryTable);
 
-        const promoterWorkbook = new PromoterInterfaceWorkbook();
+        const promoterWorkbook = new PromoterWorkbook();
         promoterWorkbook.addSheet(referralAggregateSheet);
 
         return promoterWorkbook;

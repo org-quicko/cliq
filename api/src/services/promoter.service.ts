@@ -46,10 +46,10 @@ import { ReferralConverter } from '../converters/referral.converter';
 import { LinkConverter } from '../converters/link.converter';
 import { defaultQueryOptions } from '../constants';
 import { snakeCaseToHumanReadable } from '../utils';
+import { SignUpWorkbook } from 'generated/sources/SignUp';
+import { PromoterWorkbook } from 'generated/sources/Promoter';
 import { CommissionWorkbook } from 'generated/sources/Commission';
 import { LinkWorkbook } from 'generated/sources/Link';
-import { PromoterInterfaceWorkbook } from 'generated/sources/PromoterInterface';
-import { SignUpWorkbook } from 'generated/sources/SignUp';
 
 @Injectable()
 export class PromoterService {
@@ -468,9 +468,6 @@ export class PromoterService {
 			this.logger.warn(
 				`failed to get signups for promoter ${promoterId}`,
 			);
-			throw new NotFoundException(
-				`No signups found for promoter ${promoterId}`,
-			);
 		}
 
 		if (toUseSheetJsonFormat) {
@@ -512,12 +509,9 @@ export class PromoterService {
 			.take(queryOptions.take)
 			.getMany();
 
-		if (!contacts || contacts.length === 0) {
+		if (!contacts) {
 			this.logger.warn(
 				`failed to get contacts for promoter ${promoterId}`,
-			);
-			throw new NotFoundException(
-				`No contacts found for promoter ${promoterId}`,
 			);
 		}
 
@@ -658,19 +652,19 @@ export class PromoterService {
 			this.logger.warn(
 				`failed to get commissions for promoter ${promoterId}`,
 			);
-			throw new NotFoundException(
-				`No commissions found for promoter ${promoterId}`,
-			);
+			// throw new NotFoundException(
+			// 	`No commissions found for promoter ${promoterId}`,
+			// );
 		}
 
 		if (toUseSheetJsonFormat) {
-			const commissionSheetJson = this.commissionConverter.convertToSheet(promoterResult.commissions);
+			const commissionSheetJson = this.commissionConverter.convertToSheet(promoterResult?.commissions ?? []);
 
 			this.logger.info(`END: getPromoterCommissions service: Returning Workbook`);
 			return commissionSheetJson;
 		}
 
-		const commissionDtos = promoterResult.commissions.map((commission) =>
+		const commissionDtos = promoterResult?.commissions.map((commission) =>
 			this.commissionConverter.convert(commission),
 		);
 
@@ -701,8 +695,8 @@ export class PromoterService {
 
 		const signUpSheetJsonWorkbook = this.signUpConverter.convertToReportWorkbook(signUpsResult, promoterResult, startDate, endDate);
 
-		const signUpsTable = signUpSheetJsonWorkbook.getSwSignups().getSignupsTable();
-		const signUpSummaryList = signUpSheetJsonWorkbook.getSwSummary().getSignupsSummaryList();
+		const signUpsTable = signUpSheetJsonWorkbook.getSignupSheet().getSignupTable();
+		const signUpSummaryList = signUpSheetJsonWorkbook.getSignupSummarySheet().getSignupSummaryList();
 
 		const workbook = SignUpWorkbook.toXlsx();
 		const signUpsSheetData: any[] = [snakeCaseToHumanReadable(signUpsTable.getHeader())];
@@ -752,8 +746,8 @@ export class PromoterService {
 
 		const purchaseSheetJsonWorkbook = this.purchaseConverter.convertToReportWorkbook(purchasesResult, promoterResult, startDate, endDate);
 
-		const purchasesTable = purchaseSheetJsonWorkbook.getPwPurchases().getPurchasesTable();
-		const purchaseSummaryList = purchaseSheetJsonWorkbook.getPwSummary().getPurchasesSummaryList();
+		const purchasesTable = purchaseSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
+		const purchaseSummaryList = purchaseSheetJsonWorkbook.getPurchaseSummarySheet().getPurchaseSummaryList();
 
 		const workbook = SignUpWorkbook.toXlsx();
 		const purchasesSheetData: any[] = [snakeCaseToHumanReadable(purchasesTable.getHeader())];
@@ -798,11 +792,11 @@ export class PromoterService {
 			})
 		};
 
-		const referralsResult = await this.getPromoterReferrals(programId, promoterId, undefined, undefined, true, filter) as PromoterInterfaceWorkbook;
+		const referralsResult = await this.getPromoterReferrals(programId, promoterId, undefined, undefined, true, filter) as PromoterWorkbook;
 
 		const referralTable = referralsResult.getReferralSheet().getReferralTable();
 
-		const workbook = PromoterInterfaceWorkbook.toXlsx();
+		const workbook = PromoterWorkbook.toXlsx();
 		const sheetData: any[] = [snakeCaseToHumanReadable(referralTable.getHeader())];
 
 		referralTable.getRows().map(row => {
@@ -841,9 +835,9 @@ export class PromoterService {
 		const commissionSheetJsonWorkbook = this.commissionConverter.convertToReportWorkbook(signUpsResult, purchasesResult, promoterResult, startDate, endDate);
 
 		// get both tables and the list
-		const purchasesTable = commissionSheetJsonWorkbook.getCwPurchases().getPurchaseCommissionsTable();
-		const signUpsTable = commissionSheetJsonWorkbook.getCwSignups().getSignupCommissionsTable();
-		const commissionSummaryList = commissionSheetJsonWorkbook.getCwSummary().getCommissionsSummaryList();
+		const purchasesTable = commissionSheetJsonWorkbook.getPurchaseSheet().getPurchaseCommissionTable();
+		const signUpsTable = commissionSheetJsonWorkbook.getSignupSheet().getSignupCommissionTable();
+		const commissionSummaryList = commissionSheetJsonWorkbook.getCommissionSummarySheet().getCommissionSummaryList();
 
 		const workbook = CommissionWorkbook.toXlsx();
 
@@ -917,8 +911,8 @@ export class PromoterService {
 		const workbook = LinkWorkbook.toXlsx();
 
 		// getting table and list
-		const linksTable = linkSheetJsonWorkbook.getLwLinks().getLinksTable();
-		const linkSummaryList = linkSheetJsonWorkbook.getLwSummary().getLinkSummaryList();
+		const linksTable = linkSheetJsonWorkbook.getLinkSheet().getLinkTable();
+		const linkSummaryList = linkSheetJsonWorkbook.getLinkSummarySheet().getLinkSummaryList();
 
 		const linksSheetData: any[] = [snakeCaseToHumanReadable(linksTable.getHeader())];
 		const linksSummarySheetData: any[] = [];

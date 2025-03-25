@@ -665,28 +665,37 @@ export class ProgramService {
 			.createQueryBuilder("program")
 			.leftJoinAndSelect("program.programPromoters", "programPromoters")
 			.leftJoinAndSelect("programPromoters.promoter", "promoter")
-			.leftJoinAndSelect("promoter.signUps", "signUps")
-			.leftJoinAndSelect("promoter.purchases", "purchases")
-			.leftJoinAndSelect("promoter.commissions", "commissions")
+			.leftJoinAndSelect(
+				"promoter.signUps",
+				"signUps",
+				"signUps.createdAt BETWEEN :start AND :end"
+			)
+			.leftJoinAndSelect(
+				"promoter.purchases",
+				"purchases",
+				"purchases.createdAt BETWEEN :start AND :end"
+			)
+			.leftJoinAndSelect(
+				"promoter.commissions",
+				"commissions",
+				"commissions.createdAt BETWEEN :start AND :end"
+			)
 			.where("program.programId = :programId", { programId })
-			.andWhere("signUps.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
-			.andWhere("purchases.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() })
-			.andWhere("commissions.createdAt BETWEEN :start AND :end", { start: startDate.toISOString(), end: endDate.toISOString() });
+			.setParameters({ start: startDate.toISOString(), end: endDate.toISOString() });
 
 		const programResult = await query.getOne();
 
 		if (!programResult) {
 			this.logger.error(`Error. Failed to get report for Program ${programId} for period: ${startDate} - ${endDate}`);
-			throw new BadGatewayException(`Error. Failed to get report for Program ${programId} for period: ${startDate} - ${endDate}`);
 		}
 
-		const programSheetJsonWorkbook = this.programConverter.convertToReportWorkbook(programResult, startDate, endDate);
+		const programSheetJsonWorkbook = this.programConverter.convertToReportWorkbook(programId, programResult, startDate, endDate);
 
 		const workbook = ProgramWorkbook.toXlsx();
 
 		// get list and table
-		const programSummaryList = programSheetJsonWorkbook.getProgwSummary().getProgramSummaryList();
-		const promotersTable = programSheetJsonWorkbook.getProgwPromoters().getPromotersTable();
+		const programSummaryList = programSheetJsonWorkbook.getProgramSummarySheet().getProgramSummaryList();
+		const promotersTable = programSheetJsonWorkbook.getPromoterSheet().getPromoterTable();
 
 		// all sheets
 		const promotersSheetData: any[] = [snakeCaseToHumanReadable(promotersTable.getHeader())];

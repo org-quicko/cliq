@@ -5,8 +5,8 @@ import { LinkStatsView } from 'src/entities/linkStats.view';
 import { JSONObject } from '@org.quicko/core';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
-import { LinkWorkbook, LwLinksSheet, LinksTable, LinksRow, LwSummarySheet, LinkSummaryList } from 'generated/sources/Link';
-import { LinkStatsRow, PromoterInterfaceWorkbook, LinkStatsTable, LinkStatsSheet } from 'generated/sources/PromoterInterface';
+import { LinkStatsTable, PromoterWorkbook, LinkStatsRow, LinkStatsSheet } from 'generated/sources/Promoter';
+import { LinkRow, LinkSheet, LinkSummaryList, LinkSummarySheet, LinkTable, LinkWorkbook } from 'generated/sources/Link';
 
 @Injectable()
 export class LinkConverter {
@@ -24,30 +24,26 @@ export class LinkConverter {
 		return linkDto;
 	}
 
-	getLinkStatsViewSheetRow(linkStat: LinkStatsView): LinkStatsRow {
-		const linkStatsRow = new LinkStatsRow([]);
-
-		linkStatsRow.setLinkId(linkStat.linkId);
-		linkStatsRow.setLinkName(linkStat.name);
-		linkStatsRow.setRefVal(linkStat.refVal);
-		linkStatsRow.setPromoterId(linkStat.promoterId);
-		linkStatsRow.setSignups(Number(linkStat.signups));
-		linkStatsRow.setPurchases(Number(linkStat.purchases));
-		linkStatsRow.setCommission(Number(linkStat.commission));
-		linkStatsRow.setCreatedAt(formatDate(linkStat.createdAt));
-
-		return linkStatsRow;
-	}
-
+	/** For getting link statistics sheet inside a Promoter Workbook */
 	convertLinkStatsToSheet(linkStats: LinkStatsView[], metadata: {
 		website: string,
 		programId: string,
-	}): PromoterInterfaceWorkbook {
+	}): PromoterWorkbook {
 		const linkStatsTable = new LinkStatsTable();
 
 		linkStats.forEach((linkStat) => {
-			const linkStatsRow = this.getLinkStatsViewSheetRow(linkStat);
-			linkStatsTable.addRow(linkStatsRow);
+			const row = new LinkStatsRow([]);
+
+			row.setLinkId(linkStat.linkId);
+			row.setLinkName(linkStat.name);
+			row.setRefVal(linkStat.refVal);
+			row.setPromoterId(linkStat.promoterId);
+			row.setSignups(Number(linkStat.signups));
+			row.setPurchases(Number(linkStat.purchases));
+			row.setCommission(Number(linkStat.commission));
+			row.setCreatedAt(linkStat.createdAt.toISOString()); 
+			
+			linkStatsTable.addRow(row);
 		});
 
 		linkStatsTable.metadata = new JSONObject(metadata);
@@ -55,12 +51,13 @@ export class LinkConverter {
 		const linkStatsSheet = new LinkStatsSheet();
 		linkStatsSheet.addLinkStatsTable(linkStatsTable);
 
-		const promoterWorkbook = new PromoterInterfaceWorkbook();
+		const promoterWorkbook = new PromoterWorkbook();
 		promoterWorkbook.addLinkStatsSheet(linkStatsSheet);
 
 		return promoterWorkbook;
 	}
 
+	/** For getting link report inside Link Workbook */
 	convertToReportWorkbook(
 		links: Link[],
 		startDate: Date,
@@ -68,9 +65,9 @@ export class LinkConverter {
 	): LinkWorkbook {
 		const signUpWorkbook = new LinkWorkbook();
 
-		const linksSheet = new LwLinksSheet();
-		const linksTable = new LinksTable();
-		
+		const linksSheet = new LinkSheet();
+		const linksTable = new LinkTable();
+
 		const totalLinks = links.length;
 		let totalSignUpsCommission = 0;
 		let totalPurchasesCommission = 0;
@@ -79,7 +76,7 @@ export class LinkConverter {
 		let totalRevenue = 0;
 
 		links.forEach((link) => {
-			const row = new LinksRow([]);
+			const row = new LinkRow([]);
 
 			let signUpsCommission = 0;
 			let purchasesCommission = 0;
@@ -91,7 +88,7 @@ export class LinkConverter {
 				if (commission.conversionType === conversionTypeEnum.SIGNUP) {
 					signUpsCommission += Number(commission.amount);
 					signUps++;
-					
+
 				} else if (commission.conversionType === conversionTypeEnum.PURCHASE) {
 					purchasesCommission += Number(commission.amount);
 					purchases++;
@@ -118,9 +115,9 @@ export class LinkConverter {
 			linksTable.addRow(row);
 		});
 
-		linksSheet.addLinksTable(linksTable);
+		linksSheet.addLinkTable(linksTable);
 
-		const summarySheet = new LwSummarySheet();
+		const summarySheet = new LinkSummarySheet();
 		const linksSummaryList = new LinkSummaryList();
 
 		linksSummaryList.addFrom(formatDate(startDate));
@@ -135,8 +132,8 @@ export class LinkConverter {
 
 		summarySheet.addLinkSummaryList(linksSummaryList);
 
-		signUpWorkbook.addLwSummary(summarySheet);
-		signUpWorkbook.addLwLinks(linksSheet);
+		signUpWorkbook.addLinkSummarySheet(summarySheet);
+		signUpWorkbook.addLinkSheet(linksSheet);
 
 		return signUpWorkbook;
 

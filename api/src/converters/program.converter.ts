@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ProgramDto } from '../dtos';
 import { Program } from '../entities';
 import { LoggerService } from 'src/services/logger.service';
-import { conversionTypeEnum } from 'src/enums';
+import { conversionTypeEnum, dateFormatEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
-import { ProgramWorkbook, ProgwPromotersSheet, PromotersTable, PromotersRow, ProgwSummarySheet, ProgramSummaryList } from 'generated/sources/Program';
+import { ProgramSummaryList, ProgramSummarySheet, ProgramWorkbook, PromoterRow, PromoterSheet, PromoterTable } from 'generated/sources/Program';
 
 @Injectable()
 export class ProgramConverter {
@@ -35,74 +35,78 @@ export class ProgramConverter {
 		return programDto;
 	}
 
+	/** For getting promoters report for a program */
 	convertToReportWorkbook(
-		program: Program,
+		programId: string,
+		program: Program | null,
 		startDate: Date,
 		endDate: Date,
 	): ProgramWorkbook {
 		const programWorkbook = new ProgramWorkbook();
 
-		const promotersSheet = new ProgwPromotersSheet();
-		const promotersTable = new PromotersTable();
+		const promotersSheet = new PromoterSheet();
+		const promotersTable = new PromoterTable();
 		
 		let totalPurchases = 0;
 		let totalRevenue = 0;
 		let totalSignUps = 0;
 		let totalPurchasesCommission = 0;
 		let totalSignUpsCommission = 0;
-		const totalPromoters = program.programPromoters.length;
+		const totalPromoters = program?.programPromoters.length ?? 0;
 
-		program.programPromoters.forEach((programPromoter) => {
-			const promoter = programPromoter.promoter;
-
-			const row = new PromotersRow([]);
-
-			let signUpsCommission = 0;
-			let purchasesCommission = 0;
-			let revenue = 0;
-
-			const signUps = Number(promoter.signUps.length);
-			const purchases = Number(promoter.purchases.length);
-
-			promoter.commissions.forEach((commission) => {
-				if (commission.conversionType === conversionTypeEnum.SIGNUP) {
-					signUpsCommission += Number(commission.amount);
-					
-				} else if (commission.conversionType === conversionTypeEnum.PURCHASE) {
-					purchasesCommission += Number(commission.amount);
-					revenue += Number(commission.revenue);
-				}
+		if (program) {
+			program.programPromoters.forEach((programPromoter) => {
+				const promoter = programPromoter.promoter;
+	
+				const row = new PromoterRow([]);
+	
+				let signUpsCommission = 0;
+				let purchasesCommission = 0;
+				let revenue = 0;
+	
+				const signUps = Number(promoter.signUps.length);
+				const purchases = Number(promoter.purchases.length);
+	
+				promoter.commissions.forEach((commission) => {
+					if (commission.conversionType === conversionTypeEnum.SIGNUP) {
+						signUpsCommission += Number(commission.amount);
+						
+					} else if (commission.conversionType === conversionTypeEnum.PURCHASE) {
+						purchasesCommission += Number(commission.amount);
+						revenue += Number(commission.revenue);
+					}
+				});
+	
+				totalSignUpsCommission += Number(signUpsCommission);
+				totalPurchasesCommission += Number(purchasesCommission);
+				totalSignUps += Number(signUps);
+				totalPurchases += Number(purchases);
+				totalRevenue += Number(revenue);
+	
+				row.setPromoterId(promoter.promoterId);
+				row.setPromoterName(promoter.name);
+				row.setSignups(Number(signUps));
+				row.setCommissionOnSignups(Number(signUpsCommission));
+				row.setPurchases(Number(purchases));
+				row.setCommissionOnPurchases(Number(purchasesCommission));
+				row.setRevenue(Number(revenue));
+				row.setTotalCommission(Number(signUpsCommission) + Number(purchasesCommission));
+	
+				promotersTable.addRow(row);
 			});
+		}
 
-			totalSignUpsCommission += Number(signUpsCommission);
-			totalPurchasesCommission += Number(purchasesCommission);
-			totalSignUps += Number(signUps);
-			totalPurchases += Number(purchases);
-			totalRevenue += Number(revenue);
+		promotersSheet.addPromoterTable(promotersTable);
 
-			row.setPromoterId(promoter.promoterId);
-			row.setPromoterName(promoter.name);
-			row.setSignups(Number(signUps));
-			row.setCommissionOnSignups(Number(signUpsCommission));
-			row.setPurchases(Number(purchases));
-			row.setCommissionOnPurchases(Number(purchasesCommission));
-			row.setRevenue(Number(revenue));
-			row.setTotalCommission(Number(signUpsCommission) + Number(purchasesCommission));
-
-			promotersTable.addRow(row);
-		});
-
-		promotersSheet.addPromotersTable(promotersTable);
-
-		const summarySheet = new ProgwSummarySheet();
+		const summarySheet = new ProgramSummarySheet();
 		const programSummaryList = new ProgramSummaryList();
 
-		const dateFormat = program.dateFormat;
+		const dateFormat = program?.dateFormat ?? dateFormatEnum.DD_MM_YYYY;
 
 		programSummaryList.addFrom(formatDate(startDate, dateFormat));
 		programSummaryList.addTo(formatDate(endDate, dateFormat));
 		programSummaryList.addPromoters(Number(totalPromoters))
-		programSummaryList.addProgramId(program.programId);
+		programSummaryList.addProgramId(programId);
 		programSummaryList.addSignups(Number(totalSignUps));
 		programSummaryList.addCommissionOnSignups(Number(totalSignUpsCommission));
 		programSummaryList.addPurchases(Number(totalPurchases));
@@ -112,8 +116,8 @@ export class ProgramConverter {
 
 		summarySheet.addProgramSummaryList(programSummaryList);
 
-		programWorkbook.addProgwSummary(summarySheet);
-		programWorkbook.addProgwPromoters(promotersSheet);
+		programWorkbook.addProgramSummarySheet(summarySheet);
+		programWorkbook.addPromoterSheet(promotersSheet);
 
 		return programWorkbook;
 

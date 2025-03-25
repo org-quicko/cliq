@@ -4,8 +4,18 @@ import { Commission, Promoter, Purchase, SignUp } from '../entities';
 import { conversionTypeEnum } from 'src/enums';
 import { maskInfo } from 'src/utils';
 import { formatDate } from 'src/utils';
-import { CommissionWorkbook, CwPurchasesSheet, PurchaseCommissionsTable, PurchaseCommissionsRow, CwSignupsSheet, SignupCommissionsTable, SignupCommissionsRow, CwSummarySheet, CommissionsSummaryList } from 'generated/sources/Commission';
-import { CommissionRow, PromoterInterfaceWorkbook, CommissionTable, CommissionsSheet } from 'generated/sources/PromoterInterface';
+import { CommissionRow, CommissionSheet, CommissionTable, PromoterWorkbook } from 'generated/sources/Promoter';
+import { 
+	CommissionSummaryList, 
+	CommissionSummarySheet, 
+	CommissionWorkbook, 
+	PurchaseCommissionRow, 
+	PurchaseCommissionTable, 
+	PurchaseSheet, 
+	SignupCommissionRow, 
+	SignupCommissionTable, 
+	SignupSheet 
+} from 'generated/sources/Commission';
 
 @Injectable()
 export class CommissionConverter {
@@ -22,36 +32,33 @@ export class CommissionConverter {
 		return commissionDto;
 	}
 
-	getSheetRow(commission: Commission): CommissionRow {
-		const newCommissionRow = new CommissionRow([]);
-
-		newCommissionRow.setCommissionId(commission.commissionId);
-		newCommissionRow.setCommission(Number(commission.amount));
-		newCommissionRow.setConversionType(commission.conversionType);
-		newCommissionRow.setRevenue(Number(commission.revenue ?? 0));
-		newCommissionRow.setCreatedAt(commission.createdAt.toISOString());
-
-		return newCommissionRow;
-	}
-
-	convertToSheet(commissions: Commission[]): PromoterInterfaceWorkbook {
+	/** For getting commissions data for the promoter */
+	convertToSheet(commissions: Commission[]): PromoterWorkbook {
 		const newCommissionTable = new CommissionTable();
 
 		commissions.forEach((commission) => {
-			const newCommissionRow = this.getSheetRow(commission);
-			newCommissionTable.addRow(newCommissionRow);
+			const row = new CommissionRow([]);
+
+			row.setCommissionId(commission.commissionId);
+			row.setCommission(Number(commission.amount));
+			row.setConversionType(commission.conversionType);
+			row.setRevenue(Number(commission.revenue ?? 0));
+			row.setCreatedAt(commission.createdAt.toISOString());
+
+			newCommissionTable.addRow(row);
 		});
 
 
-		const commissionSheet = new CommissionsSheet();
+		const commissionSheet = new CommissionSheet();
 		commissionSheet.addCommissionTable(newCommissionTable);
 
-		const promoterWorkbook = new PromoterInterfaceWorkbook();
+		const promoterWorkbook = new PromoterWorkbook();
 		promoterWorkbook.addSheet(commissionSheet);
 
 		return promoterWorkbook;
 	}
 
+	/** For getting commissions report for the promoter */
 	convertToReportWorkbook(
 		signUps: SignUp[],
 		purchases: Purchase[],
@@ -62,16 +69,16 @@ export class CommissionConverter {
 		const commissionWorkbook = new CommissionWorkbook();
 
 		// PURCHASES
-		const purchasesSheet = new CwPurchasesSheet();
-		const purchasesTable = new PurchaseCommissionsTable();
+		const purchasesSheet = new PurchaseSheet();
+		const purchasesTable = new PurchaseCommissionTable();
 
 		const totalPurchases = purchases.length;
-		
+
 		let totalPurchaseCommission: number = 0;
 		let totalRevenue: number = 0;
 
 		purchases.forEach((purchase) => {
-			const row = new PurchaseCommissionsRow([]);
+			const row = new PurchaseCommissionRow([]);
 
 			let commissionAmount = 0;
 			purchase.contact.commissions.forEach((commission) => {
@@ -98,19 +105,19 @@ export class CommissionConverter {
 			purchasesTable.addRow(row);
 		});
 
-		purchasesSheet.addPurchaseCommissionsTable(purchasesTable);
+		purchasesSheet.addPurchaseCommissionTable(purchasesTable);
 
-		
+
 		// SIGNUPS
-		const signUpsSheet = new CwSignupsSheet();
-		const signUpsTable = new SignupCommissionsTable();
+		const signUpsSheet = new SignupSheet();
+		const signUpsTable = new SignupCommissionTable();
 
 		const totalSignUps = signUps.length;
 
 		let totalSignUpCommission = 0;
 
 		signUps.forEach((signUp) => {
-			const row = new SignupCommissionsRow([]);
+			const row = new SignupCommissionRow([]);
 
 			const commissionAmount = signUp.contact.commissions.find(commission => commission.conversionType === conversionTypeEnum.SIGNUP)?.amount ?? 0;
 
@@ -132,12 +139,12 @@ export class CommissionConverter {
 			signUpsTable.addRow(row);
 		});
 
-		signUpsSheet.addSignupCommissionsTable(signUpsTable);
+		signUpsSheet.addSignupCommissionTable(signUpsTable);
 
-		
+
 		// SUMMARY 
-		const summarySheet = new CwSummarySheet();
-		const commissionsSummaryList = new CommissionsSummaryList();
+		const summarySheet = new CommissionSummarySheet();
+		const commissionsSummaryList = new CommissionSummaryList();
 
 		commissionsSummaryList.addFrom(formatDate(startDate));
 		commissionsSummaryList.addTo(formatDate(endDate));
@@ -148,15 +155,15 @@ export class CommissionConverter {
 		commissionsSummaryList.addPurchases(Number(totalPurchases));
 		commissionsSummaryList.addCommissionOnSignups(Number(totalSignUpCommission));
 		commissionsSummaryList.addCommissionOnPurchases(Number(totalPurchaseCommission));
-		
+
 		commissionsSummaryList.addRevenue(Number(totalRevenue));
 		commissionsSummaryList.addTotalCommission(Number(totalSignUpCommission + totalPurchaseCommission));
 
-		summarySheet.addCommissionsSummaryList(commissionsSummaryList);
+		summarySheet.addCommissionSummaryList(commissionsSummaryList);
 
-		commissionWorkbook.addCwSummary(summarySheet);
-		commissionWorkbook.addCwPurchases(purchasesSheet);
-		commissionWorkbook.addCwSignups(signUpsSheet);
+		commissionWorkbook.addCommissionSummarySheet(summarySheet);
+		commissionWorkbook.addPurchaseSheet(purchasesSheet);
+		commissionWorkbook.addSignupSheet(signUpsSheet);
 
 		return commissionWorkbook;
 

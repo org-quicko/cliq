@@ -6,8 +6,21 @@ import { formatDate } from 'src/utils';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
 import { JSONObject } from '@org.quicko/core';
-import { PurchaseRow, PromoterInterfaceWorkbook, PurchaseTable, PurchaseSheet } from 'generated/sources/PromoterInterface';
-import { PurchaseWorkbook, PwPurchasesSheet, PurchasesTable, PurchasesRow, PwSummarySheet, PurchasesSummaryList } from 'generated/sources/Purchase';
+import {
+	PromoterWorkbook,
+	PurchaseRow as PromoterPurchaseRow,
+	PurchaseSheet as PromoterPurchaseSheet,
+	PurchaseTable as PromoterPurchaseTable
+} from 'generated/sources/Promoter';
+
+import {
+	PurchaseSummarySheet,
+	PurchaseSheet,
+	PurchaseWorkbook,
+	PurchaseTable,
+	PurchaseRow,
+	PurchaseSummaryList
+} from 'generated/sources/Purchase';
 
 @Injectable()
 export class PurchaseConverter {
@@ -31,27 +44,23 @@ export class PurchaseConverter {
 		return purchaseDto;
 	}
 
-	getSheetRow(purchase: Purchase): PurchaseRow {
-		const newPurchaseRow = new PurchaseRow([]);
+	/** For getting purchases data for the promoter */
+	convertToSheetJson(purchases: Purchase[], queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterWorkbook {
 
-		newPurchaseRow.setContactId(purchase.contact.contactId);
-		newPurchaseRow.setFirstName(purchase.contact.firstName);
-		newPurchaseRow.setLastName(purchase.contact.lastName);
-		newPurchaseRow.setEmail(maskInfo(purchase.contact.email));
-		newPurchaseRow.setPhone(maskInfo(purchase.contact.phone));
-		newPurchaseRow.setAmount(purchase.amount);
-		newPurchaseRow.setItemId(purchase.itemId);
-		newPurchaseRow.setLinkId(purchase.link.linkId);
-		newPurchaseRow.setCreatedAt(formatDate(purchase.createdAt));
-
-		return newPurchaseRow;
-	}
-
-	convertToSheetJson(purchases: Purchase[], queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterInterfaceWorkbook {
-
-		const purchaseTable = new PurchaseTable();
+		const purchaseTable = new PromoterPurchaseTable();
 		purchases.forEach((purchase) => {
-			const newPurchaseRow = this.getSheetRow(purchase);
+			const newPurchaseRow = new PromoterPurchaseRow([]);
+
+			newPurchaseRow.setContactId(purchase.contact.contactId);
+			newPurchaseRow.setFirstName(purchase.contact.firstName);
+			newPurchaseRow.setLastName(purchase.contact.lastName);
+			newPurchaseRow.setEmail(maskInfo(purchase.contact.email));
+			newPurchaseRow.setPhone(maskInfo(purchase.contact.phone));
+			newPurchaseRow.setAmount(purchase.amount);
+			newPurchaseRow.setItemId(purchase.itemId);
+			newPurchaseRow.setLinkId(purchase.link.linkId);
+			newPurchaseRow.setCreatedAt(formatDate(purchase.createdAt));
+
 			purchaseTable.addRow(newPurchaseRow);
 		});
 
@@ -59,15 +68,16 @@ export class PurchaseConverter {
 			...queryOptions
 		});
 
-		const purchaseSheet = new PurchaseSheet();
+		const purchaseSheet = new PromoterPurchaseSheet();
 		purchaseSheet.addPurchaseTable(purchaseTable);
 
-		const promoterWorkbook = new PromoterInterfaceWorkbook();
+		const promoterWorkbook = new PromoterWorkbook();
 		promoterWorkbook.addSheet(purchaseSheet);
 
 		return promoterWorkbook;
 	}
 
+	/** For getting purchases report for the promoter */
 	convertToReportWorkbook(
 		purchases: Purchase[],
 		promoter: Promoter,
@@ -76,14 +86,14 @@ export class PurchaseConverter {
 	): PurchaseWorkbook {
 		const purchaseWorkbook = new PurchaseWorkbook();
 
-		const purchasesSheet = new PwPurchasesSheet();
-		const purchasesTable = new PurchasesTable();
+		const purchaseSheet = new PurchaseSheet();
+		const purchaseTable = new PurchaseTable();
 		const totalPurchases = purchases.length;
 		let totalCommission = 0;
 		let totalRevenue = 0;
 
 		purchases.forEach((purchase) => {
-			const row = new PurchasesRow([]);
+			const row = new PurchaseRow([]);
 
 			let commissionAmount = 0;
 			purchase.contact.commissions.forEach((commission) => {
@@ -107,13 +117,13 @@ export class PurchaseConverter {
 			row.setUtmTerm(purchase?.utmParams?.utmTerm);
 			row.setUtmContent(purchase?.utmParams?.utmContent);
 
-			purchasesTable.addRow(row);
+			purchaseTable.addRow(row);
 		});
 
-		purchasesSheet.addPurchasesTable(purchasesTable);
+		purchaseSheet.addPurchaseTable(purchaseTable);
 
-		const summarySheet = new PwSummarySheet();
-		const purchasesSummaryList = new PurchasesSummaryList();
+		const summarySheet = new PurchaseSummarySheet();
+		const purchasesSummaryList = new PurchaseSummaryList();
 
 		purchasesSummaryList.addFrom(formatDate(startDate));
 		purchasesSummaryList.addTo(formatDate(endDate));
@@ -123,10 +133,10 @@ export class PurchaseConverter {
 		purchasesSummaryList.addRevenue(Number(totalRevenue));
 		purchasesSummaryList.addTotalCommission(Number(totalCommission));
 
-		summarySheet.addPurchasesSummaryList(purchasesSummaryList);
+		summarySheet.addPurchaseSummaryList(purchasesSummaryList);
 
-		purchaseWorkbook.addPwSummary(summarySheet);
-		purchaseWorkbook.addPwPurchases(purchasesSheet);
+		purchaseWorkbook.addPurchaseSummarySheet(summarySheet);
+		purchaseWorkbook.addPurchaseSheet(purchaseSheet);
 
 		return purchaseWorkbook;
 

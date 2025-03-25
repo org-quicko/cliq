@@ -7,8 +7,22 @@ import { formatDate } from 'src/utils';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
 import { JSONObject } from '@org.quicko/core';
-import { SignupsRow, SignupsSummaryList, SignupsTable, SignUpWorkbook, SwSignupsSheet, SwSummarySheet } from 'generated/sources/SignUp';
-import { SignupRow, PromoterInterfaceWorkbook, SignupTable, SignupSheet } from 'generated/sources/PromoterInterface';
+import { 
+	PromoterWorkbook, 
+	SignupRow as PromoterSignupRow, 
+	SignupSheet as PromoterSignupSheet, 
+	SignupTable as PromoterSignupTable 
+} from 'generated/sources/Promoter';
+
+import { 
+	SignUpWorkbook,
+	SignupRow,
+	SignupSheet,
+	SignupSummaryList,
+	SignupSummarySheet,
+	SignupTable
+	
+} from 'generated/sources/SignUp';
 
 @Injectable()
 export class SignUpConverter {
@@ -30,59 +44,55 @@ export class SignUpConverter {
 		return signUpDto;
 	}
 
-	getSheetRow(signUp: SignUp): SignupRow {
-		const newSignUpRow = new SignupRow([]);
-
-		newSignUpRow.setContactId(signUp.contactId);
-		newSignUpRow.setFirstName(signUp.contact.firstName);
-		newSignUpRow.setLastName(signUp.contact.lastName);
-		newSignUpRow.setEmail(maskInfo(signUp.contact.email));
-		newSignUpRow.setPhone(maskInfo(signUp.contact.phone));
-		newSignUpRow.setLinkId(signUp.link.linkId);
-		newSignUpRow.setCreatedAt(formatDate(signUp.createdAt));
-
-		return newSignUpRow;
-	}
-
-	convertToSheetJson(signUps: SignUp[], queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterInterfaceWorkbook {
-		const signUpTable = new SignupTable();
+	/** For getting signups data for the promoter */
+	convertToSheetJson(signUps: SignUp[], queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterWorkbook {
+		const signUpTable = new PromoterSignupTable();
 
 		signUps.forEach((signUp) => {
-			const newSignUpRow = this.getSheetRow(signUp);
-			signUpTable.addRow(newSignUpRow);
+			const row = new PromoterSignupRow([]);
+
+			row.setContactId(signUp.contactId);
+			row.setFirstName(signUp.contact.firstName);
+			row.setLastName(signUp.contact.lastName);
+			row.setEmail(maskInfo(signUp.contact.email));
+			row.setPhone(maskInfo(signUp.contact.phone));
+			row.setLinkId(signUp.link.linkId);
+			row.setCreatedAt(formatDate(signUp.createdAt));
+
+			signUpTable.addRow(row);
 		});
 
 		signUpTable.metadata = new JSONObject({
 			...queryOptions
 		});
 
-		const signUpSheet = new SignupSheet();
+		const signUpSheet = new PromoterSignupSheet();
 		signUpSheet.addSignupTable(signUpTable);
 
-		const promoterWorkbook = new PromoterInterfaceWorkbook();
+		const promoterWorkbook = new PromoterWorkbook();
 		promoterWorkbook.addSheet(signUpSheet);
 
 		return promoterWorkbook;
 	}
 
-	
 
+	/** For getting signups report for the promoter */
 	convertToReportWorkbook(
-		signUps: SignUp[], 
-		promoter: Promoter, 
-		startDate: Date, 
+		signUps: SignUp[],
+		promoter: Promoter,
+		startDate: Date,
 		endDate: Date,
 	): SignUpWorkbook {
 		const signUpWorkbook = new SignUpWorkbook();
-		
-		const signupsSheet = new SwSignupsSheet();
-		const signupsTable = new SignupsTable();
+
+		const signupsSheet = new SignupSheet();
+		const signupsTable = new SignupTable();
 		const totalSignUps = signUps.length;
 		let totalCommission = 0;
 
 
 		signUps.forEach((signUp) => {
-			const row = new SignupsRow([]);
+			const row = new SignupRow([]);
 			const commission = signUp.contact.commissions.find(commission => commission.conversionType === conversionTypeEnum.SIGNUP);
 			totalCommission += commission?.amount ?? 0;
 
@@ -102,10 +112,10 @@ export class SignUpConverter {
 			signupsTable.addRow(row);
 		});
 
-		signupsSheet.addSignupsTable(signupsTable);
+		signupsSheet.addSignupTable(signupsTable);
 
-		const summarySheet = new SwSummarySheet();
-		const signUpsSummaryList = new SignupsSummaryList();
+		const summarySheet = new SignupSummarySheet();
+		const signUpsSummaryList = new SignupSummaryList();
 
 		signUpsSummaryList.addFrom(formatDate(startDate));
 		signUpsSummaryList.addTo(formatDate(endDate));
@@ -114,10 +124,10 @@ export class SignUpConverter {
 		signUpsSummaryList.addSignups(Number(totalSignUps));
 		signUpsSummaryList.addTotalCommission(Number(totalCommission));
 
-		summarySheet.addSignupsSummaryList(signUpsSummaryList);
+		summarySheet.addSignupSummaryList(signUpsSummaryList);
 
-		signUpWorkbook.addSwSummary(summarySheet);
-		signUpWorkbook.addSwSignups(signupsSheet);
+		signUpWorkbook.addSignupSummarySheet(summarySheet);
+		signUpWorkbook.addSignupSheet(signupsSheet);
 
 		return signUpWorkbook;
 
