@@ -179,7 +179,6 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('read', SignUp)
-	@SkipTransform()
 	@Get(':promoter_id/signups')
 	async getSignUpsForPromoter(
 		@Headers('x-accept-type') acceptType: string,
@@ -215,7 +214,6 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('read', Purchase)
-	@SkipTransform()
 	@Get(':promoter_id/purchases')
 	async getPurchasesForPromoter(
 		@Headers('x-accept-type') acceptType: string,
@@ -254,7 +252,6 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 201, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@SkipTransform()
 	@Permissions('read', ReferralView)
 	@Get(':promoter_id/referrals')
 	async getPromoterReferrals(
@@ -285,7 +282,6 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('read', Commission)
-	@SkipTransform()
 	@Get(':promoter_id/commissions')
 	async getPromoterCommissions(
 		@Headers('x-accept-type') acceptType: string,
@@ -475,7 +471,6 @@ export class PromoterController {
 
 
 	@ApiResponse({ status: 200, description: 'OK' })
-	@SkipTransform()
 	@Permissions('read', ReferralView)
 	@Get(':promoter_id/reports/referrals')
 	async getReferralsReport(
@@ -517,7 +512,6 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@SkipTransform()
 	@Permissions('read', Link)
 	@Get(':promoter_id/link_stats')
 	async getPromoterLinkStatistics(
@@ -543,7 +537,6 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@SkipTransform()
 	@Permissions('read', ReferralAggregateView)
 	@Get(':promoter_id/stats')
 	async getPromoterStatistics(
