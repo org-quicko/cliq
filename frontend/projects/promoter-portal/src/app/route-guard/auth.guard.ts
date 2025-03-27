@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { AuthService } from "../services/auth.service";
-import { CanActivate, Router } from "@angular/router";
+import { ActivatedRoute, ActivatedRouteSnapshot, CanActivate, Router } from "@angular/router";
 import { Observable } from "rxjs";
 
 @Injectable({
@@ -9,11 +9,13 @@ import { Observable } from "rxjs";
 export class isLoggedIn implements CanActivate {
     constructor(private authService: AuthService, private router: Router) { }
 
-    canActivate(): Observable<boolean> | Promise<boolean> | boolean {
+    canActivate(route: ActivatedRouteSnapshot): Observable<boolean> | Promise<boolean> | boolean {
         if(this.authService.isAuthenticated()){
             return true;
         } else {
-            // this.router.navigate(['/accounts/login']);
+			const programId = route.paramMap.get('program_id');
+
+            this.router.navigate([`${programId}/login`]);
             return false;
         }
     }

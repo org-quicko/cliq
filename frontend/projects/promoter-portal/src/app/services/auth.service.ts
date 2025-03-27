@@ -5,8 +5,8 @@ import * as _ from 'lodash-es';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { instanceToPlain } from 'class-transformer';
-import { environment } from '../../environments/environment.dev';
-import { MemberDto } from '../../../org-quicko-cliq-core/src/lib/dtos/member.dto';
+import { environment } from '../../../environments/environment.dev';
+import { MemberDto } from '../../../../org-quicko-cliq-core/src/lib/dtos/member.dto';
 
 @Injectable({
     providedIn: 'root'
@@ -39,24 +39,24 @@ export class AuthService {
         if (environment.production) {
 
 			// TODO: the domain must be custom domain
-            this.cookieService.set('SESSIONID', 'Bearer ' + token, 1, '/', '.cliq.com', true, 'Strict');
+            this.cookieService.set('CLIQ_ACCESS_TOKEN', 'Bearer ' + token, 1, '/', undefined, true, 'Strict');
         }
         else {
-            this.cookieService.set('SESSIONID', 'Bearer ' + token, undefined, undefined, undefined, false, 'Strict');
+            this.cookieService.set('CLIQ_ACCESS_TOKEN', 'Bearer ' + token, undefined, undefined, undefined, false, 'Strict');
         }
     }
 
     public unsetToken(): void {
         if (environment.production) {
-            this.cookieService.delete('SESSIONID', '/', '.cliq.com', true, 'Strict');
+            this.cookieService.delete('CLIQ_ACCESS_TOKEN', '/', undefined, true, 'Strict');
         }
         else {
-            this.cookieService.delete('SESSIONID', undefined, undefined, false, 'Strict');
+            this.cookieService.delete('CLIQ_ACCESS_TOKEN', undefined, undefined, false, 'Strict');
         }
     }
 
     public getToken(): string {
-        return this.cookieService.get('SESSIONID');
+        return this.cookieService.get('CLIQ_ACCESS_TOKEN');
     }
 
     public getMemberEmailId(): string | null {
