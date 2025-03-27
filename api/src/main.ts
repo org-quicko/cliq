@@ -55,7 +55,9 @@ async function bootstrap() {
 		}),
 	);
 
-	app.enableCors();
+	app.enableCors({
+		exposedHeaders: ['Content-Disposition']
+	});
 
 	app.useGlobalFilters(new HttpExceptionFilter());
 
