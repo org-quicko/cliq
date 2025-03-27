@@ -1,0 +1,29 @@
+<app-accounts-container>
+	<!-- Right Side (Signup Form) -->
+	<div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-gray-50">
+		<img src="assets/logo.png" alt="Logo" class="mb-4 w-40">
+		<h2 class="text-xl font-semibold mb-6">Sign up</h2>
+
+		<form [formGroup]="signUpForm" (ngSubmit)="onSignUp()" class="w-full max-w-md space-y-4">
+			<!-- Email Field -->
+			<mat-form-field class="w-full">
+				<mat-label>Email</mat-label>
+				<input matInput formControlName="email" type="email" required>
+			</mat-form-field>
+
+			<!-- Login Button -->
+			<button mat-raised-button color="primary" class="w-full h-12 text-lg" type="submit">Sign up</button>
+
+			<!-- Login Link -->
+			<p class="text-center text-gray-600 mt-4">
+				Already have an account? <a
+					routerLink="../login"
+					routerLinkActive
+					#signup="routerLinkActive"
+					class="text-blue-600 font-semibold"
+
+				>Login</a>
+			</p>
+		</form>
+	</div>
+</app-accounts-container>
