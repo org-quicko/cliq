@@ -290,6 +290,7 @@ export class PromoterController {
 		@Param('promoter_id') promoterId: string,
 		@Query('conversion_type') conversionType: conversionTypeEnum,
 		@Query('link_id') linkId: string,
+		@Query('contact_id') contactId: string,
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
@@ -304,8 +305,9 @@ export class PromoterController {
 			{
 				commissions: {
 					conversionType,
-					linkId
-				}
+					linkId,
+					contactId,
+				},
 			},
 			{
 				skip,
