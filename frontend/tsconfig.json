@@ -1,34 +1,52 @@
 /* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
 /* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "outDir": "./dist/out-tsc",
-    "strict": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-	"useDefineForClassFields": false,
-	"strictPropertyInitialization": false,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "paths": {
-      "org-quicko-cliq-core": [
-        "./dist/org-quicko-cliq-core"
-      ]
-    },
-    "moduleResolution": "bundler",
-    "importHelpers": true,
-    "target": "ES2022",
-    "module": "ES2022"
-  },
-  "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
-    "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "strictTemplates": true
-  }
+	"compileOnSave": false,
+	"compilerOptions": {
+		"outDir": "./dist/out-tsc",
+		"strict": true,
+		"noImplicitOverride": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"useDefineForClassFields": false,
+		"strictPropertyInitialization": false,
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"paths": {
+			"@org.quicko.cliq/ngx-core": [
+				"./dist/@org.quicko.cliq/ngx-core"
+			],
+			"@org.quicko.cliq/ngx-core/src/generated/sources/Commission": [
+				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Commission"
+			],
+			"@org.quicko.cliq/ngx-core/src/generated/sources/Link": [
+				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Link"
+			],
+			"@org.quicko.cliq/ngx-core/src/generated/sources/Program": [
+				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Program"
+			],
+			"@org.quicko.cliq/ngx-core/src/generated/sources/Promoter": [
+				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Promoter"
+			],
+			"@org.quicko.cliq/ngx-core/src/generated/sources/Purchase": [
+				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Purchase"
+			],
+			"@org.quicko.cliq/ngx-core/src/generated/sources/SignUp": [
+				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/SignUp"
+			],
+		},
+		"moduleResolution": "bundler",
+		"importHelpers": true,
+		"target": "ES2022",
+		"module": "ES2022"
+	},
+	"angularCompilerOptions": {
+		"enableI18nLegacyMessageIdFormat": false,
+		"strictInjectionParameters": true,
+		"strictInputAccessModifiers": true,
+		"strictTemplates": true
+	}
 }
