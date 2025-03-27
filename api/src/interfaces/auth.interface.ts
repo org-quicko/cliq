@@ -4,7 +4,7 @@ export interface AuthInput {
 }
 
 export interface AuthResult {
-	accessToken: string;
+	access_token: string;
 }
 
 export interface LoginData {

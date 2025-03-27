@@ -71,7 +71,7 @@ export class UserAuthService {
 
 		this.logger.info(`END: loginUser service`);
 		return {
-			accessToken,
+			access_token: accessToken,
 		};
 	}
 

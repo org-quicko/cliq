@@ -50,7 +50,7 @@ export class LinkService {
 		}
 
 		const newLink = this.linkRepository.create({
-			refVal: body.refVal,
+			...body,
 			program: {
 				programId: program.programId,
 			},

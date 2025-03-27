@@ -70,7 +70,7 @@ export class MemberAuthService {
 
 		const accessToken = await this.jwtService.signAsync(tokenPayload);
 		this.logger.info(`END: loginMember service`);
-		return { accessToken };
+		return { access_token: accessToken };
 	}
 
 	private async comparePasswords(

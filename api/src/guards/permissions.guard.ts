@@ -41,7 +41,8 @@ export class PermissionsGuard implements CanActivate {
 		const user_id = request.headers.user_id as string;
 		const member_id = request.headers.member_id as string;
 		const api_key_id = request.headers.api_key_id as string;
-		const program_id = request.headers.program_id as string;
+		
+		
 		let entityType: 'User' | 'Member' | 'Api User';
 
 		if (!member_id && !user_id && !api_key_id) {
@@ -58,10 +59,9 @@ export class PermissionsGuard implements CanActivate {
 			}
 			ability = this.authorizationService.getMemberAbility(memberEntity);
 			entityType = 'Member';
-		}  
+		}
 		else if (api_key_id) {
-			
-			ability = this.authorizationService.getApiUserAbility(program_id);
+			ability = this.authorizationService.getApiUserAbility(request.headers.program_id as string);
 			entityType = 'Api User';
 		}
 		else {
@@ -95,7 +95,7 @@ export class PermissionsGuard implements CanActivate {
 			return true;
 		} catch (error) {
 			if (error instanceof BadRequestException || error instanceof NotFoundException) {
-				this.logger.warn(error.message);
+				this.logger.error(error.message);
 				throw error;
 			}
 			else if (error instanceof Error) {
