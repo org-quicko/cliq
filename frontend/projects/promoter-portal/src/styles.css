@@ -1,0 +1,20 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+@config '../../../tailwind.config.ts';
+
+.mdc-notched-outline__notch {
+	border-right: none;
+}
+
+.slick-track {
+	margin: 0;
+}
+
+.body {
+	overflow-x: hidden;
+}
+
+.shadow {
+	box-shadow: 0px 0px 15px 0px #0000001A;
+}
