@@ -17,7 +17,7 @@ export class EventConsumer extends WorkerHost {
         switch (job.name) {
             case webhookJobName:
                 try {
-                    await axios.post(
+                    const response = await axios.post(
                         url as string,
                         { event: instanceToPlain(event, { excludeExtraneousValues: true }) },
                         {
@@ -27,7 +27,12 @@ export class EventConsumer extends WorkerHost {
                             }
                         }
                     );
-                    console.log(`Webhook sent successfully to ${url}`);
+
+                    if (response.status === 200 || response.status === 201) {
+                        console.log(`Webhook sent successfully to ${url}`);
+                        return;
+                    }
+                    
                 } catch (error) {
                     console.error(`Failed to send webhook to ${url}: ${error.message}`);
                     throw error;
