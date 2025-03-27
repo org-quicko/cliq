@@ -1,8 +1,6 @@
-import { Expose } from "class-transformer";
-import { IsDate, IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
-import { dateFormatEnum } from "../enums/dateFormat.enum";
-import { referralKeyTypeEnum } from "../enums/referralKeyType.enum";
-import { visibilityEnum } from "../enums/visibility.enum";
+import { IsString, IsEnum, IsOptional, IsUUID, IsDate } from 'class-validator';
+import { Expose } from 'class-transformer';
+import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
 
 export class ProgramDto {
 	@Expose({ name: 'program_id' })
@@ -46,4 +44,66 @@ export class ProgramDto {
 	@Expose({ name: 'updated_at' })
 	@IsDate()
 	updatedAt: Date;
+}
+
+export class CreateProgramDto {
+	@IsString()
+	name: string;
+
+	@IsString()
+	currency: string;
+
+	@IsString()
+	website: string;
+
+	@IsEnum(visibilityEnum)
+	visibility: visibilityEnum;
+
+	@Expose({ name: 'referral_key_type' })
+	@IsEnum(referralKeyTypeEnum)
+	referralKeyType: referralKeyTypeEnum;
+
+	@IsOptional()
+	@Expose({ name: 'theme_color' })
+	@IsString()
+	themeColor?: string;
+
+	@Expose({ name: 'date_format' })
+	@IsOptional()
+	@IsEnum(dateFormatEnum)
+	dateFormat: dateFormatEnum;
+
+	@Expose({ name: 'time_zone' })
+	@IsString()
+	timeZone: string;
+}
+
+export class UpdateProgramDto {
+	@IsOptional()
+	@IsString()
+	name?: string;
+
+	@IsOptional()
+	@IsString()
+	currency?: string;
+
+	@IsOptional()
+	@IsString()
+	website?: string;
+
+	@IsOptional()
+	@Expose({ name: 'theme_color' })
+	@IsString()
+	themeColor?: string;
+
+	@Expose({ name: 'date_format' })
+	@IsOptional()
+	@IsEnum(dateFormatEnum)
+	dateFormat?: dateFormatEnum;
+
+	@Expose({ name: 'time_zone' })
+	@IsOptional()
+	@IsString()
+	timeZone?: string;
+
 }
