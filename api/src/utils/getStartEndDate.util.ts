@@ -21,7 +21,7 @@ export function getStartEndDate(startDate: (string | undefined), endDate: (strin
         return getPeriodStartEndDate(reportPeriod);
     }
 
-    const defaultStartDate = subMonths(new Date(), 1); // One month ago
+    const defaultStartDate = subDays(new Date(), 30); // last 30 days
 
     // Parse startDate if provided, otherwise use default
     const parsedStartDate = startDate ? new Date(startDate) : defaultStartDate;
