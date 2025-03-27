@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommissionDto } from '../dtos';
 import { Commission, Promoter, Purchase, SignUp } from '../entities';
-import { conversionTypeEnum } from 'src/enums';
+import { conversionTypeEnum, referralKeyTypeEnum } from 'src/enums';
 import { maskInfo } from 'src/utils';
 import { formatDate } from 'src/utils';
 import { CommissionRow, CommissionSheet, CommissionTable, PromoterWorkbook } from 'generated/sources/Promoter';
@@ -9,12 +9,12 @@ import {
 	CommissionSummaryList, 
 	CommissionSummarySheet, 
 	CommissionWorkbook, 
-	PurchaseCommissionRow, 
-	PurchaseCommissionTable, 
 	PurchaseSheet, 
-	SignupCommissionRow, 
-	SignupCommissionTable, 
-	SignupSheet 
+	PurchaseTable,
+	PurchaseRow,
+	SignupSheet ,
+	SignupTable,
+	SignupRow
 } from 'generated/sources/Commission';
 
 @Injectable()
@@ -33,20 +33,27 @@ export class CommissionConverter {
 	}
 
 	/** For getting commissions data for the promoter */
-	convertToSheet(commissions: Commission[]): PromoterWorkbook {
+	convertToSheet(commissions: Commission[], referralKeyType: referralKeyTypeEnum): PromoterWorkbook {
 		const newCommissionTable = new CommissionTable();
 
-		commissions.forEach((commission) => {
-			const row = new CommissionRow([]);
+		if (commissions && commissions.length > 0) {
+			commissions.forEach((commission) => {
+				const row = new CommissionRow([]);
+	
+				const referral = (referralKeyType === referralKeyTypeEnum.EMAIL) ? commission.contact.email : commission.contact.phone;
 
-			row.setCommissionId(commission.commissionId);
-			row.setCommission(Number(commission.amount));
-			row.setConversionType(commission.conversionType);
-			row.setRevenue(Number(commission.revenue ?? 0));
-			row.setCreatedAt(commission.createdAt.toISOString());
-
-			newCommissionTable.addRow(row);
-		});
+				row.setCommissionId(commission.commissionId);
+				row.setContactId(commission.contact.contactId);
+				row.setCommission(Number(commission.amount));
+				row.setConversionType(commission.conversionType);
+				row.setRevenue(Number(commission.revenue ?? 0));
+				row.setCreatedAt(commission.createdAt.toISOString());
+				row.setLinkId(commission.linkId);
+				row.setReferral(maskInfo(referral));
+	
+				newCommissionTable.addRow(row);
+			});
+		}
 
 
 		const commissionSheet = new CommissionSheet();
@@ -70,7 +77,7 @@ export class CommissionConverter {
 
 		// PURCHASES
 		const purchasesSheet = new PurchaseSheet();
-		const purchasesTable = new PurchaseCommissionTable();
+		const purchasesTable = new PurchaseTable();
 
 		const totalPurchases = purchases.length;
 
@@ -78,11 +85,11 @@ export class CommissionConverter {
 		let totalRevenue: number = 0;
 
 		purchases.forEach((purchase) => {
-			const row = new PurchaseCommissionRow([]);
+			const row = new PurchaseRow([]);
 
 			let commissionAmount = 0;
 			purchase.contact.commissions.forEach((commission) => {
-				commissionAmount += commission.amount;
+				commissionAmount += Number(commission.amount);
 			});
 
 			totalPurchaseCommission += Number(commissionAmount);
@@ -105,19 +112,19 @@ export class CommissionConverter {
 			purchasesTable.addRow(row);
 		});
 
-		purchasesSheet.addPurchaseCommissionTable(purchasesTable);
+		purchasesSheet.addPurchaseTable(purchasesTable);
 
 
 		// SIGNUPS
 		const signUpsSheet = new SignupSheet();
-		const signUpsTable = new SignupCommissionTable();
+		const signUpsTable = new SignupTable();
 
 		const totalSignUps = signUps.length;
 
 		let totalSignUpCommission = 0;
 
 		signUps.forEach((signUp) => {
-			const row = new SignupCommissionRow([]);
+			const row = new SignupRow([]);
 
 			const commissionAmount = signUp.contact.commissions.find(commission => commission.conversionType === conversionTypeEnum.SIGNUP)?.amount ?? 0;
 
@@ -139,7 +146,7 @@ export class CommissionConverter {
 			signUpsTable.addRow(row);
 		});
 
-		signUpsSheet.addSignupCommissionTable(signUpsTable);
+		signUpsSheet.addSignupTable(signUpsTable);
 
 
 		// SUMMARY 
@@ -157,7 +164,7 @@ export class CommissionConverter {
 		commissionsSummaryList.addCommissionOnPurchases(Number(totalPurchaseCommission));
 
 		commissionsSummaryList.addRevenue(Number(totalRevenue));
-		commissionsSummaryList.addTotalCommission(Number(totalSignUpCommission + totalPurchaseCommission));
+		commissionsSummaryList.addTotalCommission(Number(totalSignUpCommission) + Number(totalPurchaseCommission));
 
 		summarySheet.addCommissionSummaryList(commissionsSummaryList);
 
