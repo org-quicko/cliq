@@ -49,11 +49,10 @@ export class Condition {
 				parsedValue = Number(parsedValue);
 
 				if (numSignUps === undefined) return false;
-				if (
-					this.operator ===
-					conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO
-				) {
+				if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
 					return numSignUps <= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.LESS_THAN) {
+					return numSignUps < parsedValue;
 				} else if (this.operator === conditionOperatorEnum.EQUALS) {
 					return numSignUps === parsedValue;
 				}
@@ -63,11 +62,10 @@ export class Condition {
 				parsedValue = Number(parsedValue);
 
 				if (numPurchases === undefined) return false;
-				if (
-					this.operator ===
-					conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO
-				) {
+				if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
 					return numPurchases <= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.LESS_THAN) {
+					return numPurchases < parsedValue;
 				} else if (this.operator === conditionOperatorEnum.EQUALS) {
 					return numPurchases === parsedValue;
 				}

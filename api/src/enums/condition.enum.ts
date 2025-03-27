@@ -6,6 +6,7 @@ export enum conditionParameterEnum {
 
 export enum conditionOperatorEnum {
 	LESS_THAN_OR_EQUAL_TO = 'less_than_or_equal_to',
+	LESS_THAN = 'less_than',
 	EQUALS = 'equals',
 	CONTAINS = 'contains',
 }
