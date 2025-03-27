@@ -1,0 +1,69 @@
+<mat-dialog-content class="w-[516px] rounded-[5px] p-6 bg-surface-container-lowest">
+	<form [formGroup]="reportForm" (ngSubmit)="onSubmit()">
+		<div class="flex flex-col gap-8">
+			<div class="flex justify-between">
+				<div class="flex flex-col gap-2">
+					<div class="size-6">
+						<mat-icon class="text-on-surface-variant">
+							assignment_add
+						</mat-icon>
+					</div>
+					<div class="text-on-surface mat-title-large">
+						<span>Generate {{ data.reportName }} report</span>
+					</div>
+				</div>
+				<div class="cursor-pointer" (click)="closeDialog()">
+					<mat-icon>
+						close
+					</mat-icon>
+				</div>
+			</div>
+			<div class="flex flex-col gap-6">
+
+				<mat-form-field [appearance]="'outline'" class="w-full">
+					<mat-label>Select Period</mat-label>
+					<mat-select formControlName="reportPeriod" class="bg-surface-container-lowest">
+						@for (period of reportPeriod; track period) {
+						@if (period === 'last_7_days' || period === 'custom') {
+						<mat-divider class="border-gray-300"></mat-divider>
+						}
+						<mat-option [value]="period" class="h-auto bg-surface-container-lowest">{{ period |
+							snakeToCapitalized }}</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
+
+				<mat-form-field [appearance]="'outline'" class="w-full">
+					<mat-label>Select date range</mat-label>
+					<mat-date-range-input
+						[rangePicker]="reportStartEndPicker"
+						[comparisonStart]="reportForm.value.start"
+						[comparisonEnd]="reportForm.value.end"
+					>
+						<input matStartDate placeholder="Start date" formControlName="start">
+						<input matEndDate placeholder="End date" formControlName="end">
+					</mat-date-range-input>
+					<mat-datepicker-toggle matIconSuffix [for]="reportStartEndPicker">
+						<mat-icon matDatepickerToggleIcon class="material-symbols-outlined">today</mat-icon>
+					</mat-datepicker-toggle>
+					<mat-date-range-picker #reportStartEndPicker>
+					</mat-date-range-picker>
+				</mat-form-field>
+			</div>
+		</div>
+		<div>
+			<mat-dialog-actions class="!px-0 flex justify-end gap-2">
+				<button matRipple mat-button mat-dialog-close type="button"
+					class="w-[70px] h-10 text-primary mat-label-large cursor-pointer">Cancel</button>
+				<button
+					matRipple
+					mat-button
+					type="submit"
+					class="w-[110px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer"
+				>
+					Generate
+				</button>
+			</mat-dialog-actions>
+		</div>
+	</form>
+</mat-dialog-content>
