@@ -9,7 +9,7 @@ import {
 	Commission,
 	Purchase,
 	ReferralView,
-	ReferralAggregateView,
+	PromoterStatsView,
 } from '../entities';
 import { PromoterModule } from './promoter.module';
 import { ProgramConverter } from 'src/converters/program.converter';
@@ -20,6 +20,7 @@ import { SignUpModule } from './signUp.module';
 import { ReferralModule } from './referral.module';
 import { CommissionModule } from './commission.module';
 import { CircleModule } from './circle.module';
+import { PromoterStatsModule } from './promoterStats.module';
 
 @Module({
 	imports: [
@@ -29,12 +30,13 @@ import { CircleModule } from './circle.module';
 			ProgramPromoter,
 			Purchase,
 			Commission,
-			ReferralAggregateView,
+			PromoterStatsView,
 			ReferralView,
 		]),
 		CommissionModule,
 		PromoterModule,
 		ReferralModule,
+		PromoterStatsModule,
 		forwardRef(() => CircleModule),
 		forwardRef(() => ContactModule),
 		forwardRef(() => PurchaseModule),

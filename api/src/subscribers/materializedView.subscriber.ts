@@ -1,4 +1,4 @@
-import { linkStatsMVName, referralAggregateMVName, referralMVName } from 'src/constants';
+import { linkStatsMVName, promoterStatsMVName, referralMVName } from 'src/constants';
 import { Commission, Link, Purchase, SignUp } from '../entities';
 import {
     EventSubscriber,
@@ -50,12 +50,12 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
             );
 
             await event.queryRunner.query(`
-                CREATE UNIQUE INDEX IF NOT EXISTS ${referralMVName}_aggregate_idx 
-                ON ${referralAggregateMVName} (program_id, promoter_id);
+                CREATE UNIQUE INDEX IF NOT EXISTS ${promoterStatsMVName}_idx 
+                ON ${promoterStatsMVName} (program_id, promoter_id);
             `);
 
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${referralAggregateMVName};`,
+                `REFRESH MATERIALIZED VIEW ${promoterStatsMVName};`,
             );
 
             await event.queryRunner.query(

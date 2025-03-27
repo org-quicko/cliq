@@ -22,6 +22,7 @@ import { ReferralModule } from './modules/referral.module';
 import { BullModule } from '@nestjs/bullmq';
 import { WebhookModule } from './modules/webhook.module';
 import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
+import { PromoterStatsModule } from './modules/promoterStats.module';
 
 @Module({
 	imports: [
@@ -34,7 +35,7 @@ import { MaterializedViewSubscriber } from './subscribers/materializedView.subsc
 			database: process.env.DB_NAME,
 			autoLoadEntities: true,
 			synchronize: true,
-			logging: true, // TODO: implement logging levels for typeorm
+			logging: true, // TODO: implement only the info logging level for typeorm in prod
 			poolSize: 10,
 			connectTimeoutMS: 2000,
 			maxQueryExecutionTime: 5000,
@@ -59,6 +60,7 @@ import { MaterializedViewSubscriber } from './subscribers/materializedView.subsc
 		PromoterModule,
 		PurchaseModule,
 		ReferralModule,
+		PromoterStatsModule,
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,

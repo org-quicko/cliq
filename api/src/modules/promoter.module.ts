@@ -8,9 +8,10 @@ import {
 	Purchase,
 	SignUp,
 	ReferralView,
-	ReferralAggregateView,
+	PromoterStatsView,
 	Commission,
 	Link,
+	ProgramPromoter,
 } from '../entities';
 import { PromoterService } from '../services/promoter.service';
 import { PromoterMemberService } from '../services/promoterMember.service';
@@ -23,17 +24,19 @@ import { LinkModule } from './link.module';
 import { ContactModule } from './contact.module';
 import { PurchaseModule } from './purchase.module';
 import { SignUpModule } from './signUp.module';
+import { PromoterStatsModule } from './promoterStats.module';
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([
 			Promoter,
 			PromoterMember,
+			ProgramPromoter,
 			Contact,
 			SignUp,
 			Purchase,
 			LinkStatsView,
-			ReferralAggregateView,
+			PromoterStatsView,
 			ReferralView,
 			Commission,
 			Link
@@ -42,6 +45,7 @@ import { SignUpModule } from './signUp.module';
 		ContactModule,
 		PurchaseModule,
 		ReferralModule,
+		PromoterStatsModule,
 		SignUpModule,
 		forwardRef(() => LinkModule),
 		forwardRef(() => ProgramModule),

@@ -18,7 +18,7 @@ import {
 	PromoterMember,
 	Purchase,
 	ReferralView,
-	ReferralAggregateView,
+	PromoterStatsView,
 	SignUp,
 	Link,
 } from '../entities';
@@ -27,6 +27,7 @@ import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
+import { SkipPermissions } from 'src/decorators/skipPermissions.decorator';
 
 @ApiTags('Promoter')
 @UseGuards(AuthGuard, PermissionsGuard)
@@ -288,6 +289,7 @@ export class PromoterController {
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Query('conversion_type') conversionType: conversionTypeEnum,
+		@Query('link_id') linkId: string,
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
@@ -300,7 +302,10 @@ export class PromoterController {
 			promoterId,
 			toUseSheetJsonFormat,
 			{
-				conversionType,
+				commissions: {
+					conversionType,
+					linkId
+				}
 			},
 			{
 				skip,
@@ -537,7 +542,7 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@Permissions('read', ReferralAggregateView)
+	@Permissions('read', PromoterStatsView)
 	@Get(':promoter_id/stats')
 	async getPromoterStatistics(
 		@Headers('x-accept-type') acceptType: string,
@@ -556,5 +561,22 @@ export class PromoterController {
 
 		this.logger.info('END: getPromoterStatistics controller');
 		return { message: 'Successfully got promoter statistics.', result };
+	}
+
+	/**
+   * Sign up to program
+   */
+	@ApiResponse({ status: 201, description: 'OK' })
+	@ApiResponse({ status: 409, description: 'Conflict' })
+	@ApiResponse({ status: 400, description: 'Bad Request' })
+	@SkipPermissions()
+	@Get(':promoter_id/referrals')
+	async signUpToProgram(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
+	  this.logger.info('START: signUpToProgram controller');
+  
+	  const result = await this.promoterService.signUpPromoterToProgram(programId, promoterId);
+  
+	  this.logger.info('END: signUpToProgram controller');
+	  return { message: 'Successfully got program referrals.', result };
 	}
 }

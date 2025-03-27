@@ -22,7 +22,7 @@ import {
 	PromoterMember,
 	Purchase,
 	ReferralView,
-	ReferralAggregateView,
+	PromoterStatsView,
 	SignUp,
 	Link,
 	Commission,
@@ -50,6 +50,7 @@ import { SignUpWorkbook } from 'generated/sources/SignUp';
 import { PromoterWorkbook } from 'generated/sources/Promoter';
 import { CommissionWorkbook } from 'generated/sources/Commission';
 import { LinkWorkbook } from 'generated/sources/Link';
+import { PromoterStatsConverter } from 'src/converters/promoterStats.converter';
 
 @Injectable()
 export class PromoterService {
@@ -78,9 +79,11 @@ export class PromoterService {
 		@InjectRepository(ReferralView)
 		private referralViewRepository: Repository<ReferralView>,
 
-		@InjectRepository(ReferralAggregateView)
-		private referralAggregateViewRepository: Repository<ReferralAggregateView>,
+		@InjectRepository(PromoterStatsView)
+		private promoterStatsRepository: Repository<PromoterStatsView>,
 
+		@InjectRepository(ProgramPromoter)
+		private programPromoterRepository: Repository<ProgramPromoter>,
 
 		private programService: ProgramService,
 		private memberService: MemberService,
@@ -94,6 +97,7 @@ export class PromoterService {
 		private signUpConverter: SignUpConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
+		private promoterStatsConverter: PromoterStatsConverter,
 
 		private datasource: DataSource,
 
@@ -134,12 +138,6 @@ export class PromoterService {
 				role: roleEnum.ADMIN,
 			});
 
-			// form the relation
-			await programPromoterRepository.save({
-				programId,
-				promoterId: savedPromoter.promoterId,
-			});
-
 			// add to program's default circle
 			const defaultCircle = await circleRepository.findOne({
 				where: {
@@ -168,6 +166,22 @@ export class PromoterService {
 			this.logger.info('END: createPromoter service');
 			return promoterDto;
 		});
+	}
+
+	async signUpPromoterToProgram(programId: string, promoterId: string) {
+		this.logger.info(`START: signUpToProgram service`);
+
+		if (await this.programPromoterRepository.findOne({ where: { programId, promoterId } })) {
+			this.logger.error(`Error. Promoter is already part of program!`);
+			throw new ConflictException(`Error. Promoter is already part of program!`);
+		}
+
+		await this.programPromoterRepository.save({
+			programId,
+			promoterId,
+		});
+
+		this.logger.info(`END: signUpToProgram service`);
 	}
 
 	/**
@@ -623,10 +637,12 @@ export class PromoterService {
 		programId: string,
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
-		whereOptions: FindOptionsWhere<Commission> = {},
+		whereOptions: FindOptionsWhere<Promoter> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getPromoterCommissions service');
+
+		const referralKeyType = (await this.programService.getProgramEntity(programId)).referralKeyType;
 
 		const promoterResult = await this.promoterRepository.findOne({
 			where: {
@@ -639,7 +655,10 @@ export class PromoterService {
 				...whereOptions
 			},
 			relations: {
-				commissions: true,
+				commissions: {
+					link: true,
+					contact: true
+				},
 			},
 			...queryOptions,
 		});
@@ -658,7 +677,7 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const commissionSheetJson = this.commissionConverter.convertToSheet(promoterResult?.commissions ?? []);
+			const commissionSheetJson = this.commissionConverter.convertToSheet(promoterResult?.commissions ?? [], referralKeyType);
 
 			this.logger.info(`END: getPromoterCommissions service: Returning Workbook`);
 			return commissionSheetJson;
@@ -835,8 +854,8 @@ export class PromoterService {
 		const commissionSheetJsonWorkbook = this.commissionConverter.convertToReportWorkbook(signUpsResult, purchasesResult, promoterResult, startDate, endDate);
 
 		// get both tables and the list
-		const purchasesTable = commissionSheetJsonWorkbook.getPurchaseSheet().getPurchaseCommissionTable();
-		const signUpsTable = commissionSheetJsonWorkbook.getSignupSheet().getSignupCommissionTable();
+		const purchasesTable = commissionSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
+		const signUpsTable = commissionSheetJsonWorkbook.getSignupSheet().getSignupTable();
 		const commissionSummaryList = commissionSheetJsonWorkbook.getCommissionSummarySheet().getCommissionSummaryList();
 
 		const workbook = CommissionWorkbook.toXlsx();
@@ -948,7 +967,7 @@ export class PromoterService {
 		await this.programService.getProgram(programId);
 		await this.getPromoter(promoterId);
 
-		const referralAggregateResult = await this.referralAggregateViewRepository.findOne(
+		const promoterStatsResult = await this.promoterStatsRepository.findOne(
 			{
 				where: {
 					programId,
@@ -958,7 +977,7 @@ export class PromoterService {
 		);
 
 		let referralDto;
-		if (!referralAggregateResult) {
+		if (!promoterStatsResult) {
 			referralDto = {
 				programId,
 				promoterId,
@@ -968,12 +987,12 @@ export class PromoterService {
 				totalPurchases: 0,
 			};
 		} else {
-			referralDto = referralAggregateResult;
+			referralDto = promoterStatsResult;
 		}
 
 		if (toUseSheetJsonFormat) {
-			const promoterWorkbook = this.referralConverter.convertReferralAggregateViewToSheet([
-				referralAggregateResult ?? {
+			const promoterWorkbook = this.promoterStatsConverter.convertPromoterStatsViewToSheet([
+				promoterStatsResult ?? {
 					programId,
 					promoterId,
 					totalCommission: 0,
@@ -989,27 +1008,6 @@ export class PromoterService {
 
 		this.logger.info(`END: getPromoterStatistics service`);
 		return referralDto;
-	}
-
-	async getFirstPromoterReferral(promoterId: string) {
-		this.logger.info(`START: getFirstPromoterReferral service`);
-
-		await this.getPromoter(promoterId);
-		const referralResult = await this.referralAggregateViewRepository.findOne(
-			{ where: { promoterId } },
-		);
-
-		if (!referralResult) {
-			this.logger.error(
-				`Error. Failed to get first referral for Promoter ID: ${promoterId}.`,
-			);
-			throw new NotFoundException(
-				`Error. Failed to get first referral for Promoter ID: ${promoterId}.`,
-			);
-		}
-
-		this.logger.info(`END: getFirstPromoterReferral service`);
-		return referralResult;
 	}
 
 	async getPromoterLinkStatistics(programId: string, promoterId: string, toUseSheetJsonFormat: boolean = true) {

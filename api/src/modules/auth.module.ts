@@ -12,6 +12,7 @@ import { ReferralModule } from './referral.module';
 import { CommissionModule } from './commission.module';
 import { WebhookModule } from './webhook.module';
 import { ApiKeyGuard } from 'src/guards/apiKey.guard';
+import { PromoterStatsModule } from './promoterStats.module';
 
 @Global()
 @Module({
@@ -24,6 +25,7 @@ import { ApiKeyGuard } from 'src/guards/apiKey.guard';
 		PromoterModule,
 		PurchaseModule,
 		ReferralModule,
+		PromoterStatsModule,
 		SignUpModule,
 		WebhookModule,
 	],

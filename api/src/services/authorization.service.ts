@@ -23,7 +23,7 @@ import {
     PromoterMember,
     Purchase,
     ReferralView,
-    ReferralAggregateView,
+    PromoterStatsView,
     SignUp,
     User,
     Webhook,
@@ -45,6 +45,7 @@ import { SignUpService } from './signUp.service';
 import { PurchaseService } from './purchase.service';
 import { ReferralService } from './referral.service';
 import { WebhookService } from './webhook.service';
+import { PromoterStatsService } from './promoterStats.service';
 
 // manage is a keyword in CASL that means the admin can do anything
 export const actions = [
@@ -78,6 +79,14 @@ type FlatCommission = Commission & {
     'contact.programId': Commission['contact']['programId']
 };
 
+type FlatPromoter = Promoter & {
+    'promoter.programPromoters': Promoter['programPromoters']
+};
+
+type FlatMember = Member & {
+    'member.programId': Member['program']['programId']
+}
+
 export type actionsType = (typeof actions)[number];
 export type subjectsType =
     | InferSubjects<
@@ -96,10 +105,11 @@ export type subjectsType =
         | typeof ProgramPromoter
         | typeof Purchase
         | typeof ReferralView
-        | typeof ReferralAggregateView
+        | typeof PromoterStatsView
         | typeof SignUp
         | typeof User
         | typeof Webhook
+    // | typeof Array
     >
     | 'all';
 
@@ -132,6 +142,7 @@ export class AuthorizationService {
         private programPromoterService: ProgramPromoterService,
         private promoterMemberService: PromoterMemberService,
         private referralService: ReferralService,
+        private promoterStatsService: PromoterStatsService,
         private webhookService: WebhookService,
 
         private logger: LoggerService,
@@ -291,7 +302,7 @@ export class AuthorizationService {
                     );
                 } else if (subject === Function) {
                     if (action === 'create') return subject;
-                    
+
                     if (!subjectProgramId) {
                         throw new BadRequestException(
                             `Error. Must provide Program ID for performing action on object.`,
@@ -322,14 +333,14 @@ export class AuthorizationService {
                         subjectProgramId,
                         subjectPromoterId,
                     );
-                } else if (subject === ReferralAggregateView) {
+                } else if (subject === PromoterStatsView) {
                     if (!subjectProgramId && !subjectPromoterId) {
                         throw new BadRequestException(
                             `Error. Must provide a Program ID or a Promoter ID for performing action on object`,
                         );
                     }
 
-                    return this.referralService.getFirstReferralAggregate(
+                    return this.promoterStatsService.getFirstPromoterStat(
                         subjectProgramId,
                         subjectPromoterId,
                     );
@@ -406,7 +417,7 @@ export class AuthorizationService {
                 'read',
                 [
                     ReferralView,
-                    ReferralAggregateView,
+                    PromoterStatsView,
                     ProgramPromoter,
                     Link,
                     Circle,
@@ -457,53 +468,22 @@ export class AuthorizationService {
         return ability;
     }
 
-    /**
-     * Assigns program admin and super admin permissions.
-     */
-    private assignAdminPermissions(abilityBuilder: AbilityBuilder<AppAbility>, programId: string) {
-
-        const { can: allow } = abilityBuilder;
-
-        allow('manage', ApiKey, { programId });
-
-        // TODO: ensure that user cannot add promoter for different program in service
-        allow('manage', Promoter, { programPromoters: { programId } });
-
-        // Can update program or invite other users to the program
-        allow(['update', 'invite_user'], Program, { programId });
-
-        // Can change other users' roles & permissions (excluding super admin)
-        allow(['change_role', 'remove_user'], ProgramUser, {
-            programId,
-            role: { $ne: roleEnum.SUPER_ADMIN },
-        });
-
-        allow('invite_user', ProgramUser, { programId });
-
-        // Can manage circles, functions, and links
-        allow('manage', [Link, Circle, Function], { programId });
-
-        allow('manage', [ApiKey], { programId });
-
-        allow('read', Purchase, { contact: { programId } });
-        allow('read', SignUp, { contact: { programId } });
-        allow('read', Commission, { contact: { programId } });
-    }
-
     getApiUserAbility(programId: string) {
         this.logger.info(`START: getApiUserAbility service`);
 
         const abilityBuilder = new AbilityBuilder<AppAbility>(createAbility);
         const { can: allow, build } = abilityBuilder;
 
-        allow('manage', [Promoter, PromoterMember, Member]);
-        this.assignAdminPermissions(abilityBuilder, programId);
-
+        allow('manage', [Member]);
+        allow<FlatPromoter>('manage', Promoter, { 'promoter.programPromoters': { $elemMatch: { programId } } }); // can manage a promoter of that program
+        allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: roleEnum.SUPER_ADMIN } });
+        allow('manage', ApiKey, { programId });
+        allow(['update', 'invite_user'], Program, { programId });
         allow('manage', [ApiKey, Webhook], { programId });
         allow('read', Program, { programId });
-        allow('read', Purchase, { contact: { programId } });
-        allow('read', SignUp, { contact: { programId } });
-        allow('read', Commission, { contact: { programId } });
+        allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
+        allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
+        allow<FlatCommission>('read', Commission, { 'contact.programId': programId });
 
         const ability = build({
             detectSubjectType: (item) => item.constructor as ExtractSubjectType<subjectsType>,
@@ -524,7 +504,7 @@ export class AuthorizationService {
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
             allow(['read', 'leave'], Promoter, { promoterId });
             allow('read', ReferralView, { promoterId });
-            allow('read', ReferralAggregateView, { promoterId });
+            allow('read', PromoterStatsView, { promoterId });
             allow('read', Commission, { promoterId });
             allow('read_all', PromoterMember, { promoterId });
             allow('read', Member, { promoterMembers: { promoterId } });

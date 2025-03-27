@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { PromoterWorkbook, ReferralRow, ReferralSheet, ReferralSummaryRow, ReferralSummarySheet, ReferralSummaryTable, ReferralTable } from "generated/sources/Promoter";
-import { ReferralView, ReferralAggregateView } from "src/entities";
+import { PromoterWorkbook, ReferralRow, ReferralSheet, ReferralTable } from "generated/sources/Promoter";
+import { ReferralView } from "src/entities";
 import { maskInfo } from "src/utils";
 import { formatDate } from "src/utils/formatDate.util";
 
@@ -33,31 +33,6 @@ export class ReferralConverter {
 
         const promoterWorkbook = new PromoterWorkbook();
         promoterWorkbook.addSheet(referralSheet);
-
-        return promoterWorkbook;
-    }
-
-    convertReferralAggregateViewToSheet(referralAggs: ReferralAggregateView[]): PromoterWorkbook {
-        const newReferralSummaryTable = new ReferralSummaryTable();
-
-        referralAggs.forEach((referralAgg) => {
-            const row = new ReferralSummaryRow([]);
-
-            row.setProgramId(referralAgg.programId);
-            row.setPromoterId(referralAgg.promoterId);
-            row.setTotalSignups(Number(referralAgg.totalSignUps));
-            row.setTotalPurchases(Number(referralAgg.totalPurchases));
-            row.setTotalRevenue(Number(referralAgg.totalRevenue));
-            row.setTotalCommission(Number(referralAgg.totalCommission));
-
-            newReferralSummaryTable.addRow(row);
-        });
-
-        const referralAggregateSheet = new ReferralSummarySheet();
-        referralAggregateSheet.addReferralSummaryTable(newReferralSummaryTable);
-
-        const promoterWorkbook = new PromoterWorkbook();
-        promoterWorkbook.addSheet(referralAggregateSheet);
 
         return promoterWorkbook;
     }

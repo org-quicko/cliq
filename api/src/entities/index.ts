@@ -15,6 +15,7 @@ export * from './programPromoter.entity';
 export * from './promoterMember.entity';
 export * from './programUser.entity';
 export * from './programUser.entity';
+export * from './promoterStats.view';
 export * from './user.entity';
 export * from './referral.view';
 export * from './signUp.entity';

@@ -1,5 +1,6 @@
 import {
 	BadGatewayException,
+	ConflictException,
 	ForbiddenException,
 	forwardRef,
 	Inject,
