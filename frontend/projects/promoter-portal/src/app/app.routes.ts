@@ -11,6 +11,8 @@ import { ReportsComponent } from './components/home/components/reports/reports.c
 import { SettingsComponent } from './components/home/components/settings/settings.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { PromoterResolver } from './resolver/promoter.resolver';
+import { LinkCommissionsComponent } from './components/home/components/dashboard/components/link-commissions/link-commissions.component';
+import { ReferralCommissionsComponent } from './components/home/components/referrals/referral-commissions/referral-commissions.component';
 
 export const routes: Routes = [
 	{
@@ -27,8 +29,35 @@ export const routes: Routes = [
 				component: HomeComponent,
 				children: [
 					{ path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-					{ path: 'dashboard', component: DashboardComponent },
-					{ path: 'referrals', component: ReferralsComponent },
+					{
+						path: 'dashboard',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: DashboardComponent
+							},
+							{
+								path: 'links/:link_id/commissions',
+								component: LinkCommissionsComponent
+							}
+						]
+
+					},
+					{
+						path: 'referrals',
+						children: [
+							{
+								path: '',
+								pathMatch: 'full',
+								component: ReferralsComponent
+							},
+							{
+								path: 'referrals/:contact_id/commissions',
+								component: ReferralCommissionsComponent
+							}
+						]
+					},
 					{ path: 'reports', component: ReportsComponent },
 					{ path: 'settings', component: SettingsComponent },
 				],
