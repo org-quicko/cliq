@@ -13,6 +13,7 @@ import { LinkConverter } from '../converters/link.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from 'src/constants';
+import { statusEnum } from 'src/enums';
 
 @Injectable()
 export class LinkService {
@@ -83,6 +84,7 @@ export class LinkService {
 				promoter: {
 					promoterId,
 				},
+				status: statusEnum.ACTIVE,
 				...whereOptions,
 			},
 			...queryOptions,
@@ -140,10 +142,10 @@ export class LinkService {
 
 		if (!linkResult) {
 			this.logger.error(
-				`Error. Failed to get first link for Program ID: ${programId} and Promoter ID: ${promoterId}.`,
+				`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`,
 			);
 			throw new NotFoundException(
-				`Error. Failed to get first link for Program ID: ${programId} and Promoter ID: ${promoterId}.`,
+				`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`,
 			);
 		}
 
@@ -166,9 +168,10 @@ export class LinkService {
 				`Failed to get link for link_id: ${linkId}`,
 			);
 		}
-
+		const linkDto = this.linkConverter.convert(linkResult);
+		
 		this.logger.info('END: getLink service');
-		return this.linkConverter.convert(linkResult);
+		return linkDto;
 	}
 
 	/**
@@ -202,9 +205,10 @@ export class LinkService {
 	/**
 	 * Delete a link
 	 */
-	async deleteALink(linkId: string) {
-		this.logger.info('START: deleteALink service');
-		await this.linkRepository.delete({ linkId });
-		this.logger.info('END: deleteALink service');
+	async deleteLink(linkId: string) {
+		this.logger.info('START: deleteLink service');
+		
+		await this.linkRepository.update({ linkId }, { status: statusEnum.INACTIVE });
+		this.logger.info('END: deleteLink service');
 	}
 }

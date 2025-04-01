@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Patch } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { LinkService } from '../services/link.service';
 import { CreateLinkDto } from '../dtos';
@@ -80,9 +80,9 @@ export class LinkController {
 	async deleteALink(@Param('link_id') linkId: string) {
 		this.logger.info('START: deleteALink controller');
 
-		await this.linkService.deleteALink(linkId);
+		await this.linkService.deleteLink(linkId);
 
-		this.logger.info('END: deleteALink controller');
+		this.logger.info('END: deleteLink controller');
 		return { message: 'Successfully deleted link.' };
 	}
 }
