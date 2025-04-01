@@ -1,11 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { subMonths, subWeeks, startOfWeek, startOfMonth, subDays } from 'date-fns';
 import { reportPeriodEnum } from '../enums/reportPeriod.enum';
-
-interface StartEndDateInterface {
-    parsedStartDate: Date;
-    parsedEndDate: Date;
-}
+import { StartEndDateInterface } from 'src/interfaces/startEndDate.interface';
 
 export function getStartEndDate(startDate: (string | undefined), endDate: (string | undefined), reportPeriod?: reportPeriodEnum): StartEndDateInterface {
     
@@ -17,7 +13,7 @@ export function getStartEndDate(startDate: (string | undefined), endDate: (strin
         };
     }
 
-    if (reportPeriod) {
+    if (reportPeriod && reportPeriod !== reportPeriodEnum.CUSTOM) {
         return getPeriodStartEndDate(reportPeriod);
     }
 

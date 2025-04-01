@@ -17,4 +17,6 @@ export const eventTypePrefix = 'org.quicko.cliq';
 
 export const eventQueueName = 'org-quicko-cliq-event-queue';
 
+export const linkTableName = 'link';
+
 export const defaultQueryOptions: QueryOptionsInterface = { skip: 0, take: 10 };
