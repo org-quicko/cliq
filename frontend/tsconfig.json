@@ -19,23 +19,23 @@
 			"@org.quicko.cliq/ngx-core": [
 				"./dist/@org.quicko.cliq/ngx-core"
 			],
-			"@org.quicko.cliq/ngx-core/src/generated/sources/Commission": [
-				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Commission"
+			"@org.quicko.cliq/ngx-core/generated/sources/Commission": [
+				"./dist/@org.quicko.cliq/ngx-core/generated/sources/Commission"
 			],
-			"@org.quicko.cliq/ngx-core/src/generated/sources/Link": [
-				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Link"
+			"@org.quicko.cliq/ngx-core/generated/sources/Link": [
+				"./dist/@org.quicko.cliq/ngx-core/generated/sources/Link"
 			],
-			"@org.quicko.cliq/ngx-core/src/generated/sources/Program": [
-				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Program"
+			"@org.quicko.cliq/ngx-core/generated/sources/Program": [
+				"./dist/@org.quicko.cliq/ngx-core/generated/sources/Program"
 			],
-			"@org.quicko.cliq/ngx-core/src/generated/sources/Promoter": [
-				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Promoter"
+			"@org.quicko.cliq/ngx-core/generated/sources/Promoter": [
+				"./dist/@org.quicko.cliq/ngx-core/generated/sources/Promoter"
 			],
-			"@org.quicko.cliq/ngx-core/src/generated/sources/Purchase": [
-				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/Purchase"
+			"@org.quicko.cliq/ngx-core/generated/sources/Purchase": [
+				"./dist/@org.quicko.cliq/ngx-core/generated/sources/Purchase"
 			],
-			"@org.quicko.cliq/ngx-core/src/generated/sources/SignUp": [
-				"./dist/@org.quicko.cliq/ngx-core/src/generated/sources/SignUp"
+			"@org.quicko.cliq/ngx-core/generated/sources/SignUp": [
+				"./dist/@org.quicko.cliq/ngx-core/generated/sources/SignUp"
 			],
 		},
 		"moduleResolution": "bundler",
