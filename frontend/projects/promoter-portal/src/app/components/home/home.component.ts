@@ -5,12 +5,11 @@ import { ProgramStore } from '../../store/program.store';
 import { PromoterStore } from '../../store/promoter.store';
 import { HeaderComponent } from './components/header/header.component';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
-import { CommissionStore } from './store/commission.store';
 
 @Component({
 	selector: 'app-home',
 	imports: [HeaderComponent, SideNavComponent, RouterOutlet],
-	providers: [CommissionStore],
+	providers: [],
 	templateUrl: './home.component.html',
 	styleUrl: './home.component.scss',
 	standalone: true,
@@ -23,7 +22,6 @@ export class HomeComponent implements OnInit {
 
 	readonly promoterStore = inject(PromoterStore);
 
-	readonly commissionStore = inject(CommissionStore);
 
 	constructor(
 		private router: Router,
@@ -32,11 +30,10 @@ export class HomeComponent implements OnInit {
 		effect(() => {
 			// console.log(this.promoterStore.promoter());
 			// console.log(this.memberStore.member());
-			// console.log(this.commissionStore.commissions());
 		});
 	}
 
 	ngOnInit() {
-		this.commissionStore.getPromoterCommissions();
+		// this.commissionStore.getPromoterCommissions();
 	}
 }
