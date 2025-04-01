@@ -48,6 +48,7 @@ export class CommissionConverter {
 				row.setConversionType(commission.conversionType);
 				row.setRevenue(Number(commission.revenue ?? 0));
 				row.setCreatedAt(commission.createdAt.toISOString());
+				row.setUpdatedAt(commission.updatedAt.toISOString());
 				row.setLinkId(commission.linkId);
 				row.setReferral(maskInfo(referral));
 	
