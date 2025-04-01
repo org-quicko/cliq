@@ -2,7 +2,7 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ProgramStore } from './store/program.store';
 import { ThemeService, ColorUtil } from '@org.quicko.cliq/ngx-core';
-
+import * as moment from 'moment';
 
 @Component({
 	selector: 'app-root',
@@ -18,7 +18,11 @@ export class AppComponent implements OnInit {
 
 	title = computed(() => this.programStore.program()?.name);
 
-	constructor() { }
+	constructor() {
+		moment.updateLocale('en', {
+			week: { dow: 1 } // setting monday as the start of the week
+		});
+	}
 
 	ngOnInit() {
 		this.themeService.initializeTheme();
