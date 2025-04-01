@@ -503,7 +503,7 @@ export class AuthorizationService {
 
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
             allow(['read', 'leave'], Promoter, { promoterId });
-            allow('read', ReferralView, { promoterId });
+            allow(['read', 'read_all'], ReferralView, { promoterId });
             allow('read', PromoterStatsView, { promoterId });
             allow('read', Commission, { promoterId });
             allow('read_all', PromoterMember, { promoterId });

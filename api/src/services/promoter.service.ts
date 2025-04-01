@@ -609,8 +609,9 @@ export class PromoterService {
 		await this.programService.getProgram(programId);
 		await this.getPromoter(promoterId);
 
-		const referralResult = await this.referralViewRepository.find({
+		const [referralResult, count] = await this.referralViewRepository.findAndCount({
 			where: {
+				programId,
 				promoterId,
 				...whereOptions
 			},
@@ -619,7 +620,7 @@ export class PromoterService {
 		});
 
 		if (toUseSheetJsonFormat) {
-			const commissionSheetJson = this.referralConverter.convertReferralViewToSheet(referralResult);
+			const commissionSheetJson = this.referralConverter.convertReferralViewToSheet(referralResult, count);
 
 			this.logger.info(`END: getPromoterReferrals service: Returning Workbook`);
 			return commissionSheetJson;
@@ -628,6 +629,36 @@ export class PromoterService {
 
 		this.logger.info(`END: getPromoterReferrals service`);
 		return referralResult;
+	}
+
+	async getPromoterReferral(
+		programId: string,
+		promoterId: string,
+		contactId: string,
+	) {
+		this.logger.info(`START: getPromoterReferral service`);
+
+		// checking if the program and promoter exist
+		await this.programService.getProgram(programId);
+		await this.getPromoter(promoterId);
+
+		const referralResult = await this.referralViewRepository.findOne({
+			where: {
+				programId,
+				promoterId,
+				contactId,
+			},
+		});
+
+		if (!referralResult) {
+			this.logger.error(`Error. Referral not found for contactId ${contactId}`);
+			throw new NotFoundException(`Error. Referral not found for contactId ${contactId}`);
+		}
+
+		const referralDto = this.referralConverter.convertTo(referralResult);
+
+		this.logger.info(`END: getPromoterReferral service`);
+		return referralDto;
 	}
 
 	/**
@@ -671,9 +702,9 @@ export class PromoterService {
 			this.logger.warn(
 				`failed to get commissions for promoter ${promoterId}`,
 			);
-			// throw new NotFoundException(
-			// 	`No commissions found for promoter ${promoterId}`,
-			// );
+			throw new NotFoundException(
+				`No commissions found for promoter ${promoterId}`,
+			);
 		}
 
 		if (toUseSheetJsonFormat) {
