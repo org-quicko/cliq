@@ -13,6 +13,7 @@ export * from './programUser.dto';
 export * from './promoter.dto';
 export * from './promoterMember.dto';
 export * from './purchase.dto';
+export * from './referral.dto';
 export * from './signUp.dto';
 export * from './switchCircle.dto';
 export * from './user.dto';
