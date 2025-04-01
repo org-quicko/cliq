@@ -93,6 +93,7 @@ export class PurchaseService {
 				lastName: body?.lastName,
 				phone: body?.phone,
 				externalId: body?.externalId,
+				status: contactStatusEnum.ACTIVE
 			};
 
 			if (
@@ -124,8 +125,7 @@ export class PurchaseService {
 					...createContactBody,
 					program: programResult,
 				});
-				associatedContact =
-					await contactRepository.save(associatedContact);
+				associatedContact = await contactRepository.save(associatedContact);
 
 				if (!associatedContact) {
 					this.logger.error(`Error. Failed to create new contact.`);
@@ -158,6 +158,7 @@ export class PurchaseService {
 				{ status: contactStatusEnum.ACTIVE, updatedAt: () => `NOW()` },
 			);
 
+			
 			const purchaseCreatedEvent = new PurchaseCreatedEvent(
 				associatedContact.programId,
 				'urn:POST:/purchases',
@@ -177,7 +178,7 @@ export class PurchaseService {
 				},
 				savedPurchase.purchaseId,
 			);
-
+			
 			this.eventEmitter.emit(PURCHASE_CREATED, purchaseCreatedEvent);
 
 			return this.purchaseConverter.convert(savedPurchase);
