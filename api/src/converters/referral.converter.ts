@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
+import { JSONObject } from "@org.quicko/core";
 import { PromoterWorkbook, ReferralRow, ReferralSheet, ReferralTable } from "generated/sources/Promoter";
+import { ReferralDto } from "src/dtos";
 import { ReferralView } from "src/entities";
 import { maskInfo } from "src/utils";
 import { formatDate } from "src/utils/formatDate.util";
@@ -7,29 +9,41 @@ import { formatDate } from "src/utils/formatDate.util";
 @Injectable()
 export class ReferralConverter {
 
-    private getReferralViewSheetRow(referral: ReferralView): ReferralRow {
-        const newReferralRow = new ReferralRow([]);
+    convertTo(referral: ReferralView): ReferralDto{
+        const referralDto = new ReferralDto();
 
-        newReferralRow.setPromoterId(referral.promoterId);
-        newReferralRow.setStatus(referral.status);
-        newReferralRow.setContactId(referral.contactId);
-        newReferralRow.setContactInfo(maskInfo(referral.contactInfo));
-        newReferralRow.setTotalRevenue(Number(referral.totalRevenue));
-        newReferralRow.setTotalCommission(Number(referral.totalCommission));
-        newReferralRow.setUpdatedAt(formatDate(referral.updatedAt));
+        referralDto.contactId = referral.contactId;
+        referralDto.programId = referral.programId;
+        referralDto.promoterId = referral.promoterId;
+        referralDto.contactInfo = maskInfo(referral.contactInfo);
+        referralDto.status = referral.status;
+        referralDto.totalCommission = referral.totalCommission;
+        referralDto.totalRevenue = referral.totalRevenue;
+        referralDto.updatedAt = referral.updatedAt;
 
-        return newReferralRow;
+        return referralDto;
     }
 
-    convertReferralViewToSheet(referrals: ReferralView[]): PromoterWorkbook {
-        const newReferralTable = new ReferralTable();
+    convertReferralViewToSheet(referrals: ReferralView[], count: number): PromoterWorkbook {
+        const referralTable = new ReferralTable();
+        referralTable.metadata = new JSONObject({ count });
+
         referrals.forEach((referral) => {
-            const newReferralRow = this.getReferralViewSheetRow(referral);
-            newReferralTable.addRow(newReferralRow);
+            const row = new ReferralRow([]);
+
+            row.setPromoterId(referral.promoterId);
+            row.setStatus(referral.status);
+            row.setContactId(referral.contactId);
+            row.setContactInfo(maskInfo(referral.contactInfo));
+            row.setTotalRevenue(Number(referral.totalRevenue));
+            row.setTotalCommission(Number(referral.totalCommission));
+            row.setUpdatedAt(referral.updatedAt.toISOString());
+
+            referralTable.addRow(row);
         });
 
         const referralSheet = new ReferralSheet();
-        referralSheet.addReferralTable(newReferralTable);
+        referralSheet.addReferralTable(referralTable);
 
         const promoterWorkbook = new PromoterWorkbook();
         promoterWorkbook.addSheet(referralSheet);

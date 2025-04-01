@@ -1,10 +1,11 @@
-import { linkStatsMVName, promoterStatsMVName, referralMVName } from 'src/constants';
+import { linkStatsMVName, linkTableName, promoterStatsMVName, referralMVName } from 'src/constants';
 import { Commission, Link, Purchase, SignUp } from '../entities';
 import {
     EventSubscriber,
     EntitySubscriberInterface,
     InsertEvent,
     RemoveEvent,
+    UpdateEvent,
 } from 'typeorm';
 
 @EventSubscriber()
@@ -29,6 +30,16 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 
     async afterRemove(event: RemoveEvent<any>): Promise<void> {
         if (event.entity instanceof Link) {
+            await event.queryRunner.query(
+                `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+            );
+        }
+    }
+
+    async afterUpdate(event: UpdateEvent<any>): Promise<void> {
+        console.log('Updated fields:', event.updatedColumns.map(col => col.propertyName), event.entity, event.databaseEntity);
+        
+        if (event.metadata.tableName === linkTableName) {
             await event.queryRunner.query(
                 `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
             );

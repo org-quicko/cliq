@@ -253,7 +253,7 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 201, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@Permissions('read', ReferralView)
+	@Permissions('read_all', ReferralView)
 	@Get(':promoter_id/referrals')
 	async getPromoterReferrals(
 		@Headers('x-accept-type') acceptType: string,
@@ -261,21 +261,53 @@ export class PromoterController {
 		@Param('promoter_id') promoterId: string,
 		@Query('sort_by') sortBy: referralSortByEnum = referralSortByEnum.UPDATED_AT,
 		@Query('sort_order') sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING, // latest first
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
 	) {
 		this.logger.info('START: getPromoterReferrals controller');
 
 		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
-
+		console.log(skip, take);
 		const result = await this.promoterService.getPromoterReferrals(
 			programId,
 			promoterId,
 			sortBy,
 			sortOrder,
 			toUseSheetJsonFormat,
+			undefined,
+			{
+				skip,
+				take
+			}
 		);
 
 		this.logger.info('END: getPromoterReferrals controller');
 		return { message: 'Successfully got promoter referrals.', result };
+	}
+
+	/**
+	 * Get promoter referral, for a program
+	 */
+	@ApiResponse({ status: 201, description: 'OK' })
+	@ApiResponse({ status: 400, description: 'Bad Request' })
+	@Permissions('read', ReferralView)
+	@Get(':promoter_id/referrals/:contact_id')
+	async getPromoterReferral(
+		@Headers('x-accept-type') acceptType: string,
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Param('contact_id') contactId: string,
+	) {
+		this.logger.info('START: getPromoterReferral controller');
+
+		const result = await this.promoterService.getPromoterReferral(
+			programId,
+			promoterId,
+			contactId
+		);
+
+		this.logger.info('END: getPromoterReferral controller');
+		return { message: `Successfully got promoter referral ${contactId}.`, result };
 	}
 
 	/**

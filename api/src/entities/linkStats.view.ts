@@ -1,4 +1,5 @@
 import { linkStatsMVName } from 'src/constants';
+import { statusEnum } from 'src/enums';
 import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 'typeorm';
 
 @ViewEntity({
@@ -17,6 +18,7 @@ import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 't
             .addSelect('COALESCE(c.total_commission, 0)', 'commission')
             .addSelect('l.created_at', 'created_at')
             .from('link', 'l')
+            .where(`l.status = '${statusEnum.ACTIVE}'`) // Filter for active links
             .leftJoin(
                 (qb) =>
                     qb
@@ -46,8 +48,9 @@ import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 't
                         .groupBy('com.link_id'),
                 'c',
                 'c.link_id = l.link_id',
-            )
+            );
     }
+
 })
 export class LinkStatsView {
     @ViewColumn({ name: 'link_id' })
