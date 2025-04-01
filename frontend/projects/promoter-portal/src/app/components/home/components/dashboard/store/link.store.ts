@@ -4,14 +4,14 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, shareReplay, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 // import { CreateLinkDto, LinkDto, LinkStatsTable, PromoterWorkbook, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
-import { CommissionWorkbook } from '@org.quicko.cliq/ngx-core/src/generated/sources/Commission';
 import { LinkService } from '../../../../../services/link.service';
 import { plainToInstance } from 'class-transformer';
 import { PromoterService } from '../../../../../services/promoter.service';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { Status, CreateLinkDto } from '@org.quicko.cliq/ngx-core';
-import { LinkStatsTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/src/generated/sources/Promoter';
 import { SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { LinkStatsRow, LinkStatsTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { LinkRow } from '@org.quicko.cliq/ngx-core/generated/sources/Link';
 
 export interface LinkStoreState {
 	links: LinkStatsTable | null,
@@ -50,6 +50,7 @@ export const LinkStore = signalStore(
 						return linkService.getPromoterLinkStatistics().pipe(
 							tapResponse({
 								next: (response) => {
+
 									patchState(store, {
 										links: plainToInstance(PromoterWorkbook, response.data).getLinkStatsSheet().getLinkStatsTable(),
 										status: Status.SUCCESS,
@@ -94,7 +95,7 @@ export const LinkStore = signalStore(
 						return linkService.deleteLink(linkId).pipe(
 							tapResponse({
 								next: () => {
-									console.log('deleted link');
+									snackbarService.openSnackBar('Deleted link', '');
 								},
 								error: (err) => {
 									patchState(store, { status: Status.ERROR, error: err })
@@ -105,9 +106,16 @@ export const LinkStore = signalStore(
 				)
 			),
 
+			copyLinkToClipboard(website: string, link: LinkStatsRow) {
+				const fullLinkString = website + '?ref=' + link.getRefVal();
+				navigator.clipboard.writeText(fullLinkString);
+				snackbarService.openSnackBar('Link Copied!', '');
+			},
+
 			setStatus: (status: Status) => {
 				patchState(store, { status });
 			},
+
 		})
 	),
 );
