@@ -57,7 +57,7 @@ export class SignUpConverter {
 			row.setEmail(maskInfo(signUp.contact.email));
 			row.setPhone(maskInfo(signUp.contact.phone));
 			row.setLinkId(signUp.link.linkId);
-			row.setCreatedAt(formatDate(signUp.createdAt));
+			row.setCreatedAt(signUp.createdAt.toISOString());
 
 			signUpTable.addRow(row);
 		});

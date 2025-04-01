@@ -59,7 +59,7 @@ export class PurchaseConverter {
 			newPurchaseRow.setAmount(purchase.amount);
 			newPurchaseRow.setItemId(purchase.itemId);
 			newPurchaseRow.setLinkId(purchase.link.linkId);
-			newPurchaseRow.setCreatedAt(formatDate(purchase.createdAt));
+			newPurchaseRow.setCreatedAt(purchase.createdAt.toISOString());
 
 			purchaseTable.addRow(newPurchaseRow);
 		});
