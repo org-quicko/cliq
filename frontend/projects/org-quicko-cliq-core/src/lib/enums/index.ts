@@ -8,7 +8,7 @@ export * from './effect.enum';
 export * from './functionStatus.enum';
 export * from './referralKeyType.enum';
 export * from './reportPeriod.enum';
-export * from './reports.enum';
+export * from './report.enum';
 export * from './referralSortBy.enum';
 export * from './role.enum';
 export * from './sortOrder.enum';
