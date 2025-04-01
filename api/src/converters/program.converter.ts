@@ -5,6 +5,7 @@ import { LoggerService } from 'src/services/logger.service';
 import { conversionTypeEnum, dateFormatEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
 import { ProgramSummaryList, ProgramSummarySheet, ProgramWorkbook, PromoterRow, PromoterSheet, PromoterTable } from 'generated/sources/Program';
+import { referralKeyTypeEnum } from '../enums/referralKeyType.enum';
 
 @Injectable()
 export class ProgramConverter {
@@ -27,6 +28,7 @@ export class ProgramConverter {
 		programDto.currency = program.currency;
 		programDto.dateFormat = program.dateFormat;
 		programDto.timeZone = program.timeZone;
+		programDto.referralKeyType = program.referralKeyType;
 
 		programDto.createdAt = program.createdAt;
 		programDto.updatedAt = program.updatedAt;
