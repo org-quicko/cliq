@@ -15,7 +15,7 @@ export class LinkController {
 	constructor(
 		private readonly linkService: LinkService,
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create link
@@ -69,6 +69,25 @@ export class LinkController {
 
 		this.logger.info('END: getAllLinks controller');
 		return { message: 'Successfully fetched all links.', result };
+	}
+
+	/**
+	 * Get link
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Link)
+	@Get(':link_id')
+	async getLink(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Param('link_id') linkId: string,
+	) {
+		this.logger.info('START: getLink controller');
+
+		const result = await this.linkService.getLink(linkId);
+
+		this.logger.info('END: getLink controller');
+		return { message: `Successfully fetched link ${linkId}.`, result };
 	}
 
 	/**
