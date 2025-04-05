@@ -1,5 +1,7 @@
 import {
+	BadRequestException,
 	ConflictException,
+	ForbiddenException,
 	Injectable,
 	InternalServerErrorException,
 	NotFoundException,
@@ -10,7 +12,8 @@ import { Repository, DataSource, Brackets, FindOptionsWhere, Raw } from 'typeorm
 import * as XLSX from 'xlsx';
 import {
 	CreatePromoterDto,
-	InviteMemberDto,
+	CreateMemberDto,
+	UpdatePromoterDto,
 	UpdatePromoterMemberDto,
 } from '../dtos';
 import {
@@ -26,6 +29,7 @@ import {
 	SignUp,
 	Link,
 	Commission,
+	Member,
 } from '../entities';
 import { MemberService } from './member.service';
 import { PromoterConverter } from '../converters/promoter.converter';
@@ -34,7 +38,7 @@ import { MemberConverter } from '../converters/member.converter';
 import { ContactConverter } from '../converters/contact.converter';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { roleEnum, statusEnum } from '../enums';
+import { memberRoleEnum, memberSortByEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { CommissionConverter } from '../converters/commission.converter';
@@ -51,6 +55,8 @@ import { PromoterWorkbook } from 'generated/sources/Promoter';
 import { CommissionWorkbook } from 'generated/sources/Commission';
 import { LinkWorkbook } from 'generated/sources/Link';
 import { PromoterStatsConverter } from 'src/converters/promoterStats.converter';
+import * as bcrypt from 'bcrypt';
+import { SALT_ROUNDS } from 'src/constants';
 
 @Injectable()
 export class PromoterService {
@@ -91,7 +97,7 @@ export class PromoterService {
 
 		private promoterConverter: PromoterConverter,
 		private linkConverter: LinkConverter,
-		private memeberConverter: MemberConverter,
+		private memberConverter: MemberConverter,
 		private contactConverter: ContactConverter,
 		private purchaseConverter: PurchaseConverter,
 		private signUpConverter: SignUpConverter,
@@ -135,7 +141,7 @@ export class PromoterService {
 			await promoterMemberRepository.save({
 				memberId,
 				promoterId: savedPromoter.promoterId,
-				role: roleEnum.ADMIN,
+				role: memberRoleEnum.ADMIN,
 			});
 
 			// add to program's default circle
@@ -168,8 +174,37 @@ export class PromoterService {
 		});
 	}
 
-	async signUpPromoterToProgram(programId: string, promoterId: string) {
-		this.logger.info(`START: signUpToProgram service`);
+	async deletePromoter(programId: string, promoterId: string) {
+		this.logger.info('START: deletePromoter service');
+
+		const promoter = await this.getPromoterEntity(promoterId);
+
+		await this.promoterRepository.remove(promoter);
+
+		this.logger.info('END: deletePromoter service');
+	}
+
+	async updatePromoterInfo(promoterId: string, body: UpdatePromoterDto) {
+		this.logger.info('START: updatePromoterInfo service');
+
+		const promoter = await this.promoterRepository.findOne({ where: { promoterId } });
+
+		if (!promoter) {
+			this.logger.error(`Promoter does not exist: ${promoterId}`);
+			throw new BadRequestException(`Promoter does not exist.`);
+		}
+
+		Object.assign(promoter, body);
+		await this.promoterRepository.update({ promoterId }, body);
+
+		const promoterDto = this.promoterConverter.convert(promoter);
+
+		this.logger.info('END: updatePromoterInfo service');
+		return promoterDto;
+	}
+
+	async registerForProgram(programId: string, promoterId: string) {
+		this.logger.info(`START: registerForProgram service`);
 
 		if (await this.programPromoterRepository.findOne({ where: { programId, promoterId } })) {
 			this.logger.error(`Error. Promoter is already part of program!`);
@@ -181,7 +216,7 @@ export class PromoterService {
 			promoterId,
 		});
 
-		this.logger.info(`END: signUpToProgram service`);
+		this.logger.info(`END: registerForProgram service`);
 	}
 
 	/**
@@ -231,13 +266,15 @@ export class PromoterService {
 	/**
 	 * Invite member
 	 */
-	async inviteMember(
+	async addMember(
 		programId: string,
 		promoterId: string,
-		body: InviteMemberDto,
+		body: CreateMemberDto,
 	) {
 		return this.datasource.transaction(async (manager) => {
-			this.logger.info('START: inviteMember service');
+			this.logger.info('START: addMember service');
+
+			const memberRepository = manager.getRepository(Member);
 
 			// First check if member exists in any promoter (returns false if account doesn't exist at all)
 			const memberExistsInAnyPromoter = await this.memberService.memberExistsInAnyPromoter(
@@ -256,17 +293,22 @@ export class PromoterService {
 			if (existingMember) {
 
 				// Check if there's an existing promoter-member relationship
-				const promoterMember =
-					await this.promoterMemberService.getPromoterMemberRowEntity(
-						promoterId,
-						existingMember.memberId,
-					);
+				const promoterMember = await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, existingMember.memberId, {
+					member: true
+				});
 
 				// If promoter-member relationship exists
 				if (promoterMember) {
 
 					// Only allow reactivation if status is INACTIVE
 					if (promoterMember.status === statusEnum.INACTIVE) {
+						const salt = await bcrypt.genSalt(SALT_ROUNDS);
+						existingMember.password = await bcrypt.hash(body.password, salt);
+
+						Object.assign(existingMember, { firstName: body.firstName, lastName: body.lastName });
+
+						await memberRepository.save(existingMember);
+
 						await this.promoterMemberRepository.update(
 							{
 								promoterId: promoterMember.promoterId,
@@ -274,49 +316,52 @@ export class PromoterService {
 							},
 							{
 								status: statusEnum.ACTIVE,
+								role: body.role,
 								updatedAt: () => `NOW()`,
 							},
 						);
 
-						return {
-							email: existingMember.email,
-							firstName: existingMember.firstName,
-							lastName: existingMember.lastName,
-							role: promoterMember.role,
-						} as InviteMemberDto;
+						const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMember], promoterId, 1);
+
+						this.logger.info('END: addMember service');
+						return memberSheetJson;
 					}
 
-					throw new ConflictException(
-						'Member is already active for this promoter',
-					);
+					throw new ConflictException('Member is already active for this promoter');
 				}
 
 				// If no promoter-member relationship exists, create one
 				const newPromoterMember = manager.create(PromoterMember, {
-					memberId: existingMember.memberId,
 					promoterId,
+					memberId: existingMember.memberId,
 					role: body.role,
 					status: statusEnum.ACTIVE,
 				});
 
-				await manager.save(newPromoterMember);
+				newPromoterMember.member = existingMember;
+				const promoterMemberResult = await manager.save(newPromoterMember);
 
-				return {
-					email: existingMember.email,
-					firstName: existingMember.firstName,
-					lastName: existingMember.lastName,
-					role: newPromoterMember.role,
-				} as InviteMemberDto;
+				const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMemberResult], promoterId, 1);
+
+				this.logger.info('END: addMember service');
+				return memberSheetJson;
 			}
 
-			
+
 			// If member doesn't exist, create new member and promoter-member relationship
-			const newMember = await this.memberService.memberSignUp(programId, {
-				email: body.email,
-				firstName: body.firstName,
-				lastName: body.lastName,
-				password: body.password,
+			if (await this.memberService.memberExistsInAnyPromoter(body.email, programId)) {
+				this.logger.error(`Error. Email ${body.email} is already part of Program ${programId}`);
+				throw new BadRequestException(`Error. Email ${body.email} is already part of Program ${programId}`);
+			}
+
+			const newMember = memberRepository.create({
+				...body,
+				program: {
+					programId,
+				},
 			});
+			await memberRepository.save(newMember);
+
 
 			if (!newMember || !newMember.memberId) {
 				this.logger.warn('Failed to create member');
@@ -326,22 +371,19 @@ export class PromoterService {
 			}
 
 			const promoterMember = manager.create(PromoterMember, {
-				memberId: newMember.memberId,
 				promoterId,
+				memberId: newMember.memberId,
 				role: body.role,
 				status: statusEnum.ACTIVE,
 			});
 
-			await manager.save(promoterMember);
+			promoterMember.member = newMember;
+			const promoterMemberResult = await manager.save(promoterMember);
 
-			this.logger.info('END: inviteMember service');
+			const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMemberResult], promoterId, 1);
 
-			return {
-				email: newMember.email,
-				firstName: newMember.firstName,
-				lastName: newMember.lastName,
-				role: promoterMember.role,
-			} as InviteMemberDto;
+			this.logger.info('END: addMember service');
+			return memberSheetJson;
 		});
 	}
 
@@ -350,30 +392,30 @@ export class PromoterService {
 	 */
 	async getAllMembers(
 		promoterId: string,
+		sortBy?: memberSortByEnum,
+		sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
 		toUseSheetJsonFormat: boolean = false,
 		whereOptions: FindOptionsWhere<PromoterMember> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllMembers service');
 
-		const promoterMembers = await this.promoterMemberRepository.find({
+		const [promoterMembers, count] = await this.promoterMemberRepository.findAndCount({
 			where: {
-				promoter: {
-					promoterId: promoterId,
-				},
+				promoterId,
 				...whereOptions,
 			},
 			relations: {
 				member: true,
 			},
-			select: {
+			order: {
 				member: {
-					memberId: true,
-					email: true,
-					firstName: true,
-					lastName: true,
-					createdAt: true
-				},
+					...(sortBy === memberSortByEnum.NAME && {
+						firstName: sortOrder,
+						lastName: sortOrder,
+					}),
+
+				}
 			},
 			...queryOptions,
 		});
@@ -388,14 +430,14 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const membersSheetJson = this.memeberConverter.convertToSheetJson(promoterMembers, promoterId, queryOptions);
+			const membersSheetJson = this.memberConverter.convertToSheetJson(promoterMembers, promoterId, count, queryOptions);
 
 			this.logger.info('END: getAllMembers service');
 			return membersSheetJson;
 		}
 
 		const membersDto = promoterMembers.map((pm) =>
-			this.memeberConverter.convert(pm.member, pm),
+			this.memberConverter.convert(pm.member, pm),
 		);
 
 		this.logger.info('END: getAllMembers service');
@@ -408,7 +450,7 @@ export class PromoterService {
 	async updateRole(memberId: string, body: UpdatePromoterMemberDto) {
 		this.logger.info('START: updateRole service');
 
-		const member = await this.memberService.getMember(memberId);
+		const member = await this.memberService.getMemberEntity(memberId);
 
 		if (!member) {
 			this.logger.warn(`failed to get Member ${memberId}`);
@@ -728,10 +770,16 @@ export class PromoterService {
 	async getSignUpsReport(
 		programId: string,
 		promoterId: string,
+		memberId: string,
 		startDate: Date,
 		endDate: Date,
 	) {
 		this.logger.info('START: getSignUpsReport service');
+
+		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
+			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		}
 
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
@@ -778,10 +826,16 @@ export class PromoterService {
 	async getPurchasesReport(
 		programId: string,
 		promoterId: string,
+		memberId: string,
 		startDate: Date,
 		endDate: Date,
 	) {
 		this.logger.info('START: getPurchasesReport service');
+
+		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
+			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		}
 
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
@@ -789,6 +843,7 @@ export class PromoterService {
 				end: endDate.toISOString(),
 			})
 		};
+
 
 		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
 
@@ -830,10 +885,16 @@ export class PromoterService {
 	async getReferralsReport(
 		programId: string,
 		promoterId: string,
+		memberId: string,
 		startDate: Date,
 		endDate: Date,
 	) {
 		this.logger.info('START: getReferralsReport service');
+
+		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
+			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		}
 
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
@@ -865,10 +926,16 @@ export class PromoterService {
 	async getCommissionsReport(
 		programId: string,
 		promoterId: string,
+		memberId: string,
 		startDate: Date,
 		endDate: Date,
 	) {
 		this.logger.info(`START: getCommissionsReport service`);
+
+		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
+			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		}
 
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
@@ -930,10 +997,16 @@ export class PromoterService {
 	async getLinksReport(
 		programId: string,
 		promoterId: string,
+		memberId: string,
 		startDate: Date,
 		endDate: Date,
 	) {
 		this.logger.info(`START: getLinksReport service`);
+
+		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
+			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		}
 
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
@@ -1046,9 +1119,14 @@ export class PromoterService {
 		const linkStatsResult = await this.linkStatsViewRepository.find({
 			where: {
 				programId,
-				promoterId
+				promoterId,
 			},
 		});
+
+		if (linkStatsResult.length === 0) {
+			this.logger.warn(`No link statistics found for promoter ${promoterId}`);
+			throw new NotFoundException(`No link statistics found for promoter ${promoterId}`);
+		}
 
 		const programResult = await this.programService.getProgramEntity(programId);
 

@@ -18,7 +18,6 @@ import {
 	UpdateProgramDto,
 	UpdateProgramUserDto,
 } from '../dtos';
-import { InviteUserDto } from '../dtos/inviteUser.dto';
 import { UserService } from './user.service';
 import { ProgramPromoter } from '../entities/programPromoter.entity';
 import { ProgramConverter } from '../converters/program.converter';
@@ -27,11 +26,12 @@ import { UserConverter } from '../converters/user.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { CommissionConverter } from '../converters/commission.converter';
-import { roleEnum, statusEnum } from '../enums';
+import { userRoleEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from 'src/converters/signUp.converter';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-
+import * as bcrypt from 'bcrypt';
+import { SALT_ROUNDS } from 'src/constants';
 import * as XLSX from 'xlsx';
 import { defaultQueryOptions } from 'src/constants';
 import { snakeCaseToHumanReadable } from 'src/utils';
@@ -93,7 +93,7 @@ export class ProgramService {
 			await programUserRepository.save({
 				userId,
 				programId: savedProgram.programId,
-				role: roleEnum.SUPER_ADMIN,
+				role: userRoleEnum.SUPER_ADMIN,
 			});
 
 			await circleRepository.save({
@@ -223,9 +223,9 @@ export class ProgramService {
 	/**
 	 * Invite user
 	 */
-	async inviteUser(programId: string, body: InviteUserDto) {
+	async addUser(programId: string, body: CreateUserDto) {
 		return this.datasource.transaction(async (manager) => {
-			this.logger.info('START: inviteUser service');
+			this.logger.info('START: addUser service');
 			const user = await this.userService.getUserByEmail(body.email);
 
 			let newUser: User;
@@ -246,9 +246,7 @@ export class ProgramService {
 
 				if (!newUser) {
 					this.logger.error(`Error. Failed to create invited user.`);
-					throw new InternalServerErrorException(
-						`Error. Failed to create invited user.`,
-					);
+					throw new InternalServerErrorException(`Error. Failed to create invited user.`);
 				}
 			} else {
 				// does program-user relation exist?
@@ -261,18 +259,27 @@ export class ProgramService {
 					// if it does, is status active?
 					// if both yes, throw error -> cannot invite user, since they're already part of the program
 					if (programUserResult.status === statusEnum.ACTIVE) {
-						this.logger.warn('Failed to invite user');
-						throw new Error(
-							'Failed to invite user. User is already part of the program.',
-						);
+						const message = 'Failed to invite user. User is already part of the program.';
+						this.logger.warn(message);
+						throw new Error(message);
 					}
+
+					const salt = await bcrypt.genSalt(SALT_ROUNDS);
+					user.password = await bcrypt.hash(body.password, salt);
+
+					Object.assign(user, { firstName: body.firstName, lastName: body.lastName });
+
+					await userRepository.save(user);
 
 					// if relation exists but inactive, change status to active and return
 					await programUserRepository.update(
-						{ programId, userId: user.userId },
+						{
+							programId,
+							userId: user.userId
+						},
 						{
 							status: statusEnum.ACTIVE,
-							role: body.role ?? roleEnum.VIEWER,
+							role: body.role ?? userRoleEnum.VIEWER,
 							updatedAt: () => `NOW()`,
 						},
 					);
@@ -296,7 +303,7 @@ export class ProgramService {
 			const newProgramUser = programUserRepository.create();
 			newProgramUser.program = programResult;
 			newProgramUser.user = newUser;
-			newProgramUser.role = body.role ?? roleEnum.VIEWER;
+			newProgramUser.role = body.role ?? userRoleEnum.VIEWER;
 
 			const result = await programUserRepository.save(newProgramUser);
 			if (!result) {
@@ -306,7 +313,7 @@ export class ProgramService {
 				);
 			}
 
-			this.logger.info('END: inviteUser service');
+			this.logger.info('END: addUser service');
 			return;
 		});
 	}
