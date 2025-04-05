@@ -26,31 +26,28 @@ export class MemberConverter {
 		return memberDto;
 	}
 
-	getSheetRow(member: Member, promoterMember: PromoterMember): MemberRow {
-		const row = new MemberRow([]);
-
-		row.setMemberId(member.memberId);
-		row.setFirstName(member.firstName);
-		row.setLastName(member.lastName);
-		row.setEmail(member.email);
-		row.setRole(promoterMember.role);
-		row.setAddedOn(formatDate(promoterMember.createdAt));
-
-		return row;
-	}
-
-	convertToSheetJson(promoterMembers: PromoterMember[], promoterId: string, queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterWorkbook {
+	convertToSheetJson(promoterMembers: PromoterMember[], promoterId: string, count: number, queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterWorkbook {
 
 		const memberTable = new MemberTable();
 		promoterMembers.forEach((promoterMember) => {
 			const member = promoterMember.member;
-			const row = this.getSheetRow(member, promoterMember);
+			
+			const row = new MemberRow([]);
+
+			row.setMemberId(member.memberId);
+			row.setFirstName(member.firstName);
+			row.setLastName(member.lastName);
+			row.setEmail(member.email);
+			row.setRole(promoterMember.role);
+			row.setAddedOn(promoterMember.createdAt.toISOString());
+
 			memberTable.addRow(row);
 		});
 
-		memberTable.metadata = new JSONObject({ 
+		memberTable.metadata = new JSONObject({
 			promoterId,
-			...queryOptions
+			...queryOptions,
+			count
 		});
 
 		const membersSheet = new MemberSheet();
