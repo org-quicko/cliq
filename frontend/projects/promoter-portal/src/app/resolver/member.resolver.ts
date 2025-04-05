@@ -14,7 +14,7 @@ export class MemberResolver implements Resolve<Member> {
 
 	readonly memberService = inject(MemberService);
 
-	async resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+	async resolve() {
 
 		const response = await firstValueFrom(this.memberService.getMember());
 

@@ -26,11 +26,6 @@ export class ProgramResolver implements Resolve<Program> {
 		this.store.setStatus(Status.LOADING);
 
 		const response = await firstValueFrom(this.programService.getProgram(programId));
-		// this.programService.getProgram(programId).pipe(
-		// 	tapResponse({
-		// 		next: ()
-		// 	})
-		// )
 
 		if (!response.data) {
 			this.store.setStatus(Status.ERROR);
