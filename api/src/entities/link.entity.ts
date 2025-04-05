@@ -14,7 +14,7 @@ import { Promoter } from './promoter.entity';
 import { Purchase } from './purchase.entity';
 import { SignUp } from './signUp.entity';
 import { Commission } from './commission.entity'; 
-import { statusEnum } from 'src/enums';
+import { linkStatusEnum } from 'src/enums';
 
 @Index(['refVal', 'programId'], { unique: true })
 @Entity()
@@ -28,8 +28,8 @@ export class Link {
 	@Column('varchar', { name: 'ref_val' })
 	refVal: string;
 
-	@Column('enum', { enum: statusEnum, default: statusEnum.ACTIVE })
-	status: statusEnum;
+	@Column('enum', { enum: linkStatusEnum, default: linkStatusEnum.ACTIVE })
+	status: linkStatusEnum;
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',
@@ -66,7 +66,7 @@ export class Link {
 	@Column('uuid', { name: 'program_id' })
 	programId: string;
 
-	@ManyToOne(() => Promoter, (promoter) => promoter.links)
+	@ManyToOne(() => Promoter, (promoter) => promoter.links, { onDelete: 'CASCADE' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',

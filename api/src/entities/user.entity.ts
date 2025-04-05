@@ -10,7 +10,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from '../constants';
 import { ProgramUser } from './programUser.entity';
-import { roleEnum } from '../enums';
+import { userRoleEnum } from '../enums';
 
 @Entity()
 export class User {
@@ -29,8 +29,8 @@ export class User {
 	@Column('varchar', { name: 'last_name' })
 	lastName: string;
 
-	@Column('enum', { enum: roleEnum, default: roleEnum.REGULAR })
-	role: roleEnum;
+	@Column('enum', { enum: userRoleEnum, default: userRoleEnum.REGULAR })
+	role: userRoleEnum;
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',

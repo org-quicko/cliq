@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Program } from './program.entity';
 import { User } from './user.entity';
-import { statusEnum, roleEnum } from '../enums';
+import { statusEnum, userRoleEnum } from '../enums';
 
 @Entity()
 export class ProgramUser {
@@ -22,8 +22,8 @@ export class ProgramUser {
 	@Column('enum', { enum: statusEnum, default: statusEnum.ACTIVE })
 	status: statusEnum;
 
-	@Column('enum', { enum: roleEnum, default: roleEnum.VIEWER })
-	role: roleEnum;
+	@Column('enum', { enum: userRoleEnum, default: userRoleEnum.VIEWER })
+	role: userRoleEnum;
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',

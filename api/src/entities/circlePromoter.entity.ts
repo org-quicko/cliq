@@ -38,7 +38,7 @@ export class CirclePromoter {
 	})
 	circle: Circle;
 
-	@ManyToOne(() => Promoter, (promoter) => promoter.circlePromoters)
+	@ManyToOne(() => Promoter, (promoter) => promoter.circlePromoters, { onDelete: 'CASCADE' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',
