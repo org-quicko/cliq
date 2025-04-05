@@ -1,0 +1,109 @@
+<div class="w-full flex flex-col gap-[26px]">
+	<!-- Header -->
+	<div class="text-on-surface mat-headline-medium justify-between">
+		<h3>Referrals ({{ referralStore.rowsLength() }})</h3>
+	</div>
+
+	<!-- Search bar -->
+	<mat-form-field [appearance]="'outline'" class="flex w-full rounded-[4px]" (keydown.enter)="onSearch()">
+
+		<button matPrefix mat-icon-button aria-label="Search" class="w-10 h-10 gap-[10px]">
+			<mat-icon>search</mat-icon>
+		</button>
+
+		<mat-label class="mat-body-large text-outline">Search Referrals by {{ program()?.referralKeyType | titlecase
+			}}</mat-label>
+		<input matInput type="text" [(ngModel)]="email" />
+
+		@if (email()) {
+		<button matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
+			<mat-icon>close</mat-icon>
+		</button>
+		}
+	</mat-form-field>
+
+	<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
+		<table mat-table matSort [dataSource]="dataSource" class="w-full bg-transparent" [matSortActive]="'updated at'"
+			[matSortDirection]="'desc'" [matSortDisableClear]="true"
+			[ngClass]="{ 'h-[500px]': (referralsLength() === 0) && !isLoading() }">
+			<!-- Define columns dynamically -->
+			<ng-container matColumnDef="referral">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-[344px]">
+					Referral
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-[344px]">
+					{{ convertToReferralRow(row).getContactInfo() }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="commission">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-[180px]">
+					Commission
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface w-[180px]">
+					{{ convertToReferralRow(row).getTotalCommission() | formatCurrency:program()?.currency }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="revenue">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-[180px]">
+					Revenue
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-[180px]">
+					{{ convertToReferralRow(row).getTotalRevenue() | formatCurrency:program()?.currency }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="updated at">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header class="mat-body-medium text-outline select-none w-60">
+					Updated At
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-60">
+					{{ convertToReferralRow(row).getUpdatedAt() | ordinalDate }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="status">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-28">
+					Status
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface w-28">
+					<mat-chip
+						[class]="`!p-0  gap-1 justify-center border-0 ${getCellValue(row, 'status') === 'active' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container text-on-surface'}`">
+						{{ convertToReferralRow(row).getStatus() | titlecase }}
+					</mat-chip>
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
+				class="hover:bg-surface-container hover:cursor-pointer h-[76px] px-4 py-3"
+				(click)="onClickReferral(getCellValue(row, 'contact id'), getCellValue(row, 'referral'))">
+			</tr>
+
+			<tr class="empty-row" *matNoDataRow>
+				<td [attr.colspan]="displayedColumns.length">
+					<div class="flex flex-col justify-center items-center h-[504px]">
+						<div class="p-6 text-center flex flex-col gap-4">
+
+							<div class="text-on-surface-variant flex flex-col items-center gap-5">
+
+								<div
+									class="scale-133 rounded-full inline-flex justify-start items-center gap-2.5 overflow-hidden bg-surface-container p-3">
+									<mat-icon class="material-symbols-outlined text-primary">supervised_user_circle</mat-icon>
+								</div>
+								<div class="flex flex-col gap-1 h-auto max-h-12">
+									<p class="text-on-surface mat-body-large !m-0">
+										No referrals yet
+									</p>
+									<p class="mat-body-medium">
+										Share your link to track your referrals -
+										<br />
+										their signups, purchases, and your commissions, all in one place
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<mat-paginator (page)="onPageChange($event)" [pageSize]="5" aria-label="Select page of referrals"></mat-paginator>
+</div>
