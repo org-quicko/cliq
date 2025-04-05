@@ -62,8 +62,23 @@ export class LinkService {
 
 		const savedLink = await this.linkRepository.save(newLink);
 
+		const linkStats = new LinkStatsView();
+		linkStats.linkId = savedLink.linkId;
+		linkStats.name = savedLink.name;
+		linkStats.refVal = savedLink.refVal;
+		linkStats.promoterId = savedLink.promoterId;
+		linkStats.signups = 0;
+		linkStats.purchases = 0;
+		linkStats.commission = 0;
+		linkStats.createdAt = savedLink.createdAt;
+
+		const linkSheetJson = this.linkConverter.convertLinkStatsToSheet([linkStats], {
+			website: program.website,
+			programId
+		});
+
 		this.logger.info('END: createLink service');
-		return this.linkConverter.convert(savedLink);
+		return linkSheetJson;
 	}
 
 	/**
