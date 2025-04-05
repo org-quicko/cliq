@@ -1,0 +1,53 @@
+<mat-dialog-content class="w-[516px] rounded-[5px] h-auto  p-6 bg-surface-container-lowest">
+	<form [formGroup]="editPromoterForm" (ngSubmit)="onSubmit()">
+		<div class="flex flex-col gap-8">
+			<!-- Edit Details Header -->
+			<div class="flex justify-between">
+				<div class="flex flex-col gap-2">
+					<div class="size-6">
+						<mat-icon class="text-on-surface">
+							edit
+						</mat-icon>
+					</div>
+					<div class="text-on-surface mat-title-large">
+						<span>Edit Promoter</span>
+					</div>
+				</div>
+				<button type="button" mat-icon-button (click)="closeDialog()">
+					<mat-icon>
+						close
+					</mat-icon>
+				</button>
+			</div>
+
+			<!-- Form fields -->
+			<div class="flex flex-col gap-6">
+				<mat-form-field [appearance]="'outline'" class="w-full">
+					<mat-label>Promoter name</mat-label>
+					<input type="text" matInput formControlName="name" class="w-full max-w-[468px]" />
+				</mat-form-field>
+
+				<mat-form-field [appearance]="'outline'" class="w-full">
+					<mat-label>Logo URL</mat-label>
+					<input type="text" matInput formControlName="logoUrl" class="w-full max-w-[468px]" />
+				</mat-form-field>
+			</div>
+		</div>
+
+		<!-- Dialog control buttons -->
+		<div>
+			<mat-dialog-actions class="!px-0 flex justify-end gap-2">
+				<button matRipple mat-button mat-dialog-close type="button"
+					class="w-auto min-w-[70px] h-10 text-primary mat-label-large cursor-pointer">Cancel</button>
+				<button mat-flat-button type="submit"
+					class="w-auto min-w-[93px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
+					@if (isLoading()) {
+					<mat-spinner class="!w-5 !h-5 btn-spinner" [diameter]="20"></mat-spinner>
+					} @else {
+					Save
+					}
+				</button>
+			</mat-dialog-actions>
+		</div>
+	</form>
+</mat-dialog-content>

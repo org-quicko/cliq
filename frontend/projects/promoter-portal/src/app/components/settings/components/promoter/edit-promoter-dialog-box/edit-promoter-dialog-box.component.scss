@@ -1,0 +1,6 @@
+@use '@angular/material' as mat;
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+.btn-spinner {
+	@include mat.progress-spinner-overrides((active-indicator-color: var(--sys-surface-container-lowest)));
+}
