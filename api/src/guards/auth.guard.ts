@@ -76,7 +76,7 @@ export class AuthGuard implements CanActivate {
 					return true;
 				}
 			} else {
-				const member = await this.memberService.getMember(
+				const member = await this.memberService.getMemberEntity(
 					tokenPayload.sub as string,
 				);
 				if (member) {
@@ -93,6 +93,7 @@ export class AuthGuard implements CanActivate {
 		} catch (error) {
 			this.logger.error('Authentication failed');
 			if (error instanceof Error) {
+				console.log(error.message);
 				throw new UnauthorizedException('Authentication failed');
 			}
 			throw error;
