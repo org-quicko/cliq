@@ -1,8 +1,8 @@
-import { Component, Inject, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { Component, effect, Inject, OnDestroy, OnInit, Signal } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
-import { reportPeriodEnum, SnakeToCapitalizedPipe } from '@org.quicko.cliq/ngx-core';
+import { getStartEndDate, reportEnum, reportPeriodEnum, SnakeToCapitalizedPipe, Status } from '@org.quicko.cliq/ngx-core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,10 +10,10 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
-import { ReportsStore } from '../store/reports.store';
 import * as _moment from 'moment';
 import { default as _rollupMoment } from 'moment';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 const moment = _rollupMoment || _moment;
 
@@ -33,11 +33,11 @@ export const MY_FORMATS = {
 	},
 };
 
-
 @Component({
 	selector: 'app-report-dialog-box',
 	imports: [
 		MatDialogModule,
+		MatButtonModule,
 		MatIconModule,
 		FormsModule,
 		ReactiveFormsModule,
@@ -49,7 +49,7 @@ export const MY_FORMATS = {
 		MatRippleModule,
 		CommonModule
 	],
-	providers: [provideMomentDateAdapter(MY_FORMATS), ReportsStore],
+	providers: [provideMomentDateAdapter(MY_FORMATS)],
 	templateUrl: './report-dialog-box.component.html',
 	styleUrl: './report-dialog-box.component.scss'
 })
@@ -57,11 +57,9 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 
 	destroy$ = new Subject<boolean>();
 
-	reportPeriod = [...(Object.values(reportPeriodEnum)), 'custom'];
+	reportPeriod = Object.values(reportPeriodEnum);
 
-	readonly reportsStore = inject(ReportsStore);
-
-	selectedPeriod: reportPeriodEnum | 'custom';
+	selectedPeriod: reportPeriodEnum;
 
 	readonly reportForm = new FormGroup({
 		start: new FormControl(moment().subtract(30, 'days'), { nonNullable: true }),
@@ -69,14 +67,38 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 		reportPeriod: new FormControl(reportPeriodEnum.LAST_30_DAYS, { nonNullable: true }),
 	});
 
-	// errorMessage = signal('');
-
 	ngOnInit(): void { }
 
 	constructor(
 		private dialogRef: MatDialogRef<ReportDialogBoxComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: any,
-	) { }
+		@Inject(MAT_DIALOG_DATA) public data: { reportName: reportEnum, getReport: Function, status: Signal<Status> },
+	) {
+		this.reportForm.controls.start.disable();
+		this.reportForm.controls.end.disable();
+
+		this.reportForm.controls.reportPeriod.valueChanges.subscribe((value) => {
+			if (value === reportPeriodEnum.CUSTOM) {
+				this.reportForm.controls.start.enable();
+				this.reportForm.controls.end.enable();
+				return;
+			}
+
+			const { parsedStartDate, parsedEndDate } = getStartEndDate(undefined, undefined, value);
+			this.reportForm.controls.start.disable();
+			this.reportForm.controls.end.disable();
+			// Update start and end dates only for predefined periods
+			this.reportForm.controls.start.setValue(moment(parsedStartDate));
+			this.reportForm.controls.end.setValue(moment(parsedEndDate));
+		});
+
+		effect(() => {
+			if (this.data.status() === Status.SUCCESS) {
+				console.log('success');
+				this.closeDialog();
+			}
+		});
+
+	}
 
 	closeDialog(): void {
 		this.dialogRef.close();
@@ -93,7 +115,14 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 			const start = this.reportForm.controls.start.value.toDate();
 			const end = this.reportForm.controls.end.value.toDate();
 			const reportPeriod = this.reportForm.controls.reportPeriod.value;
-			console.log('form submitted!');
+
+			this.data.getReport({
+				report: this.data.reportName,
+				reportPeriod,
+				startDate: start,
+				endDate: end
+			});
+
 		}
 	}
 }

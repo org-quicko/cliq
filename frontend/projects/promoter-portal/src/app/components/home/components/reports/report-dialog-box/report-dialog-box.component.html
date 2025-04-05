@@ -12,11 +12,11 @@
 						<span>Generate {{ data.reportName }} report</span>
 					</div>
 				</div>
-				<div class="cursor-pointer" (click)="closeDialog()">
+				<button type="button" mat-icon-button class="cursor-pointer" (click)="closeDialog()">
 					<mat-icon>
 						close
 					</mat-icon>
-				</div>
+				</button>
 			</div>
 			<div class="flex flex-col gap-6">
 
@@ -27,8 +27,7 @@
 						@if (period === 'last_7_days' || period === 'custom') {
 						<mat-divider class="border-gray-300"></mat-divider>
 						}
-						<mat-option [value]="period" class="h-auto bg-surface-container-lowest">{{ period |
-							snakeToCapitalized }}</mat-option>
+						<mat-option [value]="period" class="h-auto bg-surface-container-lowest hover:bg-surface-container">{{ period | snakeToCapitalized }}</mat-option>
 						}
 					</mat-select>
 				</mat-form-field>
@@ -39,9 +38,10 @@
 						[rangePicker]="reportStartEndPicker"
 						[comparisonStart]="reportForm.value.start"
 						[comparisonEnd]="reportForm.value.end"
+						(click)="reportStartEndPicker.open()"
 					>
-						<input matStartDate placeholder="Start date" formControlName="start">
-						<input matEndDate placeholder="End date" formControlName="end">
+						<input matStartDate placeholder="Start date" formControlName="start" readonly>
+						<input matEndDate placeholder="End date" formControlName="end" readonly>
 					</mat-date-range-input>
 					<mat-datepicker-toggle matIconSuffix [for]="reportStartEndPicker">
 						<mat-icon matDatepickerToggleIcon class="material-symbols-outlined">today</mat-icon>
@@ -53,14 +53,10 @@
 		</div>
 		<div>
 			<mat-dialog-actions class="!px-0 flex justify-end gap-2">
-				<button matRipple mat-button mat-dialog-close type="button"
-					class="w-[70px] h-10 text-primary mat-label-large cursor-pointer">Cancel</button>
-				<button
-					matRipple
-					mat-button
-					type="submit"
-					class="w-[110px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer"
-				>
+				<button mat-button mat-dialog-close type="button"
+					class="w-[70px] h-10 mat-label-large cursor-pointer">Cancel</button>
+				<button mat-flat-button type="submit"
+					class="w-[110px] h-10 rounded-full mat-label-large cursor-pointer">
 					Generate
 				</button>
 			</mat-dialog-actions>
