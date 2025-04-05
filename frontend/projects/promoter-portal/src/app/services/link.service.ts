@@ -6,6 +6,7 @@ import { ApiResponse } from '../../../../org-quicko-cliq-core/src/lib/interfaces
 import { PromoterStore } from '../store/promoter.store';
 import { ProgramStore } from '../store/program.store';
 import { CreateLinkDto } from '../../../../org-quicko-cliq-core/src/lib/dtos';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable({
 	providedIn: 'root'
@@ -40,7 +41,19 @@ export class LinkService {
 	createLink(body: CreateLinkDto) {
 		const url = this.getEndpoint() + '/links';
 
-		return this.httpClient.post<ApiResponse<any>>(url, body, {
+		const newLink = instanceToPlain(body);
+
+		return this.httpClient.post<ApiResponse<any>>(url, newLink, {
+			headers: {
+				Authorization: this.authService.getToken(),
+			}
+		});
+	}
+
+	getLink(linkId: string) {
+		const url = this.getEndpoint() + `/links/${linkId}`;
+
+		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
 				Authorization: this.authService.getToken(),
 			}
