@@ -1,3 +1,4 @@
-export * from './capitalize.pipe';
-export * from './date.pipe';
+export * from './snakeToCapitalize.pipe';
+export * from './ordinalDate.pipe';
+export * from './formatCurrency.pipe';
 export * from './zeroToDash.pipe';
