@@ -3,8 +3,9 @@ import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
+import { reportEnum, reportPeriodEnum, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
 import { PromoterService } from '../../../../../services/promoter.service';
+import { withDevtools } from '@angular-architects/ngrx-toolkit';
 
 export interface ReportsStoreState {
 	error: any | null,
@@ -18,7 +19,7 @@ export const initialReportState: ReportsStoreState = {
 
 export const ReportsStore = signalStore(
 	withState(initialReportState),
-
+	withDevtools('report'),
 	withMethods(
 		(
 			store,
@@ -26,14 +27,22 @@ export const ReportsStore = signalStore(
 			snackbarService = inject(SnackbarService),
 		) => ({
 
-			getReport: rxMethod<void>(
+			getReport: rxMethod<{ report: reportEnum, reportPeriod?: reportPeriodEnum, startDate?: Date, endDate?: Date }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(() => {
-						return promoterService.getReport().pipe(
+					switchMap(({ report, reportPeriod, startDate, endDate }) => {
+						return promoterService.getReport(
+							report, {
+								report_period: reportPeriod,
+								start_date: startDate?.toISOString(),
+								end_date: endDate?.toISOString()
+							}).pipe(
 							tapResponse({
 								next: ({ blob, fileName }) => {
+
+									console.log(fileName, blob);
+
 									const a = document.createElement('a');
 									const objectUrl = URL.createObjectURL(blob);
 									a.href = objectUrl;
@@ -44,6 +53,7 @@ export const ReportsStore = signalStore(
 									document.body.removeChild(a);
 
 									patchState(store, { status: Status.SUCCESS });
+									snackbarService.openSnackBar(`Successfully downloaded ${report} report`, '');
 								},
 								error: (error) => {
 									if (error instanceof Error) {
@@ -57,6 +67,10 @@ export const ReportsStore = signalStore(
 
 				)
 			),
+
+			resetStatus() {
+				patchState(store, { status: Status.PENDING });
+			}
 
 		})
 	),
