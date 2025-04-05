@@ -19,11 +19,12 @@ export class LinkService {
 	private endpoint = computed(() => {
 		const promoter = this.promoterStore.promoter();
 		const program = this.programStore.program();
-
-		return (promoter && program) ? `${environment.base_url}/programs/${program.programId}/promoters/${promoter.promoterId}` : null;
+		return (promoter && program) ? `${environment.base_api_url}/programs/${program.programId}/promoters/${promoter.promoterId}` : null;
 	});
 
-	constructor(private httpClient: HttpClient, private authService: AuthService) { }
+	constructor(private httpClient: HttpClient, private authService: AuthService) {
+
+	}
 
 	getPromoterLinkStatistics() {
 		const url = this.getEndpoint() + '/link_stats';
