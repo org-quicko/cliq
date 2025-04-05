@@ -4,8 +4,6 @@ export * from './commission.dto';
 export * from './condition.dto';
 export * from './contact.dto';
 export * from './function.dto';
-export * from './inviteMember.dto';
-export * from './inviteUser.dto';
 export * from './link.dto';
 export * from './member.dto';
 export * from './program.dto';
