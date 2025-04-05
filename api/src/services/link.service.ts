@@ -13,7 +13,8 @@ import { LinkConverter } from '../converters/link.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from 'src/constants';
-import { statusEnum } from 'src/enums';
+import { linkStatusEnum } from 'src/enums';
+import { LinkStatsView } from 'src/entities/linkStats.view';
 
 @Injectable()
 export class LinkService {
@@ -99,7 +100,7 @@ export class LinkService {
 				promoter: {
 					promoterId,
 				},
-				status: statusEnum.ACTIVE,
+				status: linkStatusEnum.ACTIVE,
 				...whereOptions,
 			},
 			...queryOptions,
@@ -156,7 +157,7 @@ export class LinkService {
 		});
 
 		if (!linkResult) {
-			this.logger.error(
+			this.logger.warn(
 				`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`,
 			);
 			throw new NotFoundException(
@@ -223,7 +224,7 @@ export class LinkService {
 	async deleteLink(linkId: string) {
 		this.logger.info('START: deleteLink service');
 		
-		await this.linkRepository.update({ linkId }, { status: statusEnum.INACTIVE });
+		await this.linkRepository.update({ linkId }, { status: linkStatusEnum.INACTIVE });
 		this.logger.info('END: deleteLink service');
 	}
 }
