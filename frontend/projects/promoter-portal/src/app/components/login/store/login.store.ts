@@ -7,6 +7,7 @@ import { firstValueFrom, pipe, switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { SnackbarService } from '@org.quicko/ngx-core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface LogInState {
 	member: MemberDto | null;
@@ -27,6 +28,7 @@ export const LogInStore = signalStore(
 			store,
 			memberService = inject(MemberService),
 			authService = inject(AuthService),
+			snackBarService = inject(SnackbarService)
 		) => ({
 
 			logIn: rxMethod<MemberDto>(
@@ -39,10 +41,9 @@ export const LogInStore = signalStore(
 									authService.setToken(response.data!.access_token);
 									onSignInSuccess.emit(true);
 								},
-								error: (err) => {
-									if (err instanceof Error) {
-										onSignInError.emit(err.message || 'Login failed');
-									}
+								error: (error: HttpErrorResponse) => {
+									console.error(error.error.message);
+									snackBarService.openSnackBar(error.error.message, '');
 								}
 							})
 						);
