@@ -63,7 +63,7 @@ export class LinkService {
 	deleteLink(linkId: string) {
 		const url = this.getEndpoint() + `/links/${linkId}`;
 
-		return this.httpClient.delete<ApiResponse<any>>(url, {
+		return this.httpClient.patch<ApiResponse<any>>(url, {}, {
 			headers: {
 				Authorization: this.authService.getToken(),
 			}
