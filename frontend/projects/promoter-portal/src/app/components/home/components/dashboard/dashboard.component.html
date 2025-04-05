@@ -1,4 +1,4 @@
-<div class="w-full  h-auto min-h-[836px] gap-[26px] bg-surface-container-lowest">
+<div class="w-full h-auto gap-[26px]">
 
 	<div class="w-full  flex flex-col gap-8">
 
@@ -7,16 +7,15 @@
 
 			<!-- Dashboard welcome header -->
 			<div class="w-full justify-between">
-				<h3 class="text-on-surface mat-title-large">Welcome to your dashboard,
-					{{memberStore.member()?.firstName}}</h3>
+				<h3 class="text-on-surface mat-title-large">Welcome to your dashboard, {{
+					memberStore.member()?.firstName }}</h3>
 			</div>
 
 			<!-- Statistics info -->
 			<div class="w-full flex flex-row gap-5">
 
 				<!-- Commission and Revenue stats -->
-				<div
-					class="w-full h-[260px] flex flex-col border-[1px] border-outline-variant rounded-[4px] px-4">
+				<div class="w-full h-[260px] flex flex-col border-[1px] border-outline-variant rounded-[4px] px-4">
 
 					<!-- Commission stats -->
 					<div class="w-[502px] flex flex-col h-[136px] px-2 py-6 gap-6">
@@ -25,7 +24,7 @@
 							<span>Total Commission</span>
 						</div>
 						<div class="w-[109px] h-10 mat-headline-large text-secondary">
-							<span>{{ statistics()?.getTotalCommission() | zeroToDash }}</span>
+							<span>{{ statistics()?.getTotalCommission() | formatCurrency:program()?.currency }}</span>
 						</div>
 					</div>
 					<mat-divider class="border-outline-variant"></mat-divider>
@@ -37,14 +36,15 @@
 							<span>Total Revenue</span>
 						</div>
 						<div class="w-[109px] h-10 mat-title-large text-on-surface">
-							<span>{{ statistics()?.getTotalRevenue() | zeroToDash}}</span>
+							<span>{{ statistics()?.getTotalRevenue() | formatCurrency:program()?.currency }}</span>
 						</div>
 					</div>
 				</div>
 
 				<!-- Signups and Purchases Stats -->
 				<div class="w-full h-[260px] flex flex-col gap-4">
-					<div class="w-full flex flex-col h-[124px] border-[1px] border-outline-variant rounded-[4px] p-6 gap-6">
+					<div
+						class="w-full flex flex-col h-[124px] border-[1px] border-outline-variant rounded-[4px] p-6 gap-6">
 						<div
 							class="w-[61px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
 							<span>Signups</span>
@@ -84,76 +84,76 @@
 					</button>
 				</div>
 			</div>
-			<div class="mat-elevation-z8">
-				<table mat-table matSort [dataSource]="dataSource"
-					class="w-full bg-transparent border-outline-variant border-[1px] rounded-[5px]">
-					<!-- Define columns dynamically -->
+			<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
+				<table mat-table matSort [dataSource]="dataSource" class="w-full bg-transparent" [ngClass]="{ 'h-[500px]': (linkStatsLength() === 0) && !isLoading() }">
 					<ng-container matColumnDef="link">
-						<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-outline">
+						<th mat-header-cell mat-sort-header *matHeaderCellDef
+							class="mat-body-medium text-outline w-[328px]">
 							Link
 						</th>
 						<td mat-cell *matCellDef="let row; let i = index"
-							class="mat-body-large text-on-surface-variant w-auto max-w-[328px] overflow-hidden text-ellipsis whitespace-nowrap">
+							class="mat-body-large text-on-surface-variant w-fit max-w-[328px] overflow-hidden text-ellipsis whitespace-nowrap">
 							<div>
 								<div class="text-on-surface-variant">{{ convertToLinkStatsRow(row).getLinkName() |
 									titlecase }}</div>
 								<div class="text-outline">
-									<span>{{ programStore.program()?.website }}?ref=</span>
+									<span>{{ program()?.website }}?ref=</span>
 									<span class="text-on-surface">{{ convertToLinkStatsRow(row).getRefVal() }}</span>
 								</div>
 							</div>
 						</td>
 					</ng-container>
 					<ng-container matColumnDef="commission">
-						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">
 							Commission
 						</th>
-						<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface">
-							{{ convertToLinkStatsRow(row).getCommission() | zeroToDash }}
+						<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface w-40">
+							{{ convertToLinkStatsRow(row).getCommission() | formatCurrency:program()?.currency }}
 						</td>
 					</ng-container>
 					<ng-container matColumnDef="signups">
-						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-on-surface-variant">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">
 							Signups
 						</th>
 						<td mat-cell *matCellDef="let row; let i = index"
-							class="mat-body-large text-on-surface-variant">
+							class="mat-body-large text-on-surface-variant w-40">
 							{{ convertToLinkStatsRow(row).getSignups() | zeroToDash }}
 						</td>
 					</ng-container>
 					<ng-container matColumnDef="purchases">
-						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">
 							Purchases
 						</th>
 						<td mat-cell *matCellDef="let row; let i = index"
-							class="mat-body-large text-on-surface-variant">
+							class="mat-body-large text-on-surface-variant w-40">
 							{{ convertToLinkStatsRow(row).getPurchases() | zeroToDash }}
 						</td>
 					</ng-container>
 					<ng-container matColumnDef="created on">
-						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-[200px]">
 							Created on
 						</th>
 						<td mat-cell *matCellDef="let row; let i = index"
-							class="mat-body-large text-on-surface-variant">
+							class="mat-body-large text-on-surface-variant w-[200px]">
 							{{ convertToLinkStatsRow(row).getCreatedAt() | ordinalDate }}
 						</td>
 					</ng-container>
 					<ng-container matColumnDef="menu" stickyEnd>
-						<th mat-header-cell *matHeaderCellDef aria-label="row actions" class="mat-body-medium text-outline">&nbsp;</th>
-						<td mat-cell *matCellDef="let row;">
-							<div matRipple
+						<th mat-header-cell *matHeaderCellDef aria-label="row actions"
+							class="mat-body-medium text-outline w-12">&nbsp;</th>
+						<td mat-cell *matCellDef="let row;" class="w-12">
+							<button mat-icon-button
 								class="flex justify-center items-center w-12 h-12 p-3 rounded-full hover:bg-secondary-container"
 								[matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
 								<mat-icon class="hover:cursor-pointer">more_vert</mat-icon>
-							</div>
+							</button>
 							<mat-menu #menu="matMenu" class="bg-surface-container-lowest">
 								<button mat-menu-item (click)="onCopyLink(row)" class="gap-2">
 									<mat-icon>content_copy</mat-icon>
 									<span>Copy</span>
 								</button>
 								<button mat-menu-item (click)="onDeleteLink(row)" class="gap-2">
-									<mat-icon>delete</mat-icon>
+									<mat-icon class="material-symbols-outlined">delete</mat-icon>
 									<span>Delete</span>
 								</button>
 							</mat-menu>
@@ -165,6 +165,38 @@
 					<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
 						class="hover:bg-surface-container hover:cursor-pointer h-[76px] px-4 py-3"
 						(click)="onClickLink(row)">
+					</tr>
+
+					<tr class="empty-row" *matNoDataRow>
+						<td [attr.colspan]="displayedColumns.length">
+							<div class="flex flex-col justify-center items-center h-[300px]">
+								<div class="p-6 text-center flex flex-col gap-4">
+
+									<div class="text-on-surface-variant flex flex-col items-center gap-5">
+
+										<div class="scale-133 rounded-full inline-flex justify-start items-center gap-2.5 overflow-hidden bg-surface-container p-3">
+											<mat-icon class="material-symbols-outlined text-primary">link</mat-icon>
+										</div>
+										<div class="flex flex-col gap-1 h-auto max-h-12">
+											<p class="text-on-surface mat-body-large !m-0">
+												No links yet
+											</p>
+											<p class="mat-body-medium">
+												Create a referral link to start tracking your signups and commissions
+											</p>
+										</div>
+										<div>
+											<button mat-stroked-button
+												class="w-auto min-w-[137px] h-10 border-outline-variant text-primary rounded-full"
+												(click)="onClickCreateLinkBtn()">
+												<mat-icon>add</mat-icon>
+												<span>Create Link</span>
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</td>
 					</tr>
 				</table>
 			</div>

@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
 import { ProgramStore } from '../../../../../../store/program.store';
-import { LinkStore } from '../../store/link.store';
 import { CreateLinkDto } from '@org.quicko.cliq/ngx-core';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -21,7 +20,6 @@ import { MatButtonModule } from '@angular/material/button';
 		MatIconModule,
 		MatInputModule,
 	],
-	providers: [LinkStore],
 	templateUrl: './create-link-dialog-box.component.html',
 	styleUrl: './create-link-dialog-box.component.scss'
 })
@@ -32,8 +30,6 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 	refValUniqueCode: string;
 
 	readonly programStore = inject(ProgramStore);
-
-	readonly linkStore = inject(LinkStore);
 
 	readonly createLinkForm = new FormGroup({
 		name: new FormControl('', { nonNullable: true }),
@@ -46,7 +42,7 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private dialogRef: MatDialogRef<CreateLinkDialogBoxComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: any,
+		@Inject(MAT_DIALOG_DATA) public data: { createLink: Function },
 	) { }
 
 	closeDialog(): void {
@@ -67,13 +63,14 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 
 	onSubmit() {
 		if (this.createLinkForm.valid) {
-			// this.linkStore.createLink()
 			const newLink = new CreateLinkDto();
 			newLink.name = this.createLinkForm.controls.name.value;
 			newLink.refVal = this.createLinkForm.controls.linkRefVal.value + '-' + this.randomCode();
 
-			this.linkStore.createLink(newLink);
+			this.data.createLink(newLink);
 		}
+
+		this.dialogRef.close();
 	}
 
 	private generateRandomCode(): string {

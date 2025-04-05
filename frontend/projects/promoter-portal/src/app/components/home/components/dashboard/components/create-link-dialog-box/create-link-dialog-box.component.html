@@ -13,11 +13,11 @@
 						<span>Create Link</span>
 					</div>
 				</div>
-				<div class="cursor-pointer" (click)="closeDialog()">
+				<button type="button" mat-icon-button class="cursor-pointer" (click)="closeDialog()">
 					<mat-icon>
 						close
 					</mat-icon>
-				</div>
+				</button>
 			</div>
 
 			<!-- Form fields -->
@@ -57,7 +57,7 @@
 			<mat-dialog-actions class="!px-0 flex justify-end gap-2">
 				<button matRipple mat-button mat-dialog-close type="button"
 					class="w-auto min-w-[70px] h-10 text-primary mat-label-large cursor-pointer">Cancel</button>
-				<button matRipple mat-button type="submit"
+				<button mat-flat-button type="submit"
 					class="w-auto min-w-[93px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
 					Create
 				</button>

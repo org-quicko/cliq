@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, effect, computed, ViewChild } from '@angular/core';
 import { LinkStore } from './store/link.store';
-import { TitleCasePipe } from '@angular/common';
+import { CurrencyPipe, NgClass, TitleCasePipe } from '@angular/common';
 import { PromoterStatsStore } from './store/promoter-stats.store';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -11,7 +11,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ProgramStore } from '../../../../store/program.store';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { LinkStatsRow, PromoterStatsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { OrdinalDatePipe, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, OrdinalDatePipe, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { CreateLinkDialogBoxComponent } from './components/create-link-dialog-box/create-link-dialog-box.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -30,11 +30,13 @@ import { MatRippleModule } from '@angular/material/core';
 		MatTableModule,
 		MatDialogModule,
 		MatMenuModule,
+		MatRippleModule,
+		CreateLinkDialogBoxComponent,
 		OrdinalDatePipe,
 		TitleCasePipe,
 		ZeroToDashPipe,
-		MatRippleModule,
-		CreateLinkDialogBoxComponent,
+		FormatCurrencyPipe,
+		NgClass
 	],
 	providers: [LinkStore, PromoterStatsStore],
 	styleUrl: './dashboard.component.scss'
@@ -51,13 +53,20 @@ export class DashboardComponent implements OnInit {
 
 	readonly dialog = inject(MatDialog);
 
+	readonly isLoading = computed(() => this.linkStore.status() === Status.LOADING);
+
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 
 	dataSource: MatTableDataSource<LinkStatsRow> = new MatTableDataSource<LinkStatsRow>([]);
 
 	statistics = computed(() => this.promoterStatsStore.statistics()?.getRow(0));
 
-	website = computed(() => this.programStore.program()?.website);
+	program = computed(() => this.programStore.program());
+
+	readonly linkStatsLength = computed(() => {
+		const links = this.linkStore.links();
+		return links ? links.length() : 0;
+	});
 
 	displayedColumns: string[] = ['link', 'commission', 'signups', 'purchases', 'created on', 'menu'];
 
@@ -87,7 +96,11 @@ export class DashboardComponent implements OnInit {
 	}
 
 	onClickCreateLinkBtn() {
-		this.dialog.open(CreateLinkDialogBoxComponent);
+		this.dialog.open(CreateLinkDialogBoxComponent, {
+			data: {
+				createLink: this.linkStore.createLink
+			}
+		});
 	}
 
 	onDeleteLink(row: any[]) {
@@ -97,7 +110,7 @@ export class DashboardComponent implements OnInit {
 
 	onCopyLink(row: any[]) {
 		const link = this.convertToLinkStatsRow(row);
-		this.linkStore.copyLinkToClipboard(this.website()!, link);
+		this.linkStore.copyLinkToClipboard(this.program()!.website, link);
 	}
 
 	selectedRow: any = null;
