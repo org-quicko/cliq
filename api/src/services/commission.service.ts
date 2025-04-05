@@ -105,24 +105,24 @@ export class CommissionService {
 		return commissionResult;
 	}
 
-	async getPromoterCommissions(programId: string, promoterId: string) {
-		const commissionsResult = await this.commissionRepository.find({
-			where: {
-				contact: {
-					programId
-				},
-				promoterId
-			},
-			relations: {
-				contact: true,
-			}
-		});
+	// async getPromoterCommissions2(programId: string, promoterId: string) {
+	// 	const commissionsResult = await this.commissionRepository.find({
+	// 		where: {
+	// 			contact: {
+	// 				programId
+	// 			},
+	// 			promoterId
+	// 		},
+	// 		relations: {
+	// 			contact: true,
+	// 		}
+	// 	});
 
-		if (!commissionsResult) {
-			this.logger.warn(`Error. No commissions found for Promoter ${promoterId} in Program ${programId}`);
-			throw new NotFoundException(`Error. No commissions found for Promoter ${promoterId} in Program ${programId}`);
-		}
+	// 	if (!commissionsResult) {
+	// 		this.logger.warn(`Error. No commissions found for Promoter ${promoterId} in Program ${programId}`);
+	// 		throw new NotFoundException(`Error. No commissions found for Promoter ${promoterId} in Program ${programId}`);
+	// 	}
 
-		return commissionsResult;
-	}
+	// 	return commissionsResult;
+	// }
 }
