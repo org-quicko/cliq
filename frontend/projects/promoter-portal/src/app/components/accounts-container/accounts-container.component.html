@@ -1,12 +1,17 @@
 <div class="flex h-screen">
 	<!-- Left Side -->
-	<div class="hidden lg:flex w-1/2 bg-primary text-white flex-col justify-center items-center p-12">
+	<div class="hidden lg:flex w-1/2 bg-primary text-surface flex-col justify-center  p-12">
 
-		<h1 class="text-3xl">Grow with {{ programStore.program()?.name }}</h1>
-		<p class="mt-4 text-lg text-gray-300">
-			Earn rewards for sharing what you love. Track referrals, commissions, and growth — all in one place.
-		</p>
-		<p class="absolute bottom-4 text-sm text-gray-400">Powered by Cliq</p>
+		<div class="flex flex-col justify-center items-center">
+			<h1 class="mat-display-medium">Grow with {{ programStore.program()?.name }}</h1>
+			<p class="mt-4 mat-title-large text-surface-variant text-center">
+				Earn rewards for sharing what you love. Track referrals,
+				commissions, and growth — all in one place.
+			</p>
+		</div>
+		<div>
+			<p class="absolute bottom-4 text-sm text-gray-400">Powered by Cliq</p>
+		</div>
 	</div>
 
 	<ng-content />
