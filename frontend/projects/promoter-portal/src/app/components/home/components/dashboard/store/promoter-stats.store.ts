@@ -3,11 +3,12 @@ import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { CreateLinkDto, LinkDto, LinkStatsSheet, PromoterStatsSheet, PromoterStatsTable, PromoterWorkbook, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
-import { LinkService } from '../../../../../services/link.service';
-import { instanceToInstance, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { PromoterService } from '../../../../../services/promoter.service';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
+import { Status, SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { PromoterStatsTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface PromoterStatsStoreState {
 	statistics: PromoterStatsTable | null,
@@ -44,9 +45,13 @@ export const PromoterStatsStore = signalStore(
 										status: Status.SUCCESS
 									});
 								},
-								error: (err) => {
-									patchState(store, { status: Status.ERROR, error: err });
-									snackbarService.openSnackBar('Error trying to fetch promoter statistics', '');
+								error: (error: HttpErrorResponse) => {
+									if (error.status == 404) {
+										console.error('No statistics found for this promoter');
+									} else {
+										patchState(store, { status: Status.ERROR, error });
+										snackbarService.openSnackBar('Error trying to fetch promoter statistics', '');
+									}
 								}
 							})
 						)

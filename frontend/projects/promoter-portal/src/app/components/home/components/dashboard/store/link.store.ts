@@ -12,6 +12,8 @@ import { Status, CreateLinkDto } from '@org.quicko.cliq/ngx-core';
 import { SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { LinkStatsRow, LinkStatsTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { LinkRow } from '@org.quicko.cliq/ngx-core/generated/sources/Link';
+import { HttpErrorResponse } from '@angular/common/http';
+import { JSONArray } from '@org.quicko/ngx-core';
 
 export interface LinkStoreState {
 	links: LinkStatsTable | null,
@@ -50,37 +52,60 @@ export const LinkStore = signalStore(
 						return linkService.getPromoterLinkStatistics().pipe(
 							tapResponse({
 								next: (response) => {
+									const linkTable = plainToInstance(PromoterWorkbook, response.data).getLinkStatsSheet().getLinkStatsTable();
 
 									patchState(store, {
-										links: plainToInstance(PromoterWorkbook, response.data).getLinkStatsSheet().getLinkStatsTable(),
+										links: linkTable,
 										status: Status.SUCCESS,
-										// skip: store.skip() +
 									});
 								},
 
-								error: (err) => {
-									patchState(store, { status: Status.ERROR, error: err });
-									snackbarService.openSnackBar('Error trying to fetch links', '');
+								error: (error: HttpErrorResponse) => {
+									if (error.status == 404) {
+										patchState(store, { status: Status.SUCCESS, error: null });
+										return;
+									}
+									else {
+										patchState(store, { status: Status.ERROR, error });
+										snackbarService.openSnackBar('Error trying to fetch links', '');
+									}
 								}
 							})
 						)
 					}),
 
-					// shareReplay()
 				)
 			),
 
 			createLink: rxMethod<CreateLinkDto>(
 				pipe(
-					// tap(() => patchState(store, { status:  }))
+					tap(() => patchState(store, { status: Status.LOADING })),
+
 					switchMap((link) => {
 						return linkService.createLink(link).pipe(
 							tapResponse({
-								next: (link) => {
-									console.log(link);
+								next: (response) => {
+									const linkRow = plainToInstance(PromoterWorkbook, response.data).getLinkStatsSheet().getLinkStatsTable().getRow(0);
+
+
+									const newLinkStatsTable = new LinkStatsTable();
+									const currentLinkStatsTable = store.links();
+
+									if (currentLinkStatsTable) {
+										Object.assign(newLinkStatsTable, currentLinkStatsTable);
+									} else {
+										newLinkStatsTable.rows = new JSONArray();
+									}
+
+									newLinkStatsTable.addRow(linkRow);
+
+									patchState(store, { status: Status.SUCCESS, error: null, links: newLinkStatsTable });
+									snackbarService.openSnackBar('Successfully created link', '');
 								},
-								error: (err) => {
-									patchState(store, { status: Status.ERROR, error: err })
+								error: (error: HttpErrorResponse) => {
+									console.error(error.error);
+									patchState(store, { status: Status.ERROR, error })
+									snackbarService.openSnackBar('Failed to create link', '');
 								}
 							})
 						)
@@ -90,15 +115,37 @@ export const LinkStore = signalStore(
 
 			deleteLink: rxMethod<{ linkId: string }>(
 				pipe(
-					// tap(() => patchState(store, { status:  }))
+					tap(() => patchState(store, { status: Status.LOADING })),
+
 					switchMap(({ linkId }) => {
 						return linkService.deleteLink(linkId).pipe(
 							tapResponse({
 								next: () => {
-									snackbarService.openSnackBar('Deleted link', '');
+
+									const newLinkStatsTable = new LinkStatsTable();
+
+									const rows = store.links()!.getRows();
+
+									for (let i = 0; i < rows.length; i++) {
+										const linkStatsRow = new LinkStatsRow(rows[i] as any[]);
+										if (linkStatsRow.getLinkId() === linkId) {
+											continue;
+										}
+
+										if (!newLinkStatsTable.rows) {
+											newLinkStatsTable.rows = new JSONArray();
+										}
+
+										newLinkStatsTable.addRow(linkStatsRow);
+									}
+
+									patchState(store, { status: Status.SUCCESS, error: null, links: newLinkStatsTable.getRows() ? newLinkStatsTable : null });
+									snackbarService.openSnackBar('Successfully deleted link', '');
 								},
-								error: (err) => {
-									patchState(store, { status: Status.ERROR, error: err })
+								error: (error: HttpErrorResponse) => {
+									console.error(error);
+									patchState(store, { status: Status.ERROR, error });
+									snackbarService.openSnackBar('Failed to delete link', '');
 								}
 							})
 						)
