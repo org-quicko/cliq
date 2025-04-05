@@ -8,7 +8,6 @@ import { SignUpComponent } from './components/signup/signup.component';
 import { DashboardComponent } from './components/home/components/dashboard/dashboard.component';
 import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
 import { ReportsComponent } from './components/home/components/reports/reports.component';
-import { SettingsComponent } from './components/home/components/settings/settings.component';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { PromoterResolver } from './resolver/promoter.resolver';
 import { LinkCommissionsComponent } from './components/home/components/dashboard/components/link-commissions/link-commissions.component';
@@ -17,6 +16,7 @@ import { LayoutComponent } from './components/layout/layout.component';
 import { ProfileComponent } from './components/settings/components/profile/profile.component';
 import { PromoterComponent } from './components/settings/components/promoter/promoter.component';
 import { TeamComponent } from './components/settings/components/team/team.component';
+import { SettingsComponent } from './components/settings/settings.component';
 
 export const routes: Routes = [
 	{
