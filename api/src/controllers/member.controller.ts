@@ -2,7 +2,7 @@ import { Controller, Get, Post, Patch, Body, Param, Delete, UseGuards } from '@n
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { MemberService } from '../services/member.service';
-import { CreateMemberDto, MemberDto, UpdateMemberDto } from '../dtos';
+import { CreateMemberDto, MemberDto, SignUpMemberDto, UpdateMemberDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { MemberAuthService } from '../services/memberAuth.service';
 import { AuthGuard } from '../guards/auth.guard';
@@ -26,7 +26,7 @@ export class MemberController {
 	@Post('signup')
 	async memberSignUp(
 		@Param('program_id') programId: string,
-		@Body() body: CreateMemberDto,
+		@Body() body: SignUpMemberDto,
 	) {
 		this.logger.info('START: memberSignUp controller');
 
@@ -84,7 +84,7 @@ export class MemberController {
 	/**
 	 * Update member info
 	 */
-	@ApiResponse({ status: 204, description: 'No Content' })
+	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('update', Member)
@@ -96,10 +96,10 @@ export class MemberController {
 	) {
 		this.logger.info('START: updateMemberInfo controller');
 
-		await this.memberService.updateMemberInfo(memberId, body);
+		const result = await this.memberService.updateMemberInfo(memberId, body);
 
 		this.logger.info('END: updateMemberInfo controller');
-		return { message: 'Successfully updated member information.' };
+		return { message: 'Successfully updated member information.', result };
 	}
 
 	@ApiResponse({ status: 204, description: 'No Content' })
@@ -124,7 +124,6 @@ export class MemberController {
 	*/
 	@ApiResponse({ status: 204, description: 'No Content' })
 	@UseGuards(AuthGuard, PermissionsGuard)
-	@Permissions('leave', Promoter)
 	@Patch(':member_id/promoters/:promoter_id')
 	async leavePromoter(
 		@Param('member_id') memberId: string,

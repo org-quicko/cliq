@@ -95,7 +95,7 @@ export class LinkController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('delete', Link)
-	@Delete(':link_id')
+	@Patch(':link_id')
 	async deleteALink(@Param('link_id') linkId: string) {
 		this.logger.info('START: deleteALink controller');
 

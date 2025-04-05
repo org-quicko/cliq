@@ -3,12 +3,13 @@ import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { PromoterService } from '../services/promoter.service';
 import {
+	CreateMemberDto,
 	CreatePromoterDto,
-	InviteMemberDto,
+	UpdatePromoterDto,
 	UpdatePromoterMemberDto,
 } from '../dtos';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
-import { roleEnum, statusEnum, conversionTypeEnum } from '../enums';
+import { statusEnum, conversionTypeEnum, memberSortByEnum, memberRoleEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
@@ -62,6 +63,48 @@ export class PromoterController {
 	}
 
 	/**
+	 * Create promoter
+	 */
+	@ApiResponse({ status: 204, description: 'No Content' })
+	@ApiResponse({ status: 400, description: 'Bad Request' })
+	@ApiResponse({ status: 403, description: 'Unauthorized' })
+	@Permissions('delete', Promoter)
+	@Delete(':promoter_id')
+	async deletePromoter(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+	) {
+		this.logger.info('START: deletePromoter controller');
+
+		const result = await this.promoterService.deletePromoter(
+			programId,
+			promoterId,
+		);
+
+		this.logger.info('END: deletePromoter controller');
+		return { message: 'Successfully deleted promoter.', result };
+	}
+
+	/**
+	 * Create promoter
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('update', Promoter)
+	@Patch(':promoter_id')
+	async updatePromoterInfo(
+		@Req() req: Request,
+		@Param('promoter_id') promoterId: string,
+		@Body() body: UpdatePromoterDto,
+	) {
+		this.logger.info('START: updatePromoterInfo controller');
+
+		const result = await this.promoterService.updatePromoterInfo(promoterId, body);
+
+		this.logger.info('END: updatePromoterInfo controller');
+		return { message: 'Successfully updated promoter.', result };
+	}
+
+	/**
 	 * Get promoter
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
@@ -82,36 +125,37 @@ export class PromoterController {
 	@ApiResponse({ status: 201, description: 'Created' })
 	@Permissions('invite_member', Promoter)
 	@Post(':promoter_id/members')
-	async inviteMember(
+	async addMember(
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
-		@Body() body: InviteMemberDto,
+		@Body() body: CreateMemberDto,
 	) {
-		this.logger.info('START: inviteMember controller');
+		this.logger.info('START: addMember controller');
 
-		const result = await this.promoterService.inviteMember(
+		const result = await this.promoterService.addMember(
 			programId,
 			promoterId,
 			body,
 		);
 
-		this.logger.info('END: inviteMember controller');
-		return { message: 'Successfully invited member to promoter.', result };
+		this.logger.info('END: addMember controller');
+		return { message: 'Successfully added member to promoter.', result };
 	}
 
 	/**
 	 * Get all members
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
-	@SkipTransform()
 	@Permissions('read_all', PromoterMember)
 	@Get(':promoter_id/members')
 	async getAllMembers(
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
-		@Query('role') role: roleEnum,
+		@Query('role') role: memberRoleEnum,
 		@Query('email') email: string,
+		@Query('sort_by') sortBy: memberSortByEnum = memberSortByEnum.NAME,
+		@Query('sort_order') sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
 		@Query('status') status: statusEnum,
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
@@ -122,6 +166,8 @@ export class PromoterController {
 
 		const result = await this.promoterService.getAllMembers(
 			promoterId,
+			sortBy,
+			sortOrder,
 			toUseSheetJsonFormat,
 			{
 				role,
@@ -143,7 +189,7 @@ export class PromoterController {
 	@ApiResponse({ status: 204, description: 'No Content' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@Permissions('change_role', PromoterMember)
-	@Patch(':promoter_id/members/:member_id')
+	@Patch(':promoter_id/members/:member_id/role')
 	async updateRole(
 		@Param('member_id') memberId: string,
 		@Body() body: UpdatePromoterMemberDto,
@@ -162,7 +208,7 @@ export class PromoterController {
 	@ApiResponse({ status: 204, description: 'No Content' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
 	@Permissions('remove_member', PromoterMember)
-	@Delete(':promoter_id/members/:member_id')
+	@Patch(':promoter_id/members/:member_id')
 	async removeMember(
 		@Param('promoter_id') promoterId: string,
 		@Param('member_id') memberId: string,
@@ -356,12 +402,12 @@ export class PromoterController {
 
 	@ApiResponse({ status: 200, description: 'OK' })
 	@SkipTransform()
-	@Permissions('read', SignUp)
 	@Get(':promoter_id/reports/signups')
 	async getSignUpsReport(
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
+		@Headers('member_id') memberId: string,
 		@Res() res: Response,
 		@Query('report_period') reportPeriod?: reportPeriodEnum,
 		@Query('start_date') startDate?: string,
@@ -380,6 +426,7 @@ export class PromoterController {
 		const workbookBuffer = await this.promoterService.getSignUpsReport(
 			programId,
 			promoterId,
+			memberId,
 			parsedStartDate,
 			parsedEndDate,
 		);
@@ -393,10 +440,10 @@ export class PromoterController {
 
 	@ApiResponse({ status: 200, description: 'OK' })
 	@SkipTransform()
-	@Permissions('read', Purchase)
 	@Get(':promoter_id/reports/purchases')
 	async getPurchasesReport(
 		@Headers('x-accept-type') acceptType: string,
+		@Headers('member_id') memberId: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
@@ -417,6 +464,7 @@ export class PromoterController {
 		const workbookBuffer = await this.promoterService.getPurchasesReport(
 			programId,
 			promoterId,
+			memberId,
 			parsedStartDate,
 			parsedEndDate,
 		);
@@ -430,12 +478,12 @@ export class PromoterController {
 
 	@ApiResponse({ status: 200, description: 'OK' })
 	@SkipTransform()
-	@Permissions('read', Commission)
 	@Get(':promoter_id/reports/commissions')
 	async getCommissionsReport(
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
+		@Headers('member_id') memberId: string,
 		@Res() res: Response,
 		@Query('report_period') reportPeriod?: reportPeriodEnum,
 		@Query('start_date') startDate?: string,
@@ -454,6 +502,7 @@ export class PromoterController {
 		const workbookBuffer = await this.promoterService.getCommissionsReport(
 			programId,
 			promoterId,
+			memberId,
 			parsedStartDate,
 			parsedEndDate,
 		);
@@ -470,10 +519,10 @@ export class PromoterController {
 
 	@ApiResponse({ status: 200, description: 'OK' })
 	@SkipTransform()
-	@Permissions('read', Commission)
 	@Get(':promoter_id/reports/links')
 	async getLinksReport(
 		@Headers('x-accept-type') acceptType: string,
+		@Headers('member_id') memberId: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
@@ -494,6 +543,7 @@ export class PromoterController {
 		const workbookBuffer = await this.promoterService.getLinksReport(
 			programId,
 			promoterId,
+			memberId,
 			parsedStartDate,
 			parsedEndDate,
 		);
@@ -510,10 +560,10 @@ export class PromoterController {
 
 
 	@ApiResponse({ status: 200, description: 'OK' })
-	@Permissions('read', ReferralView)
 	@Get(':promoter_id/reports/referrals')
 	async getReferralsReport(
 		@Headers('x-accept-type') acceptType: string,
+		@Headers('member_id') memberId: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
@@ -534,6 +584,7 @@ export class PromoterController {
 		const workbookBuffer = await this.promoterService.getReferralsReport(
 			programId,
 			promoterId,
+			memberId,
 			parsedStartDate,
 			parsedEndDate,
 		);
@@ -603,14 +654,14 @@ export class PromoterController {
 	@ApiResponse({ status: 201, description: 'OK' })
 	@ApiResponse({ status: 409, description: 'Conflict' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@SkipPermissions()
-	@Get(':promoter_id/referrals')
-	async signUpToProgram(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
-	  this.logger.info('START: signUpToProgram controller');
+	@Permissions('register', Promoter)
+	@Post(':promoter_id')
+	async registerForProgram(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
+	  this.logger.info('START: registerForProgram controller');
   
-	  const result = await this.promoterService.signUpPromoterToProgram(programId, promoterId);
+	  const result = await this.promoterService.registerForProgram(programId, promoterId);
   
-	  this.logger.info('END: signUpToProgram controller');
-	  return { message: 'Successfully got program referrals.', result };
+	  this.logger.info('END: registerForProgram controller');
+	  return { message: `Successfully registered for Program ${programId}.`, result };
 	}
 }

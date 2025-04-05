@@ -7,8 +7,8 @@ import {
 	IsOptional,
 	IsEnum,
 } from 'class-validator';
-import { PartialType } from '@nestjs/mapped-types';
-import { roleEnum, statusEnum } from 'src/enums';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { memberRoleEnum, userRoleEnum, statusEnum } from 'src/enums';
 
 export class MemberDto {
 	@Expose({ name: 'member_id' })
@@ -27,8 +27,8 @@ export class MemberDto {
 	lastName: string;
 
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role?: roleEnum;
+	@IsEnum(memberRoleEnum)
+	role?: memberRoleEnum;
 
 	@IsOptional()
 	@IsEnum(statusEnum)
@@ -47,18 +47,40 @@ export class CreateMemberDto {
 	@IsEmail()
 	email: string;
 
+	@IsOptional()
 	@IsString()
 	password: string;
 
 	@Expose({ name: 'first_name' })
-	@IsOptional()
 	@IsString()
-	firstName?: string;
+	firstName: string;
 	
 	@Expose({ name: 'last_name' })
-	@IsOptional()
 	@IsString()
-	lastName?: string;
+	lastName: string;
+
+	@IsOptional()
+	@IsEnum(memberRoleEnum)
+	role?: memberRoleEnum;
+
 }
 
-export class UpdateMemberDto extends PartialType(CreateMemberDto) {}
+export class UpdateMemberDto extends OmitType(CreateMemberDto, ['email', 'password']) {
+
+	@IsOptional()
+	@IsEmail()
+	email?: string;
+	
+	@Expose({ name: 'new_password' })
+	@IsOptional()
+	@IsString()
+	newPassword?: string;
+	
+	@Expose({ name: 'current_password' })
+	@IsOptional()
+	@IsString()
+	currentPassword?: string;
+
+}
+
+export class SignUpMemberDto extends OmitType(CreateMemberDto, ['role']) { }

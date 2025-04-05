@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
-import { CreateUserDto, UpdateUserDto, UserDto } from '../dtos';
+import { CreateUserDto, SignUpUserDto, UpdateUserDto, UserDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { Program, User } from '../entities';
 import { plainToInstance } from 'class-transformer';
@@ -24,7 +24,7 @@ export class UserController {
 	 */
 	@ApiResponse({ status: 201, description: 'Created' })
 	@Post('signup')
-	async userSignUp(@Body() body: CreateUserDto) {
+	async userSignUp(@Body() body: SignUpUserDto) {
 		this.logger.info('START: userSignUp controller');
 
 		const result = await this.userService.userSignUp(body);

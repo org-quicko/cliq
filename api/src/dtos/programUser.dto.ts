@@ -1,12 +1,16 @@
-import { IsDate, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { IsDate, IsDefined, IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { PartialType } from '@nestjs/swagger';
-import { statusEnum, roleEnum } from '../enums';
+import { statusEnum, userRoleEnum } from '../enums';
+import { ProgramDto } from './program.dto';
 
 export class ProgramUserDto {
 	@Expose({ name: 'program_id' })
 	@IsUUID()
 	programId: string;
+
+	@IsDefined()
+	program: ProgramDto;
 
 	@Expose({ name: 'user_id' })
 	@IsUUID()
@@ -17,8 +21,8 @@ export class ProgramUserDto {
 
 	// defaults to member in database
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role: roleEnum;
+	@IsEnum(userRoleEnum)
+	role: userRoleEnum;
 
 	@Expose({ name: 'created_at' })
 	@IsDate()
@@ -35,8 +39,8 @@ export class CreateProgramUserDto {
 
 	// defaults to viewer in database
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role: roleEnum;
+	@IsEnum(userRoleEnum)
+	role: userRoleEnum;
 }
 
 export class UpdateProgramUserDto extends PartialType(CreateProgramUserDto) {}

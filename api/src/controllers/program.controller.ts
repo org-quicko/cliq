@@ -6,12 +6,12 @@ import {
   CreateProgramDto,
   UpdateProgramDto,
   UpdateProgramUserDto,
-  InviteUserDto,
+  CreateUserDto,
 } from '../dtos';
 import {
   visibilityEnum,
   statusEnum,
-  roleEnum,
+  userRoleEnum,
   conversionTypeEnum,
 } from '../enums';
 import { Permissions } from '../decorators/permissions.decorator';
@@ -145,16 +145,16 @@ export class ProgramController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @Permissions('invite_user', Program)
   @Post(':program_id/invite')
-  async inviteUser(
+  async addUser(
     @Param('program_id') programId: string,
-    @Body() body: InviteUserDto,
+    @Body() body: CreateUserDto,
   ) {
-    this.logger.info('START: inviteUser controller');
+    this.logger.info('START: addUser controller');
 
-    await this.programService.inviteUser(programId, body);
+    await this.programService.addUser(programId, body);
 
-    this.logger.info('END: inviteUser controller');
-    return { message: 'Successfully invited user to program.' };
+    this.logger.info('END: addUser controller');
+    return { message: 'Successfully added user to program.' };
   }
 
   /**
@@ -168,7 +168,7 @@ export class ProgramController {
     @Headers('x-accept-type') acceptType: string,
     @Param('program_id') programId: string,
     @Query('status') status?: statusEnum,
-    @Query('role') role?: roleEnum,
+    @Query('role') role?: userRoleEnum,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
