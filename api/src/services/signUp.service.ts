@@ -14,7 +14,7 @@ import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { SIGNUP_CREATED, SignUpCreatedEvent } from '../events';
-import { referralKeyTypeEnum, statusEnum, triggerEnum } from '../enums';
+import { referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -53,7 +53,7 @@ export class SignUpService {
 				programId,
 				{
 					// only active links must trigger functions, if they do
-					status: statusEnum.ACTIVE
+					status: linkStatusEnum.ACTIVE
 				}
 			);
 

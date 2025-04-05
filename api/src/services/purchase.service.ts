@@ -12,7 +12,7 @@ import { CreateContactDto, CreatePurchaseDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { PurchaseConverter } from '../converters/purchase.converter';
-import { contactStatusEnum, referralKeyTypeEnum, statusEnum, triggerEnum } from '../enums';
+import { contactStatusEnum, referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { PURCHASE_CREATED, PurchaseCreatedEvent } from '../events';
 import { ApiKeyService } from './apiKey.service';
@@ -48,7 +48,7 @@ export class PurchaseService {
 				programId,
 				{
 					// only active links must trigger functions, if they do
-					status: statusEnum.ACTIVE
+					status: linkStatusEnum.ACTIVE
 				}
 			);
 

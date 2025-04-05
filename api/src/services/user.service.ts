@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityNotFoundError } from 'typeorm';
-import { CreateUserDto, UpdateUserDto } from '../dtos';
+import { CreateUserDto, SignUpUserDto, UpdateUserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
 import { UserConverter } from '../converters/user.converter';
 import { LoggerService } from './logger.service';
-import { roleEnum, statusEnum } from 'src/enums';
+import { userRoleEnum, statusEnum } from 'src/enums';
 
 @Injectable()
 export class UserService {
@@ -33,14 +33,14 @@ export class UserService {
 	/**
 	 * User sign up
 	 */
-	async userSignUp(body: CreateUserDto) {
+	async userSignUp(body: SignUpUserDto) {
 		try {
 			this.logger.info('START: userSignUp service');
 	
 			const userEntity = this.userRepository.create(body);
 	
 			if (await this.isFirstUserSignUp()) {
-				userEntity.role = roleEnum.SUPER_ADMIN;
+				userEntity.role = userRoleEnum.SUPER_ADMIN;
 			}
 	
 			// has to be saved as an entity otherwise password hashing won't be triggered
@@ -167,14 +167,14 @@ export class UserService {
 		const adminResult = await this.programUserRepository.find({
 			where: {
 				programId,
-				role: roleEnum.ADMIN,
+				role: userRoleEnum.ADMIN,
 			}
 		});
 
 		const superAdminResult = await this.programUserRepository.findOne({
 			where: {
 				programId,
-				role: roleEnum.SUPER_ADMIN
+				role: userRoleEnum.SUPER_ADMIN
 			}
 		});
 

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PromoterMember } from '../entities';
-import { Repository } from 'typeorm';
+import { FindOptionsRelations, Repository } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { statusEnum } from 'src/enums';
 
@@ -14,7 +14,7 @@ export class PromoterMemberService {
 		private logger: LoggerService,
 	) {}
 
-	async getPromoterMemberRowEntity(promoterId: string, memberId: string) {
+	async getPromoterMemberRowEntity(promoterId: string, memberId: string, relations: FindOptionsRelations<PromoterMember> = {}) {
 		this.logger.info('START: getPromoterMemberRowEntity service');
 
 		const promoterMember = await this.promoterMemberRepository.findOne({
@@ -22,12 +22,7 @@ export class PromoterMemberService {
 				promoterId,
 				memberId,
 			},
-			select: {
-				promoterId: true,
-				memberId: true,
-				role: true,
-				status: true,
-			},
+			relations
 		});
 
 		if (!promoterMember) {

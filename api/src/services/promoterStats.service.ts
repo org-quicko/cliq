@@ -36,8 +36,8 @@ export class PromoterStatsService {
             });
 
         if (!promoterStatResult) {
-            this.logger.error(`Error. Failed to get first promoter statistic for Program ID: ${programId}.`);
-            throw new BadRequestException(`Error. Failed to get first promoter statistic for Program ID: ${programId}.`);
+            this.logger.warn(`Error. No promoter statistic found for Promoter ${promoterId} in Program ID: ${programId}.`);
+            throw new NotFoundException(`Error. No promoter statistic found for Promoter ${promoterId} in Program ID: ${programId}.`);
         }
 
         this.logger.info(`END: getFirstPromoterStat service`);
