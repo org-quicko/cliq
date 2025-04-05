@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Member } from '../entities';
@@ -14,6 +14,7 @@ export interface MemberLoginData extends LoginData {
 @Injectable()
 export class MemberAuthService {
 	constructor(
+		@Inject(forwardRef(() => MemberService))
 		private memberService: MemberService,
 		private jwtService: JwtService,
 		private logger: LoggerService,
@@ -21,7 +22,7 @@ export class MemberAuthService {
 
 	async authenticateMember(programId: string, input: AuthInput): Promise<AuthResult> {
 		this.logger.info(`START: authenticateMember service`);
-		const entity = await this.validateMember(programId, input);
+		const [entity, errorMessage] = await this.validateMember(programId, input);
 
 		if (!entity) {
 			throw new UnauthorizedException({
@@ -36,27 +37,55 @@ export class MemberAuthService {
 		return authResult;
 	}
 
-	async validateMember(programId: string, input: AuthInput): Promise<MemberLoginData | null> {
+	async validateMember(programId: string, input: AuthInput): Promise<[MemberLoginData | null, string]> {
 		this.logger.info(`START: validateMember service`);
+		
+		let logInData: MemberLoginData | null;
+		let errorMessage: string = '';
 
 		const entity: Member | null = await this.memberService.getMemberByEmail(
 			programId,
 			input.email,
 		);
 
-		let logInData: MemberLoginData | null;
-		if (
-			entity &&
-			(await this.comparePasswords(input.password, entity.password))
-		) {
-			logInData = {
-				member_id: entity.memberId,
-				email: entity.email,
-			};
-		} else logInData = null;
+		// const existsInAnyPromoter = await this.memberService.memberExistsInAnyPromoter(
+		// 	input.email,
+		// 	programId,
+		// );
+
+		// member isn't part of the program
+		if (!entity) {
+			logInData = null;
+			errorMessage = `You are not registered in this program!`;
+			throw new BadRequestException(errorMessage);
+		} else {
+
+			// member's part of the program but isn't part of any promoter
+			// if (!existsInAnyPromoter) {
+			// 	logInData = null;
+			// 	errorMessage = `You are not part of any promoter in this program right now!`;
+			// 	throw new BadRequestException(errorMessage);
+			// } else {
+
+				// incorrect password
+				if (!(await this.comparePasswords(input.password, entity.password))) {
+					logInData = null;
+					errorMessage = `Invalid password! Please try again!`;
+					throw new BadRequestException(errorMessage);
+				} else {
+
+					// valid member, allow login
+					logInData = {
+						member_id: entity.memberId,
+						email: entity.email,
+					};
+				}
+
+			// }
+		}
 
 		this.logger.info(`END: validateMember service`);
-		return logInData;
+		return [logInData, errorMessage];
 	}
 
 	async loginMember(entity: MemberLoginData): Promise<AuthResult> {
@@ -73,7 +102,7 @@ export class MemberAuthService {
 		return { access_token: accessToken };
 	}
 
-	private async comparePasswords(
+	async comparePasswords(
 		plainPassword: string,
 		hashedPassword: string,
 	): Promise<boolean> {
