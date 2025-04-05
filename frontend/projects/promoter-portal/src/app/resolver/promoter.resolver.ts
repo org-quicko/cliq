@@ -1,33 +1,36 @@
 import { Injectable, inject } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
-import { Status } from '../../../../org-quicko-cliq-core/src/lib/enums/stateStatus.enum';
+import { Resolve } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { plainToInstance } from 'class-transformer';
-import { PromoterDto as Promoter } from '../../../../org-quicko-cliq-core/src/lib/dtos';
 import { PromoterStore } from '../store/promoter.store';
 import { MemberService } from '../services/member.service';
-
+import { PromoterDto, PromoterMemberDto } from '@org.quicko.cliq/ngx-core';
+import { MemberStore } from '../store/member.store';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 @Injectable({ providedIn: 'root' })
-export class PromoterResolver implements Resolve<Promoter> {
+export class PromoterResolver implements Resolve<PromoterDto> {
 	constructor() { }
 
-	readonly store = inject(PromoterStore);
-
+	readonly memberStore = inject(MemberStore);
+	readonly promoterStore = inject(PromoterStore);
 	readonly memberService = inject(MemberService);
+	readonly snackBarService = inject(SnackbarService);
 
-	async resolve(route: ActivatedRouteSnapshot) {
-		this.store.setStatus(Status.LOADING);
-
-		const response = await firstValueFrom(this.memberService.getPromoterOfMember());
-
-		if (!response.data) {
-			this.store.setStatus(Status.ERROR);
-			throw new Error('Promoter not found.');
-		}
-
-		this.store.setPromoter(plainToInstance(Promoter, response.data)); // set the global store
-		return response.data;
+	resolve(): Observable<PromoterDto> {
+		return this.memberService.getPromoterOfMember().pipe(
+			tap((response) => {
+				if (response.data) {
+					const promoter = plainToInstance(PromoterDto, response.data);
+					this.promoterStore.setPromoter(promoter);
+				}
+			}),
+			map((response) => plainToInstance(PromoterDto, response.data?.promoter) ?? new PromoterDto()),
+			catchError((error) => {
+				this.snackBarService.openSnackBar('Failed to get member role', '');
+				return of(new PromoterDto());
+			})
+		);
 	}
-
 }
