@@ -1,6 +1,6 @@
 import { IsDate, IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { Expose } from 'class-transformer';
-import { statusEnum, roleEnum } from '../enums';
+import { statusEnum, userRoleEnum } from '../enums';
 
 export class ProgramUserDto {
 	@Expose({ name: 'program_id' })
@@ -16,8 +16,8 @@ export class ProgramUserDto {
 
 	// defaults to member in database
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role: roleEnum;
+	@IsEnum(userRoleEnum)
+	role: userRoleEnum;
 
 	@Expose({ name: 'created_at' })
 	@IsDate()
@@ -34,8 +34,8 @@ export class CreateProgramUserDto {
 
 	// defaults to viewer in database
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role: roleEnum;
+	@IsEnum(userRoleEnum)
+	role: userRoleEnum;
 }
 
 export class UpdateProgramUserDto {
@@ -46,7 +46,7 @@ export class UpdateProgramUserDto {
 
 	// defaults to viewer in database
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role: roleEnum;
+	@IsEnum(userRoleEnum)
+	role: userRoleEnum;
 
 }

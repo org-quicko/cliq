@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
 import { IsDate, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
-import { statusEnum } from '../enums';
+import { linkStatusEnum } from '../enums';
 
 export class LinkDto {
 	@Expose({ name: 'link_id' })
@@ -15,8 +15,8 @@ export class LinkDto {
 	refVal: string;
 
 	@IsOptional()
-	@IsEnum(statusEnum)
-	status?: statusEnum;
+	@IsEnum(linkStatusEnum)
+	status?: linkStatusEnum;
 
 	@Expose({ name: 'product_path' })
 	@IsString()
@@ -41,7 +41,7 @@ export class CreateLinkDto {
 	refVal: string;
 
 	@IsOptional()
-	@IsEnum(statusEnum)
-	status?: statusEnum;
+	@IsEnum(linkStatusEnum)
+	status?: linkStatusEnum;
 
 }

@@ -1,13 +1,14 @@
 import { Expose } from 'class-transformer';
-import { IsString, IsUUID, IsDate, IsOptional, IsEnum } from 'class-validator';
-import { roleEnum, statusEnum } from '../enums';
+import { IsString, IsUUID, IsDate, IsOptional, IsEnum, IsEmail } from 'class-validator';
+import { userRoleEnum, statusEnum } from '../enums';
+import { prop } from '@rxweb/reactive-form-validators';
 
 export class UserDto {
 	@Expose({ name: 'user_id' })
 	@IsUUID()
 	userId: string;
 
-	@IsString()
+	@IsEmail()
 	email: string;
 
 	@IsString()
@@ -22,11 +23,11 @@ export class UserDto {
 	lastName: string;
 
 	@IsOptional()
-	@IsEnum(roleEnum)
-	programRole?: roleEnum;
+	@IsEnum(userRoleEnum)
+	programRole?: userRoleEnum;
 
-	@IsEnum(roleEnum)
-	role: roleEnum;
+	@IsEnum(userRoleEnum)
+	role: userRoleEnum;
 
 	@IsOptional()
 	@IsEnum(statusEnum)
@@ -42,46 +43,75 @@ export class UserDto {
 }
 
 export class CreateUserDto {
-	@IsString()
+	@prop()
+	@IsEmail()
 	email: string;
 
+	@prop()
 	@IsString()
 	password: string;
 
+	@prop()
 	@Expose({ name: 'first_name' })
 	@IsString()
 	firstName: string;
 
+	@prop()
 	@Expose({ name: 'last_name' })
 	@IsString()
 	lastName: string;
 
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role?: roleEnum;
+	@IsEnum(userRoleEnum)
+	role?: userRoleEnum;
 }
 
-export class UpdateUserDto {
+export class UpdateUserDto implements Omit<CreateUserDto, 'email' | 'password' | 'role'> {
+	@prop()
 	@IsOptional()
-	@IsString()
+	@IsEmail()
 	email?: string;
 
+	@prop()
+	@Expose({ name: 'new_password' })
 	@IsOptional()
 	@IsString()
-	password?: string;
+	newPassword?: string;
 
+	@prop()
+	@Expose({ name: 'current_password' })
+	@IsOptional()
+	@IsString()
+	currentPassword?: string;
+
+	@prop()
 	@Expose({ name: 'first_name' })
-	@IsOptional()
 	@IsString()
-	firstName?: string;
+	firstName: string;
 
+	@prop()
 	@Expose({ name: 'last_name' })
-	@IsOptional()
 	@IsString()
-	lastName?: string;
+	lastName: string;
 
-	@IsOptional()
-	@IsEnum(roleEnum)
-	role?: roleEnum;
+}
 
+export class SignUpUserDto implements Omit<CreateUserDto, 'role'> {
+	@prop()
+	@IsEmail()
+	email: string;
+
+	@prop()
+	@IsString()
+	password: string;
+
+	@prop()
+	@Expose({ name: 'first_name' })
+	@IsString()
+	firstName: string;
+
+	@prop()
+	@Expose({ name: 'last_name' })
+	@IsString()
+	lastName: string;
 }

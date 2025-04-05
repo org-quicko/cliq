@@ -1,3 +1,4 @@
+import { prop } from '@rxweb/reactive-form-validators';
 import { Expose } from 'class-transformer';
 import { IsString, IsOptional, IsDate, IsUUID } from 'class-validator';
 
@@ -34,10 +35,12 @@ export class CreatePromoterDto {
 
 export class UpdatePromoterDto {
 
+	@prop()
 	@IsOptional()
 	@IsString()
 	name?: string;
 
+	@prop()
 	@IsOptional()
 	@Expose({ name: 'logo_url' })
 	@IsString()

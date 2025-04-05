@@ -7,7 +7,7 @@ import {
 	IsOptional,
 	IsEnum,
 } from 'class-validator';
-import { roleEnum, statusEnum } from '../enums';
+import { memberRoleEnum, statusEnum } from '../enums';
 import { prop, required } from '@rxweb/reactive-form-validators';
 
 export class MemberDto {
@@ -36,8 +36,8 @@ export class MemberDto {
 	lastName: string;
 
 	@IsOptional()
-	@IsEnum(roleEnum)
-	role?: roleEnum;
+	@IsEnum(memberRoleEnum)
+	role?: memberRoleEnum;
 
 	@IsOptional()
 	@IsEnum(statusEnum)
@@ -53,39 +53,77 @@ export class MemberDto {
 }
 
 export class CreateMemberDto {
+	@prop()
 	@IsEmail()
 	email: string;
 
+	@prop()
 	@IsString()
 	password: string;
 
+	@prop()
 	@Expose({ name: 'first_name' })
 	@IsString()
 	firstName: string;
 
+	@prop()
 	@Expose({ name: 'last_name' })
 	@IsString()
 	lastName: string;
+
+	@prop()
+	@IsOptional()
+	@IsEnum(memberRoleEnum)
+	role?: memberRoleEnum;
 }
 
-export class UpdateMemberDto {
+export class UpdateMemberDto implements Omit<CreateMemberDto, 'email' | 'password'> {
 
+	@prop()
 	@IsOptional()
 	@IsEmail()
 	email?: string;
 
+	@prop()
+	@Expose({ name: 'current_password' })
 	@IsOptional()
 	@IsString()
-	password?: string;
+	currentPassword?: string;
 
+	@prop()
+	@Expose({ name: 'new_password' })
+	@IsOptional()
+	@IsString()
+	newPassword?: string;
+
+	@prop()
 	@Expose({ name: 'first_name' })
-	@IsOptional()
 	@IsString()
-	firstName?: string;
+	firstName: string;
 
+	@prop()
 	@Expose({ name: 'last_name' })
-	@IsOptional()
 	@IsString()
-	lastName?: string;
+	lastName: string;
 
+}
+
+export class SignUpMemberDto implements Omit<CreateMemberDto, 'role'> {
+	@prop()
+	@IsEmail()
+	email: string;
+
+	@prop()
+	@IsString()
+	password: string;
+
+	@prop()
+	@Expose({ name: 'first_name' })
+	@IsString()
+	firstName: string;
+
+	@prop()
+	@Expose({ name: 'last_name' })
+	@IsString()
+	lastName: string;
 }
