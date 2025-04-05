@@ -1,12 +1,19 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
-import { MemberDto as Member, Status } from '@org.quicko.cliq/ngx-core';
+import { MemberDto as Member, MemberDto, memberRoleEnum, Status, UpdateMemberDto } from '@org.quicko.cliq/ngx-core';
 import { MemberService } from '../services/member.service';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
+import { PromoterService } from '../services/promoter.service';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { pipe, switchMap, tap } from 'rxjs';
+import { tapResponse } from '@ngrx/operators';
+import { HttpErrorResponse } from '@angular/common/http';
+import { plainToInstance } from 'class-transformer';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 export interface MemberStoreState {
 	member: Member | null,
-	error: any | null,
+	error: HttpErrorResponse | null,
 	status: Status
 };
 
@@ -21,11 +28,69 @@ export const MemberStore = signalStore(
 	withDevtools('member'),
 
 	withState(initialMemberState),
-	withMethods((store, memberService = inject(MemberService)) => ({
+	withMethods(
+		(
+			store,
+			memberService = inject(MemberService),
+			promoterService = inject(PromoterService),
+			snackBarService = inject(SnackbarService),
+		) => ({
 
-		setMember: (member: Member) => {
-			patchState(store, { member, status: Status.SUCCESS });
-		}
+			setMember(member: Member) {
+				patchState(store, { member, status: Status.SUCCESS });
+			},
+
+			setError(error: HttpErrorResponse) {
+				patchState(store, { status: Status.ERROR, error });
+			},
+
+			updateMemberInfo: rxMethod<UpdateMemberDto>(
+				pipe(
+					tap(() => patchState(store, { status: Status.LOADING })),
+
+					switchMap((updatedInfo) => {
+						return memberService.updateMemberInfo(updatedInfo).pipe(
+							tapResponse({
+								next(response) {
+									const memberDto = plainToInstance(MemberDto, response.data);
+									patchState(store, { status: Status.SUCCESS, member: memberDto, error: null });
+									snackBarService.openSnackBar('Successfully updated your info!', '');
+								},
+								error(error: HttpErrorResponse) {
+									console.log(error.error.message);
+									patchState(store, { status: Status.ERROR, error });
+									snackBarService.openSnackBar(error.error.message, '');
+								},
+							})
+						)
+					})
+				)
+			),
+
+			leavePromoter: rxMethod<void>(
+				pipe(
+					tap(() => patchState(store, { status: Status.LOADING })),
+
+					switchMap(() => {
+						return memberService.leavePromoter().pipe(
+							tapResponse({
+								next(response) {
+									snackBarService.openSnackBar('Successfully left the promoter!', '');
+								},
+								error(error: HttpErrorResponse) {
+									console.error(error.message);
+									patchState(store, { status: Status.ERROR, error });
+									snackBarService.openSnackBar('Failed to leave the promoter', '');
+								},
+							})
+						)
+					})
+				)
+			),
+
+			resetError() {
+				patchState(store, { error: null });
+			}
 
 	}))
 );
