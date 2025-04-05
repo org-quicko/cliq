@@ -1,0 +1,60 @@
+<div class="w-full flex flex-col gap-[26px]">
+	<!-- Header -->
+	<div class="flex flex-col gap-3">
+		<div class="flex align-middle gap-2 hover:cursor-pointer text-on-surface-variant" (click)="onGoBack()">
+			<button mat-button>
+				<mat-icon>
+					chevron_left
+				</mat-icon>
+				<span>Back</span>
+			</button>
+		</div>
+		<div>
+			<h3 class="text-on-surface mat-headline-medium">Commissions from {{ contact()?.contactInfo }}</h3>
+		</div>
+	</div>
+
+
+	<div class="mat-elevation-z8 border-outline-variant border rounded-[5px] overflow-hidden">
+		<table mat-table matSort [dataSource]="dataSource" class="w-full">
+			<!-- Define columns dynamically -->
+			<ng-container matColumnDef="created at">
+				<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-on-surface">Updated At
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant">
+					{{ convertToCommissionRow(row).getUpdatedAt() | ordinalDate }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="type">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+					Type
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-outline">
+					<mat-chip
+						[class]="`!p-0  gap-1 justify-center border-0 bg-surface-container text-on-surface`">
+						{{ convertToCommissionRow(row).getConversionType() | titlecase }}
+					</mat-chip>
+
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="commission">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">Commission
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" [class]="`mat-body-large text-on-surface-variant`">
+					{{ convertToCommissionRow(row).getCommission() | formatCurrency:currency() }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="revenue">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">Revenue
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" [class]="`mat-body-large text-on-surface`">
+					{{ convertToCommissionRow(row).getRevenue() | formatCurrency:currency() }}
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
+				class="hover:bg-surface-container h-[76px]"></tr>
+		</table>
+	</div>
+</div>
