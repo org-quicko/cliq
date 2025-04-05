@@ -1,0 +1,117 @@
+<div class="w-full flex flex-col gap-[26px]">
+	<!-- Header -->
+	<div class="flex flex-col gap-3">
+		<div class="flex align-middle gap-2 hover:cursor-pointer text-on-surface-variant" (click)="onGoBack()">
+			<button mat-button>
+				<mat-icon>
+					chevron_left
+				</mat-icon>
+				<span>Back</span>
+			</button>
+		</div>
+		<div>
+			<div>
+				<h3 class="text-on-surface mat-headline-medium">Commissions for {{ link()?.name | titlecase }}</h3>
+			</div>
+			<div>
+				<span class="mat-body-large text-on-surface-variant">{{ fullLinkString() }}</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Search bar -->
+	<mat-form-field [appearance]="'outline'" class="flex w-full rounded-[4px]" (keydown.enter)="onSearch()">
+
+		<button matPrefix mat-icon-button aria-label="Search" class="w-10 h-10 gap-[10px]">
+			<mat-icon>search</mat-icon>
+		</button>
+
+		<mat-label class="mat-body-large text-outline">Search Referrals by {{ referralKeyType() | titlecase
+			}}</mat-label>
+		<input matInput type="text" [(ngModel)]="referralKey" />
+
+		@if (referralKey()) {
+		<button matSuffix mat-icon-button aria-label="Clear" (click)="onClear()">
+			<mat-icon>close</mat-icon>
+		</button>
+		}
+	</mat-form-field>
+
+	<div class="mat-elevation-z8">
+		<table mat-table matSort [dataSource]="dataSource" class="w-full border-outline-variant border-[1px]"
+			[ngClass]="{ 'h-[500px]': (linkCommissionsLength() === 0) && !isLoading() }">
+			<!-- Define columns dynamically -->
+			<ng-container matColumnDef="created at">
+				<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-on-surface w-60">Created At
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-60">
+					{{ convertToCommissionRow(row).getCreatedAt() | ordinalDate }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="referral">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-60">
+					Referral
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-60">
+					{{ convertToCommissionRow(row).getReferral() }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="type">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">
+					Type
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-outline w-40">
+					<mat-chip [class]="`!p-0  gap-1 justify-center border-0 bg-surface-container text-on-surface`">
+						{{ convertToCommissionRow(row).getConversionType() | titlecase }}
+					</mat-chip>
+
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="commission">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">Commission
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface w-40">
+					{{ convertToCommissionRow(row).getCommission() | formatCurrency:program()?.currency }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="revenue">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">Revenue
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-40">
+					{{ convertToCommissionRow(row).getRevenue() | formatCurrency:program()?.currency }}
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
+				class="hover:bg-surface-container h-[76px]"></tr>
+
+			<!-- Empty State -->
+			<tr class="empty-row" *matNoDataRow>
+				<td [attr.colspan]="displayedColumns.length">
+					<div class="flex flex-col justify-center items-center h-[504px]">
+						<div class="p-6 text-center flex flex-col gap-4">
+							<div class="text-on-surface-variant flex flex-col items-center gap-4">
+
+								<div
+									class="scale-133 rounded-full inline-flex justify-start items-center gap-2.5 overflow-hidden bg-surface-container p-3">
+									<mat-icon class="material-symbols-outlined text-primary">money_bag</mat-icon>
+								</div>
+								<div class="flex flex-col gap-1 h-auto max-h-12">
+									<p class="text-on-surface mat-body-large !m-0">
+										No commissions yet
+									</p>
+									<p class="mat-body-medium">
+										Once someone signs up or purchases using your link,
+										<br />
+										you'll see their details here.
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
