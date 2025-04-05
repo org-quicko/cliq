@@ -1,28 +1,38 @@
 import {
 	BadRequestException,
+	forwardRef,
+	Inject,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberConverter } from 'src/converters/member.converter';
-import { CreateMemberDto, UpdateMemberDto } from 'src/dtos';
+import { CreateMemberDto, SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
 import { Member, PromoterMember } from 'src/entities';
-import { Repository, FindOptionsRelations } from 'typeorm';
+import { Repository, FindOptionsRelations, DataSource } from 'typeorm';
 import { LoggerService } from './logger.service';
-import { roleEnum, statusEnum } from 'src/enums';
+import { memberRoleEnum, statusEnum } from 'src/enums';
 import { PromoterConverter } from 'src/converters/promoter.converter';
+import { MemberAuthService } from './memberAuth.service';
+import * as bcrypt from 'bcrypt';
+import { SALT_ROUNDS } from 'src/constants';
 
 @Injectable()
 export class MemberService {
 	constructor(
 		@InjectRepository(Member)
 		private readonly memberRepository: Repository<Member>,
-		
+
 		@InjectRepository(PromoterMember)
 		private readonly promoterMemberRepository: Repository<PromoterMember>,
 
+		@Inject(forwardRef(() => MemberAuthService))
+		private memberAuthService: MemberAuthService,
+
 		private memberConverter: MemberConverter,
 		private promoterConverter: PromoterConverter,
+
+		private datasource: DataSource,
 
 		private logger: LoggerService,
 	) { }
@@ -30,14 +40,16 @@ export class MemberService {
 	/**
 	 * Member sign up
 	 */
-	async memberSignUp(programId: string, member: CreateMemberDto) {
+	async memberSignUp(programId: string, body: SignUpMemberDto) {
 		this.logger.info('START: memberSignUp service');
 
+		if (await this.memberExistsInAnyPromoter(body.email, programId)) {
+			this.logger.error(`Error. Email ${body.email} is already part of Program ${programId}`);
+			throw new BadRequestException(`Error. Email ${body.email} is already part of Program ${programId}`);
+		}
+
 		const newMember = this.memberRepository.create({
-			email: member.email,
-			firstName: member.firstName,
-			lastName: member.lastName,
-			password: member.password,
+			...body,
 			program: {
 				programId,
 			},
@@ -62,23 +74,22 @@ export class MemberService {
 				promoterMembers: true,
 			},
 			select: {
-				promoterMembers: {
-					promoterId: true,
-					role: true,
-					status: true,
-				},
+				promoterMembers: true
 			},
 		});
 
-		if (!memberResult) {
+		const promoterMemberResult = await this.promoterMemberRepository.findOne({ where: { memberId } });
+
+		if (!memberResult || !promoterMemberResult) {
 			this.logger.warn(`Failed to get member of ID: ${memberId}`);
 			throw new NotFoundException(
 				`Failed to get member of ID: ${memberId}.`,
 			);
 		}
+		const memberDto = this.memberConverter.convert(memberResult, promoterMemberResult);
 
 		this.logger.info('END: getMember service');
-		return this.memberConverter.convert(memberResult);
+		return memberDto;
 	}
 
 	/**
@@ -91,17 +102,13 @@ export class MemberService {
 		this.logger.info('START: getMemberEntity service');
 
 		const memberResult = await this.memberRepository.findOne({
-			where: { memberId: memberId },
+			where: { memberId },
 			relations: {
 				promoterMembers: true,
 				...relations,
 			},
 			select: {
-				promoterMembers: {
-					promoterId: true,
-					role: true,
-					status: true,
-				},
+				promoterMembers: true
 			},
 		});
 
@@ -119,7 +126,7 @@ export class MemberService {
 	async getMemberByEmail(programId: string, email: string): Promise<Member | null> {
 		this.logger.info('START: getMemberByEmail service');
 		const memberResult = await this.memberRepository.findOne({
-			where: { 
+			where: {
 				email,
 				program: {
 					programId
@@ -134,24 +141,70 @@ export class MemberService {
 	/**
 	 * Update member info
 	 */
-	async updateMemberInfo(memberId: string, member: UpdateMemberDto) {
-		this.logger.info('START: updateMemberInfo service');
+	async updateMemberInfo(memberId: string, body: UpdateMemberDto) {
+		return this.datasource.transaction(async (manager) => {
+			this.logger.info('START: updateMemberInfo service');
 
-		const memberResult = await this.memberRepository.findOne({
-			where: { memberId: memberId },
+			const memberRepository = manager.getRepository(Member);
+
+			const member = await memberRepository.findOne({ where: { memberId }, relations: { program: true } });
+
+			if (!member) {
+				this.logger.error(`Member does not exist: ${memberId}`);
+				throw new BadRequestException(`Member does not exist.`);
+			}
+
+			const { currentPassword, newPassword, email, ...updateFields } = body;
+
+			// If password update is attempted
+			if (currentPassword || newPassword) {
+				if (!currentPassword || !newPassword) {
+					this.logger.error(`Error. Both the current and the new password must be provided in order to update password.`);
+					throw new BadRequestException(`Error. Both the current and the new password must be provided in order to update password.`);
+				}
+
+				// Verify the current password
+				const isPasswordCorrect = await this.memberAuthService.comparePasswords(currentPassword, member.password);
+				if (!isPasswordCorrect) {
+					this.logger.error(`Error. Incorrect password entered!`);
+					throw new BadRequestException(`Error. Incorrect password entered!`);
+				}
+
+				// Hash the new password
+				const salt = await bcrypt.genSalt(SALT_ROUNDS);
+				member.password = await bcrypt.hash(newPassword, salt);
+			}
+
+			if (email && email !== member.email) {
+				if (await this.memberExistsInAnyPromoter(email, member.program.programId)) {
+					this.logger.error(`Error. Cannot use that email as it already exists in the program!`);
+					throw new BadRequestException(`Error. Cannot use that email as it already exists in the program!`);
+				}
+
+				member.email = email;
+			}
+
+			console.log(body);
+
+			// Update other fields
+			Object.assign(member, updateFields);
+
+			await memberRepository.save(member);
+
+			await manager
+				.createQueryBuilder()
+				.update(Member)
+				.set({ updatedAt: () => 'NOW()' }) // Correctly updates timestamp with time zone
+				.where({ memberId })
+				.execute();
+
+			console.log(member);
+			const memberDto = this.memberConverter.convert(member);
+
+			this.logger.info('END: updateMemberInfo service');
+			return memberDto
 		});
 
-		if (!memberResult) {
-			this.logger.warn(`Member does not exist: ${memberId}`);
-			throw new Error(`Member does not exist.`);
-		}
-
-		await this.memberRepository.update(
-			{ memberId: memberId },
-			{ ...member, updatedAt: () => `NOW()` },
-		);
-
-		this.logger.info('END: updateMemberInfo service');
 	}
 	/**
 	 * Delete member
@@ -209,6 +262,11 @@ export class MemberService {
 			this.logger.error(`Error. Cannot leave promoter due to being the only admin in the promoter`);
 			throw new BadRequestException(`Error. Cannot leave program due to being the only admin in the promoter`);
 		}
+		
+		if (!(await this.promoterMemberRepository.findOne({ where: { promoterId, memberId, status: statusEnum.ACTIVE } }))) {
+			this.logger.error(`Error. Member is already not part of this program`);
+			throw new BadRequestException(`Error. Member is already not part of this program`);	
+		}
 
 		await this.promoterMemberRepository.update({ promoterId, memberId }, {
 			status: statusEnum.INACTIVE
@@ -233,6 +291,7 @@ export class MemberService {
 			this.logger.error(`Error. Member ${memberId} isn't part of any promoter!`);
 			throw new NotFoundException(`Error. Member ${memberId} isn't part of any promoter!`);
 		}
+
 		const promoterDto = this.promoterConverter.convert(promoterMemberResult.promoter);
 
 		this.logger.info(`END: getPromoterOfMember service`);
@@ -245,7 +304,7 @@ export class MemberService {
 		const adminResult = await this.promoterMemberRepository.find({
 			where: {
 				promoterId,
-				role: roleEnum.ADMIN,
+				role: memberRoleEnum.ADMIN,
 			}
 		});
 
