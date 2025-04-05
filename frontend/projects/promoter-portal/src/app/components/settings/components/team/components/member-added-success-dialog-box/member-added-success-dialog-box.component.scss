@@ -1,0 +1,9 @@
+@use '@angular/material' as mat;
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+.borderless-btn {
+	@include mat.button-toggle-overrides((
+			legacy-focus-state-layer-opacity: orange,
+			legacy-text-color: red,
+		));
+}

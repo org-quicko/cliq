@@ -1,0 +1,82 @@
+<mat-dialog-content class="w-[516px] rounded-[5px] h-auto p-6 bg-surface-container-lowest">
+	<form [formGroup]="addMemberForm" (ngSubmit)="onSubmit()">
+
+		<div class="flex flex-col gap-8">
+			<!-- Add Member Header -->
+			<div class="flex justify-between">
+				<div class="flex flex-col gap-2">
+					<div class="size-6">
+						<mat-icon class="text-on-surface">
+							group_add
+						</mat-icon>
+					</div>
+					<div class="text-on-surface mat-title-large">
+						<span>Add Member</span>
+					</div>
+				</div>
+				<button type="button" mat-icon-button class="cursor-pointer" (click)="closeDialog()">
+					<mat-icon>
+						close
+					</mat-icon>
+				</button>
+			</div>
+
+			<!-- Form Fields -->
+			<div class="flex flex-col gap-6">
+				<div class="flex flex-col">
+					<mat-form-field [appearance]="'outline'" class="w-full">
+						<mat-label>Role</mat-label>
+						<mat-select formControlName="role" class="bg-surface-container-lowest" required>
+							@for (role of roles; track role) {
+							<mat-option [value]="role" class="h-auto bg-surface-container-lowest hover:bg-surface-container">{{ role | titlecase }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field [appearance]="'outline'" class="w-full">
+						<mat-label>Email</mat-label>
+						<input type="text" matInput formControlName="email" class="w-full max-w-[468px]" required/>
+					</mat-form-field>
+
+					<div class="flex gap-4">
+						<mat-form-field [appearance]="'outline'" class="w-1/2">
+							<mat-label>First Name</mat-label>
+							<input type="text" matInput formControlName="firstName" class="w-full max-w-[468px]" required />
+						</mat-form-field>
+
+						<mat-form-field [appearance]="'outline'" class="w-1/2">
+							<mat-label>Last Name</mat-label>
+							<input type="text" matInput formControlName="lastName" class="w-full max-w-[468px]" required />
+						</mat-form-field>
+					</div>
+
+					<div class="flex flex-col gap-0">
+						<mat-form-field [appearance]="'outline'" class="w-full !m-0">
+							<mat-label>Password</mat-label>
+							<input [type]="hidePassword ? 'password': 'text'" matInput formControlName="password" required/>
+
+							<button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+								<mat-icon class="material-symbols-outlined">{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+							</button>
+						</mat-form-field>
+						<div class="mat-body-small text-on-surface-variant select-none">
+							<span>Share this email and password to login</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Dialog control buttons -->
+		<div>
+			<mat-dialog-actions class="!px-0 flex justify-end gap-2">
+				<button matRipple mat-button mat-dialog-close type="button"
+					class="w-auto min-w-[70px] h-10 text-primary mat-label-large cursor-pointer">Cancel</button>
+				<button mat-flat-button type="submit"
+					class="w-auto min-w-[93px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
+					Create
+				</button>
+			</mat-dialog-actions>
+		</div>
+	</form>
+</mat-dialog-content>
