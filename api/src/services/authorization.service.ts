@@ -28,7 +28,7 @@ import {
     User,
     Webhook,
 } from '../entities';
-import { roleEnum, statusEnum } from '../enums';
+import { memberRoleEnum, userRoleEnum, statusEnum } from '../enums';
 import { UserService } from './user.service';
 import { ProgramService } from './program.service';
 import { LinkService } from './link.service';
@@ -64,6 +64,7 @@ export const actions = [
     'remove_promoter',
     'change_role',
     'operate_in',
+    'register'
 ] as const;
 
 // these types are in order to check nested properties
@@ -84,7 +85,12 @@ type FlatPromoter = Promoter & {
 };
 
 type FlatMember = Member & {
-    'member.programId': Member['program']['programId']
+    'member.programId': Member['program']['programId'],
+
+    // this is based off the assumption that each member (by member id) can only be part of a single promoter inside a program
+    // therefore, there cannot be multiple promoterMember rows for a given member id
+    // and thus extracting the 1st row is sufficient to get the promoter of that member
+    'member.promoterId': Member['promoterMembers'][0]['promoter']['promoterId'],
 }
 
 export type actionsType = (typeof actions)[number];
@@ -109,7 +115,6 @@ export type subjectsType =
         | typeof SignUp
         | typeof User
         | typeof Webhook
-    // | typeof Array
     >
     | 'all';
 
@@ -190,9 +195,7 @@ export class AuthorizationService {
                         return subject;
 
                     if (!subjectUserId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a ${typeof subject} for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a ${subject} for performing action on object`);
                     }
 
                     const user = this.userService.getUserEntity(subjectUserId);
@@ -201,9 +204,7 @@ export class AuthorizationService {
                     if (action === 'read_all' || action === 'create') return subject;
 
                     if (!subjectProgramId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a ${typeof subject} ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
                     }
 
                     return this.programService.getProgramEntity(
@@ -214,9 +215,7 @@ export class AuthorizationService {
                         return subject;
 
                     if (!subjectProgramId || !subjectUserId) {
-                        throw new BadRequestException(
-                            `Error. Must provide Program ID and User ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide Program ID and User ID for performing action on object`);
                     }
 
                     return this.programService.getProgramUserRowEntity(
@@ -226,17 +225,13 @@ export class AuthorizationService {
                 } else if (subject === Member) {
 
                     if (!subjectMemberId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a ${subject} ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
                     }
 
                     return this.memberService.getMemberEntity(subjectMemberId);
                 } else if (subject === ProgramPromoter) {
                     if (!subjectProgramId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a ${typeof subject} ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
                     }
 
                     return this.programPromoterService.getFirstProgramPromoter(
@@ -244,14 +239,9 @@ export class AuthorizationService {
                     );
                 } else if (subject === Promoter) {
                     if (!subjectPromoterId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a ${typeof subject} ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
                     }
 
-                    // const promoter = new Promoter();
-                    // promoter.promoterId = subjectPromoterId;
-                    // return promoter;
                     return this.promoterService.getPromoterEntity(
                         subjectPromoterId,
                     );
@@ -260,18 +250,14 @@ export class AuthorizationService {
                     if (action === 'read_all') {
 
                         if (!(subjectProgramId && subjectPromoterId)) {
-                            throw new BadRequestException(
-                                `Error. Must provide a Program ID and Promoter ID for performing action on object`,
-                            );
+                            throw new BadRequestException(`Error. Must provide a Program ID and Promoter ID for performing action on object`);
                         }
 
                         return this.promoterMemberService.getFirstPromoterMemberRow(subjectProgramId, subjectPromoterId);
                     }
 
                     if (!subjectPromoterId || !subjectMemberId) {
-                        throw new BadRequestException(
-                            `Error. Must provide Promoter ID and Member ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide Promoter ID and Member ID for performing action on object`);
                     }
 
                     return this.promoterMemberService.getPromoterMemberRowEntity(
@@ -280,10 +266,10 @@ export class AuthorizationService {
                     );
                 } else if (subject === Link) {
                     if (!(subjectProgramId && subjectPromoterId)) {
-                        throw new BadRequestException(
-                            `Error. Must provide one of Program ID and Promoter ID for performing action on object.`,
-                        );
+                        throw new BadRequestException(`Error. Must provide one of Program ID and Promoter ID for performing action on object.`);
                     }
+
+                    if (action === 'create') return subject;
 
                     const link = this.linkService.getFirstLink(
                         subjectProgramId,
@@ -292,9 +278,7 @@ export class AuthorizationService {
                     return link;
                 } else if (subject === Circle) {
                     if (!subjectProgramId) {
-                        throw new BadRequestException(
-                            `Error. Must provide one of Program ID for performing action on object.`,
-                        );
+                        throw new BadRequestException(`Error. Must provide one of Program ID for performing action on object.`);
                     }
 
                     return this.circleService.getFirstCircleOfProgram(
@@ -304,9 +288,7 @@ export class AuthorizationService {
                     if (action === 'create') return subject;
 
                     if (!subjectProgramId) {
-                        throw new BadRequestException(
-                            `Error. Must provide Program ID for performing action on object.`,
-                        );
+                        throw new BadRequestException(`Error. Must provide Program ID for performing action on object.`);
                     }
 
                     return this.functionService.getFirstFunctionOfProgram(
@@ -316,17 +298,13 @@ export class AuthorizationService {
                     if (action === 'create') return subject;
 
                     if (!subjectProgramId) {
-                        throw new BadRequestException(
-                            `Error. Must provide Program ID for performing action on object.`,
-                        );
+                        throw new BadRequestException(`Error. Must provide Program ID for performing action on object.`);
                     }
 
                     return this.apiKeySerivce.getFirstKey(subjectProgramId);
                 } else if (subject === ReferralView) {
                     if (!subjectProgramId && !subjectPromoterId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a Program ID or a Promoter ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
                     }
 
                     return this.referralService.getFirstReferral(
@@ -335,9 +313,7 @@ export class AuthorizationService {
                     );
                 } else if (subject === PromoterStatsView) {
                     if (!subjectProgramId && !subjectPromoterId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a Program ID or a Promoter ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
                     }
 
                     return this.promoterStatsService.getFirstPromoterStat(
@@ -346,9 +322,7 @@ export class AuthorizationService {
                     );
                 } else if (subject === Commission) {
                     if (!subjectProgramId && !subjectPromoterId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a Program ID or a Promoter ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
                     }
 
                     return this.commissionService.getFirstCommission(
@@ -357,9 +331,7 @@ export class AuthorizationService {
                     );
                 } else if (subject === SignUp) {
                     if (!subjectProgramId && !subjectPromoterId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a Program ID or a Promoter ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
                     }
 
                     return this.signUpService.getFirstSignUp(
@@ -368,9 +340,7 @@ export class AuthorizationService {
                     );
                 } else if (subject === Purchase) {
                     if (!subjectProgramId && !subjectPromoterId) {
-                        throw new BadRequestException(
-                            `Error. Must provide a Program ID or a Promoter ID for performing action on object`,
-                        );
+                        throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
                     }
 
                     return this.purchaseService.getFirstPurchase(
@@ -407,7 +377,7 @@ export class AuthorizationService {
         const { can: allow, build } = new AbilityBuilder<AppAbility>(createAbility);
 
         // can manage all if user is super admin (except for the things listed below)
-        if (user.role === roleEnum.SUPER_ADMIN) {
+        if (user.role === userRoleEnum.SUPER_ADMIN) {
             allow('manage', userResources);
             allow('read', Promoter);
         }
@@ -427,8 +397,7 @@ export class AuthorizationService {
                 { programId },
             );
 
-            if (role === roleEnum.ADMIN || role === roleEnum.SUPER_ADMIN) {
-                allow('manage', [ApiKey, Webhook], { programId });
+            if (role === userRoleEnum.ADMIN || role === userRoleEnum.SUPER_ADMIN) {
 
                 // can update program or invite other users to the program
                 allow(['update', 'invite_user'], Program, { programId });
@@ -436,16 +405,15 @@ export class AuthorizationService {
                 // can change other users' role and change other users' permissions from the program, if that user ain't the super admin
                 allow(['change_role', 'remove_user'], ProgramUser, {
                     programId,
-                    role: { $ne: roleEnum.SUPER_ADMIN },
+                    role: { $ne: userRoleEnum.SUPER_ADMIN },
                 });
 
                 allow('invite_user', ProgramUser, { programId });
 
                 // can also perform all operations on circle, functions and links
-                allow('manage', [Link, Circle, Function], { programId });
+                allow('manage', [Link, Circle, Function, ApiKey, Webhook], { programId });
 
-                allow('manage', [ApiKey], { programId });
-            } else if (role === roleEnum.EDITOR) {
+            } else if (role === userRoleEnum.EDITOR) {
                 allow('manage', [Link, Circle, Function], { programId });
             }
 
@@ -476,7 +444,7 @@ export class AuthorizationService {
 
         allow('manage', [Member]);
         allow<FlatPromoter>('manage', Promoter, { 'promoter.programPromoters': { $elemMatch: { programId } } }); // can manage a promoter of that program
-        allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: roleEnum.SUPER_ADMIN } });
+        allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: userRoleEnum.SUPER_ADMIN } });
         allow('manage', ApiKey, { programId });
         allow(['update', 'invite_user'], Program, { programId });
         allow('manage', [ApiKey, Webhook], { programId });
@@ -502,32 +470,22 @@ export class AuthorizationService {
         const { can: allow, build } = new AbilityBuilder<AppAbility>(createAppAbility);
 
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
+
             allow(['read', 'leave'], Promoter, { promoterId });
-            allow(['read', 'read_all'], ReferralView, { promoterId });
-            allow('read', PromoterStatsView, { promoterId });
-            allow('read', Commission, { promoterId });
-            allow('read_all', PromoterMember, { promoterId });
-            allow('read', Member, { promoterMembers: { promoterId } });
-            allow('read', ReferralView, { promoterId });
-            allow('read', Purchase, { promoterId });
-            allow('read', SignUp, { promoterId });
-            allow('read', Link, { promoterId });
+            allow(['read', 'read_all'], [ReferralView, PromoterMember], { promoterId });
+            allow('read', [PromoterStatsView, Commission, ReferralView, Purchase, SignUp, Link], { promoterId });
 
-            if (role === roleEnum.ADMIN) {
+            // allow<FlatMember>('read', Member, { "member.promoterId": { $eq: promoterId } });
+            // TODO: add custom condition for access to this member- only member of the same promoter should read each other
+            allow('read', Member);
+
+            if (role === memberRoleEnum.ADMIN) {
                 // allow update program or invite other users to the program
-                allow(['update', 'invite_member'], Promoter, { promoterId });
-
-                // allow remove other members and change other members' permissions from the program, if that user ain't the super admin
-                allow(['remove_member', 'change_role'], PromoterMember, {
-                    promoterId,
-                    role: roleEnum.VIEWER,
-                });
-
-                allow('manage', Link, { promoterId });
+                allow('manage', [Promoter, PromoterMember, Link], { promoterId });
             }
         }
 
-        allow(['read', 'update', 'delete'], Member, { memberId: member.memberId });
+        allow(['update', 'delete'], Member, { memberId: member.memberId });
 
         const ability = build({
             detectSubjectType: (item) =>

@@ -94,14 +94,19 @@ export class PermissionsGuard implements CanActivate {
 
 			return true;
 		} catch (error) {
-			if (error instanceof BadRequestException || error instanceof NotFoundException) {
+			if (error instanceof NotFoundException) {
+				this.logger.warn(error.message);
+				throw error;
+			}
+			if (error instanceof BadRequestException) {
 				this.logger.error(error.message);
 				throw error;
 			}
+			else if (error instanceof ForbiddenError) {
+				this.logger.error(`${entityType} does not have permission to perform this action!`);
+			}
 			else if (error instanceof Error) {
-				this.logger.error(
-					`${entityType} does not have permission to perform this action!`,
-				);
+				this.logger.error(`Error: `, error.message);
 			}
 			return false;
 		}
