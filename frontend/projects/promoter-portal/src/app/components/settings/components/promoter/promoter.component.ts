@@ -12,6 +12,15 @@ import { AuthService } from '../../../../services/auth.service';
 import { environment } from '../../../../../../environments/environment.dev';
 import { ProgramStore } from '../../../../store/program.store';
 import { MatCardModule } from '@angular/material/card';
+import { ActionableListItemComponent } from './actionable-list-item/actionable-list-item.component';
+import { CommonModule } from '@angular/common';
+
+export interface ActionableListItemInterface {
+	title: string;
+	description: string;
+	icon: string;
+	onClick: Function;
+}
 
 @Component({
 	selector: 'app-promoter',
@@ -22,6 +31,8 @@ import { MatCardModule } from '@angular/material/card';
 		MatRippleModule,
 		MatDialogModule,
 		MatCardModule,
+		CommonModule,
+		ActionableListItemComponent,
 		EditPromoterDialogBoxComponent,
 		ConfirmDialogBoxComponent,
 	],
@@ -41,6 +52,25 @@ export class PromoterComponent {
 	readonly dialog = inject(MatDialog);
 
 	readonly programId = computed(() => this.programStore.program()?.programId);
+
+	actionableItems: ActionableListItemInterface[] = [
+		{
+			title: 'Leave promoter',
+			description: 'Remove all your associated data',
+			icon: 'logout',
+			onClick: () => {
+				this.onLeavePromoter();
+			}
+		},
+		{
+			title: 'Delete promoter',
+			description: 'Remove all associated members, referrals and commission data',
+			icon: 'delete',
+			onClick: () => {
+				this.onDeletePromoter();
+			}
+		},
+	]
 
 	constructor(private authService: AuthService) { }
 

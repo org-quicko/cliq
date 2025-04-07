@@ -17,45 +17,20 @@
 		<mat-divider class="border-outline-variant" />
 
 		<!-- Edit button -->
-		<button mat-button class="w-full h-full rounded-[5px] flex gap-2 px-6 py-3" (click)="onEdit()"><span>Edit
-				details</span></button>
+		<button mat-button class="w-full rounded-none overflow-hidden flex justify-start gap-2 px-6 py-3 grow" (click)="onEdit()">
+			<span>Edit details</span>
+		</button>
 	</mat-card>
 
 	<!-- Danger Zone -->
 	<div class="w-full h-auto min-h-[220px] flex flex-col gap-5">
 		<div class="mat-title-medium text-on-surface"><span>Danger zone</span></div>
 
-		<div class="w-full h-auto min-h-[176px] rounded-[5px] border border-outline-variant px-4 py-2 select-none">
+		<div class="w-full h-auto min-h-[176px] rounded-[5px] px-4 py-2 border border-outline-variant select-none relative group">
 
-			<!-- Leave promoter -->
-			<div matRipple (click)="onLeavePromoter()"
-				class="w-full h-20 flex justify-between pl-2 pr-4 py-6 items-center hover:cursor-pointer hover:bg-surface-container rounded-[5px]">
-				<div class="flex gap-12 text-on-surface">
-					<div class="w-auto max-w-[182px] h-auto max-h-6 flex gap-2">
-						<mat-icon>logout</mat-icon>
-						<div><span>Leave promoter</span></div>
-					</div>
-					<div class="mat-body-medium text-on-surface-variant flex items-center"><span>Remove all your
-							associated data</span></div>
-				</div>
-				<div><mat-icon class="text-on-surface-variant">arrow_forward_ios</mat-icon></div>
-			</div>
-
-			<mat-divider class="border border-outline-variant"></mat-divider>
-
-			<!-- Delete promoter -->
-			<div matRipple (click)="onDeletePromoter()"
-				class="w-full h-20 flex justify-between pl-2 pr-4 py-6 items-center hover:cursor-pointer hover:bg-surface-container rounded-[5px]">
-				<div class="flex gap-12 text-on-surface">
-					<div class="w-auto max-w-[182px] h-auto max-h-6 flex gap-2">
-						<mat-icon class="material-symbols-outlined">delete</mat-icon>
-						<div><span>Delete promoter</span></div>
-					</div>
-					<div class="mat-body-medium mat-icon-outline text-on-surface-variant flex items-center"><span>Remove
-							all associated members, referrals and commission data</span></div>
-				</div>
-				<div><mat-icon class="text-on-surface-variant">arrow_forward_ios</mat-icon></div>
-			</div>
+			@for (item of actionableItems; track $index;) {
+				<app-actionable-list-item [class]="`${$index === 0 ? 'border-b border-outline-variant ' : ''}`" [title]="item.title" [description]="item.description" [icon]="item.icon" [onClick]="item.onClick" [hideDivider]="$index === actionableItems.length - 1" />
+			}
 
 		</div>
 	</div>
