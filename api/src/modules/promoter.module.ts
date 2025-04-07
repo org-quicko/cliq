@@ -33,6 +33,7 @@ import { PromoterStatsModule } from './promoterStats.module';
 			PromoterMember,
 			ProgramPromoter,
 			Contact,
+			Commission,
 			SignUp,
 			Purchase,
 			LinkStatsView,
