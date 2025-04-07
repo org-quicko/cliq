@@ -76,12 +76,7 @@
 					<span class="text-on-surface mat-title-large">My Links</span>
 				</div>
 				<div>
-					<button mat-stroked-button
-						class="w-auto min-w-[137px] h-10 border-outline-variant text-primary rounded-full"
-						(click)="onClickCreateLinkBtn()">
-						<mat-icon>add</mat-icon>
-						<span>Create Link</span>
-					</button>
+					<app-stroked-btn [btnType]="'button'" minWidth="137px" icon="add" [onClick]="onClickCreateLinkBtn" text="Create Link"  />
 				</div>
 			</div>
 			<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
@@ -186,12 +181,7 @@
 											</p>
 										</div>
 										<div>
-											<button mat-stroked-button
-												class="w-auto min-w-[137px] h-10 border-outline-variant text-primary rounded-full"
-												(click)="onClickCreateLinkBtn()">
-												<mat-icon>add</mat-icon>
-												<span>Create Link</span>
-											</button>
+											<app-stroked-btn icon="add" text="Create Link" [onClick]="onClickCreateLinkBtn" minWidth="137px" />
 										</div>
 									</div>
 								</div>
@@ -200,6 +190,7 @@
 					</tr>
 				</table>
 			</div>
+			<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalLinkDataLength()" aria-label="Select page of links"></mat-paginator>
 		</div>
 	</div>
 </div>

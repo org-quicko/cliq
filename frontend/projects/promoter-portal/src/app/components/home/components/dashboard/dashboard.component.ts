@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, effect, computed, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, effect, computed, ViewChild, signal } from '@angular/core';
 import { LinkStore } from './store/link.store';
 import { CurrencyPipe, NgClass, TitleCasePipe } from '@angular/common';
 import { PromoterStatsStore } from './store/promoter-stats.store';
@@ -9,14 +9,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ProgramStore } from '../../../../store/program.store';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { LinkStatsRow, PromoterStatsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { FormatCurrencyPipe, OrdinalDatePipe, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { CreateLinkDialogBoxComponent } from './components/create-link-dialog-box/create-link-dialog-box.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
+import { StrokedBtnComponent } from '../../../common/stroked-btn/stroked-btn.component';
 
 @Component({
 	selector: 'app-dashboard',
@@ -32,6 +33,7 @@ import { MatRippleModule } from '@angular/material/core';
 		MatMenuModule,
 		MatRippleModule,
 		CreateLinkDialogBoxComponent,
+		StrokedBtnComponent,
 		OrdinalDatePipe,
 		TitleCasePipe,
 		ZeroToDashPipe,
@@ -44,15 +46,10 @@ import { MatRippleModule } from '@angular/material/core';
 export class DashboardComponent implements OnInit {
 
 	readonly linkStore = inject(LinkStore);
-
 	readonly promoterStatsStore = inject(PromoterStatsStore);
-
 	readonly programStore = inject(ProgramStore);
-
 	readonly memberStore = inject(MemberStore);
-
 	readonly dialog = inject(MatDialog);
-
 	readonly isLoading = computed(() => this.linkStore.status() === Status.LOADING);
 
 	@ViewChild(MatPaginator) paginator: MatPaginator;
@@ -60,8 +57,17 @@ export class DashboardComponent implements OnInit {
 	dataSource: MatTableDataSource<LinkStatsRow> = new MatTableDataSource<LinkStatsRow>([]);
 
 	statistics = computed(() => this.promoterStatsStore.statistics()?.getRow(0));
-
 	program = computed(() => this.programStore.program());
+	totalLinkDataLength = computed(() => {
+		const metadata = this.linkStore.links()?.getMetadata();
+		const count = metadata ? metadata.get('count') : null;
+		return count ? Number(count) : 0; // Returns 0 if count is undefined
+	});
+
+	paginationOptions = signal<PaginationOptions>({
+		pageIndex: 0,
+		pageSize: 5,
+	});
 
 	readonly linkStatsLength = computed(() => {
 		const links = this.linkStore.links();
@@ -73,13 +79,35 @@ export class DashboardComponent implements OnInit {
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
 			const linkRows = (this.linkStore.links()?.getRows() ?? []) as LinkStatsRow[];
-			this.dataSource.data = linkRows;
+
+			const { pageIndex, pageSize } = this.paginationOptions();
+
+			const start = pageIndex * pageSize;
+			const end = Math.min(start + pageSize, linkRows.length);
+
+			this.dataSource.data = linkRows.slice(start, end);
 		});
 	}
 
 	ngOnInit() {
-		this.linkStore.getPromoterLinks(); // Ensure async operation completes
+		this.linkStore.resetLoadedPages();
+		this.loadLinks();
 		this.promoterStatsStore.getPromoterStats();
+	}
+
+	loadLinks() {
+		const { pageIndex, pageSize } = this.paginationOptions();
+		const skip = pageIndex * pageSize;
+
+		this.linkStore.getPromoterLinks({
+			skip,
+			take: pageSize
+		});
+	}
+
+	onPageChange(event: PageEvent) {
+		this.paginationOptions.set({ pageIndex: event.pageIndex, pageSize: event.pageSize });
+		this.loadLinks();
 	}
 
 	onClickLink(row: any[]) {
@@ -95,7 +123,7 @@ export class DashboardComponent implements OnInit {
 		return new PromoterStatsRow(row);
 	}
 
-	onClickCreateLinkBtn() {
+	onClickCreateLinkBtn = () => {
 		this.dialog.open(CreateLinkDialogBoxComponent, {
 			data: {
 				createLink: this.linkStore.createLink
