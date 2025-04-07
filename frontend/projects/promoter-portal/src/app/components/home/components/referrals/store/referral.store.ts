@@ -1,23 +1,22 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap } from 'rxjs';
+import { of, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { LinkService } from '../../../../../services/link.service';
 import { plainToInstance } from 'class-transformer';
 import { PromoterService } from '../../../../../services/promoter.service';
 import { referralSortByEnum, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
 import { SnackbarService } from '@org.quicko.cliq/ngx-core';
-import { ReferralTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { ReferralTable, PromoterWorkbook, ReferralRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 
 export interface ReferralStoreState {
-	referrals: ReferralTable | null,
-	selectedContact: { contactId: string, contactInfo: string } | null,
-	rowsLength: number,
-	error: any | null,
-	status: Status,
-	skip: number,
-	take: number
+	referrals: ReferralTable | null;
+	selectedContact: { contactId: string, contactInfo: string } | null;
+	rowsLength: number;
+	error: any | null;
+	status: Status;
+	loadedPages: Set<number>;
 };
 
 export const initialReferralState: ReferralStoreState = {
@@ -26,8 +25,7 @@ export const initialReferralState: ReferralStoreState = {
 	error: null,
 	rowsLength: 0,
 	status: Status.PENDING,
-	skip: 0,
-	take: 5,
+	loadedPages: new Set<number>()
 };
 
 export const ReferralStore = signalStore(
@@ -40,21 +38,52 @@ export const ReferralStore = signalStore(
 			snackbarService = inject(SnackbarService),
 		) => ({
 
-			getPromoterReferrals: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: referralSortByEnum, skip?: number, take?: number }>(
+			getPromoterReferrals: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: referralSortByEnum, skip?: number, take?: number, isSorting?: boolean }>(
 				pipe(
 
-					tap(() => patchState(store, { status: Status.LOADING })),
+					tap(({ isSorting }) => {
+						if (!isSorting) {
+							patchState(store, { status: Status.LOADING });
+						}
+					}),
 
-					switchMap(({ sortBy, sortOrder, skip, take }) => {
+					switchMap(({ sortBy, sortOrder, skip, take, isSorting }) => {
+
+						const page = Math.floor((skip ?? 0) / (take ?? 5));
+
+						if (!isSorting && store.loadedPages().has(page)) {
+							patchState(store, { status: Status.SUCCESS });
+							return of(store.referrals());
+						}
+
 						return promoterService.getPromoterReferrals({ sort_by: sortBy, sort_order: sortOrder, skip, take }).pipe(
 							tapResponse({
 								next: (response) => {
 									const referralTable = plainToInstance(PromoterWorkbook, response.data).getReferralSheet().getReferralTable();
 
+									let currentReferralTable = store.referrals();
+
+									const updatedPages = store.loadedPages().add(page);
+
+									// append entries in case new entries incoming
+									if (currentReferralTable && !isSorting) {
+										const rows = referralTable.getRows();
+										for (const row of rows) {
+											const referral = new ReferralRow(row as any[]);
+											currentReferralTable.addRow(referral);
+										}
+
+									} else {
+										currentReferralTable = referralTable;
+									}
+
+									const updatedMemberTable = Object.assign(new ReferralTable(), currentReferralTable);
+
 									patchState(store, {
-										referrals: referralTable,
+										referrals: updatedMemberTable,
 										status: Status.SUCCESS,
-										rowsLength: Number(referralTable.getMetadata().get('count'))
+										rowsLength: Number(referralTable.getMetadata().get('count')),
+										loadedPages: updatedPages
 									});
 
 								},
@@ -70,6 +99,10 @@ export const ReferralStore = signalStore(
 
 				)
 			),
+
+			resetLoadedPages() {
+				patchState(store, { loadedPages: new Set(), referrals: null, selectedContact: null });
+			},
 
 			getPerReferralCommissions: rxMethod<string>(
 				pipe(

@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { NgClass, TitleCasePipe } from '@angular/common';
 import { ProgramStore } from '../../../../store/program.store';
@@ -14,7 +14,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReferralRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { FormatCurrencyPipe, OrdinalDatePipe, referralSortByEnum, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { SkeletonLoadTableComponent } from '../../../common/skeleton-load-table/skeleton-load-table.component';
 
 @Component({
 	selector: 'app-referrals',
@@ -32,13 +33,14 @@ import { FormatCurrencyPipe, OrdinalDatePipe, referralSortByEnum, sortOrderEnum,
 		NgClass,
 		TitleCasePipe,
 		OrdinalDatePipe,
-		FormatCurrencyPipe
+		FormatCurrencyPipe,
+		SkeletonLoadTableComponent
 	],
 	providers: [ReferralStore],
 	templateUrl: './referrals.component.html',
 	styleUrl: './referrals.component.scss'
 })
-export class ReferralsComponent implements OnInit, AfterViewInit {
+export class ReferralsComponent implements OnInit {
 
 	readonly referralStore = inject(ReferralStore);
 
@@ -69,37 +71,58 @@ export class ReferralsComponent implements OnInit, AfterViewInit {
 		return referrals ? referrals.length() : 0;
 	});
 
-	skip = this.referralStore.skip;
+	sortOptions = signal<{ active: referralSortByEnum, direction: 'asc' | 'desc' }>({
+		active: referralSortByEnum.UPDATED_AT,
+		direction: 'asc',
+	});
 
-	take = this.referralStore.take;
+	paginationOptions = signal<PaginationOptions>({
+		pageIndex: 0,
+		pageSize: 5,
+	});
 
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
 			const referralRows = (this.referralStore.referrals()?.getRows() ?? []) as ReferralRow[];
-			this.dataSource.data = referralRows;
-			if (this.paginator) {
-				this.paginator.length = this.referralStore.rowsLength();
-			}
+
+			const { pageIndex, pageSize } = this.paginationOptions();
+
+			const start = pageIndex * pageSize;
+			const end = Math.min(start + pageSize, referralRows.length);
+
+			this.dataSource.data = referralRows.slice(start, end);
 		});
 	}
 
 	ngOnInit(): void {
+		this.referralStore.resetLoadedPages();
+		this.loadReferrals();
+	}
+
+	loadReferrals(isSorting: boolean = false) {
+		const { pageIndex, pageSize } = this.paginationOptions();
+		const skip = pageIndex * pageSize;
+
 		this.referralStore.getPromoterReferrals({
-			sortBy: referralSortByEnum.UPDATED_AT,
-			sortOrder: sortOrderEnum.DESCENDING,
+			sortBy: this.sortOptions().active,
+			sortOrder: this.sortOptions().direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING,
+			skip,
+			take: pageSize,
+			isSorting
 		});
 	}
 
-	ngAfterViewInit(): void {
-		this.dataSource.sort = this.sort;
-		this.dataSource.paginator = this.paginator;
-		this.dataSource.sort.sortChange.subscribe(() => {
-			this.paginator.pageIndex = 0;
-			this.referralStore.getPromoterReferrals({
-				sortBy: referralSortByEnum.UPDATED_AT,
-				sortOrder: this.sort.direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING,
-			});
-		});
+	onSortChange(event: Sort) {
+		this.paginationOptions.set({ pageSize: 5, pageIndex: 0 });
+		this.referralStore.resetLoadedPages();
+		this.sortOptions.set({ active: event.active as referralSortByEnum, direction: event.direction as 'asc' | 'desc' });
+
+		this.loadReferrals(true);
+	}
+
+	onPageChange(event: PageEvent) {
+		this.paginationOptions.set({ pageIndex: event.pageIndex, pageSize: event.pageSize });
+		this.loadReferrals();
 	}
 
 	onSearch() {
@@ -111,12 +134,6 @@ export class ReferralsComponent implements OnInit, AfterViewInit {
 		console.log('email reset', this.email());
 	}
 
-	onPageChange(event: PageEvent) {
-		this.referralStore.getPromoterReferrals({
-			skip: event.pageIndex * event.pageSize,
-			take: event.pageSize,
-		});
-	}
 
 	getCellValue(row: any[], column: string): any {
 		const referralRow = this.convertToReferralRow(row);
