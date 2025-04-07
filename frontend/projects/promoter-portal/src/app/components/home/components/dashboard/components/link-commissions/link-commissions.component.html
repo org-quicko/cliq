@@ -37,9 +37,19 @@
 		}
 	</mat-form-field>
 
-	<div class="mat-elevation-z8">
-		<table mat-table matSort [dataSource]="dataSource" class="w-full border-outline-variant border-[1px]"
-			[ngClass]="{ 'h-[500px]': (linkCommissionsLength() === 0) && !isLoading() }">
+	<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
+		@if (isLoading()) {
+			<!-- Skeleton version -->
+			<!-- <app-skeleton-load-table
+				[numCols]="displayedColumns.length"
+				[numRows]="paginationOptions().pageSize"
+				maxHeight="548px"
+			/> -->
+		}
+		@else {
+		<table mat-table matSort [dataSource]="dataSource" class="w-full h-auto max-h-[548px] bg-transparent"
+			[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction" (matSortChange)="onSortChange($event)" [matSortDisableClear]="true"
+		>
 			<!-- Define columns dynamically -->
 			<ng-container matColumnDef="created at">
 				<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-on-surface w-60">Created At
@@ -87,6 +97,7 @@
 				class="hover:bg-surface-container h-[76px]"></tr>
 
 			<!-- Empty State -->
+			@if (totalDataLength() === 0) {
 			<tr class="empty-row" *matNoDataRow>
 				<td [attr.colspan]="displayedColumns.length">
 					<div class="flex flex-col justify-center items-center h-[504px]">
@@ -112,6 +123,9 @@
 					</div>
 				</td>
 			</tr>
+			}
 		</table>
+		}
 	</div>
+	<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of members"></mat-paginator>
 </div>
