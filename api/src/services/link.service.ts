@@ -75,7 +75,8 @@ export class LinkService {
 
 		const linkSheetJson = this.linkConverter.convertLinkStatsToSheet([linkStats], {
 			website: program.website,
-			programId
+			programId,
+			count: 1
 		});
 
 		this.logger.info('END: createLink service');
