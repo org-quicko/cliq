@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, shareReplay, switchMap, tap } from 'rxjs';
+import { of, pipe, shareReplay, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 // import { CreateLinkDto, LinkDto, LinkStatsTable, PromoterWorkbook, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
 import { LinkService } from '../../../../../services/link.service';
@@ -19,16 +19,14 @@ export interface LinkStoreState {
 	links: LinkStatsTable | null,
 	error: any | null,
 	status: Status,
-	skip: number,
-	take: number
+	loadedPages: Set<number>
 };
 
 export const initialLinkState: LinkStoreState = {
 	links: null,
 	error: null,
 	status: Status.PENDING,
-	skip: 0,
-	take: 4,
+	loadedPages: new Set<number>()
 };
 
 
@@ -43,21 +41,43 @@ export const LinkStore = signalStore(
 			snackbarService = inject(SnackbarService),
 		) => ({
 
-			getPromoterLinks: rxMethod<void>(
+			getPromoterLinks: rxMethod<{ skip?: number, take?: number }>(
 				pipe(
 
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(() => {
-						return linkService.getPromoterLinkStatistics().pipe(
+					switchMap(({ skip, take }) => {
+
+						const page = Math.floor((skip ?? 0) / (take ?? 5));
+
+						if (store.loadedPages().has(page)) {
+							patchState(store, { status: Status.SUCCESS });
+							return of(store.links()); // ✅ skip request if page already loaded
+						}
+
+						return linkService.getPromoterLinkStatistics({ skip, take }).pipe(
 							tapResponse({
 								next: (response) => {
 									const linkTable = plainToInstance(PromoterWorkbook, response.data).getLinkStatsSheet().getLinkStatsTable();
 
-									patchState(store, {
-										links: linkTable,
-										status: Status.SUCCESS,
-									});
+									let currentLinkTable = store.links();
+
+									const updatedPages = store.loadedPages().add(page);
+
+									if (currentLinkTable) {
+										const rows = linkTable.getRows();
+										for (const row of rows) {
+											const link = new LinkStatsRow(row as any[]);
+											currentLinkTable.addRow(link);
+
+										}
+									} else {
+										currentLinkTable = linkTable;
+									}
+
+									const updatedLinkTable = Object.assign(new LinkStatsTable(), currentLinkTable);
+
+									patchState(store, { links: updatedLinkTable, status: Status.SUCCESS, error: null, loadedPages: updatedPages });
 								},
 
 								error: (error: HttpErrorResponse) => {
@@ -76,6 +96,10 @@ export const LinkStore = signalStore(
 
 				)
 			),
+
+			resetLoadedPages() {
+				patchState(store, { loadedPages: new Set(), links: null });
+			},
 
 			createLink: rxMethod<CreateLinkDto>(
 				pipe(
