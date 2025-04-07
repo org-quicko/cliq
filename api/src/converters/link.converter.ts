@@ -28,6 +28,7 @@ export class LinkConverter {
 	convertLinkStatsToSheet(linkStats: LinkStatsView[], metadata: {
 		website: string,
 		programId: string,
+		count: number
 	}): PromoterWorkbook {
 		const linkStatsTable = new LinkStatsTable();
 

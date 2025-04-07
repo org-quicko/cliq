@@ -16,6 +16,7 @@ import {
 	SignupTable,
 	SignupRow
 } from 'generated/sources/Commission';
+import { JSONObject } from '@org.quicko/core';
 
 @Injectable()
 export class CommissionConverter {
@@ -33,7 +34,7 @@ export class CommissionConverter {
 	}
 
 	/** For getting commissions data for the promoter */
-	convertToSheet(commissions: Commission[], referralKeyType: referralKeyTypeEnum): PromoterWorkbook {
+	convertToSheet(commissions: Commission[], referralKeyType: referralKeyTypeEnum, metadata: { count: number }): PromoterWorkbook {
 		const newCommissionTable = new CommissionTable();
 
 		if (commissions && commissions.length > 0) {
@@ -56,6 +57,7 @@ export class CommissionConverter {
 			});
 		}
 
+		newCommissionTable.metadata = new JSONObject(metadata);
 
 		const commissionSheet = new CommissionSheet();
 		commissionSheet.addCommissionTable(newCommissionTable);
