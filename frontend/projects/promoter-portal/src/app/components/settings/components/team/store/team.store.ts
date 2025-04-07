@@ -5,7 +5,7 @@ import { CreateMemberDto, memberSortByEnum, sortOrderEnum, Status, UpdatePromote
 import { MemberRow, MemberTable, PromoterWorkbook } from "@org.quicko.cliq/ngx-core/generated/sources/Promoter";
 import { PromoterService } from "../../../../../services/promoter.service";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
-import { pipe, switchMap, tap } from "rxjs";
+import { of, pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { JSONArray, SnackbarService } from "@org.quicko/ngx-core";
@@ -15,13 +15,16 @@ export interface TeamStoreState {
 	members: MemberTable | null;
 	error: any;
 	status: Status;
+	loadedPages: Set<number>;
 };
 
 export const initialTeamState: TeamStoreState = {
 	members: null,
 	error: null,
-	status: Status.PENDING
+	status: Status.PENDING,
+	loadedPages: new Set<number>()
 };
+
 
 export const TeamStore = signalStore(
 	withState(initialTeamState),
@@ -32,16 +35,48 @@ export const TeamStore = signalStore(
 			promoterService = inject(PromoterService),
 			snackBarService = inject(SnackbarService)
 		) => ({
-			getAllMembers: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: memberSortByEnum, skip?: number, take?: number }>(
-				pipe(
-					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(({ sortBy, sortOrder, skip, take }) => {
+			getAllMembers: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: memberSortByEnum, skip?: number, take?: number, isSorting?: boolean }>(
+				pipe(
+					tap(({ isSorting }) => {
+						if (!isSorting) {
+							patchState(store, { status: Status.LOADING });
+						}
+					}),
+
+					switchMap(({ sortBy, sortOrder, skip, take, isSorting }) => {
+
+						const page = Math.floor((skip ?? 0) / (take ?? 5));
+
+						if (!isSorting && store.loadedPages().has(page)) {
+							patchState(store, { status: Status.SUCCESS });
+							return of(store.members()); // ✅ skip request if page already loaded
+						}
+
 						return promoterService.getAllMembers({ sort_by: sortBy, sort_order: sortOrder, skip, take }).pipe(
 							tapResponse({
 								next(response) {
 									const memberTable = plainToInstance(PromoterWorkbook, response.data).getMemberSheet().getMemberTable();
-									patchState(store, { status: Status.SUCCESS, members: memberTable });
+
+									let currentMemberTable = store.members();
+
+									const updatedPages = store.loadedPages().add(page);
+
+									// append entries in case new entries incoming
+									if (currentMemberTable && !isSorting) {
+										const rows = memberTable.getRows();
+										for (const row of rows) {
+											const member = new MemberRow(row as any[]);
+											currentMemberTable.addRow(member);
+										}
+
+									} else {
+										currentMemberTable = memberTable;
+									}
+
+									const updatedMemberTable = Object.assign(new MemberTable(), currentMemberTable);
+
+									patchState(store, { status: Status.SUCCESS, members: updatedMemberTable, loadedPages: updatedPages });
 								},
 								error(error: HttpErrorResponse) {
 									if (error.status == 404) {
@@ -56,6 +91,10 @@ export const TeamStore = signalStore(
 					})
 				)
 			),
+
+			resetLoadedPages() {
+				patchState(store, { loadedPages: new Set(), members: null });
+			},
 
 			addMember: rxMethod<CreateMemberDto>(
 				pipe(

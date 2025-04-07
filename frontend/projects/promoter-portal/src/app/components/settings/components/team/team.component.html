@@ -2,14 +2,10 @@
 	<!-- Header -->
 	<div class="h-auto min-h-10 flex flex-row justify-between">
 		<div>
-			<span class="text-on-surface mat-title-large">My Links</span>
+			<span class="text-on-surface mat-title-large">Team</span>
 		</div>
 		<div>
-			<button mat-stroked-button (click)="onAddMember()"
-				class="w-auto min-w-[93px] h-10 border-outline-variant text-primary rounded-full">
-				<mat-icon>add</mat-icon>
-				<span>Add</span>
-			</button>
+			<app-stroked-btn [btnType]="'button'" [onClick]="onAddMember" minWidth="93px" text="Add" icon="add" />
 		</div>
 	</div>
 
@@ -17,36 +13,19 @@
 	<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
 		@if (isLoading()) {
 		<!-- Skeleton version -->
-		<table class="w-full h-auto max-h-[548px] bg-transparent table-auto">
-			<thead class="border-b border-outline-variant">
-				<tr class="h-[56px]">
-					<th class="text-left px-4 py-2" *ngFor="let _ of [1, 2, 3, 4, 5]">
-						<ngx-skeleton-loader class="w-full h-[20px] block"></ngx-skeleton-loader>
-					</th>
-				</tr>
-			</thead>
-
-			<tbody>
-				<tr *ngFor="let _ of [1, 2, 3, 4, 5]" class="h-[76px]">
-					<td class="px-4 py-2" *ngFor="let i of [1, 2, 3, 4, 5]">
-						<ngx-skeleton-loader class="w-full h-[20px] block rounded-md"></ngx-skeleton-loader>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-
+		<!-- <app-skeleton-load-table [numCols]="displayedColumns.length" [numRows]="paginationOptions().pageSize" maxHeight="548px" /> -->
 		}
 
 		@else {
 		<table mat-table matSort [dataSource]="dataSource" class="w-full h-auto max-h-[548px] bg-transparent"
-			[matSortActive]="'name'" [matSortDirection]="'asc'" [matSortDisableClear]="true">
+			[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction" (matSortChange)="onSortChange($event)" [matSortDisableClear]="true">
 			<!-- Define columns dynamically -->
 			<ng-container matColumnDef="name">
 				<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-on-surface">
 					Name
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index"
-					class="mat-body-large text-on-surface-variant w-auto max-w-[328px] overflow-hidden text-ellipsis whitespace-nowrap">
+					class="mat-body-large text-on-surface-variant w-auto min-w-[328px] overflow-hidden text-ellipsis whitespace-nowrap">
 					{{ convertToMemberRow(row).getFirstName() + ' ' + convertToMemberRow(row).getLastName() }}
 				</td>
 			</ng-container>
@@ -118,5 +97,5 @@
 		</table>
 		}
 	</div>
-	<mat-paginator (page)="onPageChange($event)" [pageSize]="5" aria-label="Select page of referrals"></mat-paginator>
+	<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of members" />
 </div>

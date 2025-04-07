@@ -1,13 +1,13 @@
-import { AfterViewInit, Component, computed, effect, inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, computed, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { TeamStore } from './store/team.store';
-import { memberRoleEnum, memberSortByEnum, OrdinalDatePipe, sortOrderEnum, Status, UpdatePromoterMemberDto } from '@org.quicko.cliq/ngx-core';
-import { MemberRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { memberRoleEnum, memberSortByEnum, OrdinalDatePipe, PaginationOptions, sortOrderEnum, Status, UpdatePromoterMemberDto } from '@org.quicko.cliq/ngx-core';
+import { MemberRow, MemberTable } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { AddMemberDialogBoxComponent } from './components/add-member-dialog-box/add-member-dialog-box.component';
@@ -15,6 +15,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MemberStore } from '../../../../store/member.store';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatDividerModule } from '@angular/material/divider';
+import { StrokedBtnComponent } from '../../../common/stroked-btn/stroked-btn.component';
+import { MemberSortOptions } from '../../../../interfaces';
+import { SkeletonLoadTableComponent } from '../../../common/skeleton-load-table/skeleton-load-table.component';
 
 @Component({
 	selector: 'app-team',
@@ -33,25 +36,34 @@ import { MatDividerModule } from '@angular/material/divider';
 		CommonModule,
 		NgxSkeletonLoaderModule,
 		AddMemberDialogBoxComponent,
+		SkeletonLoadTableComponent,
+		StrokedBtnComponent
 	],
 	providers: [TeamStore],
 	templateUrl: './team.component.html',
 	styleUrl: './team.component.scss'
 })
-export class TeamComponent implements OnInit, AfterViewInit {
+export class TeamComponent implements OnInit {
 	displayedColumns: string[] = ['name', 'email', 'role', 'added on', 'menu'];
 
 	readonly teamStore = inject(TeamStore);
-
 	readonly memberStore = inject(MemberStore);
 
 	readonly member = computed(() => this.memberStore.member());
-
 	readonly isLoading = computed(() => this.teamStore.status() === Status.LOADING);
 
 	@ViewChild(MatSort) sort: MatSort;
-
 	@ViewChild(MatPaginator) paginator: MatPaginator;
+
+	sortOptions = signal<MemberSortOptions>({
+		active: memberSortByEnum.NAME,
+		direction: 'asc',
+	});
+
+	paginationOptions = signal<PaginationOptions>({
+		pageIndex: 0,
+		pageSize: 5,
+	});
 
 	dataSource: MatTableDataSource<MemberRow> = new MatTableDataSource<MemberRow>([]);
 
@@ -59,15 +71,7 @@ export class TeamComponent implements OnInit, AfterViewInit {
 
 	readonly adminRole = memberRoleEnum.ADMIN;
 
-	sortBy: memberSortByEnum = memberSortByEnum.NAME;
-
-	sortOrder: sortOrderEnum = sortOrderEnum.ASCENDING;
-
-	pageIndex = 0;
-
-	pageSize = 5;
-
-	totalDataLength = computed(() => {
+	readonly totalDataLength = computed(() => {
 		const metadata = this.teamStore.members()?.getMetadata();
 		const count = metadata ? metadata.get('count') : null;
 		return count ? Number(count) : 0; // Returns 0 if count is undefined
@@ -76,42 +80,45 @@ export class TeamComponent implements OnInit, AfterViewInit {
 	constructor() {
 		effect(() => {
 			const memberRows = (this.teamStore.members()?.getRows() ?? []) as MemberRow[];
-			this.dataSource.data = memberRows;
+			const { pageIndex, pageSize } = this.paginationOptions();
+
+			const start = pageIndex * pageSize;
+			const end = Math.min(start + pageSize, memberRows.length);
+
+			this.dataSource.data = memberRows.slice(start, end);
 		});
 	}
 
 	ngOnInit(): void {
-		this.teamStore.getAllMembers({
-			sortBy: memberSortByEnum.NAME,
-			sortOrder: sortOrderEnum.ASCENDING
-		});
-	}
-
-	loadMembers() {
-		this.teamStore.getAllMembers({
-			sortBy: this.sortBy,
-			sortOrder: this.sortOrder,
-			skip: this.pageIndex * this.pageSize,
-			take: this.pageSize,
-		});
+		this.teamStore.resetLoadedPages();
+		this.loadMembers(false);
 	}
 
 
-	ngAfterViewInit(): void {
-		this.dataSource.sort = this.sort;
-		this.dataSource.paginator = this.paginator;
+	loadMembers(isSorting: boolean = false) {
+		const { pageIndex, pageSize } = this.paginationOptions();
+		const skip = pageIndex * pageSize;
 
-		this.sort.sortChange.subscribe(() => {
-			this.pageIndex = 0;
-			this.sortOrder = this.sort.direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING;
-			this.loadMembers();
+		this.teamStore.getAllMembers({
+			sortBy: this.sortOptions().active,
+			sortOrder: this.sortOptions().direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING,
+			skip,
+			take: pageSize,
+			isSorting
 		});
+	}
+
+	onSortChange(event: Sort) {
+		this.paginationOptions.set({ pageSize: 5, pageIndex: 0 });
+		this.teamStore.resetLoadedPages();
+		this.sortOptions.set({ active: event.active as memberSortByEnum, direction: event.direction as 'asc' | 'desc' });
+
+		this.loadMembers(true);
 	}
 
 
 	onPageChange(event: PageEvent) {
-		this.pageIndex = event.pageIndex;
-		this.pageSize = event.pageSize;
+		this.paginationOptions.set({ pageIndex: event.pageIndex, pageSize: event.pageSize });
 		this.loadMembers();
 	}
 
@@ -129,7 +136,7 @@ export class TeamComponent implements OnInit, AfterViewInit {
 		this.teamStore.removeMember({ memberId: member.getMemberId() });
 	}
 
-	onAddMember() {
+	onAddMember = () => {
 		console.log(this.teamStore.members()?.getRows());
 
 		this.teamStore.setStatus(Status.PENDING);
