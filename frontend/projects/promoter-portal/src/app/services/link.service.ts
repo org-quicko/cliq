@@ -27,14 +27,18 @@ export class LinkService {
 
 	}
 
-	getPromoterLinkStatistics() {
+	getPromoterLinkStatistics(queryParams: { skip?: number, take?: number }) {
 		const url = this.getEndpoint() + '/link_stats';
+
+		if (!queryParams.skip) queryParams.skip = 0;
+		if (!queryParams.take) queryParams.take = 5;
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
 				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'
-			}
+			},
+			params: queryParams
 		});
 	}
 
