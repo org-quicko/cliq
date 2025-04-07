@@ -84,15 +84,6 @@ type FlatPromoter = Promoter & {
     'promoter.programPromoters': Promoter['programPromoters']
 };
 
-type FlatMember = Member & {
-    'member.programId': Member['program']['programId'],
-
-    // this is based off the assumption that each member (by member id) can only be part of a single promoter inside a program
-    // therefore, there cannot be multiple promoterMember rows for a given member id
-    // and thus extracting the 1st row is sufficient to get the promoter of that member
-    'member.promoterId': Member['promoterMembers'][0]['promoter']['promoterId'],
-}
-
 export type actionsType = (typeof actions)[number];
 export type subjectsType =
     | InferSubjects<
@@ -475,9 +466,7 @@ export class AuthorizationService {
             allow(['read', 'read_all'], [ReferralView, PromoterMember], { promoterId });
             allow('read', [PromoterStatsView, Commission, ReferralView, Purchase, SignUp, Link], { promoterId });
 
-            // allow<FlatMember>('read', Member, { "member.promoterId": { $eq: promoterId } });
-            // TODO: add custom condition for access to this member- only member of the same promoter should read each other
-            allow('read', Member);
+            allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 
             if (role === memberRoleEnum.ADMIN) {
                 // allow update program or invite other users to the program
