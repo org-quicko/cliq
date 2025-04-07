@@ -73,7 +73,6 @@ export class AddMemberDialogBoxComponent implements OnDestroy {
 
 	closeDialog() {
 		this.dialogRef.close();
-		this.data.setSuccessStatus();
 	}
 
 	ngOnDestroy(): void {
