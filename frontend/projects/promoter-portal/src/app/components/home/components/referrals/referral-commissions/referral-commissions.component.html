@@ -16,7 +16,9 @@
 
 
 	<div class="mat-elevation-z8 border-outline-variant border rounded-[5px] overflow-hidden">
-		<table mat-table matSort [dataSource]="dataSource" class="w-full">
+		<table mat-table matSort [dataSource]="dataSource" class="w-full h-auto max-h-[548px] bg-transparent"
+		[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction" (matSortChange)="onSortChange($event)" [matSortDisableClear]="true"
+		>
 			<!-- Define columns dynamically -->
 			<ng-container matColumnDef="created at">
 				<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-on-surface">Updated At
@@ -57,4 +59,5 @@
 				class="hover:bg-surface-container h-[76px]"></tr>
 		</table>
 	</div>
+	<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of referral's commissions" />
 </div>
