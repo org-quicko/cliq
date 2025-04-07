@@ -78,8 +78,7 @@ export class PromoterService {
 		});
 	}
 
-	getPromoterCommissions(
-		queryParams: { link_id?: string, contact_id?: string, conversion_type?: conversionTypeEnum, skip?: number, take?: number }) {
+	getPromoterCommissions(queryParams: { sort_by?: referralSortByEnum, sort_order?: sortOrderEnum, link_id?: string, contact_id?: string, conversion_type?: conversionTypeEnum, skip?: number, take?: number }) {
 		const url = this.getEndpoint() + '/commissions';
 
 		if (!queryParams.skip) queryParams.skip = 0;
@@ -87,6 +86,8 @@ export class PromoterService {
 		if (!queryParams.link_id) delete queryParams.link_id;
 		if (!queryParams.contact_id) delete queryParams.contact_id;
 		if (!queryParams.conversion_type) delete queryParams.conversion_type;
+		if (!queryParams.sort_by) delete queryParams.sort_by;
+		if (!queryParams.sort_order) delete queryParams.sort_order;
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
@@ -161,9 +162,7 @@ export class PromoterService {
 		)
 	}
 
-	getAllMembers(
-		queryParams: { sort_by?: memberSortByEnum, sort_order?: sortOrderEnum, skip?: number, take?: number }
-	) {
+	getAllMembers(queryParams: { sort_by?: memberSortByEnum, sort_order?: sortOrderEnum, skip?: number, take?: number }) {
 		const url = this.getEndpoint() + `/members`;
 
 		if (!queryParams.skip) queryParams.skip = 0;
