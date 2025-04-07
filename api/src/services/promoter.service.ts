@@ -70,6 +70,9 @@ export class PromoterService {
 		@InjectRepository(Contact)
 		private contactRepository: Repository<Contact>,
 
+		@InjectRepository(Commission)
+		private commissionRepository: Repository<Commission>,
+
 		@InjectRepository(SignUp)
 		private signUpRepository: Repository<SignUp>,
 
@@ -602,12 +605,6 @@ export class PromoterService {
 				},
 				...whereOptions,
 			},
-			select: {
-				purchaseId: true,
-				amount: true,
-				createdAt: true,
-				itemId: true,
-			},
 			relations: {
 				link: true,
 				contact: {
@@ -710,53 +707,62 @@ export class PromoterService {
 		programId: string,
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
-		whereOptions: FindOptionsWhere<Promoter> = {},
+		whereOptions: FindOptionsWhere<Commission> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getPromoterCommissions service');
 
 		const referralKeyType = (await this.programService.getProgramEntity(programId)).referralKeyType;
 
-		const promoterResult = await this.promoterRepository.findOne({
+		// const promoterResult = await this.promoterRepository.findOne({
+		// 	where: {
+		// 		promoterId,
+		// 		programPromoters: {
+		// 			program: {
+		// 				programId,
+		// 			},
+		// 		},
+		// 		...whereOptions
+		// 	},
+		// 	relations: {
+		// 		commissions: {
+		// 			link: true,
+		// 			contact: true
+		// 		},
+		// 	},
+		// 	...queryOptions,
+		// });
+
+		const [commissionResult, count] = await this.commissionRepository.findAndCount({
 			where: {
-				promoterId,
-				programPromoters: {
-					program: {
-						programId,
-					},
+				promoter: {
+					promoterId,
+					programPromoters: {
+						programId
+					}
 				},
-				...whereOptions
+				...whereOptions,
 			},
 			relations: {
-				commissions: {
-					link: true,
-					contact: true
-				},
+				link: true,
+				contact: true
 			},
-			...queryOptions,
-		});
+			...queryOptions
+		})
 
-		if (
-			!promoterResult ||
-			!promoterResult.commissions ||
-			promoterResult.commissions.length === 0
-		) {
-			this.logger.warn(
-				`failed to get commissions for promoter ${promoterId}`,
-			);
-			throw new NotFoundException(
-				`No commissions found for promoter ${promoterId}`,
-			);
+		if (commissionResult.length === 0) {
+			this.logger.warn(`No commissions found for promoter ${promoterId}`);
+			throw new NotFoundException(`No commissions found for promoter ${promoterId}`);
 		}
 
 		if (toUseSheetJsonFormat) {
-			const commissionSheetJson = this.commissionConverter.convertToSheet(promoterResult?.commissions ?? [], referralKeyType);
+			const commissionSheetJson = this.commissionConverter.convertToSheet(commissionResult, referralKeyType, { count });
 
 			this.logger.info(`END: getPromoterCommissions service: Returning Workbook`);
 			return commissionSheetJson;
 		}
 
-		const commissionDtos = promoterResult?.commissions.map((commission) =>
+		const commissionDtos = commissionResult.map((commission) =>
 			this.commissionConverter.convert(commission),
 		);
 
@@ -1114,13 +1120,14 @@ export class PromoterService {
 		return referralDto;
 	}
 
-	async getPromoterLinkStatistics(programId: string, promoterId: string, toUseSheetJsonFormat: boolean = true) {
+	async getPromoterLinkStatistics(programId: string, promoterId: string, toUseSheetJsonFormat: boolean = true, queryOptions: QueryOptionsInterface = defaultQueryOptions) {
 		this.logger.info(`START: getPromoterLinkStatistics service`);
-		const linkStatsResult = await this.linkStatsViewRepository.find({
+		const [linkStatsResult, count] = await this.linkStatsViewRepository.findAndCount({
 			where: {
 				programId,
 				promoterId,
 			},
+			...queryOptions
 		});
 
 		if (linkStatsResult.length === 0) {
@@ -1134,6 +1141,7 @@ export class PromoterService {
 			const promoterWorkbook = this.linkConverter.convertLinkStatsToSheet(linkStatsResult, {
 				programId,
 				website: programResult.website,
+				count
 			});
 			this.logger.info(`START: getPromoterLinkStatistics service: Returning Workbook`);
 			return promoterWorkbook;

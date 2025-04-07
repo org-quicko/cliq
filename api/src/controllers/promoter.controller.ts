@@ -381,11 +381,9 @@ export class PromoterController {
 			promoterId,
 			toUseSheetJsonFormat,
 			{
-				commissions: {
-					conversionType,
-					linkId,
-					contactId,
-				},
+				conversionType,
+				linkId,
+				contactId,
 			},
 			{
 				skip,
@@ -608,6 +606,8 @@ export class PromoterController {
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
 	) {
 		this.logger.info('START: getPromoterLinkStatistics controller');
 
@@ -617,6 +617,10 @@ export class PromoterController {
 			programId,
 			promoterId,
 			toUseSheetJsonFormat,
+			{
+				skip,
+				take
+			}
 		);
 
 		this.logger.info('END: getPromoterLinkStatistics controller');
@@ -657,11 +661,11 @@ export class PromoterController {
 	@Permissions('register', Promoter)
 	@Post(':promoter_id')
 	async registerForProgram(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
-	  this.logger.info('START: registerForProgram controller');
-  
-	  const result = await this.promoterService.registerForProgram(programId, promoterId);
-  
-	  this.logger.info('END: registerForProgram controller');
-	  return { message: `Successfully registered for Program ${programId}.`, result };
+		this.logger.info('START: registerForProgram controller');
+
+		const result = await this.promoterService.registerForProgram(programId, promoterId);
+
+		this.logger.info('END: registerForProgram controller');
+		return { message: `Successfully registered for Program ${programId}.`, result };
 	}
 }
