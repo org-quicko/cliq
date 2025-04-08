@@ -80,7 +80,7 @@ export class UserService {
 		this.logger.info('START: getUserEntity service');
 
 		const userResult = await this.userRepository.findOne({
-			where: { userId: userId },
+			where: { userId },
 			relations: { programUsers: true },
 		});
 
