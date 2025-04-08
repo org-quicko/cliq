@@ -406,7 +406,11 @@ export class AuthorizationService {
 
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 
-            if (role === memberRoleEnum.ADMIN) {
+            if (role === memberRoleEnum.EDITOR) {
+                allow('manage', Link, { promoterId });
+                allow('update', Promoter);
+                
+            } else if (role === memberRoleEnum.ADMIN) {
                 // allow update program or invite other users to the program
                 allow('manage', [Promoter, PromoterMember, Link], { promoterId });
             }
