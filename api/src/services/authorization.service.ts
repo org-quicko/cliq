@@ -134,7 +134,7 @@ export class AuthorizationService {
                 const subjectPromoterId = request.params.promoter_id as string;
 
                 if (subject === User) {
-                    if (action === 'read' || action === 'create')
+                    if (action === 'create')
                         return subject;
 
                     if (!subjectUserId) {
@@ -326,19 +326,12 @@ export class AuthorizationService {
         }
 
         for (const [programId, role] of Object.entries(programUserPermissions)) {
-            allow(
-                'read',
-                [
-                    ReferralView,
-                    PromoterStatsView,
-                    ProgramPromoter,
-                    Link,
-                    Circle,
-                    Program,
-                    Function,
-                ],
-                { programId },
-            );
+            allow('read', [ReferralView, PromoterStatsView, ProgramPromoter, Link, Circle, Program, Function], { programId });
+            allow('read', User, { programUsers: { $elemMatch: { programId } } });
+
+            allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
+            allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
+            allow<FlatCommission>('read', Commission, { 'contact.programId': programId });
 
             if (role === userRoleEnum.ADMIN || role === userRoleEnum.SUPER_ADMIN) {
 
@@ -346,10 +339,7 @@ export class AuthorizationService {
                 allow(['update', 'invite_user'], Program, { programId });
 
                 // can change other users' role and change other users' permissions from the program, if that user ain't the super admin
-                allow(['change_role', 'remove_user'], ProgramUser, {
-                    programId,
-                    role: { $ne: userRoleEnum.SUPER_ADMIN },
-                });
+                allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: userRoleEnum.SUPER_ADMIN } });
 
                 allow('invite_user', ProgramUser, { programId });
 
@@ -360,14 +350,10 @@ export class AuthorizationService {
                 allow('manage', [Link, Circle, Function], { programId });
             }
 
-            allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
-            allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
-            allow<FlatCommission>('read', Commission, { 'contact.programId': programId });
         }
 
         allow(['update', 'delete'], User, { userId: user.userId });
 
-        allow('read', User);
         allow('leave', Program);
 
         const ability = build({

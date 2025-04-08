@@ -57,7 +57,7 @@ export class UserController {
 	 * Get user
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
-	@UseGuards(AuthGuard)
+	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('read', User)
 	@Get(':user_id')
 	async getUser(@Param('user_id') userId: string) {
