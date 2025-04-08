@@ -3,16 +3,15 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { ForbiddenError } from '@casl/ability';
 import {
-	actionsType,
 	AppAbility,
 	AuthorizationService,
-	subjectsType,
 } from '../services/authorization.service';
 import { CHECK_PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 import { LoggerService } from '../services/logger.service';
 import { MemberService } from '../services/member.service';
 import { UserService } from '../services/user.service';
 import { ApiKeyService } from 'src/services/apiKey.service';
+import { actionsType, subjectsType } from 'src/types';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

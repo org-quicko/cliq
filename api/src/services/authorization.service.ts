@@ -46,26 +46,7 @@ import { PurchaseService } from './purchase.service';
 import { ReferralService } from './referral.service';
 import { WebhookService } from './webhook.service';
 import { PromoterStatsService } from './promoterStats.service';
-
-// manage is a keyword in CASL that means the admin can do anything
-export const actions = [
-    'manage',
-    'create',
-    'read',
-    'read_all',
-    'update',
-    'delete',
-    'invite_user',
-    'invite_member',
-    'remove_user',
-    'leave',
-    'remove_member',
-    'include_promoter',
-    'remove_promoter',
-    'change_role',
-    'operate_in',
-    'register'
-] as const;
+import { actionsType, subjectsType } from 'src/types';
 
 // these types are in order to check nested properties
 type FlatPurchase = Purchase & {
@@ -79,35 +60,6 @@ type FlatSignUp = SignUp & {
 type FlatCommission = Commission & {
     'contact.programId': Commission['contact']['programId']
 };
-
-type FlatPromoter = Promoter & {
-    'promoter.programPromoters': Promoter['programPromoters']
-};
-
-export type actionsType = (typeof actions)[number];
-export type subjectsType =
-    | InferSubjects<
-        | typeof ApiKey
-        | typeof Circle
-        | typeof Commission
-        | typeof Contact
-        | typeof Function
-        | typeof Condition
-        | typeof Link
-        | typeof Member
-        | typeof Program
-        | typeof ProgramUser
-        | typeof Promoter
-        | typeof PromoterMember
-        | typeof ProgramPromoter
-        | typeof Purchase
-        | typeof ReferralView
-        | typeof PromoterStatsView
-        | typeof SignUp
-        | typeof User
-        | typeof Webhook
-    >
-    | 'all';
 
 export type AppAbility = Ability<[actionsType, subjectsType]>;
 export const createAppAbility = createAbility as CreateAbility<AppAbility>;
