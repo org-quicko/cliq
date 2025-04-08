@@ -372,7 +372,7 @@ export class AuthorizationService {
         const { can: allow, build } = abilityBuilder;
 
         allow('manage', [Member]);
-        allow<FlatPromoter>('manage', Promoter, { 'promoter.programPromoters': { $elemMatch: { programId } } }); // can manage a promoter of that program
+        allow('manage', Promoter, { programPromoters: { $elemMatch: { programId } } }); // can manage a promoter of that program
         allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: userRoleEnum.SUPER_ADMIN } });
         allow('manage', ApiKey, { programId });
         allow(['update', 'invite_user'], Program, { programId });
