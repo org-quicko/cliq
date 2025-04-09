@@ -8,7 +8,7 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, Brackets, FindOptionsWhere, Raw } from 'typeorm';
+import { Repository, DataSource, Brackets, FindOptionsWhere, Raw, FindOptionsRelations } from 'typeorm';
 import * as XLSX from 'xlsx';
 import {
 	CreatePromoterDto,
@@ -180,7 +180,14 @@ export class PromoterService {
 	async deletePromoter(programId: string, promoterId: string) {
 		this.logger.info('START: deletePromoter service');
 
-		const promoter = await this.getPromoterEntity(promoterId);
+		const promoter = await this.getPromoterEntity(promoterId, {
+			promoterMembers: true
+		});
+
+		if (promoter.promoterMembers.length > 1) {
+			this.logger.error(`Error. Cannot delete promoter right now- there are more than one members in it.`);
+			throw new BadRequestException(`Error. Cannot delete promoter right now- there are more than one members in it.`);
+		}
 
 		await this.promoterRepository.remove(promoter);
 
@@ -247,12 +254,13 @@ export class PromoterService {
 	/**
 	 * Get promoter entity
 	 */
-	async getPromoterEntity(promoterId: string) {
+	async getPromoterEntity(promoterId: string, relations: FindOptionsRelations<Promoter> = {}) {
 		this.logger.info('START: getPromoterEntity service');
 		const promoter = await this.promoterRepository.findOne({
 			where: {
 				promoterId,
 			},
+			relations
 		});
 
 		if (!promoter) {
