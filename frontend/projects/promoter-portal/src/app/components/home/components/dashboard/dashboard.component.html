@@ -80,6 +80,17 @@
 				</div>
 			</div>
 			<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
+				@if (isLoading()) {
+				<app-skeleton-load-table
+				[maxHeight]="'548px'"
+				[rowCount]="3"
+				headerClass="flex px-4"
+				rowClass="flex px-4"
+				[headers]="headersStyling"
+				[rows]="rowsStyling"
+				/>
+				}
+				@else {
 				<table mat-table matSort [dataSource]="dataSource" class="w-full bg-transparent" [ngClass]="{ 'h-[500px]': (linkStatsLength() === 0) && !isLoading() }">
 					<ng-container matColumnDef="link">
 						<th mat-header-cell mat-sort-header *matHeaderCellDef
@@ -189,8 +200,11 @@
 						</td>
 					</tr>
 				</table>
+				}
 			</div>
-			<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalLinkDataLength()" aria-label="Select page of links"></mat-paginator>
+			@if (totalLinkDataLength()) {
+				<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalLinkDataLength()" aria-label="Select page of links"></mat-paginator>
+			}
 		</div>
 	</div>
 </div>
