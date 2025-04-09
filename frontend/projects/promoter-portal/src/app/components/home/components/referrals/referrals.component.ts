@@ -16,6 +16,7 @@ import { ReferralRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promote
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { SkeletonLoadTableComponent } from '../../../common/skeleton-load-table/skeleton-load-table.component';
+import { TableRowStyling } from '../../../../interfaces';
 
 @Component({
 	selector: 'app-referrals',
@@ -80,6 +81,58 @@ export class ReferralsComponent implements OnInit {
 		pageIndex: 0,
 		pageSize: 5,
 	});
+
+	referralCellLength = 'w-[25%]';
+	commissionCellLength = 'w-[14%]';
+	revenueCellLength = 'w-[14%]';
+	updatedAtCellLength = 'w-[33%]';
+	statusCellLength = 'w-[14%]';
+
+	headersStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.referralCellLength} min-w-[260px] flex justify-start`,
+			theme: { width: '90px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength}  flex justify-center`,
+			theme: { width: '130px' }
+		},
+		{
+			parentTheme: `${this.revenueCellLength} min-w-[200px] flex justify-center`,
+			theme: { width: '130px' }
+		},
+		{
+			parentTheme: `${this.updatedAtCellLength} min-w-[260px] flex justify-center`,
+			theme: { width: '130px' }
+		},
+		{
+			parentTheme: `${this.statusCellLength} min-w-[200px] flex justify-center`,
+			theme: { width: '90px' }
+		},
+	];
+
+	rowsStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.referralCellLength} flex justify-start`,
+			theme: { width: '100px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+		{
+			parentTheme: `${this.revenueCellLength} flex justify-center`,
+			theme: { width: '130px' }
+		},
+		{
+			parentTheme: `${this.updatedAtCellLength} flex justify-center`,
+			theme: { width: '250px' }
+		},
+		{
+			parentTheme: `${this.statusCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+	];
 
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
