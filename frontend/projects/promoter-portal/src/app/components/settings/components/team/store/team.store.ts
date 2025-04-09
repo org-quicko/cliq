@@ -212,18 +212,6 @@ export const TeamStore = signalStore(
 				)
 			),
 
-			setLoadingStatus() {
-				patchState(store, { status: Status.LOADING });
-			},
-
-			setErrorStatus(error: any) {
-				patchState(store, { status: Status.ERROR, error });
-			},
-
-			setPendingStatus() {
-				patchState(store, { status: Status.PENDING });
-			},
-
 			setStatus(status: Status, error: any = null) {
 				if (status === Status.ERROR) {
 					if (!error) {
