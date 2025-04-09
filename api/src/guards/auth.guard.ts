@@ -14,7 +14,7 @@ import { LoggerService } from '../services/logger.service';
 import { audienceEnum } from 'src/enums/audience.enum';
 import { ApiKeyGuard } from './apiKey.guard';
 import { Reflector } from '@nestjs/core';
-import { SKIP_PERMISSIONS_KEY } from 'src/decorators/skipPermissions.decorator';
+import { SKIP_AUTH_KEY } from 'src/decorators/skipAuth.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -35,12 +35,12 @@ export class AuthGuard implements CanActivate {
 
 		const request: Request = context.switchToHttp().getRequest();
 
-		const skipPermissions = this.reflector.getAllAndOverride<boolean>(
-			SKIP_PERMISSIONS_KEY,
+		const SkipAuth = this.reflector.getAllAndOverride<boolean>(
+			SKIP_AUTH_KEY,
 			[context.getHandler(), context.getClass()],
 		);
 
-		if (skipPermissions) return true;
+		if (SkipAuth) return true;
 
 		const key: string = request.headers['x-api-key'] as string;
 		const secret: string = request.headers['x-api-secret'] as string;

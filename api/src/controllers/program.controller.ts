@@ -26,11 +26,11 @@ import {
 } from '../entities';
 import { AuthGuard } from '../guards/auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
-import { getReportFileName, getStartEndDate } from 'src/utils';
-import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
+import { getReportFileName, getStartEndDate } from '../utils';
+import { reportPeriodEnum } from '../enums/reportPeriod.enum';
 import { Response } from 'express';
-import { SkipTransform } from 'src/decorators/skipTransform.decorator';
-import { SkipPermissions } from 'src/decorators/skipPermissions.decorator';
+import { SkipTransform } from '../decorators/skipTransform.decorator';
+import { SkipAuth } from '../decorators/skipAuth.decorator';
 
 @ApiTags('Program')
 @Controller('/programs')
@@ -92,7 +92,7 @@ export class ProgramController {
    */
   @ApiResponse({ status: undefined, description: '' })
   // @Permissions('read', Program)
-  @SkipPermissions()
+  @SkipAuth()
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {
     this.logger.info('START: getProgram controller');

@@ -28,7 +28,6 @@ import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
-import { SkipPermissions } from 'src/decorators/skipPermissions.decorator';
 
 @ApiTags('Promoter')
 @UseGuards(AuthGuard, PermissionsGuard)
