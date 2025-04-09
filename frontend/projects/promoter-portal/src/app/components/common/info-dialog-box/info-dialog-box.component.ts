@@ -7,23 +7,23 @@ import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 
 @Component({
-	selector: 'app-confirm-dialog-box',
+	selector: 'app-info-dialog-box',
 	imports: [MatButtonModule, MatIconModule, MatFormFieldModule, FormsModule, MatDialogModule],
-	templateUrl: './confirm-dialog-box.component.html',
-	styleUrl: './confirm-dialog-box.component.scss'
+	templateUrl: './info-dialog-box.component.html',
+	styleUrl: './info-dialog-box.component.scss'
 })
-export class ConfirmDialogBoxComponent implements OnDestroy {
+export class InfoDialogBoxComponent implements OnDestroy {
 
 	destroy$ = new Subject<boolean>();
 
 	constructor(
-		@Inject(MAT_DIALOG_DATA) public data: { message: string, confirmButtonText?: string, cancelButtonText?: string, title?: string, onSubmit: Function },
-		private dialogRef: MatDialogRef<ConfirmDialogBoxComponent>
+		@Inject(MAT_DIALOG_DATA) public data: { message: string, confirmButtonText?: string, cancelButtonText?: string, title?: string, removeCancelBtn?: boolean, onSubmit: Function },
+		private dialogRef: MatDialogRef<InfoDialogBoxComponent>
 	) { }
 
 	onSubmit() {
-		this.dialogRef.close(true);
 		this.data.onSubmit();
+		this.dialogRef.close(true);
 	}
 
 	closeDialog() {
