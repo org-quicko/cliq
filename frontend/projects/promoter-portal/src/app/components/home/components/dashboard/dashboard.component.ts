@@ -76,6 +76,67 @@ export class DashboardComponent implements OnInit {
 
 	displayedColumns: string[] = ['link', 'commission', 'signups', 'purchases', 'created on', 'menu'];
 
+	linkCellLength = 'w-[25%]';
+	commissionCellLength = 'w-[15%]';
+	signUpsCellLength = 'w-[10%]';
+	purchasesCellLength = 'w-[10%]';
+	createdOnCellLength = 'w-[30%]';
+	menuCellLength = 'w-[5%]';
+
+	headersStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.linkCellLength} flex justify-start`,
+			theme: { width: '90px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength} flex justify-center`,
+			theme: { width: '110px' }
+		},
+		{
+			parentTheme: `${this.signUpsCellLength} flex justify-center`,
+			theme: { width: '110px' }
+		},
+		{
+			parentTheme: `${this.purchasesCellLength} flex justify-center`,
+			theme: { width: '110px' }
+		},
+		{
+			parentTheme: `${this.createdOnCellLength} flex justify-center`,
+			theme: { width: '130px' }
+		},
+		{
+			parentTheme: `${this.menuCellLength} flex justify-center`,
+			theme: { width: '50px' }
+		},
+	];
+
+	rowsStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.linkCellLength} flex justify-start`,
+			theme: { width: '300px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength} flex justify-center`,
+			theme: { width: '50px' }
+		},
+		{
+			parentTheme: `${this.signUpsCellLength} flex justify-center`,
+			theme: { width: '50px' }
+		},
+		{
+			parentTheme: `${this.purchasesCellLength} flex justify-center`,
+			theme: { width: '50px' }
+		},
+		{
+			parentTheme: `${this.createdOnCellLength} flex justify-center`,
+			theme: { width: '130px' }
+		},
+		{
+			parentTheme: `${this.menuCellLength} flex justify-center`,
+			theme: { width: '50px' }
+		},
+	];
+
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
 			const linkRows = (this.linkStore.links()?.getRows() ?? []) as LinkStatsRow[];
