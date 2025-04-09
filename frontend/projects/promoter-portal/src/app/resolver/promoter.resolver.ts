@@ -5,15 +5,13 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { plainToInstance } from 'class-transformer';
 import { PromoterStore } from '../store/promoter.store';
 import { MemberService } from '../services/member.service';
-import { PromoterDto, PromoterMemberDto } from '@org.quicko.cliq/ngx-core';
-import { MemberStore } from '../store/member.store';
+import { PromoterDto, Status } from '@org.quicko.cliq/ngx-core';
 import { SnackbarService } from '@org.quicko/ngx-core';
 
 @Injectable({ providedIn: 'root' })
 export class PromoterResolver implements Resolve<PromoterDto> {
 	constructor() { }
 
-	readonly memberStore = inject(MemberStore);
 	readonly promoterStore = inject(PromoterStore);
 	readonly memberService = inject(MemberService);
 	readonly snackBarService = inject(SnackbarService);
@@ -28,7 +26,8 @@ export class PromoterResolver implements Resolve<PromoterDto> {
 			}),
 			map((response) => plainToInstance(PromoterDto, response.data?.promoter) ?? new PromoterDto()),
 			catchError((error) => {
-				this.snackBarService.openSnackBar('Failed to get member role', '');
+				this.snackBarService.openSnackBar('Failed to get promoter', '');
+				this.promoterStore.setStatus(Status.ERROR, error);
 				return of(new PromoterDto());
 			})
 		);
