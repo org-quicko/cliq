@@ -6,8 +6,8 @@ import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { instanceToPlain } from 'class-transformer';
 import { environment } from '../../../environments/environment.dev';
-import { MemberDto } from '../../../../org-quicko-cliq-core/src/lib/dtos/member.dto';
 import { ProgramStore } from '../store/program.store';
+import { MemberDto } from '@org.quicko.cliq/ngx-core';
 
 @Injectable({
 	providedIn: 'root'
@@ -41,27 +41,11 @@ export class AuthService {
 	}
 
 	public setToken(token: string): void {
-		if (environment.production) {
-
-			// TODO: the domain must be custom domain
-			this.cookieService.set('CLIQ_ACCESS_TOKEN', 'Bearer ' + token, 1, '/', undefined, true, 'Strict');
-		}
-		else {
-			this.cookieService.set('CLIQ_ACCESS_TOKEN', 'Bearer ' + token, undefined, undefined, undefined, false, 'Strict');
-		}
+		this.cookieService.set('CLIQ_ACCESS_TOKEN', 'Bearer ' + token, undefined, '/', undefined, false, 'Strict');
 	}
 
-	// public unsetToken(): void {
-	// 	if (environment.production) {
-	// 		this.cookieService.delete('CLIQ_ACCESS_TOKEN', '/', undefined, true, 'Strict');
-	// 	}
-	// 	else {
-	// 		this.cookieService.delete('CLIQ_ACCESS_TOKEN', undefined, undefined, false, 'Strict');
-	// 	}
-	// }
-
 	public deleteToken() {
-		this.cookieService.delete('CLIQ_ACCESS_TOKEN', `/${this.programId()}`, undefined, true, 'Strict');
+		this.cookieService.delete('CLIQ_ACCESS_TOKEN', `/`, undefined, true, 'Strict');
 	}
 
 	public getToken(): string {
