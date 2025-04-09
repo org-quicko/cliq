@@ -3,8 +3,8 @@ import { Contact } from "@org.quicko/core";
 import { ApiKey, Circle, Commission, Condition, Link, Member, Program, Function, ProgramUser, Promoter, PromoterMember, ProgramPromoter, Purchase, ReferralView, PromoterStatsView, SignUp, User, Webhook } from "src/entities";
 
 export type subjectsType =
-    | InferSubjects<
-        | typeof ApiKey
+    InferSubjects<
+        typeof ApiKey
         | typeof Circle
         | typeof Commission
         | typeof Contact

@@ -401,8 +401,7 @@ export class AuthorizationService {
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
 
             allow(['read', 'leave'], Promoter, { promoterId });
-            allow(['read', 'read_all'], [ReferralView, PromoterMember], { promoterId });
-            allow('read', [PromoterStatsView, Commission, ReferralView, Purchase, SignUp, Link], { promoterId });
+            allow(['read', 'read_all'], [PromoterStatsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link], { promoterId });
 
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 
