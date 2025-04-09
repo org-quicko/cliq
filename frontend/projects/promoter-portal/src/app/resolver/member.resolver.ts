@@ -1,29 +1,43 @@
 import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, map, Observable, of, tap } from 'rxjs';
 import { MemberDto as Member, MemberDto } from '../../../../org-quicko-cliq-core/src/lib/dtos/member.dto';
 import { MemberStore } from '../store/member.store';
 import { MemberService } from '../services/member.service';
 import { plainToInstance } from 'class-transformer';
+import { SnackbarService } from '@org.quicko/ngx-core';
+import { PermissionsService } from '../services/permission.service';
+import { Status } from '@org.quicko.cliq/ngx-core';
 
 @Injectable({ providedIn: 'root' })
 export class MemberResolver implements Resolve<Member> {
 	constructor() { }
 
-	readonly store = inject(MemberStore);
+	readonly memberStore = inject(MemberStore);
 
 	readonly memberService = inject(MemberService);
+	readonly snackBarService = inject(SnackbarService);
+	readonly permissionService = inject(PermissionsService);
 
-	async resolve() {
+	resolve(): Observable<MemberDto> {
+		return this.memberService.getMember().pipe(
+			tap((response) => {
+				if (response.data) {
+					const member = plainToInstance(MemberDto, response.data);
+					this.memberStore.setMember(member);
 
-		const response = await firstValueFrom(this.memberService.getMember());
-
-		if (!response.data) {
-			throw new Error('Member not found');
-		}
-
-		this.store.setMember(plainToInstance(MemberDto, response.data)); // set the global store
-		return response.data;
-
+					const role = member.role;
+					if (role) {
+						this.permissionService.setAbilityForRole(role);
+					}
+				}
+			}),
+			map((response) => plainToInstance(MemberDto, response.data?.promoter) ?? new MemberDto()),
+			catchError((error) => {
+				this.snackBarService.openSnackBar('Failed to get member', '');
+				this.memberStore.setStatus(Status.ERROR, error);
+				return of(new MemberDto());
+			})
+		);
 	}
 }
