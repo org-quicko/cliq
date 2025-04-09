@@ -4,11 +4,17 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
+import { createMongoAbility, PureAbility } from '@casl/ability';
+import { MemberAbility } from './permissions/ability';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideZoneChangeDetection({ eventCoalescing: true }),
 		provideRouter(routes),
+		{
+			provide: PureAbility,
+			useFactory: () => createMongoAbility<MemberAbility>()
+		},
 		provideStoreDevtools({
 			maxAge: 25, // Retains last 25 states
 			autoPause: true, // Pauses recording actions and state changes when the extension window is not open

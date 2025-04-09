@@ -30,6 +30,8 @@
 		"@angular/platform-browser-dynamic": "^19.2.0",
 		"@angular/router": "^19.2.0",
 		"@auth0/angular-jwt": "^5.2.0",
+		"@casl/ability": "^6.7.3",
+		"@casl/angular": "^9.0.3",
 		"@material/material-color-utilities": "^0.3.0",
 		"@ngrx/component-store": "^19.0.1",
 		"@ngrx/effects": "^19.0.1",
