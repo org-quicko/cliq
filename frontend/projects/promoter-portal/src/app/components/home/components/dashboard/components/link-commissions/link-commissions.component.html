@@ -127,5 +127,7 @@
 		</table>
 		}
 	</div>
-	<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of members"></mat-paginator>
+	@if (totalDataLength()) {
+		<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of members"></mat-paginator>
+	}
 </div>

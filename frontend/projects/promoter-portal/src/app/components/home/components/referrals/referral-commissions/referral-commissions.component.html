@@ -59,5 +59,8 @@
 				class="hover:bg-surface-container h-[76px]"></tr>
 		</table>
 	</div>
-	<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of referral's commissions" />
+	@if (totalDataLength()) {
+		<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of referral's commissions" />
+	}
+
 </div>
