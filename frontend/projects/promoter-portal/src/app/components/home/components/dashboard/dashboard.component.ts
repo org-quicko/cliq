@@ -1,23 +1,29 @@
+import { MatRippleModule } from '@angular/material/core';
 import { Component, inject, OnInit, effect, computed, ViewChild, signal } from '@angular/core';
-import { LinkStore } from './store/link.store';
+import { AbilityServiceSignal } from '@casl/angular';
+import { PureAbility } from '@casl/ability';
 import { CurrencyPipe, NgClass, TitleCasePipe } from '@angular/common';
-import { PromoterStatsStore } from './store/promoter-stats.store';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { MemberStore } from '../../../../store/member.store';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { ProgramStore } from '../../../../store/program.store';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { LinkStatsRow, PromoterStatsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
-import { CreateLinkDialogBoxComponent } from './components/create-link-dialog-box/create-link-dialog-box.component';
+import { FormatCurrencyPipe, LinkDto, OrdinalDatePipe, PaginationOptions, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { CreateLinkDialogBoxComponent } from './components/create-link-dialog-box/create-link-dialog-box.component';
+import { LinkStore } from './store/link.store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatRippleModule } from '@angular/material/core';
+import { PromoterStatsStore } from './store/promoter-stats.store';
+import { MemberStore } from '../../../../store/member.store';
+import { ProgramStore } from '../../../../store/program.store';
 import { StrokedBtnComponent } from '../../../common/stroked-btn/stroked-btn.component';
+import { MemberAbility, MemberAbilityTuple } from '../../../../permissions/ability';
+import { TableRowStyling } from '../../../../interfaces';
+import { SkeletonLoadTableComponent } from "../../../common/skeleton-load-table/skeleton-load-table.component";
+import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
 
 @Component({
 	selector: 'app-dashboard',
@@ -38,7 +44,9 @@ import { StrokedBtnComponent } from '../../../common/stroked-btn/stroked-btn.com
 		TitleCasePipe,
 		ZeroToDashPipe,
 		FormatCurrencyPipe,
-		NgClass
+		NgClass,
+		SkeletonLoadTableComponent,
+		InfoDialogBoxComponent
 	],
 	providers: [LinkStore, PromoterStatsStore],
 	styleUrl: './dashboard.component.scss'
@@ -50,7 +58,12 @@ export class DashboardComponent implements OnInit {
 	readonly programStore = inject(ProgramStore);
 	readonly memberStore = inject(MemberStore);
 	readonly dialog = inject(MatDialog);
+
 	readonly isLoading = computed(() => this.linkStore.status() === Status.LOADING);
+
+	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
+	protected readonly can = this.abilityService.can;
+	private readonly ability = inject<PureAbility<MemberAbilityTuple>>(PureAbility);
 
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -185,16 +198,38 @@ export class DashboardComponent implements OnInit {
 	}
 
 	onClickCreateLinkBtn = () => {
-		this.dialog.open(CreateLinkDialogBoxComponent, {
+		if (this.can('create', LinkDto)) {
+			this.dialog.open(CreateLinkDialogBoxComponent, {
+				data: {
+					createLink: this.linkStore.createLink
+				}
+			});
+		} else {
+			const rule = this.ability.relevantRuleFor('create', LinkDto)!;
+			this.openNotAllowedDialogBox(rule.reason!);
+		}
+	}
+
+	openNotAllowedDialogBox(restrictionReason: string) {
+		this.dialog.open(InfoDialogBoxComponent, {
 			data: {
-				createLink: this.linkStore.createLink
+				message: restrictionReason,
+				confirmButtonText: 'Got it',
+				title: 'Action not allowed',
+				removeCancelBtn: true,
+				onSubmit: () => { }
 			}
 		});
 	}
 
 	onDeleteLink(row: any[]) {
-		const link = this.convertToLinkStatsRow(row);
-		this.linkStore.deleteLink({ linkId: link.getLinkId() });
+		if (this.can('delete', LinkDto)) {
+			const link = this.convertToLinkStatsRow(row);
+			this.linkStore.deleteLink({ linkId: link.getLinkId() });
+		} else {
+			const rule = this.ability.relevantRuleFor('delete', LinkDto)!;
+			this.openNotAllowedDialogBox(rule.reason!);
+		}
 	}
 
 	onCopyLink(row: any[]) {
