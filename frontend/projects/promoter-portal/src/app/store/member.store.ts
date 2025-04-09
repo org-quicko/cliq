@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
-import { MemberDto as Member, MemberDto, memberRoleEnum, Status, UpdateMemberDto } from '@org.quicko.cliq/ngx-core';
+import { MemberDto, Status, UpdateMemberDto } from '@org.quicko.cliq/ngx-core';
 import { MemberService } from '../services/member.service';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { PromoterService } from '../services/promoter.service';
@@ -12,7 +12,7 @@ import { plainToInstance } from 'class-transformer';
 import { SnackbarService } from '@org.quicko/ngx-core';
 
 export interface MemberStoreState {
-	member: Member | null,
+	member: MemberDto | null,
 	error: HttpErrorResponse | null,
 	status: Status
 };
@@ -36,12 +36,21 @@ export const MemberStore = signalStore(
 			snackBarService = inject(SnackbarService),
 		) => ({
 
-			setMember(member: Member) {
+			setMember(member: MemberDto) {
 				patchState(store, { member, status: Status.SUCCESS });
 			},
 
-			setError(error: HttpErrorResponse) {
-				patchState(store, { status: Status.ERROR, error });
+			setStatus(status: Status, error: any = null) {
+				if (status === Status.ERROR) {
+					if (!error) {
+						console.error('Must pass error object on an error status state.');
+						throw new Error('Must pass error object on an error status state.');
+					}
+
+					patchState(store, { status, error });
+				}
+
+				patchState(store, { status });
 			},
 
 			updateMemberInfo: rxMethod<UpdateMemberDto>(
