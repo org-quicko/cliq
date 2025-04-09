@@ -55,7 +55,6 @@ export const LinkCommissionsStore = signalStore(
 							return of(store.commissions()); // ✅ skip request if page already loaded
 						}
 
-						console.log('here');
 						return promoterService.getPromoterCommissions({ link_id: linkId, skip, take }).pipe(
 							tapResponse({
 								next: (response) => {
