@@ -1,13 +1,13 @@
 import { Component, computed, inject, Inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
-import { ProgramStore } from '../../../../../../store/program.store';
 import { CreateLinkDto } from '@org.quicko.cliq/ngx-core';
-import { MatButtonModule } from '@angular/material/button';
+import { ProgramStore } from '../../../../../../store/program.store';
 
 @Component({
 	selector: 'app-create-link-dialog-box',
@@ -19,6 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
 		MatDialogModule,
 		MatIconModule,
 		MatInputModule,
+		MatError
 	],
 	templateUrl: './create-link-dialog-box.component.html',
 	styleUrl: './create-link-dialog-box.component.scss'
@@ -43,7 +44,9 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 	constructor(
 		private dialogRef: MatDialogRef<CreateLinkDialogBoxComponent>,
 		@Inject(MAT_DIALOG_DATA) public data: { createLink: Function },
-	) { }
+	) {
+		this.createLinkForm.addValidators(this.validateLinkRefVal);
+	}
 
 	closeDialog(): void {
 		this.dialogRef.close();
@@ -68,9 +71,20 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 			newLink.refVal = this.createLinkForm.controls.linkRefVal.value + '-' + this.randomCode();
 
 			this.data.createLink(newLink);
+			this.dialogRef.close();
 		}
 
-		this.dialogRef.close();
+	}
+
+	validateLinkRefVal = (): { [key: string]: boolean } | null => {
+		const refVal = this.createLinkForm.get('linkRefVal')!.value!;
+		const touched = this.createLinkForm.get('linkRefVal')?.touched;
+
+		const regex = /^[a-zA-Z][a-zA-Z0-9_-]{0,29}$/;
+
+		if (touched && !regex.test(refVal)) {
+			return { invalidRefVal: true };
+		} else return null;
 	}
 
 	private generateRandomCode(): string {

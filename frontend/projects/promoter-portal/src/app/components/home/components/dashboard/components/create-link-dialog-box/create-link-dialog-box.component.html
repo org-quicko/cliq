@@ -24,19 +24,24 @@
 			<div class="flex flex-col gap-6">
 				<mat-form-field [appearance]="'outline'" class="w-full">
 					<mat-label>Name</mat-label>
-					<input type="text" matInput formControlName="name" class="w-full max-w-[468px]" />
+					<input type="text" matInput formControlName="name" class="w-full max-w-[468px]" required/>
 				</mat-form-field>
 
 				<mat-form-field [appearance]="'outline'" class="w-full">
 					<mat-label>Link ref value</mat-label>
-					<input type="text" matInput formControlName="linkRefVal" />
+					<input type="text" matInput formControlName="linkRefVal" required/>
 				</mat-form-field>
+
+				@if (createLinkForm.hasError('invalidRefVal')) {
+				<mat-error class="text-on-error-container"><span>Invalid ref val!</span></mat-error>
+				}
 
 				<div class="flex flex-col gap-3 mat-body-medium">
 					<div class="w-[118px] text-on-surface-variant">
 						<span>Link preview</span>
 					</div>
-					<div class="w-full max-w-[468px] flex items-center gap-0 bg-surface-container-low text-outline rounded-[5px] p-4">
+					<div
+						class="w-full max-w-[468px] flex items-center gap-0 bg-surface-container-low text-outline rounded-[5px] p-4">
 						<span>
 							{{ programStore.program()?.website + '?ref=' }}
 						</span>
