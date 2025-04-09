@@ -1,16 +1,16 @@
 <table class="w-full h-auto bg-transparent table-auto" [ngStyle]="{ 'max-height': maxHeight }">
 	<thead class="border-b border-outline-variant">
 		<tr class="h-[56px] flex items-center" [ngClass]="headerClass">
-			<th *ngFor="let header of headers">
+			<th *ngFor="let header of headers" [class]="header.parentTheme">
 				<ngx-skeleton-loader [theme]="addStyles(header.theme, { 'margin-botton': '0px' })" />
 			</th>
 		</tr>
 	</thead>
 
 	<tbody>
-		<tr *ngFor="let _ of [].constructor(rowCount)" class="h-[76px] border-b border-outline-variant"
-			[ngClass]="rowClass">
-			<td *ngFor="let cell of rows" class="flex items-center">
+		<tr *ngFor="let _ of [].constructor(rowCount)"
+			class="h-[76px] flex items-center border-b border-outline-variant" [ngClass]="rowClass">
+			<td *ngFor="let cell of rows" class="flex items-center" [ngClass]="cell.parentTheme">
 				<ngx-skeleton-loader [theme]="addStyles(cell.theme, { 'margin-botton': '0px' })" />
 			</td>
 		</tr>

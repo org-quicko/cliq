@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { TableRowStyling } from '../../../interfaces';
 
 @Component({
 	selector: 'app-skeleton-load-table',
@@ -20,13 +21,9 @@ export class SkeletonLoadTableComponent implements OnInit {
 	@Input() headerClass: string;
 	@Input() rowClass: string;
 
-	@Input() headers: {
-		theme: Record<string, string>;
-	}[] = [];
+	@Input() headers: TableRowStyling[] = [];
 
-	@Input() rows: {
-		theme: Record<string, string>;
-	}[] = [];
+	@Input() rows: TableRowStyling[] = [];
 
 
 	defaultTheme: Record<string, string> = {
