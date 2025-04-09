@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
 import { EditPromoterDialogBoxComponent } from './edit-promoter-dialog-box/edit-promoter-dialog-box.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ConfirmDialogBoxComponent } from './confirm-dialog-box/confirm-dialog-box.component';
 import { MemberStore } from '../../../../store/member.store';
 import { AuthService } from '../../../../services/auth.service';
 import { environment } from '../../../../../../environments/environment.dev';
@@ -14,6 +13,11 @@ import { ProgramStore } from '../../../../store/program.store';
 import { MatCardModule } from '@angular/material/card';
 import { ActionableListItemComponent } from './actionable-list-item/actionable-list-item.component';
 import { CommonModule } from '@angular/common';
+import { PureAbility } from '@casl/ability';
+import { AbilityServiceSignal } from '@casl/angular';
+import { MemberAbility, MemberAbilityTuple } from '../../../../permissions/ability';
+import { PromoterDto } from '@org.quicko.cliq/ngx-core';
+import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
 
 export interface ActionableListItemInterface {
 	title: string;
@@ -34,7 +38,7 @@ export interface ActionableListItemInterface {
 		CommonModule,
 		ActionableListItemComponent,
 		EditPromoterDialogBoxComponent,
-		ConfirmDialogBoxComponent,
+		InfoDialogBoxComponent,
 	],
 	templateUrl: './promoter.component.html',
 	styleUrl: './promoter.component.scss'
@@ -52,6 +56,11 @@ export class PromoterComponent {
 	readonly dialog = inject(MatDialog);
 
 	readonly programId = computed(() => this.programStore.program()?.programId);
+
+	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
+	protected readonly can = this.abilityService.can;
+	private readonly ability = inject<PureAbility<MemberAbilityTuple>>(PureAbility);
+
 
 	actionableItems: ActionableListItemInterface[] = [
 		{
@@ -75,11 +84,16 @@ export class PromoterComponent {
 	constructor(private authService: AuthService) { }
 
 	onEdit() {
-		this.dialog.open(EditPromoterDialogBoxComponent);
+		if (this.can('update', PromoterDto)) {
+			this.dialog.open(EditPromoterDialogBoxComponent);
+		} else {
+			const rule = this.ability.relevantRuleFor('update', PromoterDto)!;
+			this.openNotAllowedDialogBox(rule.reason!);
+		}
 	}
 
 	onLeavePromoter() {
-		const dialogRef = this.dialog.open(ConfirmDialogBoxComponent, {
+		const dialogRef = this.dialog.open(InfoDialogBoxComponent, {
 			data: {
 				message: `Are you sure you want to leave promoter “${this.promoter()?.name}”? You will lose all the associated data.`,
 				confirmButtonText: 'Leave',
@@ -102,7 +116,16 @@ export class PromoterComponent {
 	}
 
 	onDeletePromoter() {
-		const dialogRef = this.dialog.open(ConfirmDialogBoxComponent, {
+		if (this.can('delete', PromoterDto)) {
+			this.openDeletePromoterDialog();
+		} else {
+			const rule = this.ability.relevantRuleFor('delete', PromoterDto)!;
+			this.openNotAllowedDialogBox(rule.reason!);
+		}
+	}
+
+	openDeletePromoterDialog() {
+		const dialogRef = this.dialog.open(InfoDialogBoxComponent, {
 			data: {
 				message: `Are you sure you want to delete promoter “${this.promoter()?.name}”? You will lose all the associated members, referrals and commission data.`,
 				confirmButtonText: 'Delete',
@@ -119,6 +142,18 @@ export class PromoterComponent {
 			if (confirmed) {
 				console.log('User confirmed deleting the promoter');
 				// Call the leave promoter logic here
+			}
+		});
+	}
+
+	openNotAllowedDialogBox(restrictionReason: string) {
+		this.dialog.open(InfoDialogBoxComponent, {
+			data: {
+				message: restrictionReason,
+				confirmButtonText: 'Got it',
+				title: 'Action not allowed',
+				removeCancelBtn: true,
+				onSubmit: () => {}
 			}
 		});
 	}
