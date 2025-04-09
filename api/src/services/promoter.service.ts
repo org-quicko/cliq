@@ -450,25 +450,26 @@ export class PromoterService {
 	/**
 	 * Update role
 	 */
-	async updateRole(memberId: string, body: UpdatePromoterMemberDto) {
+	async updateRole(memberId: string, targetMemberId: string, body: UpdatePromoterMemberDto) {
 		this.logger.info('START: updateRole service');
 
-		const member = await this.memberService.getMemberEntity(memberId);
-
-		if (!member) {
-			this.logger.warn(`failed to get Member ${memberId}`);
-			throw new NotFoundException('Failed to get member');
+		if (memberId === targetMemberId) {
+			this.logger.error(`Error. Cannot change role of self.`);
+			throw new BadRequestException(`Error. Cannot change role of self.`);
 		}
 
-		await this.promoterMemberRepository.update(
-			{
-				memberId,
-			},
-			{
-				role: body.role,
-				updatedAt: () => `NOW()`,
-			},
-		);
+		const member = await this.memberService.getMemberEntity(targetMemberId);
+
+		if (!member) {
+			this.logger.warn(`Error. Failed to get Member ${targetMemberId}`);
+			throw new NotFoundException(`Error. Failed to get member ${targetMemberId}`);
+		}
+
+		await this.promoterMemberRepository.update({ memberId: targetMemberId }, {
+			role: body.role,
+			updatedAt: () => `NOW()`,
+		});
+		
 		this.logger.info('END: updateRole service');
 	}
 

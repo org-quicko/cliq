@@ -190,12 +190,13 @@ export class PromoterController {
 	@Permissions('change_role', PromoterMember)
 	@Patch(':promoter_id/members/:member_id/role')
 	async updateRole(
-		@Param('member_id') memberId: string,
+		@Headers('member_id') memberId: string,
+		@Param('member_id') targetMemberId: string,
 		@Body() body: UpdatePromoterMemberDto,
 	) {
 		this.logger.info('START: updateRole controller');
 
-		await this.promoterService.updateRole(memberId, body);
+		await this.promoterService.updateRole(memberId, targetMemberId, body);
 
 		this.logger.info('END: updateRole controller');
 		return { message: 'Successfully updated role of member.' };
