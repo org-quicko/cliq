@@ -78,11 +78,11 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 
 	validateLinkRefVal = (): { [key: string]: boolean } | null => {
 		const refVal = this.createLinkForm.get('linkRefVal')!.value!;
-		const touched = this.createLinkForm.get('linkRefVal')?.touched;
+		const dirty = this.createLinkForm.get('linkRefVal')?.dirty;
 
 		const regex = /^[a-zA-Z][a-zA-Z0-9_-]{0,29}$/;
 
-		if (touched && !regex.test(refVal)) {
+		if (dirty && !regex.test(refVal)) {
 			return { invalidRefVal: true };
 		} else return null;
 	}
