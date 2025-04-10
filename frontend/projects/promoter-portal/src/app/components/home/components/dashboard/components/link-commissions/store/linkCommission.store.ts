@@ -4,7 +4,7 @@ import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { of, pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
 import { plainToInstance } from "class-transformer";
-import { Status, SnackbarService, LinkDto } from "@org.quicko.cliq/ngx-core";
+import { Status, SnackbarService, LinkDto, sortOrderEnum, referralSortByEnum, commissionSortByEnum } from "@org.quicko.cliq/ngx-core";
 import { CommissionRow, CommissionTable, PromoterWorkbook } from "@org.quicko.cliq/ngx-core/generated/sources/Promoter";
 import { PromoterService } from "../../../../../../../services/promoter.service";
 import { withDevtools } from "@angular-architects/ngrx-toolkit";
@@ -38,7 +38,7 @@ export const LinkCommissionsStore = signalStore(
 			snackBarService = inject(SnackbarService)
 		) => ({
 
-			getLinkCommissions: rxMethod<{ linkId: string, skip?: number, take?: number, isSorting?: boolean }>(
+			getLinkCommissions: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: commissionSortByEnum, linkId: string, skip?: number, take?: number, isSorting?: boolean }>(
 				pipe(
 					tap(({ isSorting }) => {
 						if (!isSorting) {
@@ -46,7 +46,7 @@ export const LinkCommissionsStore = signalStore(
 						}
 					}),
 
-					switchMap(({ linkId, skip, take, isSorting }) => {
+					switchMap(({ sortBy, sortOrder, linkId, skip, take, isSorting }) => {
 
 						const page = Math.floor((skip ?? 0) / (take ?? 5));
 
@@ -55,7 +55,7 @@ export const LinkCommissionsStore = signalStore(
 							return of(store.commissions()); // ✅ skip request if page already loaded
 						}
 
-						return promoterService.getPromoterCommissions({ link_id: linkId, skip, take }).pipe(
+						return promoterService.getPromoterCommissions({ sort_by: sortBy, sort_order: sortOrder, link_id: linkId, skip, take }).pipe(
 							tapResponse({
 								next: (response) => {
 									const commissionsTable = plainToInstance(PromoterWorkbook, response.data).getCommissionSheet().getCommissionTable()
@@ -97,7 +97,7 @@ export const LinkCommissionsStore = signalStore(
 			),
 
 			resetLoadedPages() {
-				patchState(store, { loadedPages: new Set(), commissions: null, link: null });
+				patchState(store, { loadedPages: new Set(), commissions: null, link: store.link() });
 			},
 
 			getLink: rxMethod<{ linkId: string }>(
