@@ -9,7 +9,7 @@ import {
 	UpdatePromoterMemberDto,
 } from '../dtos';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
-import { statusEnum, conversionTypeEnum, memberSortByEnum, memberRoleEnum } from '../enums';
+import { statusEnum, conversionTypeEnum, memberSortByEnum, memberRoleEnum, commissionSortByEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
@@ -369,6 +369,8 @@ export class PromoterController {
 		@Query('conversion_type') conversionType: conversionTypeEnum,
 		@Query('link_id') linkId: string,
 		@Query('contact_id') contactId: string,
+		@Query('sort_by') sortBy: commissionSortByEnum = commissionSortByEnum.UPDATED_AT,
+		@Query('sort_order') sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING, // latest first
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
@@ -379,6 +381,8 @@ export class PromoterController {
 		const result = await this.promoterService.getPromoterCommissions(
 			programId,
 			promoterId,
+			sortBy,
+			sortOrder,
 			toUseSheetJsonFormat,
 			{
 				conversionType,

@@ -38,7 +38,7 @@ import { MemberConverter } from '../converters/member.converter';
 import { ContactConverter } from '../converters/contact.converter';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { memberRoleEnum, memberSortByEnum, statusEnum } from '../enums';
+import { commissionSortByEnum, memberRoleEnum, memberSortByEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { CommissionConverter } from '../converters/commission.converter';
@@ -715,6 +715,8 @@ export class PromoterService {
 	async getPromoterCommissions(
 		programId: string,
 		promoterId: string,
+		sortBy?: commissionSortByEnum,
+		sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
 		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<Commission> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
@@ -756,6 +758,7 @@ export class PromoterService {
 				link: true,
 				contact: true
 			},
+			...(sortBy && { order: { [sortBy as string]: sortOrder } }),
 			...queryOptions
 		})
 

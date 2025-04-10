@@ -1,4 +1,5 @@
 export * from './audience.enum';
+export * from './commissionSortBy.enum';
 export * from './commissionType.enum';
 export * from './condition.enum';
 export * from './contactStatus.enum';
