@@ -11,11 +11,11 @@ import { ProgramStore } from '../../../../../../store/program.store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LinkCommissionsStore } from './store/linkCommission.store';
 import { CommissionRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { FormatCurrencyPipe, memberSortByEnum, OrdinalDatePipe, PaginationOptions, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { commissionSortByEnum, FormatCurrencyPipe, memberSortByEnum, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MemberSortOptions } from '../../../../../../interfaces';
+import { MemberSortOptions, TableRowStyling } from '../../../../../../interfaces';
 import { SkeletonLoadTableComponent } from '../../../../../common/skeleton-load-table/skeleton-load-table.component';
 
 @Component({
@@ -50,7 +50,7 @@ export class LinkCommissionsComponent implements OnInit {
 
 	dataSource: MatTableDataSource<CommissionRow> = new MatTableDataSource<CommissionRow>([]);
 
-	sortOptions = signal<{ active: string, direction: 'asc' | 'desc' }>({
+	sortOptions = signal<{ active: 'created at', direction: 'asc' | 'desc' }>({
 		active: 'created at',
 		direction: 'desc',
 	});
@@ -76,6 +76,58 @@ export class LinkCommissionsComponent implements OnInit {
 	});
 
 	referralKey = signal('');
+
+	createdAtCellLength = 'w-[20%]';
+	referralCellLength = 'w-[25%]';
+	typeCellLength = 'w-[18%]';
+	commissionCellLength = 'w-[19%]';
+	revenueCellLength = 'w-[18%]';
+
+	headersStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.createdAtCellLength} flex justify-start`,
+			theme: { width: '130px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength} flex justify-center`,
+			theme: { width: '150px' }
+		},
+		{
+			parentTheme: `${this.revenueCellLength} flex justify-center`,
+			theme: { width: '90px' }
+		},
+		{
+			parentTheme: `${this.referralCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+		{
+			parentTheme: `${this.typeCellLength} flex justify-center`,
+			theme: { width: '90px' }
+		},
+	];
+
+	rowsStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.createdAtCellLength} flex justify-start`,
+			theme: { width: '200px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength} flex justify-center`,
+			theme: { width: '140px' }
+		},
+		{
+			parentTheme: `${this.revenueCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+		{
+			parentTheme: `${this.referralCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+		{
+			parentTheme: `${this.typeCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+	];
 
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
@@ -109,6 +161,8 @@ export class LinkCommissionsComponent implements OnInit {
 
 		if (linkId) {
 			this.linkCommissionsStore.getLinkCommissions({
+				sortBy: commissionSortByEnum.CREATED_AT,
+				sortOrder: this.sortOptions().direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING,
 				linkId,
 				skip,
 				take: pageSize,
@@ -122,7 +176,7 @@ export class LinkCommissionsComponent implements OnInit {
 	onSortChange(event: Sort) {
 		this.paginationOptions.set({ pageSize: 5, pageIndex: 0 });
 		this.linkCommissionsStore.resetLoadedPages();
-		this.sortOptions.set({ active: event.active, direction: event.direction as 'asc' | 'desc' });
+		this.sortOptions.set({ active: event.active as 'created at', direction: event.direction as 'asc' | 'desc' });
 
 		this.loadLinkCommissions(true);
 	}
