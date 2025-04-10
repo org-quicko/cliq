@@ -17,25 +17,25 @@ export type MemberAbilityTuple = [actionsType, subjectsType];
 export type MemberAbility = MongoAbility<MemberAbilityTuple>;
 
 export function defineMemberAbilities(role: memberRoleEnum): MemberAbility {
-	const { can, cannot, build } = new AbilityBuilder<MemberAbility>(createMongoAbility);
+	const { can: allow, cannot: forbid, build } = new AbilityBuilder<MemberAbility>(createMongoAbility);
 
 	// Base permissions for all roles
-	can(['read', 'read_all'], [LinkDto, ReferralDto, CommissionDto, MemberDto, PromoterMemberDto]);
+	allow(['read', 'read_all'], [LinkDto, ReferralDto, CommissionDto, MemberDto, PromoterMemberDto]);
 
-	cannot(['create', 'delete'], LinkDto).because('Only editors and admin can manage links');
-	cannot('invite_member', PromoterMemberDto).because('Only editors and admin can add members');
-	cannot('remove_member', PromoterMemberDto).because('Only admin can remove members');
-	cannot('change_role', PromoterMemberDto).because('Only admin can change member role');
-	cannot('update', PromoterDto).because('Only editors and admin can update promoter details');
-	cannot('delete', PromoterDto).because('Only admin can delete promoter');
+	forbid(['create', 'delete'], LinkDto).because('Only editors and admin can manage links');
+	forbid('invite_member', PromoterMemberDto).because('Only editors and admin can add members');
+	forbid('remove_member', PromoterMemberDto).because('Only admin can remove members');
+	forbid('change_role', PromoterMemberDto).because('Only admin can change member role');
+	forbid('update', PromoterDto).because('Only editors and admin can update promoter details');
+	forbid('delete', PromoterDto).because('Only admin can delete promoter');
 
 	if (role === memberRoleEnum.EDITOR) {
-		can('manage', LinkDto);
-		can('update', PromoterDto);
-		can('invite_member', PromoterMemberDto);
+		allow('manage', LinkDto);
+		allow('update', PromoterDto);
+		allow('invite_member', PromoterMemberDto);
 
 	} else if (role === memberRoleEnum.ADMIN) {
-		can('manage', [LinkDto, PromoterDto, MemberDto]);
+		allow('manage', [LinkDto, PromoterDto, PromoterMemberDto]);
 	}
 
 	return build({
