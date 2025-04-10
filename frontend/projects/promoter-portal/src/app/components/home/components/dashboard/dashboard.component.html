@@ -21,10 +21,30 @@
 					<div class="w-[502px] flex flex-col h-[136px] px-2 py-6 gap-6">
 						<div
 							class="w-[135px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader
+							[theme]="{
+								width: '135px',
+								height: '24px',
+							}"
+							/>
+							}
+							@else {
 							<span>Total Commission</span>
+							}
 						</div>
 						<div class="w-[109px] h-10 mat-headline-large text-secondary">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader
+								[theme]="{
+									width: '200px',
+									height: '40px',
+								}"
+							/>
+							}
+							@else {
 							<span>{{ statistics()?.getTotalCommission() | formatCurrency:program()?.currency }}</span>
+							}
 						</div>
 					</div>
 					<mat-divider class="border-outline-variant"></mat-divider>
@@ -33,10 +53,30 @@
 					<div class="w-[502px] flex flex-col h-[136px] px-2 py-6 gap-6">
 						<div
 							class="w-[135px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+								<ngx-skeleton-loader
+									[theme]="{
+										width: '104px',
+										height: '24px',
+									}"
+								/>
+							}
+							@else {
 							<span>Total Revenue</span>
+							}
 						</div>
 						<div class="w-[109px] h-10 mat-title-large text-on-surface">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader
+								[theme]="{
+									width: '200px',
+									height: '28px',
+								}"
+							/>
+							}
+							@else {
 							<span>{{ statistics()?.getTotalRevenue() | formatCurrency:program()?.currency }}</span>
+							}
 						</div>
 					</div>
 				</div>
@@ -47,20 +87,60 @@
 						class="w-full flex flex-col h-[124px] border-[1px] border-outline-variant rounded-[4px] p-6 gap-6">
 						<div
 							class="w-[61px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader
+								[theme]="{
+									width: '61px',
+									height: '24px',
+								}"
+							/>
+							}
+							@else {
 							<span>Signups</span>
+							}
 						</div>
 						<div class="w-[78px] h-6 mat-title-large text-on-surface">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader
+								[theme]="{
+									width: '200px',
+									height: '28px',
+								}"
+							/>
+							}
+							@else {
 							<span>{{ statistics()?.getTotalSignups() | zeroToDash}}</span>
+							}
 						</div>
 					</div>
 					<div
 						class="w-full flex flex-col h-[124px] border-[1px] border-outline-variant rounded-[4px] p-6 gap-6">
 						<div
 							class="w-[61px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader
+								[theme]="{
+									width: '78px',
+									height: '24px',
+								}"
+							/>
+							}
+							@else {
 							<span>Purchase</span>
+							}
 						</div>
 						<div class="w-[78px] h-6 mat-title-large text-on-surface">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader
+								[theme]="{
+									width: '200px',
+									height: '28px',
+								}"
+							/>
+							}
+							@else {
 							<span>{{ statistics()?.getTotalPurchases() | zeroToDash}}</span>
+							}
 						</div>
 					</div>
 				</div>
@@ -80,20 +160,20 @@
 				</div>
 			</div>
 			<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
-				@if (isLoading()) {
+				@if (isLinksLoading()) {
 				<app-skeleton-load-table
-				[maxHeight]="'548px'"
-				[rowCount]="3"
-				headerClass="flex px-4"
-				rowClass="flex px-4"
-				[headers]="headersStyling"
-				[rows]="rowsStyling"
+					[maxHeight]="'548px'"
+					[rowCount]="3"
+					headerClass="flex px-4"
+					rowClass="flex px-4"
+					[headers]="headersStyling"
+					[rows]="rowsStyling"
 				/>
 				}
 				@else {
-				<table mat-table matSort [dataSource]="dataSource" class="w-full bg-transparent" [ngClass]="{ 'h-[500px]': (linkStatsLength() === 0) && !isLoading() }">
+				<table mat-table matSort [dataSource]="dataSource" class="w-full bg-transparent" >
 					<ng-container matColumnDef="link">
-						<th mat-header-cell mat-sort-header *matHeaderCellDef
+						<th mat-header-cell *matHeaderCellDef
 							class="mat-body-medium text-outline w-[328px]">
 							Link
 						</th>
