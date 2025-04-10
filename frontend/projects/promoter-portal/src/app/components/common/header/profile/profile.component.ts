@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { memberRoleEnum, Theme, ThemePreferenceEnum, ThemeService } from '@org.quicko.cliq/ngx-core';
+import { memberRoleEnum, Theme, ThemeService } from '@org.quicko.cliq/ngx-core';
 import { Router, RouterLink } from '@angular/router';
 import { EllipsisPipe } from '@org.quicko/ngx-core';
 import { environment } from '../../../../../../environments/environment.dev';

@@ -8,8 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { Status, UpdatePromoterDto } from '@org.quicko.cliq/ngx-core';
-import { PromoterStore } from '../../../../../store/promoter.store';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PromoterStore } from '../../../../../../store/promoter.store';
 
 @Component({
 	selector: 'app-edit-promoter-dialog-box',
