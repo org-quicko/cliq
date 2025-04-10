@@ -39,12 +39,14 @@
 
 	<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
 		@if (isLoading()) {
-			<!-- Skeleton version -->
-			<!-- <app-skeleton-load-table
-				[numCols]="displayedColumns.length"
-				[numRows]="paginationOptions().pageSize"
-				maxHeight="548px"
-			/> -->
+			<app-skeleton-load-table
+			[maxHeight]="'548px'"
+			[rowCount]="5"
+			headerClass="flex gap-5 px-4"
+			rowClass="flex gap-5 px-4"
+			[headers]="headersStyling"
+			[rows]="rowsStyling"
+		/>
 		}
 		@else {
 		<table mat-table matSort [dataSource]="dataSource" class="w-full h-auto max-h-[548px] bg-transparent"
@@ -52,7 +54,14 @@
 		>
 			<!-- Define columns dynamically -->
 			<ng-container matColumnDef="created at">
-				<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-on-surface w-60">Created At
+				<th
+					mat-header-cell
+					[mat-sort-header]="sortOptions().active"
+					[class.hide-sort-arrow]="!totalDataLength()"
+					*matHeaderCellDef
+					class="mat-body-medium text-on-surface w-60"
+				>
+					Created At
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-60">
 					{{ convertToCommissionRow(row).getCreatedAt() | ordinalDate }}
@@ -98,7 +107,7 @@
 
 			<!-- Empty State -->
 			@if (totalDataLength() === 0) {
-			<tr class="empty-row" *matNoDataRow>
+			<tr class="empty-row h-[548px]" *matNoDataRow>
 				<td [attr.colspan]="displayedColumns.length">
 					<div class="flex flex-col justify-center items-center h-[504px]">
 						<div class="p-6 text-center flex flex-col gap-4">
