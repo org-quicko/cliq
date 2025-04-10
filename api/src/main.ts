@@ -56,7 +56,8 @@ async function bootstrap() {
 	);
 
 	app.enableCors({
-		exposedHeaders: ['Content-Disposition']
+		exposedHeaders: ['Content-Disposition'],
+		origin: '*',
 	});
 
 	app.useGlobalFilters(new HttpExceptionFilter());
