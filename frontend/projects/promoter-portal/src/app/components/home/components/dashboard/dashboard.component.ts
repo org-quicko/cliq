@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { LinkStatsRow, PromoterStatsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { FormatCurrencyPipe, LinkDto, OrdinalDatePipe, PaginationOptions, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { CreateLinkDto, FormatCurrencyPipe, LinkDto, OrdinalDatePipe, PaginationOptions, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { CreateLinkDialogBoxComponent } from './components/create-link-dialog-box/create-link-dialog-box.component';
@@ -27,7 +27,6 @@ import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dia
 
 @Component({
 	selector: 'app-dashboard',
-	templateUrl: './dashboard.component.html',
 	imports: [
 		MatCardModule,
 		MatDividerModule,
@@ -44,11 +43,12 @@ import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dia
 		TitleCasePipe,
 		ZeroToDashPipe,
 		FormatCurrencyPipe,
-		NgClass,
 		SkeletonLoadTableComponent,
-		InfoDialogBoxComponent
+		NgxSkeletonLoaderComponent,
+		InfoDialogBoxComponent,
 	],
 	providers: [LinkStore, PromoterStatsStore],
+	templateUrl: './dashboard.component.html',
 	styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
@@ -59,7 +59,8 @@ export class DashboardComponent implements OnInit {
 	readonly memberStore = inject(MemberStore);
 	readonly dialog = inject(MatDialog);
 
-	readonly isLoading = computed(() => this.linkStore.status() === Status.LOADING);
+	readonly isLinksLoading = computed(() => this.linkStore.status() === Status.LOADING);
+	readonly isStatisticsLoading = computed(() => this.promoterStatsStore.status() === Status.LOADING);
 
 	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
 	protected readonly can = this.abilityService.can;
@@ -74,7 +75,7 @@ export class DashboardComponent implements OnInit {
 	totalLinkDataLength = computed(() => {
 		const metadata = this.linkStore.links()?.getMetadata();
 		const count = metadata ? metadata.get('count') : null;
-		return count ? Number(count) : 0; // Returns 0 if count is undefined
+		return count ? Number(count) : 0;
 	});
 
 	paginationOptions = signal<PaginationOptions>({
@@ -157,9 +158,10 @@ export class DashboardComponent implements OnInit {
 			const { pageIndex, pageSize } = this.paginationOptions();
 
 			const start = pageIndex * pageSize;
-			const end = Math.min(start + pageSize, linkRows.length);
+			const end = Math.min(start + pageSize, this.totalLinkDataLength());
+			const dataRows = linkRows.slice(start, end);
 
-			this.dataSource.data = linkRows.slice(start, end);
+			this.dataSource.data = dataRows;
 		});
 	}
 
@@ -169,7 +171,7 @@ export class DashboardComponent implements OnInit {
 		this.promoterStatsStore.getPromoterStats();
 	}
 
-	loadLinks() {
+	loadLinks = () => {
 		const { pageIndex, pageSize } = this.paginationOptions();
 		const skip = pageIndex * pageSize;
 
@@ -201,13 +203,17 @@ export class DashboardComponent implements OnInit {
 		if (this.can('create', LinkDto)) {
 			this.dialog.open(CreateLinkDialogBoxComponent, {
 				data: {
-					createLink: this.linkStore.createLink
+					createLink: this.createLink,
 				}
 			});
 		} else {
 			const rule = this.ability.relevantRuleFor('create', LinkDto)!;
 			this.openNotAllowedDialogBox(rule.reason!);
 		}
+	}
+
+	createLink = (link: CreateLinkDto) => {
+		this.linkStore.createLink({ link });
 	}
 
 	openNotAllowedDialogBox(restrictionReason: string) {
@@ -224,23 +230,21 @@ export class DashboardComponent implements OnInit {
 
 	onDeleteLink(row: any[]) {
 		if (this.can('delete', LinkDto)) {
-			const link = this.convertToLinkStatsRow(row);
-			this.linkStore.deleteLink({ linkId: link.getLinkId() });
+			this.deleteLink(row);
 		} else {
 			const rule = this.ability.relevantRuleFor('delete', LinkDto)!;
 			this.openNotAllowedDialogBox(rule.reason!);
 		}
 	}
 
+	deleteLink(row: any[]) {
+		const link = this.convertToLinkStatsRow(row);
+		this.linkStore.deleteLink({ linkId: link.getLinkId() });
+	}
+
 	onCopyLink(row: any[]) {
 		const link = this.convertToLinkStatsRow(row);
 		this.linkStore.copyLinkToClipboard(this.program()!.website, link);
-	}
-
-	selectedRow: any = null;
-
-	setSelectedRow(row: any) {
-		this.selectedRow = row;
 	}
 
 }
