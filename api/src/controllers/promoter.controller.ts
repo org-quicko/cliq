@@ -627,24 +627,24 @@ export class PromoterController {
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
 	@Permissions('read', PromoterStatsView)
-	@Get(':promoter_id/stats')
-	async getPromoterStatistics(
+	@Get(':promoter_id/analytics')
+	async getPromoterAnalytics(
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 	) {
-		this.logger.info('START: getPromoterStatistics controller');
+		this.logger.info('START: getPromoterAnalytics controller');
 
 		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
 
-		const result = await this.promoterService.getPromoterStatistics(
+		const result = await this.promoterService.getPromoterAnalytics(
 			programId,
 			promoterId,
 			toUseSheetJsonFormat,
 		);
 
-		this.logger.info('END: getPromoterStatistics controller');
-		return { message: 'Successfully got promoter statistics.', result };
+		this.logger.info('END: getPromoterAnalytics controller');
+		return { message: 'Successfully got promoter analytics.', result };
 	}
 
 	/**

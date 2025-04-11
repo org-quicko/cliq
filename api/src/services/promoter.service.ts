@@ -1092,12 +1092,12 @@ export class PromoterService {
 		return fileBuffer;
 	}
 
-	async getPromoterStatistics(
+	async getPromoterAnalytics(
 		programId: string,
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
 	) {
-		this.logger.info(`START: getPromoterStatistics service`);
+		this.logger.info(`START: getPromoterAnalytics service`);
 
 		// checking if the program and promoter exist
 		await this.programService.getProgram(programId);
@@ -1139,12 +1139,12 @@ export class PromoterService {
 					totalPurchases: 0,
 				}
 			]);
-			this.logger.info(`END: getPromoterStatistics service: Returning Workbook`);
+			this.logger.info(`END: getPromoterAnalytics service: Returning Workbook`);
 
 			return promoterWorkbook;
 		}
 
-		this.logger.info(`END: getPromoterStatistics service`);
+		this.logger.info(`END: getPromoterAnalytics service`);
 		return referralDto;
 	}
 
