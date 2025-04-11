@@ -8,6 +8,7 @@ import {
 	PrimaryColumn,
 	Index,
 	CreateDateColumn,
+	UpdateDateColumn,
 } from 'typeorm';
 
 @ViewEntity({
@@ -21,6 +22,7 @@ import {
 			.addSelect('SUM(pu.amount)', 'total_revenue')
 			.addSelect('0', 'total_commission')
 			.addSelect('MAX(pu.updated_at)', 'updated_at') // Capture the latest purchase timestamp
+			.addSelect('MIN(pu.created_at)', 'created_at')
 			.from('contact', 'c')
 			.innerJoin('purchase', 'pu', 'pu.contact_id = c.contact_id')
 			.groupBy('c.program_id')
@@ -35,6 +37,7 @@ import {
 			.addSelect('0', 'total_revenue')
 			.addSelect('SUM(com.amount)', 'total_commission')
 			.addSelect('MAX(com.updated_at)', 'updated_at') // Capture the latest commission timestamp
+			.addSelect('MIN(com.created_at)', 'created_at')
 			.from('contact', 'c')
 			.innerJoin('commission', 'com', 'com.contact_id = c.contact_id')
 			.groupBy('c.program_id')
@@ -49,6 +52,7 @@ import {
 			.addSelect('0', 'total_revenue')
 			.addSelect('0', 'total_commission')
 			.addSelect('MAX(su.updated_at)', 'updated_at') // Capture the latest signup timestamp
+			.addSelect('MIN(su.created_at)', 'created_at')
 			.from('sign_up', 'su')
 			.innerJoin('contact', 'c', 'c.contact_id = su.contact_id')
 			.groupBy('c.program_id')
@@ -72,6 +76,7 @@ import {
 			.addSelect('SUM(combined.total_revenue)', 'total_revenue')
 			.addSelect('SUM(combined.total_commission)', 'total_commission')
 			.addSelect('MAX(combined.updated_at)', 'updated_at') // Get the latest referral date
+			.addSelect('MIN(combined.created_at)', 'created_at')
 			.addSelect(`
 			CASE 
 			WHEN program.referral_key_type = 'email' THEN contact.email 
@@ -122,6 +127,9 @@ export class ReferralView {
 	@Column('decimal', { name: 'total_commission' })
 	totalCommission: number;
 
-	@CreateDateColumn({ type: 'timestamp with time zone', name: 'updated_at' })
+	@CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })
+	createdAt: Date;
+
+	@UpdateDateColumn({ type: 'timestamp with time zone', name: 'updated_at' })
 	updatedAt: Date;
 }
