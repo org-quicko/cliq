@@ -26,7 +26,7 @@ import { UserConverter } from '../converters/user.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { CommissionConverter } from '../converters/commission.converter';
-import { userRoleEnum, statusEnum } from '../enums';
+import { userRoleEnum, statusEnum, visibilityEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from 'src/converters/signUp.converter';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -151,19 +151,21 @@ export class ProgramService {
 	 */
 	async getProgramEntity(
 		programId: string,
-		relations?: FindOptionsRelations<Program>,
+		whereOptions: FindOptionsWhere<Program> = {},
+		relations: FindOptionsRelations<Program> = {},
 	) {
 		this.logger.info('START: getProgramEntity service');
 
 		const programResult = await this.programRepository.findOne({
-			where: { programId: programId },
+			where: { 
+				programId,
+				...whereOptions
+			},
 			relations,
 		});
 
 		if (!programResult) {
-			throw new NotFoundException(
-				`Error. Program ${programId} not found.`,
-			);
+			throw new NotFoundException(`Error. Program ${programId} not found.`);
 		}
 
 		this.logger.info('END: getProgramEntity service');
