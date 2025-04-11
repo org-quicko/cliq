@@ -117,61 +117,38 @@ export class PromoterService {
 	 * Create promoter
 	 */
 	async createPromoter(
-		memberId: string,
 		programId: string,
 		body: CreatePromoterDto,
+		memberId?: string,
 	) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: createPromoter service');
-
-			const memberResult = await this.memberService.getMemberEntity(memberId);
-
-			if (await this.memberService.memberExistsInAnyPromoter(memberResult.email, programId)) {
-				this.logger.error(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
-				throw new UnauthorizedException(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
-			}
-
+			
 			const promoterRepository = manager.getRepository(Promoter);
-			const programPromoterRepository = manager.getRepository(ProgramPromoter);
-			const promoterMemberRepository = manager.getRepository(PromoterMember);
-			const circleRepository = manager.getRepository(Circle);
-			const circlePromoterRepository = manager.getRepository(CirclePromoter);
-
 			const promoterEntity = promoterRepository.create(body);
 			const savedPromoter = await promoterRepository.save(promoterEntity);
 
-			// set creator member to admin
-			await promoterMemberRepository.save({
-				memberId,
-				promoterId: savedPromoter.promoterId,
-				role: memberRoleEnum.ADMIN,
-			});
+			// in case it's a member creating the promoter, set them to admin
+			// but if it's a user, simply the promoter will be created 
+			if (memberId) {
+				const memberResult = await this.memberService.getMemberEntity(memberId);
+	
+				if (await this.memberService.memberExistsInAnyPromoter(memberResult.email, programId)) {
+					this.logger.error(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
+					throw new UnauthorizedException(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
+				}
 
-			// add to program's default circle
-			const defaultCircle = await circleRepository.findOne({
-				where: {
-					program: {
-						programId,
-					},
-					isDefaultCircle: true,
-				},
-			});
-
-			if (!defaultCircle) {
-				this.logger.error(
-					`Error. Default Circle not found for Program ${programId}`,
-				);
-				throw new InternalServerErrorException(
-					`Error. Default Circle not found for Program ${programId}`,
-				);
+				const promoterMemberRepository = manager.getRepository(PromoterMember);
+				
+				// set creator member to admin
+				await promoterMemberRepository.save({
+					memberId,
+					promoterId: savedPromoter.promoterId,
+					role: memberRoleEnum.ADMIN,
+				});
 			}
 
-			await circlePromoterRepository.save({
-				circleId: defaultCircle.circleId,
-				promoterId: savedPromoter.promoterId,
-			});
-
-			const promoterDto = this.promoterConverter.convert(savedPromoter);
+			const promoterDto = this.promoterConverter.convert(savedPromoter, false);
 			this.logger.info('END: createPromoter service');
 			return promoterDto;
 		});
@@ -213,20 +190,70 @@ export class PromoterService {
 		return promoterDto;
 	}
 
-	async registerForProgram(programId: string, promoterId: string) {
-		this.logger.info(`START: registerForProgram service`);
+	async registerForProgram(acceptedTermsAndConditions: boolean, programId: string, promoterId: string) {
+		return this.datasource.transaction(async (manager) => {
 
-		if (await this.programPromoterRepository.findOne({ where: { programId, promoterId } })) {
-			this.logger.error(`Error. Promoter is already part of program!`);
-			throw new ConflictException(`Error. Promoter is already part of program!`);
-		}
+			this.logger.info(`START: registerForProgram service`);
+	
+			const isPublic = !(await this.programService.isProgramPublic(programId));
 
-		await this.programPromoterRepository.save({
-			programId,
-			promoterId,
+			const promoterRepository = manager.getRepository(Promoter);
+			const programPromoterRepository = manager.getRepository(ProgramPromoter);
+			const circleRepository = manager.getRepository(Circle);
+			const circlePromoterRepository = manager.getRepository(CirclePromoter);
+	
+			if (!isPublic) {
+				this.logger.error(`Error. Cannot signup to a private program`);
+				throw new BadRequestException(`Error. Cannot signup to a private program`);
+	
+			} else {
+				const programPromoter = await programPromoterRepository.findOne({ where: { programId, promoterId } });
+				if (programPromoter && programPromoter.acceptedTermsAndConditions) {
+					this.logger.error(`Error. Promoter is already part of program!`);
+					throw new ConflictException(`Error. Promoter is already part of program!`);
+				}
+			}
+	
+			if (!acceptedTermsAndConditions) {
+				this.logger.warn(`Warning. Promoter has not accepted terms and conditions.`);
+			} else {
+				// add to program's default circle
+				const defaultCircle = await circleRepository.findOne({
+					where: {
+						program: {
+							programId,
+						},
+						isDefaultCircle: true,
+					},
+				});
+
+				if (!defaultCircle) {
+					this.logger.error(
+						`Error. Default Circle not found for Program ${programId}`,
+					);
+					throw new InternalServerErrorException(
+						`Error. Default Circle not found for Program ${programId}`,
+					);
+				}
+	
+				await circlePromoterRepository.save({
+					circleId: defaultCircle.circleId,
+					promoterId,
+				});
+			}
+	
+			await programPromoterRepository.save({
+				programId,
+				promoterId,
+				acceptedTermsAndConditions
+			});
+
+			const promoter = await promoterRepository.findOneOrFail({ where: { promoterId } });
+			const promoterDto = this.promoterConverter.convert(promoter, acceptedTermsAndConditions);
+
+			this.logger.info(`END: registerForProgram service`);
+			return promoterDto;
 		});
-
-		this.logger.info(`END: registerForProgram service`);
 	}
 
 	/**
