@@ -1,4 +1,5 @@
 import {
+	Column,
 	CreateDateColumn,
 	Entity,
 	JoinColumn,
@@ -16,6 +17,9 @@ export class ProgramPromoter {
 
 	@PrimaryColumn('uuid', { name: 'promoter_id' })
 	promoterId: string;
+
+	@Column('boolean', { name: 'accepted_terms_and_conditions', default: false })
+	acceptedTermsAndConditions: boolean;
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',
