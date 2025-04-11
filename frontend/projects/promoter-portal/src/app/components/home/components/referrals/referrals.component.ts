@@ -17,26 +17,29 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { SkeletonLoadTableComponent } from '../../../common/skeleton-load-table/skeleton-load-table.component';
 import { TableRowStyling } from '../../../../interfaces';
+import { LabelChipComponent } from "../../../common/label-chip/label-chip.component";
+import { PromoterStore } from '../../../../store/promoter.store';
 
 @Component({
 	selector: 'app-referrals',
 	imports: [
-		MatFormFieldModule,
-		MatInputModule,
-		FormsModule,
-		MatButtonModule,
-		MatIconModule,
-		MatTableModule,
-		MatSortModule,
-		MatChipsModule,
-		MatRippleModule,
-		MatPaginatorModule,
-		NgClass,
-		TitleCasePipe,
-		OrdinalDatePipe,
-		FormatCurrencyPipe,
-		SkeletonLoadTableComponent
-	],
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTableModule,
+    MatSortModule,
+    MatChipsModule,
+    MatRippleModule,
+    MatPaginatorModule,
+    NgClass,
+    TitleCasePipe,
+    OrdinalDatePipe,
+    FormatCurrencyPipe,
+    SkeletonLoadTableComponent,
+    LabelChipComponent
+],
 	providers: [ReferralStore],
 	templateUrl: './referrals.component.html',
 	styleUrl: './referrals.component.scss'
@@ -46,6 +49,10 @@ export class ReferralsComponent implements OnInit {
 	readonly referralStore = inject(ReferralStore);
 
 	readonly programStore = inject(ProgramStore);
+	readonly promoterStore = inject(PromoterStore);
+
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
 
 	readonly program = computed(() => this.programStore.program());
 
@@ -72,9 +79,9 @@ export class ReferralsComponent implements OnInit {
 		return referrals ? referrals.length() : 0;
 	});
 
-	sortOptions = signal<{ active: referralSortByEnum, direction: 'asc' | 'desc' }>({
-		active: referralSortByEnum.UPDATED_AT,
-		direction: 'asc',
+	sortOptions = signal<{ active: 'updated at', direction: 'asc' | 'desc' }>({
+		active: 'updated at',
+		direction: 'desc',
 	});
 
 	paginationOptions = signal<PaginationOptions>({
@@ -157,18 +164,22 @@ export class ReferralsComponent implements OnInit {
 		const skip = pageIndex * pageSize;
 
 		this.referralStore.getPromoterReferrals({
-			sortBy: this.sortOptions().active,
+			sortBy: referralSortByEnum.UPDATED_AT ,
 			sortOrder: this.sortOptions().direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING,
 			skip,
 			take: pageSize,
-			isSorting
+			isSorting,
+
+			programId: this.programId(),
+			promoterId: this.promoterId()
+
 		});
 	}
 
 	onSortChange(event: Sort) {
 		this.paginationOptions.set({ pageSize: 5, pageIndex: 0 });
 		this.referralStore.resetLoadedPages();
-		this.sortOptions.set({ active: event.active as referralSortByEnum, direction: event.direction as 'asc' | 'desc' });
+		this.sortOptions.set({ active: event.active as 'updated at', direction: event.direction as 'asc' | 'desc' });
 
 		this.loadReferrals(true);
 	}
@@ -202,7 +213,7 @@ export class ReferralsComponent implements OnInit {
 		}
 	}
 
-	onClickReferral(contactId: string, contactInfo: string) {
+	onClickReferral(contactId: string) {
 		this.router.navigate([`./referrals/${contactId}/commissions`], { relativeTo: this.route });
 	}
 

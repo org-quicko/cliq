@@ -5,7 +5,7 @@
 	</div>
 
 	<!-- Search bar -->
-	<mat-form-field [appearance]="'outline'" class="flex w-full rounded-[4px]" (keydown.enter)="onSearch()">
+	<!-- <mat-form-field [appearance]="'outline'" class="flex w-full rounded-[4px]" (keydown.enter)="onSearch()">
 
 		<button matPrefix mat-icon-button aria-label="Search" class="w-10 h-10 gap-[10px]">
 			<mat-icon>search</mat-icon>
@@ -20,13 +20,13 @@
 			<mat-icon>close</mat-icon>
 		</button>
 		}
-	</mat-form-field>
+	</mat-form-field> -->
 
 	<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
 		@if (isLoading()) {
 		<app-skeleton-load-table
 			[maxHeight]="'548px'"
-			[rowCount]="4"
+			[rowCount]="5"
 			headerClass="flex gap-5 px-4"
 			rowClass="flex gap-5 px-4"
 			[headers]="headersStyling"
@@ -34,13 +34,18 @@
 		/>
 		}
 		@else {
-		<table mat-table matSort [dataSource]="dataSource" class="w-full h-auto max-h-[548px] bg-transparent"
-			[matSortActive]="'updated at'" [matSortActive]="sortOptions().active"
-			[matSortDirection]="sortOptions().direction" (matSortChange)="onSortChange($event)"
-			[matSortDisableClear]="true">
-			<!-- Define columns dynamically -->
+		<table
+			mat-table
+			matSort
+			[dataSource]="dataSource"
+			class="w-full h-auto max-h-[548px] bg-transparent"
+			[matSortActive]="sortOptions().active"
+			[matSortDirection]="sortOptions().direction"
+			(matSortChange)="onSortChange($event)"
+			[matSortDisableClear]="true"
+		>
 			<ng-container matColumnDef="referral">
-				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-[344px]">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-[344px]">
 					Referral
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index"
@@ -49,7 +54,7 @@
 				</td>
 			</ng-container>
 			<ng-container matColumnDef="commission">
-				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-[180px]">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-[180px]">
 					Commission
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface w-[180px]">
@@ -57,7 +62,7 @@
 				</td>
 			</ng-container>
 			<ng-container matColumnDef="revenue">
-				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-[180px]">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-[180px]">
 					Revenue
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index"
@@ -66,8 +71,13 @@
 				</td>
 			</ng-container>
 			<ng-container matColumnDef="updated at">
-				<th mat-header-cell *matHeaderCellDef mat-sort-header
-					class="mat-body-medium text-outline select-none w-60">
+				<th
+					mat-header-cell
+					mat-sort-header
+					[class.hide-sort-arrow]="!totalDataLength()"
+					*matHeaderCellDef
+					class="mat-body-medium text-outline w-60"
+				>
 					Updated At
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant w-60">
@@ -75,21 +85,21 @@
 				</td>
 			</ng-container>
 			<ng-container matColumnDef="status">
-				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline select-none w-28">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-28">
 					Status
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface w-28">
-					<mat-chip
-						[class]="`!p-0  gap-1 justify-center border-0 ${getCellValue(row, 'status') === 'active' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container text-on-surface'}`">
-						{{ convertToReferralRow(row).getStatus() | titlecase }}
-					</mat-chip>
+					<app-label-chip
+						[text]="convertToReferralRow(row).getStatus()"
+						[textAndBgColorStyle]="getCellValue(row, 'status') === 'active' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container text-on-surface'"
+					/>
 				</td>
 			</ng-container>
 
 			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 			<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
 				class="hover:bg-surface-container hover:cursor-pointer h-[76px] px-4 py-3"
-				(click)="onClickReferral(getCellValue(row, 'contact id'), getCellValue(row, 'referral'))">
+				(click)="onClickReferral(getCellValue(row, 'contact id'))">
 			</tr>
 
 			<tr class="empty-row" *matNoDataRow>
