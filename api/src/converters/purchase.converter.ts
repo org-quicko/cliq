@@ -45,7 +45,7 @@ export class PurchaseConverter {
 	}
 
 	/** For getting purchases data for the promoter */
-	convertToSheetJson(purchases: Purchase[], queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterWorkbook {
+	convertToSheetJson(purchases: Purchase[]): PromoterWorkbook {
 
 		const purchaseTable = new PromoterPurchaseTable();
 		purchases.forEach((purchase) => {
@@ -64,9 +64,9 @@ export class PurchaseConverter {
 			purchaseTable.addRow(newPurchaseRow);
 		});
 
-		purchaseTable.metadata = new JSONObject({
-			...queryOptions
-		});
+		// purchaseTable.metadata = new JSONObject({
+		// 	...queryOptions
+		// });
 
 		const purchaseSheet = new PromoterPurchaseSheet();
 		purchaseSheet.addPurchaseTable(purchaseTable);
@@ -99,6 +99,9 @@ export class PurchaseConverter {
 			purchase.contact.commissions.forEach((commission) => {
 				commissionAmount += Number(commission.amount);
 			});
+
+			// console.log(purchase);
+			// console.log(`${commissionAmount} for contact ${purchase.contact.contactId}`);
 
 			totalCommission += Number(commissionAmount);
 			totalRevenue += Number(purchase.amount);

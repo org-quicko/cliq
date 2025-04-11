@@ -45,7 +45,7 @@ export class SignUpConverter {
 	}
 
 	/** For getting signups data for the promoter */
-	convertToSheetJson(signUps: SignUp[], queryOptions: QueryOptionsInterface = defaultQueryOptions): PromoterWorkbook {
+	convertToSheetJson(signUps: SignUp[]): PromoterWorkbook {
 		const signUpTable = new PromoterSignupTable();
 
 		signUps.forEach((signUp) => {
@@ -60,10 +60,6 @@ export class SignUpConverter {
 			row.setCreatedAt(signUp.createdAt.toISOString());
 
 			signUpTable.addRow(row);
-		});
-
-		signUpTable.metadata = new JSONObject({
-			...queryOptions
 		});
 
 		const signUpSheet = new PromoterSignupSheet();
