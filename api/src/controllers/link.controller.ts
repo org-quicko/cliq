@@ -83,23 +83,27 @@ export class LinkController {
 		@Param('link_id') linkId: string,
 	) {
 		this.logger.info('START: getLink controller');
-
-		const result = await this.linkService.getLink(linkId);
-
+		
+		const result = await this.linkService.getLink(programId, promoterId, linkId);
+		
 		this.logger.info('END: getLink controller');
 		return { message: `Successfully fetched link ${linkId}.`, result };
 	}
-
+	
 	/**
 	 * Delete a link
-	 */
+	*/
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('delete', Link)
 	@Patch(':link_id')
-	async deleteALink(@Param('link_id') linkId: string) {
-		this.logger.info('START: deleteALink controller');
+	async deleteLink(
+		@Param('program_id') programId: string,
+		@Param('promoter_id') promoterId: string,
+		@Param('link_id') linkId: string
+	) {
+		this.logger.info('START: deleteLink controller');
 
-		await this.linkService.deleteLink(linkId);
+		await this.linkService.deleteLink(programId, promoterId, linkId);
 
 		this.logger.info('END: deleteLink controller');
 		return { message: 'Successfully deleted link.' };
