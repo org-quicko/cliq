@@ -583,48 +583,6 @@ export class PromoterService {
 		return signUpsResult;
 	}
 
-	//  * Get contacts for promoter
-	//  */
-	async getContactsForPromoter(
-		programId: string,
-		promoterId: string,
-		queryOptions: QueryOptionsInterface = defaultQueryOptions,
-	) {
-		this.logger.info('START: getContactsForPromoter service');
-
-		const contacts = await this.contactRepository
-			.createQueryBuilder('contact')
-			.leftJoinAndSelect('contact.program', 'program')
-			.leftJoinAndSelect('contact.purchases', 'purchase')
-			.leftJoinAndSelect('contact.signup', 'signup')
-			.where('program.program_id = :programId', { programId })
-			.andWhere(
-				new Brackets((qb) => {
-					qb.where('purchase.promoter_id = :promoterId', {
-						promoterId,
-					}).orWhere('signup.promoter_id = :promoterId', {
-						promoterId,
-					});
-				}),
-			)
-			.skip(queryOptions.skip)
-			.take(queryOptions.take)
-			.getMany();
-
-		if (!contacts) {
-			this.logger.warn(
-				`failed to get contacts for promoter ${promoterId}`,
-			);
-		}
-
-		const contactDtos = contacts.map((contact) =>
-			this.contactConverter.convert(contact),
-		);
-
-		this.logger.info('END: getContactsForPromoter service');
-		return contactDtos;
-	}
-
 	/**
 	 * Get purchases for promoter
 	 */
