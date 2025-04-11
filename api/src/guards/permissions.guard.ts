@@ -24,8 +24,6 @@ export class PermissionsGuard implements CanActivate {
 
 		private memberService: MemberService,
 
-		private apiKeyService: ApiKeyService,
-
 		private logger: LoggerService,
 	) { }
 

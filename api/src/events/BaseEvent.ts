@@ -1,6 +1,4 @@
-import { InternalServerErrorException } from '@nestjs/common';
 import { Expose } from 'class-transformer';
-import { eventTypePrefix } from 'src/constants';
 import { v4 as uuidv4 } from 'uuid';
 
 export abstract class BaseEvent {
@@ -47,9 +45,6 @@ export abstract class BaseEvent {
         this.data = data;
         this.subject = subject;
 
-        // if (!type.startsWith(eventTypePrefix)) {
-        //     throw new InternalServerErrorException(`Error. Event type must always start with ${eventTypePrefix}`);
-        // }
     }
 
 }
