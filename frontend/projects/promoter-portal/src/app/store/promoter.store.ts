@@ -50,12 +50,12 @@ export const PromoterStore = signalStore(
 				patchState(store, { status });
 			},
 
-			updatePromoterInfo: rxMethod<UpdatePromoterDto>(
+			updatePromoterInfo: rxMethod<{ updatedInfo: UpdatePromoterDto, programId: string, promoterId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap((updatedInfo) => {
-						return promoterService.updatePromoterInfo(updatedInfo).pipe(
+					switchMap(({ updatedInfo, programId, promoterId, }) => {
+						return promoterService.updatePromoterInfo(programId, promoterId, updatedInfo).pipe(
 							tapResponse({
 								next(response) {
 									const promoterDto = plainToInstance(PromoterDto, response.data);
@@ -73,12 +73,12 @@ export const PromoterStore = signalStore(
 				)
 			),
 
-			removeMember: rxMethod<{ memberId: string }>(
+			removeMember: rxMethod<{ memberId: string, programId: string, promoterId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(({ memberId }) => {
-						return promoterService.removeMember(memberId).pipe(
+					switchMap(({ memberId, programId, promoterId, }) => {
+						return promoterService.removeMember(programId, promoterId, memberId).pipe(
 							tapResponse({
 								next(response) {
 									console.log(response.data);
@@ -94,10 +94,10 @@ export const PromoterStore = signalStore(
 				)
 			),
 
-			deletePromoter: rxMethod<void>(
+			deletePromoter: rxMethod<{ programId: string, promoterId: string }>(
 				pipe(
-					switchMap(() => {
-						return promoterService.deletePromoter().pipe(
+					switchMap(({ programId, promoterId, }) => {
+						return promoterService.deletePromoter(programId, promoterId).pipe(
 							tapResponse({
 								next(response) {
 									console.log(response);
