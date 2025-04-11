@@ -645,7 +645,7 @@ export class PromoterService {
 		sortBy?: referralSortByEnum,
 		sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
 		toUseSheetJsonFormat: boolean = true,
-		whereOptions: FindOptionsWhere<Purchase> = {},
+		whereOptions: FindOptionsWhere<ReferralView> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info(`START: getPromoterReferrals service`);
@@ -806,7 +806,7 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const filter = {
-			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
 				start: startDate.toISOString(),
 				end: endDate.toISOString(),
 			})
@@ -864,14 +864,14 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const filter = {
-			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
 				start: startDate.toISOString(),
 				end: endDate.toISOString(),
 			})
 		};
 
-
 		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
+
 
 		const promoterResult = await this.getPromoterEntity(promoterId);
 
@@ -925,7 +925,7 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const filter = {
-			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
 				start: startDate.toISOString(),
 				end: endDate.toISOString(),
 			})
@@ -968,7 +968,7 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const filter = {
-			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
 				start: startDate.toISOString(),
 				end: endDate.toISOString(),
 			})
@@ -1041,7 +1041,7 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const filter = {
-			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
+			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
 				start: startDate.toISOString(),
 				end: endDate.toISOString(),
 			})
@@ -1182,7 +1182,7 @@ export class PromoterService {
 				website: programResult.website,
 				count
 			});
-			this.logger.info(`START: getPromoterLinkStatistics service: Returning Workbook`);
+			this.logger.info(`START: getPromoterLinkAnalytics service: Returning Workbook`);
 			return promoterWorkbook;
 		}
 
