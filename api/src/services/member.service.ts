@@ -123,7 +123,7 @@ export class MemberService {
 		return memberResult;
 	}
 
-	async getMemberByEmail(programId: string, email: string): Promise<Member | null> {
+	async getMemberByEmail(programId: string, email: string, whereOptions: FindOptionsWhere<Member> = {}): Promise<Member | null> {
 		this.logger.info('START: getMemberByEmail service');
 		const memberResult = await this.memberRepository.findOne({
 			where: {
@@ -131,6 +131,7 @@ export class MemberService {
 				program: {
 					programId
 				},
+				...whereOptions,
 			},
 			relations: { promoterMembers: true },
 		});
