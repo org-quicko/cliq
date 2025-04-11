@@ -21,8 +21,6 @@ export class LinkService {
 	constructor(
 		@InjectRepository(Link)
 		private readonly linkRepository: Repository<Link>,
-		
-
 
 		private programService: ProgramService,
 		private promoterService: PromoterService,
@@ -43,7 +41,7 @@ export class LinkService {
 		await this.promoterService.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const program = await this.programService.getProgram(programId);
-		const promoter = await this.promoterService.getPromoter(promoterId);
+		const promoter = await this.promoterService.getPromoter(programId, promoterId);
 
 		if (!program) {
 			this.logger.warn('Failed to find program');
@@ -130,6 +128,7 @@ export class LinkService {
 		relations?: FindOptionsRelations<Link>,
 	) {
 		this.logger.info('START: getLinkEntity service');
+
 		const linkResult = await this.linkRepository.findOne({
 			where: { linkId },
 			relations,
