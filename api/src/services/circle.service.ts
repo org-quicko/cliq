@@ -133,44 +133,38 @@ export class CircleService {
 	 * Get all Promoters
 	 */
 	async getAllPromoters(
+		programId: string,
 		circleId: string,
 		whereOptions: FindOptionsWhere<Circle> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllPromoters service');
 
-		const promoters = await this.circlePromoterRepository.find({
+		const circlePromoters = await this.circlePromoterRepository.find({
 			where: {
 				circle: {
 					circleId,
+					programId,
 				},
 				...whereOptions,
 			},
 			relations: {
-				promoter: true,
-			},
-			select: {
-				promoter: {
-					name: true,
-					promoterId: true,
-					createdAt: true,
-					updatedAt: true,
-				},
+				promoter: true
 			},
 			...queryOptions,
 		});
 
-		if (!promoters) {
-			this.logger.warn(`Failed to get promoters for circle ${circleId}`);
+		if (!circlePromoters || circlePromoters.length === 0) {
+			this.logger.warn(`No promoters found for Circle ${circleId}`);
 			throw new NotFoundException(
-				`Failed to get promoters for circle_id: ${circleId}`,
+				`No promoters found for Circle ${circleId}`,
 			);
 		}
 
+		const promotersDto = circlePromoters.map((circlePromoter) => this.promoterConverter.convert(circlePromoter.promoter, true));
+		
 		this.logger.info('END: getAllPromoters service');
-		return promoters.map((value) =>
-			this.promoterConverter.convert(value.promoter),
-		);
+		return promotersDto;
 	}
 
 	/**

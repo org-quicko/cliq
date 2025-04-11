@@ -92,6 +92,7 @@ export class CircleController {
 	@Permissions('read', Circle)
 	@Get(':circle_id/promoters')
 	async getAllPromoters(
+		@Param('program_id') programId: string,
 		@Param('circle_id') circleId: string,
 		@Query('promoter_name') name?: string,
 		@Query('skip') skip: number = 0,
@@ -100,6 +101,7 @@ export class CircleController {
 		this.logger.info('START: getAllPromoters controller');
 
 		const result = await this.circleService.getAllPromoters(
+			programId,
 			circleId,
 			{
 				name,
