@@ -38,7 +38,17 @@ export const LinkCommissionsStore = signalStore(
 			snackBarService = inject(SnackbarService)
 		) => ({
 
-			getLinkCommissions: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: commissionSortByEnum, linkId: string, skip?: number, take?: number, isSorting?: boolean }>(
+			getLinkCommissions: rxMethod<{
+				sortOrder?: sortOrderEnum,
+				sortBy?: commissionSortByEnum,
+				linkId: string,
+				skip?: number,
+				take?: number,
+				isSorting?: boolean,
+
+				programId: string,
+				promoterId: string,
+			}>(
 				pipe(
 					tap(({ isSorting }) => {
 						if (!isSorting) {
@@ -46,7 +56,7 @@ export const LinkCommissionsStore = signalStore(
 						}
 					}),
 
-					switchMap(({ sortBy, sortOrder, linkId, skip, take, isSorting }) => {
+					switchMap(({ sortBy, sortOrder, linkId, skip, take, isSorting, programId, promoterId }) => {
 
 						const page = Math.floor((skip ?? 0) / (take ?? 5));
 
@@ -55,7 +65,7 @@ export const LinkCommissionsStore = signalStore(
 							return of(store.commissions()); // ✅ skip request if page already loaded
 						}
 
-						return promoterService.getPromoterCommissions({ sort_by: sortBy, sort_order: sortOrder, link_id: linkId, skip, take }).pipe(
+						return promoterService.getPromoterCommissions(programId, promoterId, { sort_by: sortBy, sort_order: sortOrder, link_id: linkId, skip, take }).pipe(
 							tapResponse({
 								next: (response) => {
 									const commissionsTable = plainToInstance(PromoterWorkbook, response.data).getCommissionSheet().getCommissionTable()
@@ -100,12 +110,12 @@ export const LinkCommissionsStore = signalStore(
 				patchState(store, { loadedPages: new Set(), commissions: null, link: store.link() });
 			},
 
-			getLink: rxMethod<{ linkId: string }>(
+			getLink: rxMethod<{ linkId: string, programId: string, promoterId: string,  }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(({ linkId }) => {
-						return linkService.getLink(linkId).pipe(
+					switchMap(({ linkId, programId, promoterId }) => {
+						return linkService.getLink(programId, promoterId, linkId).pipe(
 							tapResponse({
 								next(response) {
 									patchState(store, {

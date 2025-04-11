@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MemberSortOptions, TableRowStyling } from '../../../../../../interfaces';
 import { SkeletonLoadTableComponent } from '../../../../../common/skeleton-load-table/skeleton-load-table.component';
+import { PromoterStore } from '../../../../../../store/promoter.store';
 
 @Component({
 	selector: 'app-link-commissions',
@@ -60,8 +61,12 @@ export class LinkCommissionsComponent implements OnInit {
 		pageSize: 5,
 	});
 
-	readonly programStore = inject(ProgramStore);
 	readonly linkCommissionsStore = inject(LinkCommissionsStore);
+	readonly programStore = inject(ProgramStore);
+	readonly promoterStore = inject(PromoterStore);
+
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
 
 	readonly link = computed(() => this.linkCommissionsStore.link());
 	readonly program = computed(() => this.programStore.program());
@@ -147,7 +152,11 @@ export class LinkCommissionsComponent implements OnInit {
 		const linkId = this.route.snapshot.paramMap.get('link_id');
 		if (linkId) {
 			this.loadLinkCommissions();
-			this.linkCommissionsStore.getLink({ linkId });
+			this.linkCommissionsStore.getLink({
+				linkId,
+				programId: this.programId(),
+				promoterId: this.promoterId(),
+			});
 		} else {
 			console.error('No link_id found in route.');
 		}
@@ -166,7 +175,11 @@ export class LinkCommissionsComponent implements OnInit {
 				linkId,
 				skip,
 				take: pageSize,
-				isSorting
+				isSorting,
+
+				programId: this.programId(),
+				promoterId: this.promoterId()
+
 			});
 		} else {
 			console.error('No link_id found in route.');
