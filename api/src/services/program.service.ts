@@ -172,6 +172,22 @@ export class ProgramService {
 		return programResult;
 	}
 
+	async isProgramPublic(programId: string): Promise<boolean> {
+		this.logger.info('START: isProgramPublic service');
+
+		const program = await this.programRepository.findOne({ 
+			where: {
+				programId,
+				visibility: visibilityEnum.PUBLIC
+			} 
+		});
+
+		const isPublic = (program === undefined || program === null);
+
+		this.logger.info('START: isProgramPublic service');
+		return isPublic;
+	}
+
 	/**
 	 * Update program
 	 */
