@@ -1,5 +1,5 @@
 import { OnEvent } from "@nestjs/event-emitter";
-import { BaseEvent, COMMISSION_CREATED } from "../events";
+import { BaseEvent, COMMISSION_CREATED, PURCHASE_CREATED, SIGNUP_CREATED } from "../events";
 import { LoggerService } from "./logger.service";
 import { generateSignature } from "../utils";
 import { InjectQueue } from "@nestjs/bullmq";
@@ -39,12 +39,14 @@ export class WebhookPublisherService {
     }
 
     @OnEvent(COMMISSION_CREATED)
+    @OnEvent(SIGNUP_CREATED)
+    @OnEvent(PURCHASE_CREATED)
     private async handleEvent(event: BaseEvent): Promise<void> {
         this.logger.info(`START: handleEvent service`);
 
         // get the program's webhooks
         const webhooks = await this.getWebhooksForEvent(event.programId, event.type.split('org.quicko.cliq.')[1]);
-        this.logger.info(`Dispatching event "${event}" to ${webhooks.length} webhook(s)`);
+        this.logger.info(`Dispatching event "${event.type}" to ${webhooks.length} webhook(s)`);
 
         for (const webhook of webhooks) {
 
@@ -56,7 +58,10 @@ export class WebhookPublisherService {
                 { url: webhook.url, event, signature },
                 {
                     attempts: 3, // Retry up to 3 times on failure.
-                    backoff: { type: 'exponential', delay: 2000 },
+                    backoff: { 
+                        type: 'exponential', 
+                        delay: 2000,
+                    },
                     removeOnComplete: true, //  removes a job once it is completed
                     removeOnFail: 10, // keep the last 10 failed jobs
                 },
