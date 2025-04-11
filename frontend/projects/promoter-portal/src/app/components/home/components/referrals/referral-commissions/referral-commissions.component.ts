@@ -8,27 +8,31 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReferralCommissionsStore } from './store/referralCommissions.store';
 import { CommissionRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum } from '@org.quicko.cliq/ngx-core';
+import { commissionSortByEnum, FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
 import { MatButtonModule } from '@angular/material/button';
 import { ProgramStore } from '../../../../../store/program.store';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { SkeletonLoadTableComponent } from '../../../../common/skeleton-load-table/skeleton-load-table.component';
+import { TableRowStyling } from '../../../../../interfaces';
+import { LabelChipComponent } from "../../../../common/label-chip/label-chip.component";
+import { PromoterStore } from '../../../../../store/promoter.store';
 
 @Component({
 	selector: 'app-referral-commissions',
 	imports: [
-		MatIconModule,
-		MatButtonModule,
-		MatTableModule,
-		MatSortModule,
-		MatChipsModule,
-		MatRippleModule,
-		MatPaginatorModule,
-		TitleCasePipe,
-		OrdinalDatePipe,
-		FormatCurrencyPipe,
-		SkeletonLoadTableComponent,
-	],
+    MatIconModule,
+    MatButtonModule,
+    MatTableModule,
+    MatSortModule,
+    MatChipsModule,
+    MatRippleModule,
+    MatPaginatorModule,
+    TitleCasePipe,
+    OrdinalDatePipe,
+    FormatCurrencyPipe,
+    SkeletonLoadTableComponent,
+    LabelChipComponent
+],
 	providers: [ReferralCommissionsStore],
 	templateUrl: './referral-commissions.component.html',
 	styleUrl: './referral-commissions.component.scss'
@@ -37,21 +41,25 @@ export class ReferralCommissionsComponent implements OnInit {
 	@ViewChild(MatSort) sort: MatSort;
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 
-	displayedColumns: string[] = ['created at', 'type', 'commission', 'revenue'];
+	displayedColumns: string[] = ['updated at', 'type', 'commission', 'revenue'];
 
 	dataSource: MatTableDataSource<CommissionRow> = new MatTableDataSource<CommissionRow>([]);
 
 	readonly programStore = inject(ProgramStore);
+	readonly promoterStore = inject(PromoterStore);
+
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
 
 	readonly referralCommissionsStore = inject(ReferralCommissionsStore);
 
 	readonly contact = computed(() => this.referralCommissionsStore.contact());
-
 	readonly currency = computed(() => this.programStore.program()?.currency);
+	readonly isLoading = computed(() => this.referralCommissionsStore.status() === Status.LOADING);
 
-	sortOptions = signal<{ active: referralSortByEnum, direction: 'asc' | 'desc' }>({
-		active: referralSortByEnum.UPDATED_AT,
-		direction: 'asc',
+	sortOptions = signal<{ active: 'updated at', direction: 'asc' | 'desc' }>({
+		active: 'updated at',
+		direction: 'desc',
 	});
 
 	paginationOptions = signal<PaginationOptions>({
@@ -64,6 +72,49 @@ export class ReferralCommissionsComponent implements OnInit {
 		const count = metadata ? metadata.get('count') : null;
 		return count ? Number(count) : 0; // Returns 0 if count is undefined
 	});
+
+	updatedAtCellLength = 'w-[25%]';
+	typeCellLength = 'w-[25%]';
+	commissionCellLength = 'w-[25%]';
+	revenueCellLength = 'w-[25%]';
+
+	headersStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.updatedAtCellLength} flex justify-start`,
+			theme: { width: '90px' }
+		},
+		{
+			parentTheme: `${this.typeCellLength} flex justify-center`,
+			theme: { width: '90px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength} flex justify-center`,
+			theme: { width: '70px' }
+		},
+		{
+			parentTheme: `${this.revenueCellLength} flex justify-center`,
+			theme: { width: '70px' }
+		},
+	];
+
+	rowsStyling: TableRowStyling[] = [
+		{
+			parentTheme: `${this.updatedAtCellLength} flex justify-start`,
+			theme: { width: '200px' }
+		},
+		{
+			parentTheme: `${this.typeCellLength} flex justify-center`,
+			theme: { width: '64px', height: '30px' }
+		},
+		{
+			parentTheme: `${this.commissionCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+		{
+			parentTheme: `${this.revenueCellLength} flex justify-center`,
+			theme: { width: '100px' }
+		},
+	];
 
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
@@ -81,10 +132,14 @@ export class ReferralCommissionsComponent implements OnInit {
 	ngOnInit(): void {
 		this.referralCommissionsStore.resetLoadedPages();
 		const contactId = this.route.snapshot.paramMap.get('contact_id');
-		
+
 		if (contactId) {
-			this.loadReferralCommissions();
-			this.referralCommissionsStore.getReferral({ contactId });
+			this.loadReferralCommissions(false);
+			this.referralCommissionsStore.getReferral({
+				contactId,
+				programId: this.programId(),
+				promoterId: this.promoterId()
+			});
 		} else {
 			console.error('No contact_id found in route.');
 		}
@@ -98,11 +153,15 @@ export class ReferralCommissionsComponent implements OnInit {
 		if (contactId) {
 			this.referralCommissionsStore.getReferralCommissions({
 				contactId,
-				sortBy: this.sortOptions().active,
+				sortBy: commissionSortByEnum.UPDATED_AT,
 				sortOrder: this.sortOptions().direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING,
 				skip,
 				take: pageSize,
-				isSorting
+				isSorting,
+
+				programId: this.programId(),
+				promoterId: this.promoterId()
+
 			});
 		} else {
 			console.error('No contact_id found in route.');
@@ -112,7 +171,7 @@ export class ReferralCommissionsComponent implements OnInit {
 	onSortChange(event: Sort) {
 		this.paginationOptions.set({ pageSize: 5, pageIndex: 0 });
 		this.referralCommissionsStore.resetLoadedPages();
-		this.sortOptions.set({ active: event.active as referralSortByEnum, direction: event.direction as 'asc' | 'desc' });
+		this.sortOptions.set({ active: event.active as 'updated at', direction: event.direction as 'asc' | 'desc' });
 
 		this.loadReferralCommissions(true);
 	}
