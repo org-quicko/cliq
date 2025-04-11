@@ -1165,6 +1165,7 @@ export class PromoterService {
 				programId,
 				promoterId,
 			},
+			...(sortBy && { order: { [sortBy as string]: sortOrder } }),
 			...queryOptions
 		});
 
@@ -1185,7 +1186,7 @@ export class PromoterService {
 			return promoterWorkbook;
 		}
 
-		this.logger.info(`END: getPromoterLinkStatistics service`);
+		this.logger.info(`END: getPromoterLinkAnalytics service`);
 		return linkStatsResult;
 	}
 

@@ -592,21 +592,25 @@ export class PromoterController {
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
 	@Permissions('read', Link)
-	@Get(':promoter_id/link_stats')
-	async getPromoterLinkStatistics(
+	@Get(':promoter_id/link_analytics')
+	async getPromoterLinkAnalytics(
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
+		@Query('sort_by') sortBy: linkSortByEnum.CREATED_AT,
+		@Query('sort_order') sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING, // latest first
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
-		this.logger.info('START: getPromoterLinkStatistics controller');
+		this.logger.info('START: getPromoterLinkAnalytics controller');
 
 		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
 
-		const result = await this.promoterService.getPromoterLinkStatistics(
+		const result = await this.promoterService.getPromoterLinkAnalytics(
 			programId,
 			promoterId,
+			sortBy,
+			sortOrder,
 			toUseSheetJsonFormat,
 			{
 				skip,
@@ -615,7 +619,7 @@ export class PromoterController {
 		);
 
 		this.logger.info('END: getPromoterLinkStatistics controller');
-		return { message: 'Successfully got promoter statistics.', result };
+		return { message: 'Successfully got promoter link analytics.', result };
 	}
 	/**
 	 * Get promoter statistics

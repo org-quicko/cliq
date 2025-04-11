@@ -7,6 +7,7 @@ export * from './conversionType.enum';
 export * from './dateFormat.enum';
 export * from './effect.enum';
 export * from './functionStatus.enum';
+export * from './linkSortBy.enum';
 export * from './linkStatus.enum';
 export * from './memberRole.enum';
 export * from './memberSortBy.enum';
