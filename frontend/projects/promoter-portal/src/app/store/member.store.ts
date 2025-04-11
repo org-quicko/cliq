@@ -53,12 +53,12 @@ export const MemberStore = signalStore(
 				patchState(store, { status });
 			},
 
-			updateMemberInfo: rxMethod<UpdateMemberDto>(
+			updateMemberInfo: rxMethod<{ updatedInfo: UpdateMemberDto, programId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap((updatedInfo) => {
-						return memberService.updateMemberInfo(updatedInfo).pipe(
+					switchMap(({ updatedInfo, programId }) => {
+						return memberService.updateMemberInfo(programId, updatedInfo).pipe(
 							tapResponse({
 								next(response) {
 									const memberDto = plainToInstance(MemberDto, response.data);
@@ -76,12 +76,12 @@ export const MemberStore = signalStore(
 				)
 			),
 
-			leavePromoter: rxMethod<void>(
+			leavePromoter: rxMethod<{ programId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(() => {
-						return memberService.leavePromoter().pipe(
+					switchMap(({ programId }) => {
+						return memberService.leavePromoter(programId).pipe(
 							tapResponse({
 								next(response) {
 									snackBarService.openSnackBar('Successfully left the promoter!', '');
@@ -90,6 +90,25 @@ export const MemberStore = signalStore(
 									console.error(error.message);
 									patchState(store, { status: Status.ERROR, error });
 									snackBarService.openSnackBar('Failed to leave the promoter', '');
+								},
+							})
+						)
+					})
+				)
+			),
+
+			deleteAccount: rxMethod<{ programId: string }>(
+				pipe(
+					tap(() => patchState(store, { status: Status.LOADING })),
+
+					switchMap(({ programId }) => {
+						return memberService.deleteAccount(programId).pipe(
+							tapResponse({
+								next(response) { },
+								error(error: HttpErrorResponse) {
+									console.error(error.message);
+									patchState(store, { status: Status.ERROR, error });
+									snackBarService.openSnackBar('Failed to delete account', '');
 								},
 							})
 						)
