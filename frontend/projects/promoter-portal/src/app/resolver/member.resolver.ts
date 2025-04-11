@@ -8,19 +8,22 @@ import { plainToInstance } from 'class-transformer';
 import { SnackbarService } from '@org.quicko/ngx-core';
 import { PermissionsService } from '../services/permission.service';
 import { Status } from '@org.quicko.cliq/ngx-core';
+import { ProgramStore } from '../store/program.store';
 
 @Injectable({ providedIn: 'root' })
 export class MemberResolver implements Resolve<Member> {
 	constructor() { }
 
 	readonly memberStore = inject(MemberStore);
-
+	readonly programStore = inject(ProgramStore);
 	readonly memberService = inject(MemberService);
 	readonly snackBarService = inject(SnackbarService);
 	readonly permissionService = inject(PermissionsService);
 
 	resolve(): Observable<MemberDto> {
-		return this.memberService.getMember().pipe(
+		const programId = this.programStore.program()!.programId;
+
+		return this.memberService.getMember(programId).pipe(
 			tap((response) => {
 				if (response.data) {
 					const member = plainToInstance(MemberDto, response.data);
@@ -32,9 +35,10 @@ export class MemberResolver implements Resolve<Member> {
 					}
 				}
 			}),
-			map((response) => plainToInstance(MemberDto, response.data?.promoter) ?? new MemberDto()),
+			map((response) => plainToInstance(MemberDto, response.data) ?? new MemberDto()),
 			catchError((error) => {
 				this.snackBarService.openSnackBar('Failed to get member', '');
+				console.error(error);
 				this.memberStore.setStatus(Status.ERROR, error);
 				return of(new MemberDto());
 			})
