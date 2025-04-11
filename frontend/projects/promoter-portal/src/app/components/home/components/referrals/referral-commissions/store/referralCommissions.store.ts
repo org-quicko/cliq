@@ -4,7 +4,7 @@ import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { of, pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
 import { plainToInstance } from "class-transformer";
-import { Status, SnackbarService, ContactDto, ReferralDto, sortOrderEnum, referralSortByEnum } from "@org.quicko.cliq/ngx-core";
+import { Status, SnackbarService, ContactDto, ReferralDto, sortOrderEnum, referralSortByEnum, commissionSortByEnum } from "@org.quicko.cliq/ngx-core";
 import { CommissionRow, CommissionTable, PromoterWorkbook } from "@org.quicko.cliq/ngx-core/generated/sources/Promoter";
 import { PromoterService } from "../../../../../../services/promoter.service";
 import { withDevtools } from "@angular-architects/ngrx-toolkit";
@@ -35,7 +35,17 @@ export const ReferralCommissionsStore = signalStore(
 			promoterService = inject(PromoterService),
 			snackBarService = inject(SnackbarService)
 		) => ({
-			getReferralCommissions: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: referralSortByEnum, contactId: string, skip?: number, take?: number, isSorting?: boolean }>(
+			getReferralCommissions: rxMethod<{
+				sortOrder?: sortOrderEnum,
+				sortBy?: commissionSortByEnum,
+				contactId: string,
+				skip?: number,
+				take?: number,
+				isSorting?: boolean,
+
+				programId: string,
+				promoterId: string,
+			}>(
 				pipe(
 					tap(({ isSorting }) => {
 						if (!isSorting) {
@@ -43,7 +53,7 @@ export const ReferralCommissionsStore = signalStore(
 						}
 					}),
 
-					switchMap(({ sortBy, sortOrder, contactId, skip, take, isSorting }) => {
+					switchMap(({ sortBy, sortOrder, contactId, skip, take, isSorting, programId, promoterId }) => {
 
 						const page = Math.floor((skip ?? 0) / (take ?? 5));
 
@@ -52,7 +62,7 @@ export const ReferralCommissionsStore = signalStore(
 							return of(store.commissions()); // ✅ skip request if page already loaded
 						}
 
-						return promoterService.getPromoterCommissions({ sort_by: sortBy, sort_order: sortOrder, contact_id: contactId, skip, take }).pipe(
+						return promoterService.getPromoterCommissions(programId, promoterId, { sort_by: sortBy, sort_order: sortOrder, contact_id: contactId, skip, take }).pipe(
 							tapResponse({
 								next: (response) => {
 									const commissionTable = plainToInstance(PromoterWorkbook, response.data).getCommissionSheet().getCommissionTable();
@@ -78,7 +88,8 @@ export const ReferralCommissionsStore = signalStore(
 									patchState(store, {
 										commissions: updatedMemberTable,
 										status: Status.SUCCESS,
-										loadedPages: updatedPages
+										loadedPages: updatedPages,
+										contact: store.contact(),
 									})
 								},
 								error: (error: HttpErrorResponse) => {
@@ -96,13 +107,13 @@ export const ReferralCommissionsStore = signalStore(
 			),
 
 			resetLoadedPages() {
-				patchState(store, { loadedPages: new Set(), commissions: null, contact: null });
+				patchState(store, { loadedPages: new Set(), commissions: null, contact: store.contact() });
 			},
 
-			getReferral: rxMethod<{ contactId: string }>(
+			getReferral: rxMethod<{ contactId: string, programId: string, promoterId: string, }>(
 				pipe(
-					switchMap(({ contactId }) => {
-						return promoterService.getPromoterReferral(contactId).pipe(
+					switchMap(({ contactId, programId, promoterId }) => {
+						return promoterService.getPromoterReferral(programId, promoterId, contactId).pipe(
 							tapResponse({
 								next: (response) => {
 									patchState(store, {

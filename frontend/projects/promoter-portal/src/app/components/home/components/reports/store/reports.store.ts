@@ -27,12 +27,21 @@ export const ReportsStore = signalStore(
 			snackbarService = inject(SnackbarService),
 		) => ({
 
-			getReport: rxMethod<{ report: reportEnum, reportPeriod?: reportPeriodEnum, startDate?: Date, endDate?: Date }>(
+			getReport: rxMethod<{
+				report: reportEnum,
+				reportPeriod?: reportPeriodEnum,
+				startDate?: Date,
+				endDate?: Date,
+
+				programId: string,
+				promoterId: string,
+			}>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(({ report, reportPeriod, startDate, endDate }) => {
+					switchMap(({ report, reportPeriod, startDate, endDate, programId, promoterId }) => {
 						return promoterService.getReport(
+							programId, promoterId,
 							report, {
 								report_period: reportPeriod,
 								start_date: startDate?.toISOString(),

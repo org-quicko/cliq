@@ -3,7 +3,6 @@ import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { of, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { LinkService } from '../../../../../services/link.service';
 import { plainToInstance } from 'class-transformer';
 import { PromoterService } from '../../../../../services/promoter.service';
 import { referralSortByEnum, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
@@ -12,7 +11,6 @@ import { ReferralTable, PromoterWorkbook, ReferralRow } from '@org.quicko.cliq/n
 
 export interface ReferralStoreState {
 	referrals: ReferralTable | null;
-	selectedContact: { contactId: string, contactInfo: string } | null;
 	rowsLength: number;
 	error: any | null;
 	status: Status;
@@ -21,7 +19,6 @@ export interface ReferralStoreState {
 
 export const initialReferralState: ReferralStoreState = {
 	referrals: null,
-	selectedContact: null,
 	error: null,
 	rowsLength: 0,
 	status: Status.PENDING,
@@ -38,7 +35,16 @@ export const ReferralStore = signalStore(
 			snackbarService = inject(SnackbarService),
 		) => ({
 
-			getPromoterReferrals: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: referralSortByEnum, skip?: number, take?: number, isSorting?: boolean }>(
+			getPromoterReferrals: rxMethod<{
+				sortOrder?: sortOrderEnum,
+				sortBy?: referralSortByEnum,
+				skip?: number,
+				take?: number,
+				isSorting?: boolean,
+
+				programId: string,
+				promoterId: string,
+			}>(
 				pipe(
 
 					tap(({ isSorting }) => {
@@ -47,7 +53,7 @@ export const ReferralStore = signalStore(
 						}
 					}),
 
-					switchMap(({ sortBy, sortOrder, skip, take, isSorting }) => {
+					switchMap(({ sortBy, sortOrder, skip, take, isSorting, programId, promoterId }) => {
 
 						const page = Math.floor((skip ?? 0) / (take ?? 5));
 
@@ -56,7 +62,7 @@ export const ReferralStore = signalStore(
 							return of(store.referrals());
 						}
 
-						return promoterService.getPromoterReferrals({ sort_by: sortBy, sort_order: sortOrder, skip, take }).pipe(
+						return promoterService.getPromoterReferrals(programId, promoterId, { sort_by: sortBy, sort_order: sortOrder, skip, take }).pipe(
 							tapResponse({
 								next: (response) => {
 									const referralTable = plainToInstance(PromoterWorkbook, response.data).getReferralSheet().getReferralTable();
@@ -101,15 +107,15 @@ export const ReferralStore = signalStore(
 			),
 
 			resetLoadedPages() {
-				patchState(store, { loadedPages: new Set(), referrals: null, selectedContact: null });
+				patchState(store, { loadedPages: new Set(), referrals: null });
 			},
 
-			getPerReferralCommissions: rxMethod<string>(
+			getPerReferralCommissions: rxMethod<{ contactId: string, programId: string, promoterId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap((contactId) => {
-						return promoterService.getPromoterCommissions({ contact_id: contactId }).pipe(
+					switchMap(({ contactId, programId, promoterId }) => {
+						return promoterService.getPromoterCommissions(programId, promoterId, { contact_id: contactId }).pipe(
 							tapResponse({
 								next(response) {
 									console.log(response.data);
@@ -122,14 +128,6 @@ export const ReferralStore = signalStore(
 					})
 				)
 			),
-
-			setSelectedContact(contactId: string, contactInfo: string) {
-				patchState(store, { selectedContact: { contactId, contactInfo } });
-			},
-
-			resetSelectedContact() {
-				patchState(store, { selectedContact: null });
-			}
 		})
 	),
 );
