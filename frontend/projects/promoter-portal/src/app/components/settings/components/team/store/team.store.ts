@@ -1,5 +1,5 @@
 import { withDevtools } from "@angular-architects/ngrx-toolkit";
-import { inject } from "@angular/core";
+import { EventEmitter, inject } from "@angular/core";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { CreateMemberDto, memberSortByEnum, sortOrderEnum, Status, UpdatePromoterMemberDto } from "@org.quicko.cliq/ngx-core";
 import { MemberRow, MemberTable, PromoterWorkbook } from "@org.quicko.cliq/ngx-core/generated/sources/Promoter";
@@ -8,7 +8,7 @@ import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { of, pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { JSONArray, SnackbarService } from "@org.quicko/ngx-core";
+import { JSONArray, JSONObject, SnackbarService } from "@org.quicko/ngx-core";
 import { plainToInstance } from "class-transformer";
 
 export interface TeamStoreState {
@@ -25,6 +25,9 @@ export const initialTeamState: TeamStoreState = {
 	loadedPages: new Set<number>()
 };
 
+export const onAddMemberSuccess: EventEmitter<void> = new EventEmitter();
+export const onRemoveMemberSuccess: EventEmitter<void> = new EventEmitter();
+
 
 export const TeamStore = signalStore(
 	withState(initialTeamState),
@@ -36,7 +39,7 @@ export const TeamStore = signalStore(
 			snackBarService = inject(SnackbarService)
 		) => ({
 
-			getAllMembers: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: memberSortByEnum, skip?: number, take?: number, isSorting?: boolean }>(
+			getAllMembers: rxMethod<{ sortOrder?: sortOrderEnum, sortBy?: memberSortByEnum, skip?: number, take?: number, isSorting?: boolean, programId: string, promoterId: string }>(
 				pipe(
 					tap(({ isSorting }) => {
 						if (!isSorting) {
@@ -44,7 +47,7 @@ export const TeamStore = signalStore(
 						}
 					}),
 
-					switchMap(({ sortBy, sortOrder, skip, take, isSorting }) => {
+					switchMap(({ sortBy, sortOrder, skip, take, isSorting, programId, promoterId, }) => {
 
 						const page = Math.floor((skip ?? 0) / (take ?? 5));
 
@@ -53,14 +56,16 @@ export const TeamStore = signalStore(
 							return of(store.members()); // ✅ skip request if page already loaded
 						}
 
-						return promoterService.getAllMembers({ sort_by: sortBy, sort_order: sortOrder, skip, take }).pipe(
+						return promoterService.getAllMembers(programId, promoterId, { sort_by: sortBy, sort_order: sortOrder, skip, take }).pipe(
 							tapResponse({
 								next(response) {
 									const memberTable = plainToInstance(PromoterWorkbook, response.data).getMemberSheet().getMemberTable();
+									const metadata = memberTable.getMetadata();
 
 									let currentMemberTable = store.members();
 
 									const updatedPages = store.loadedPages().add(page);
+									let updatedMemberTable: MemberTable;
 
 									// append entries in case new entries incoming
 									if (currentMemberTable && !isSorting) {
@@ -70,13 +75,19 @@ export const TeamStore = signalStore(
 											currentMemberTable.addRow(member);
 										}
 
+										updatedMemberTable = Object.assign(new MemberTable(), currentMemberTable);
+										updatedMemberTable.metadata = metadata;
 									} else {
-										currentMemberTable = memberTable;
+										updatedMemberTable = memberTable;
 									}
 
-									const updatedMemberTable = Object.assign(new MemberTable(), currentMemberTable);
 
-									patchState(store, { status: Status.SUCCESS, members: updatedMemberTable, loadedPages: updatedPages });
+									patchState(store, {
+										members: updatedMemberTable,
+										error: null,
+										status: Status.SUCCESS,
+										loadedPages: updatedPages,
+									});
 								},
 								error(error: HttpErrorResponse) {
 									if (error.status == 404) {
@@ -93,25 +104,24 @@ export const TeamStore = signalStore(
 			),
 
 			resetLoadedPages() {
-				patchState(store, { loadedPages: new Set(), members: null });
+				patchState(store, { loadedPages: new Set() });
 			},
 
-			addMember: rxMethod<CreateMemberDto>(
+			resetMembers() {
+				patchState(store, { members: null });
+			},
+
+			addMember: rxMethod<{ addedMember:CreateMemberDto, programId: string, promoterId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap((addedMember) => {
-						return promoterService.addMember(addedMember).pipe(
+					switchMap(({ addedMember, programId, promoterId, }) => {
+						return promoterService.addMember(programId, promoterId, addedMember).pipe(
 							tapResponse({
 								next(response) {
-									const memberRow = plainToInstance(PromoterWorkbook, response.data).getMemberSheet().getMemberTable().getRow(0);
 
-									const newMemberTable = new MemberTable();
-
-									Object.assign(newMemberTable, store.members());
-									newMemberTable.addRow(memberRow);
-
-									patchState(store, { status: Status.SUCCESS, members: newMemberTable, error: null });
+									patchState(store, { status: Status.SUCCESS, error: null });
+									onAddMemberSuccess.emit();
 									snackBarService.openSnackBar('Successfully added member!', '');
 								},
 								error(error: HttpErrorResponse) {
@@ -124,32 +134,16 @@ export const TeamStore = signalStore(
 				)
 			),
 
-			removeMember: rxMethod<{ memberId: string }>(
+			removeMember: rxMethod<{ memberId: string, programId: string, promoterId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING })),
 
-					switchMap(({ memberId }) => {
-						return promoterService.removeMember(memberId).pipe(
+					switchMap(({ memberId, programId, promoterId, }) => {
+						return promoterService.removeMember(programId, promoterId, memberId).pipe(
 							tapResponse({
 								next() {
-									const newMemberTable = new MemberTable();
-
-									const rows = store.members()!.getRows();
-
-									for (let i = 0; i < rows.length; i++) {
-										const memberRow = new MemberRow(rows[i] as any[]);
-										if (memberRow.getMemberId() === memberId) {
-											continue;
-										}
-
-										if (!newMemberTable.rows) {
-											newMemberTable.rows = new JSONArray();
-										}
-
-										newMemberTable.addRow(memberRow);
-									}
-
-									patchState(store, { status: Status.SUCCESS, error: null, members: newMemberTable.getRows() ? newMemberTable : null });
+									patchState(store, { status: Status.SUCCESS, error: null });
+									onRemoveMemberSuccess.emit();
 									snackBarService.openSnackBar('Successfully removed member!', '');
 								},
 								error(error: HttpErrorResponse) {
@@ -162,39 +156,36 @@ export const TeamStore = signalStore(
 				)
 			),
 
-			updateMemberRole: rxMethod<{ memberId: string, updatedInfo: UpdatePromoterMemberDto }>(
+			updateMemberRole: rxMethod<{ memberId: string, updatedInfo: UpdatePromoterMemberDto, programId: string, promoterId: string }>(
 				pipe(
-					tap(() => patchState(store, { status: Status.LOADING })),
-
-					switchMap(({ memberId, updatedInfo }) => {
-						return promoterService.updateMemberRole(memberId, updatedInfo).pipe(
+					switchMap(({ memberId, updatedInfo, programId, promoterId, }) => {
+						return promoterService.updateMemberRole(programId, promoterId, memberId, updatedInfo).pipe(
 							tapResponse({
 								next(response) {
-									const newMemberTable = new MemberTable();
+									const currentMemberTable = store.members()!;
+									const metadata = currentMemberTable.getMetadata();
 
-									const rows = store.members()!.getRows();
+									const updatedMemberTable = new MemberTable();
+									updatedMemberTable.rows = new JSONArray();
+									updatedMemberTable.metadata = metadata;
+
+									const rows = currentMemberTable.getRows();
 
 									for (let i = 0; i < rows.length; i++) {
-										if (!newMemberTable.rows) {
-											newMemberTable.rows = new JSONArray();
-										}
-
 										const memberRow = new MemberRow(rows[i] as any[]);
 
 										if (memberRow.getMemberId() === memberId) {
-											const updatedMember = new MemberRow([]);
-
-											Object.assign(updatedMember, memberRow);
+											const updatedMember = Object.assign(new MemberRow([]), memberRow);
 											updatedMember.setRole(updatedInfo.role!);
 
-											newMemberTable.addRow(updatedMember);
-											continue;
+											updatedMemberTable.addRow(updatedMember);
+										} else {
+											updatedMemberTable.addRow(memberRow);
 										}
 
-										newMemberTable.addRow(memberRow);
 									}
 
-									patchState(store, { status: Status.SUCCESS, error: null, members: newMemberTable });
+									patchState(store, { status: Status.SUCCESS, error: null, members: updatedMemberTable });
 									snackBarService.openSnackBar(`Changed member role to ${updatedInfo.role}`, '');
 								},
 								error(error: Error) {
