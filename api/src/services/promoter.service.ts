@@ -539,7 +539,6 @@ export class PromoterService {
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<Purchase> = {},
-		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getSignUpsForPromoter service');
 
@@ -551,10 +550,11 @@ export class PromoterService {
 				promoterId,
 				promoter: {
 					programPromoters: {
-						program: {
-							programId,
-						},
+						programId,
 					},
+				},
+				contact: {
+					programId
 				},
 				...whereOptions
 			},
@@ -564,7 +564,6 @@ export class PromoterService {
 				},
 				link: true
 			},
-			...queryOptions,
 		});
 
 		if (!signUpsResult || signUpsResult.length === 0) {
@@ -574,7 +573,7 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const signUpSheetJson = this.signUpConverter.convertToSheetJson(signUpsResult, queryOptions);
+			const signUpSheetJson = this.signUpConverter.convertToSheetJson(signUpsResult);
 
 			this.logger.info('END: getSignUpsForPromoter service: Returning Workbook');
 			return signUpSheetJson;
@@ -634,8 +633,6 @@ export class PromoterService {
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<Purchase> = {},
-		queryOptions: QueryOptionsInterface = defaultQueryOptions,
-
 	) {
 		this.logger.info('START: getPurchasesForPromoter service');
 
@@ -643,21 +640,26 @@ export class PromoterService {
 
 		const purchases = await this.purchaseRepository.find({
 			where: {
+				promoterId,
 				promoter: {
-					promoterId,
+					programPromoters: {
+						programId,
+					},
 				},
 				contact: {
 					programId,
+					commissions: {
+
+					}
 				},
-				...whereOptions,
+				...whereOptions
 			},
 			relations: {
-				link: true,
-				contact: {
-					commissions: true,
-				}
+				promoter: {
+					commissions: true
+				},
+				link: true
 			},
-			...queryOptions,
 		});
 
 		if (!purchases) {
@@ -667,7 +669,7 @@ export class PromoterService {
 
 
 		if (toUseSheetJsonFormat) {
-			const purchaseSheetJson = this.purchaseConverter.convertToSheetJson(purchases, queryOptions);
+			const purchaseSheetJson = this.purchaseConverter.convertToSheetJson(purchases);
 
 			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
 

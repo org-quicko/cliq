@@ -231,8 +231,6 @@ export class PromoterController {
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
-		@Query('skip') skip: number = 0,
-		@Query('take') take: number = 10,
 	) {
 		this.logger.info('START: getSignUpsForPromoter controller');
 
@@ -242,11 +240,6 @@ export class PromoterController {
 			programId,
 			promoterId,
 			toUseSheetJsonFormat,
-			{},
-			{
-				skip,
-				take,
-			},
 		);
 
 		this.logger.info('END: getSignUpsForPromoter controller');
@@ -267,8 +260,6 @@ export class PromoterController {
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Query('item_id') itemId?: string,
-		@Query('skip') skip: number = 0,
-		@Query('take') take: number = 10,
 	) {
 		this.logger.info('START: getPurchasesForPromoter controller');
 
@@ -280,11 +271,7 @@ export class PromoterController {
 			toUseSheetJsonFormat,
 			{
 				...(itemId && { itemId }),
-			},
-			{
-				skip,
-				take,
-			},
+			}
 		);
 
 		this.logger.info('END: getPurchasesForPromoter controller');
