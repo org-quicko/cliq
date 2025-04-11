@@ -654,13 +654,25 @@ export class PromoterController {
 	@ApiResponse({ status: 409, description: 'Conflict' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
 	@Permissions('register', Promoter)
-	@Post(':promoter_id')
-	async registerForProgram(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
+	@Post(':promoter_id/register')
+	async registerForProgram(
+		@Param('program_id') programId: string, 
+		@Param('promoter_id') promoterId: string,
+		@Query('accepted_tnc') acceptedTermsAndConditions?: boolean,
+	) {
 		this.logger.info('START: registerForProgram controller');
 
-		const result = await this.promoterService.registerForProgram(programId, promoterId);
+		if (acceptedTermsAndConditions === undefined || acceptedTermsAndConditions === null) {
+			throw new BadRequestException(`Error. Must pass in accepted_tnc query parameter`);
+		}
+
+		const result = await this.promoterService.registerForProgram(acceptedTermsAndConditions, programId, promoterId);
+
+		const message = acceptedTermsAndConditions 
+			? `Successfully registered for Program ${programId} => 'terms and conditions accepted'` 
+			: `Warning. Terms and conditions rejected. You will be unable to create links, get reports or track referrals until TNC are accepted.`;
 
 		this.logger.info('END: registerForProgram controller');
-		return { message: `Successfully registered for Program ${programId}.`, result };
+		return { message, result };
 	}
 }
