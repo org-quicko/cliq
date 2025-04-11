@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MemberConverter } from 'src/converters/member.converter';
 import { CreateMemberDto, SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
 import { Member, PromoterMember } from 'src/entities';
-import { Repository, FindOptionsRelations, DataSource } from 'typeorm';
+import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { memberRoleEnum, statusEnum } from 'src/enums';
 import { PromoterConverter } from 'src/converters/promoter.converter';
@@ -275,7 +275,7 @@ export class MemberService {
 		this.logger.info(`START: leavePromoter service`);
 	}
 
-	async getPromoterOfMember(memberId: string) {
+	async getPromoterOfMember(programId: string, memberId: string) {
 		this.logger.info(`START: getPromoterOfMember service`);
 
 		const promoterMemberResult = await this.promoterMemberRepository.findOne({
@@ -283,7 +283,9 @@ export class MemberService {
 				memberId,
 			},
 			relations: {
-				promoter: true,
+				promoter: {
+					programPromoters: true
+				},
 			},
 		});
 
@@ -292,7 +294,11 @@ export class MemberService {
 			throw new NotFoundException(`Error. Member ${memberId} isn't part of any promoter!`);
 		}
 
-		const promoterDto = this.promoterConverter.convert(promoterMemberResult.promoter);
+		const acceptedTermsAndConditions = promoterMemberResult.promoter.programPromoters.find(
+			programPromoter => programPromoter.programId === programId
+		)!.acceptedTermsAndConditions;
+
+		const promoterDto = this.promoterConverter.convert(promoterMemberResult.promoter, acceptedTermsAndConditions);
 
 		this.logger.info(`END: getPromoterOfMember service`);
 		return promoterDto;

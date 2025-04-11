@@ -7,7 +7,7 @@ import { LoggerService } from '../services/logger.service';
 import { MemberAuthService } from '../services/memberAuth.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
-import { Member, Promoter } from '../entities';
+import { Member } from '../entities';
 import { PermissionsGuard } from 'src/guards/permissions.guard';
 
 @ApiTags('Member')
@@ -145,10 +145,13 @@ export class MemberController {
 	@ApiResponse({ status: 200, description: 'OK' })
 	@UseGuards(AuthGuard, PermissionsGuard)
 	@Get(':member_id/promoter')
-	async getPromoterOfMember(@Param('member_id') memberId: string) {
+	async getPromoterOfMember(
+		@Param('program_id') programId: string,
+		@Param('member_id') memberId: string,
+	) {
 		this.logger.info('START: getPromoterOfMemberInProgram controller');
 
-		const result = await this.memberService.getPromoterOfMember(memberId);
+		const result = await this.memberService.getPromoterOfMember(programId, memberId);
 
 		this.logger.info('END: getPromoterOfMemberInProgram controller');
 		return { message: `Successfully fetched promoter of Member ${memberId}.`, result };
