@@ -221,7 +221,7 @@ export class MemberService {
 			throw new Error(`Member does not exist.`);
 		}
 
-		await this.memberRepository.delete({ memberId: memberId });
+		await this.memberRepository.remove(member);
 		this.logger.info('END: deleteMember service');
 	}
 
