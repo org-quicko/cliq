@@ -173,14 +173,27 @@ export class AuthorizationService {
 
                     return this.memberService.getMemberEntity(subjectMemberId);
                 } else if (subject === ProgramPromoter) {
-                    if (!subjectProgramId) {
-                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
+                    if (action === 'read_all') {
+                        if (!subjectProgramId) {
+                            throw new BadRequestException(`Error. Must provide a Program ID for performing action on object`);
+                        }
+                        
+                        // in case user can read even on row, this means they can read all rows
+                        return this.programPromoterService.getFirstProgramPromoter(
+                            subjectProgramId,
+                        );
+                    }
+                    
+                    if (!subjectProgramId || !subjectPromoterId) {
+                        throw new BadRequestException(`Error. Must provide Program ID and Promoter ID for performing action on object`);
                     }
 
-                    return this.programPromoterService.getFirstProgramPromoter(
-                        subjectProgramId,
-                    );
+                    // since user wants specific row, get the row from the database
+                    return this.programPromoterService.getProgramPromoter(subjectProgramId, subjectPromoterId);
+
                 } else if (subject === Promoter) {
+                    if (action === 'create') return subject;
+
                     if (!subjectPromoterId) {
                         throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
                     }
@@ -322,7 +335,7 @@ export class AuthorizationService {
         // can manage all if user is super admin (except for the things listed below)
         if (user.role === userRoleEnum.SUPER_ADMIN) {
             allow('manage', userResources);
-            allow('read', Promoter);
+            allow('manage', Promoter);
         }
 
         for (const [programId, role] of Object.entries(programUserPermissions)) {
@@ -337,6 +350,11 @@ export class AuthorizationService {
 
                 // can update program or invite other users to the program
                 allow(['update', 'invite_user'], Program, { programId });
+
+                allow('manage', Promoter);
+
+                // can only manage the program-promoter relations if you are admin of a program with this program ID
+                allow('manage', ProgramPromoter, { programId });
 
                 // can change other users' role and change other users' permissions from the program, if that user ain't the super admin
                 allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: userRoleEnum.SUPER_ADMIN } });
@@ -353,7 +371,6 @@ export class AuthorizationService {
         }
 
         allow(['update', 'delete'], User, { userId: user.userId });
-
         allow('leave', Program);
 
         const ability = build({
@@ -372,7 +389,11 @@ export class AuthorizationService {
         const { can: allow, build } = abilityBuilder;
 
         allow('manage', [Member]);
-        allow('manage', Promoter, { programPromoters: { $elemMatch: { programId } } }); // can manage a promoter of that program
+        allow<User>('create', Promoter, { programUsers: { $elemMatch: { programId } } });
+
+        allow(['update', 'delete', 'include_promoter', 'update'], Promoter, { programPromoters: { $elemMatch: { programId } } }); // can manage a promoter of that program
+            // can only manage the program-promoter relations if you are admin of a program with this program ID
+            allow('manage', ProgramPromoter, { programId });
         allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: userRoleEnum.SUPER_ADMIN } });
         allow('manage', ApiKey, { programId });
         allow(['update', 'invite_user'], Program, { programId });
@@ -411,11 +432,18 @@ export class AuthorizationService {
                 
             } else if (role === memberRoleEnum.ADMIN) {
                 // allow update program or invite other users to the program
+                // also, can only register on behalf of the promoter if member is the admin of that promoter
                 allow('manage', [Promoter, PromoterMember, Link], { promoterId });
+
+                // can only manage the program-promoter relatoins if you are admin of this promoter
+                allow('manage', ProgramPromoter, { promoterId });
             }
         }
 
         allow(['update', 'delete'], Member, { memberId: member.memberId });
+        
+        // of course any member can create a promoter- IF they aren't part of any other promoter -> and that check exists in the createPromoter service
+        allow('create', Promoter); 
 
         const ability = build({
             detectSubjectType: (item) =>
