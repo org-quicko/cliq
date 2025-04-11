@@ -1,11 +1,24 @@
 import { HttpClient, HttpResponse } from "@angular/common/http";
-import { computed, inject, Injectable, Injector } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { map } from "rxjs";
-import { ApiResponse, conversionTypeEnum, CreateMemberDto, memberSortByEnum, referralSortByEnum, reportEnum, reportPeriodEnum, sortOrderEnum, statusEnum, UpdatePromoterDto, UpdatePromoterMemberDto } from "@org.quicko.cliq/ngx-core";
+import {
+	ApiResponse,
+	commissionSortByEnum,
+	conversionTypeEnum,
+	CreateMemberDto,
+	CreatePromoterDto,
+	memberSortByEnum,
+	referralSortByEnum,
+	reportEnum,
+	reportPeriodEnum,
+	sortOrderEnum,
+	statusEnum,
+	UpdatePromoterDto,
+	UpdatePromoterMemberDto
+} from "@org.quicko.cliq/ngx-core";
 import { instanceToPlain } from "class-transformer";
 import { AuthService } from "./auth.service";
 import { ProgramStore } from "../store/program.store";
-import { PromoterStore } from "../store/promoter.store";
 import { environment } from "../../../environments/environment.dev";
 
 @Injectable({
@@ -15,21 +28,33 @@ export class PromoterService {
 
 	readonly programStore = inject(ProgramStore);
 
-	// this is for lazy injection of promoter store -> this is to break the circular dependency of the store and service on each other
-	private injector = inject(Injector);
-
 	constructor(private httpClient: HttpClient, private authService: AuthService) { }
 
-	private endpoint = computed(() => {
-		const program = this.programStore.program();
-		const promoter = this.getPromoter();
+	createPromoter(programId: string, createdPromoter: CreatePromoterDto) {
+		const url = this.getEndpoint(programId);
 
-		return (promoter && program) ? `${environment.base_api_url}/programs/${program.programId}/promoters/${promoter.promoterId}` : null;
-	});
+		const body = instanceToPlain(createdPromoter);
 
-	private getPromoter() {
-		const promoterStore = this.injector.get(PromoterStore); // Lazily get PromoterStore
-		return promoterStore.promoter();
+		return this.httpClient.post<ApiResponse<any>>(url, body, {
+			headers: {
+				Authorization: this.authService.getToken(),
+				'x-accept-type': 'application/json;format=sheet-json'
+			}
+		});
+	}
+
+	registerForProgram(programId: string, promoterId: string, queryParams: { accepted_tnc?: boolean } = {}) {
+		const url = this.getEndpoint(programId, promoterId) + '/register';
+
+		if (!queryParams.accepted_tnc) queryParams.accepted_tnc = false;
+
+		return this.httpClient.get<ApiResponse<any>>(url, {
+			headers: {
+				Authorization: this.authService.getToken(),
+				'x-accept-type': 'application/json;format=sheet-json'
+			},
+			params: queryParams
+		});
 	}
 
 	getPromoterAnalytics(programId: string, promoterId: string) {
