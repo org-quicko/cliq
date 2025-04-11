@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
-import { IsString, IsOptional, IsDate, IsUUID } from 'class-validator';
+import { IsString, IsOptional, IsDate, IsUUID, IsBoolean } from 'class-validator';
 
 export class PromoterDto {
 	@Expose({ name: 'promoter_id' })
@@ -13,6 +13,10 @@ export class PromoterDto {
 	@Expose({ name: 'logo_url' })
 	@IsString()
 	logoUrl: string;
+
+	@Expose({ name: 'accepted_terms_and_conditions' })
+	@IsBoolean()
+	acceptedTermsAndConditions: boolean;
 
 	@Expose({ name: 'created_at' })
 	@IsDate()
