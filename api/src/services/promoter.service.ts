@@ -38,7 +38,7 @@ import { MemberConverter } from '../converters/member.converter';
 import { ContactConverter } from '../converters/contact.converter';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { commissionSortByEnum, memberRoleEnum, memberSortByEnum, statusEnum } from '../enums';
+import { commissionSortByEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, statusEnum, visibilityEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { CommissionConverter } from '../converters/commission.converter';
@@ -101,7 +101,6 @@ export class PromoterService {
 		private promoterConverter: PromoterConverter,
 		private linkConverter: LinkConverter,
 		private memberConverter: MemberConverter,
-		private contactConverter: ContactConverter,
 		private purchaseConverter: PurchaseConverter,
 		private signUpConverter: SignUpConverter,
 		private commissionConverter: CommissionConverter,
@@ -734,6 +733,26 @@ export class PromoterService {
 
 		this.logger.info(`END: getPromoterReferral service`);
 		return referralDto;
+	}
+
+	async hasAcceptedTermsAndConditions(programId: string, promoterId: string) {
+		this.logger.info(`START: hasAcceptedTermsAndConditions service`);
+
+		if (
+			!(await this.programPromoterRepository.findOne({
+				where: {
+					programId,
+					promoterId,
+					acceptedTermsAndConditions: true
+				}
+			}))
+		) {
+			this.logger.error(`Error. Promoter ${promoterId} hasn't accepted terms and conditions required for Program ${programId}.`);
+			this.logger.info(`END: hasAcceptedTermsAndConditions service -> TNC not accepted`);
+			throw new BadRequestException(`Error. Promoter ${promoterId} hasn't accepted terms and conditions required for Program ${programId}.`);
+		}
+
+		this.logger.info(`END: hasAcceptedTermsAndConditions service -> TNC accepted`);
 	}
 
 	/**
