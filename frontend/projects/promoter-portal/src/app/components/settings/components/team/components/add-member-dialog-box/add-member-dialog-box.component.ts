@@ -11,7 +11,7 @@ import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { Subject } from 'rxjs';
 import { MemberAddedSuccessDialogBoxComponent } from '../member-added-success-dialog-box/member-added-success-dialog-box.component';
 import { MatButtonModule } from '@angular/material/button';
-import { TeamStore } from '../../store/team.store';
+import { onAddMemberSuccess, TeamStore } from '../../store/team.store';
 
 @Component({
 	selector: 'app-add-member-dialog-box',
@@ -46,21 +46,14 @@ export class AddMemberDialogBoxComponent implements OnDestroy {
 
 	constructor(
 		private fb: RxFormBuilder,
-		@Inject(MAT_DIALOG_DATA) public data: { addMember: Function, status: Signal<Status>, setSuccessStatus: Function },
+		@Inject(MAT_DIALOG_DATA) public data: { addMember: Function, status: Signal<Status> },
 		private dialogRef: MatDialogRef<AddMemberDialogBoxComponent>
 	) {
 		this.newMember = new CreateMemberDto();
 		this.addMemberForm = this.fb.formGroup(this.newMember);
 
-		effect(() => {
-			if (this.data.status() === Status.SUCCESS) {
-				this.dialog.open(MemberAddedSuccessDialogBoxComponent, {
-					data: {
-						email: this.newMember.email,
-						password: this.newMember.password,
-					}
-				});
-			}
+		onAddMemberSuccess.subscribe(() => {
+			this.openMemberAddedSuccessDialog();
 		});
 	}
 
@@ -69,6 +62,15 @@ export class AddMemberDialogBoxComponent implements OnDestroy {
 		if (this.addMemberForm.valid) {
 			this.data.addMember(this.newMember);
 		}
+	}
+
+	openMemberAddedSuccessDialog = () => {
+		this.dialog.open(MemberAddedSuccessDialogBoxComponent, {
+			data: {
+				email: this.newMember.email,
+				password: this.newMember.password,
+			}
+		});
 	}
 
 	closeDialog() {
