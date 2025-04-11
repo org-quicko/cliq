@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
-import { CreateLinkDto } from '@org.quicko.cliq/ngx-core';
+import { CreateLinkDto, PaginationOptions } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../../../store/program.store';
 
 @Component({
@@ -27,8 +27,6 @@ import { ProgramStore } from '../../../../../../store/program.store';
 export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 
 	destroy$ = new Subject<boolean>();
-
-	refValUniqueCode: string;
 
 	readonly programStore = inject(ProgramStore);
 
