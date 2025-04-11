@@ -9,7 +9,7 @@ import {
 	UpdatePromoterMemberDto,
 } from '../dtos';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
-import { statusEnum, conversionTypeEnum, memberSortByEnum, memberRoleEnum, commissionSortByEnum } from '../enums';
+import { statusEnum, conversionTypeEnum, memberSortByEnum, memberRoleEnum, commissionSortByEnum, linkSortByEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
@@ -42,19 +42,19 @@ export class PromoterController {
 	 * Create promoter
 	 */
 	@ApiResponse({ status: 201, description: 'Created' })
+	@Permissions('create', Promoter)
 	@Post()
 	async createPromoter(
-		@Req() req: Request,
+		@Headers('member_id') memberId: string,
 		@Param('program_id') programId: string,
 		@Body() body: CreatePromoterDto,
 	) {
 		this.logger.info('START: createPromoter controller');
 
-		const memberId = req.headers.member_id as string;
 		const result = await this.promoterService.createPromoter(
-			memberId,
 			programId,
 			body,
+			memberId,
 		);
 
 		this.logger.info('END: createPromoter controller');
@@ -91,13 +91,13 @@ export class PromoterController {
 	@Permissions('update', Promoter)
 	@Patch(':promoter_id')
 	async updatePromoterInfo(
-		@Req() req: Request,
+		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Body() body: UpdatePromoterDto,
 	) {
 		this.logger.info('START: updatePromoterInfo controller');
 
-		const result = await this.promoterService.updatePromoterInfo(promoterId, body);
+		const result = await this.promoterService.updatePromoterInfo(programId, promoterId, body);
 
 		this.logger.info('END: updatePromoterInfo controller');
 		return { message: 'Successfully updated promoter.', result };
@@ -109,10 +109,10 @@ export class PromoterController {
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Permissions('read', Promoter)
 	@Get(':promoter_id')
-	async getPromoter(@Param('promoter_id') promoterId: string) {
+	async getPromoter(@Param('program_id') programId: string, @Param('promoter_id') promoterId: string) {
 		this.logger.info('START: getPromoter controller');
 
-		const result = await this.promoterService.getPromoter(promoterId);
+		const result = await this.promoterService.getPromoter(programId, promoterId);
 
 		this.logger.info(`END: getPromoter controller`);
 		return { message: 'Successfully fetched promoter.', result };
