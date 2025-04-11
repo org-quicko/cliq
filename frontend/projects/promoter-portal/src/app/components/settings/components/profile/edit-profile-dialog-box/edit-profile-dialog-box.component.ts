@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MemberStore } from '../../../../../store/member.store';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ProgramStore } from '../../../../../store/program.store';
 
 @Component({
 	selector: 'app-edit-profile-dialog-box',
@@ -34,7 +35,9 @@ export class EditProfileDialogBoxComponent implements OnInit, OnDestroy {
 	refValUniqueCode: string;
 
 	readonly memberStore = inject(MemberStore);
+	readonly programStore = inject(ProgramStore);
 
+	readonly programId = computed(() => this.programStore.program()!.programId);
 	readonly member = computed(() => this.memberStore.member());
 
 	profileDetails: UpdateMemberDto;
@@ -81,7 +84,12 @@ export class EditProfileDialogBoxComponent implements OnInit, OnDestroy {
 
 	onSubmit() {
 		if (this.editProfileForm.valid) {
-			this.memberStore.updateMemberInfo(this.profileDetails);
+			this.memberStore.updateMemberInfo({
+				updatedInfo: this.profileDetails,
+				programId: this.programId()
+			});
+
+			this.closeDialog();
 		}
 	}
 

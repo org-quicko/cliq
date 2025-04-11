@@ -10,6 +10,7 @@ import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { Status, UpdatePromoterDto } from '@org.quicko.cliq/ngx-core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PromoterStore } from '../../../../../../store/promoter.store';
+import { ProgramStore } from '../../../../../../store/program.store';
 
 @Component({
 	selector: 'app-edit-promoter-dialog-box',
@@ -31,7 +32,11 @@ export class EditPromoterDialogBoxComponent implements OnInit, OnDestroy {
 
 	refValUniqueCode: string;
 
+	readonly programStore = inject(ProgramStore);
 	readonly promoterStore = inject(PromoterStore);
+
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
 
 	readonly promoter = computed(() => this.promoterStore.promoter());
 
@@ -72,7 +77,11 @@ export class EditPromoterDialogBoxComponent implements OnInit, OnDestroy {
 
 	onSubmit() {
 		if (this.editPromoterForm.valid) {
-			this.promoterStore.updatePromoterInfo(this.promoterDetails);
+			this.promoterStore.updatePromoterInfo({
+				updatedInfo: this.promoterDetails,
+				programId: this.programId(),
+				promoterId: this.promoterId()
+			});
 		}
 	}
 }
