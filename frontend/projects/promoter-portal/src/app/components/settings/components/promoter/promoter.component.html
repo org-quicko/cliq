@@ -26,12 +26,6 @@
 	<div class="w-full h-auto min-h-[220px] flex flex-col gap-5">
 		<div class="mat-title-medium text-on-surface"><span>Danger zone</span></div>
 
-		<div class="w-full h-auto min-h-[176px] rounded-[5px] px-4 py-2 border border-outline-variant select-none relative group">
-
-			@for (item of actionableItems; track $index;) {
-				<app-actionable-list-item [class]="`${$index === 0 ? 'border-b border-outline-variant ' : ''}`" [title]="item.title" [description]="item.description" [icon]="item.icon" [onClick]="item.onClick" [hideDivider]="$index === actionableItems.length - 1" />
-			}
-
-		</div>
+		<app-actionable-list-item [title]="actionableItem.title" [description]="actionableItem.description" [icon]="actionableItem.icon" [onClick]="actionableItem.onClick" />
 	</div>
 </div>

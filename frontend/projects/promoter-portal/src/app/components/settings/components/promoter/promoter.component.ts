@@ -4,27 +4,22 @@ import { MatDividerModule } from '@angular/material/divider';
 import { PromoterStore } from '../../../../store/promoter.store';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
-import { EditPromoterDialogBoxComponent } from './edit-promoter-dialog-box/edit-promoter-dialog-box.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MemberStore } from '../../../../store/member.store';
 import { AuthService } from '../../../../services/auth.service';
 import { environment } from '../../../../../../environments/environment.dev';
 import { ProgramStore } from '../../../../store/program.store';
 import { MatCardModule } from '@angular/material/card';
-import { ActionableListItemComponent } from './actionable-list-item/actionable-list-item.component';
+import { ActionableListItemComponent } from './components/actionable-list-item/actionable-list-item.component';
 import { CommonModule } from '@angular/common';
 import { PureAbility } from '@casl/ability';
 import { AbilityServiceSignal } from '@casl/angular';
 import { MemberAbility, MemberAbilityTuple } from '../../../../permissions/ability';
 import { PromoterDto } from '@org.quicko.cliq/ngx-core';
 import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
+import { EditPromoterDialogBoxComponent } from './components/edit-promoter-dialog-box/edit-promoter-dialog-box.component';
+import { ActionableListItemInterface } from '../../../../interfaces/actionableListItem.interface';
 
-export interface ActionableListItemInterface {
-	title: string;
-	description: string;
-	icon: string;
-	onClick: Function;
-}
 
 @Component({
 	selector: 'app-promoter',
@@ -44,42 +39,28 @@ export interface ActionableListItemInterface {
 	styleUrl: './promoter.component.scss'
 })
 export class PromoterComponent {
-
-	readonly promoterStore = inject(PromoterStore);
-
-	readonly memberStore = inject(MemberStore);
-
-	readonly programStore = inject(ProgramStore);
-
-	readonly promoter = computed(() => this.promoterStore.promoter());
-
 	readonly dialog = inject(MatDialog);
 
-	readonly programId = computed(() => this.programStore.program()?.programId);
+	readonly memberStore = inject(MemberStore);
+	readonly programStore = inject(ProgramStore);
+	readonly promoterStore = inject(PromoterStore);
+
+	readonly promoter = computed(() => this.promoterStore.promoter());
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
 
 	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
 	protected readonly can = this.abilityService.can;
 	private readonly ability = inject<PureAbility<MemberAbilityTuple>>(PureAbility);
 
-
-	actionableItems: ActionableListItemInterface[] = [
-		{
-			title: 'Leave promoter',
-			description: 'Remove all your associated data',
-			icon: 'logout',
-			onClick: () => {
-				this.onLeavePromoter();
-			}
-		},
-		{
-			title: 'Delete promoter',
-			description: 'Remove all associated members, referrals and commission data',
-			icon: 'delete',
-			onClick: () => {
-				this.onDeletePromoter();
-			}
-		},
-	]
+	actionableItem: ActionableListItemInterface = {
+		title: 'Leave promoter',
+		description: 'Remove all your associated data',
+		icon: 'logout',
+		onClick: () => {
+			this.onLeavePromoter();
+		}
+	}
 
 	constructor(private authService: AuthService) { }
 
@@ -100,19 +81,11 @@ export class PromoterComponent {
 				cancelButtonText: 'Cancel',
 				title: 'Leave Promoter',
 				onSubmit: () => {
-					this.memberStore.leavePromoter();
+					this.memberStore.leavePromoter({ programId: this.programId() });
 					this.logout();
 				},
 			}
 		});
-
-		dialogRef.afterClosed().subscribe((confirmed) => {
-			if (confirmed) {
-				console.log('User confirmed leaving the promoter');
-				// Call the leave promoter logic here
-			}
-		});
-
 	}
 
 	onDeletePromoter() {
@@ -132,16 +105,12 @@ export class PromoterComponent {
 				cancelButtonText: 'Cancel',
 				title: 'Delete Promoter',
 				onSubmit: () => {
-					this.promoterStore.deletePromoter();
+					this.promoterStore.deletePromoter({
+						programId: this.programId(),
+						promoterId: this.promoterId()
+					});
 					this.logout();
 				}
-			}
-		});
-
-		dialogRef.afterClosed().subscribe((confirmed) => {
-			if (confirmed) {
-				console.log('User confirmed deleting the promoter');
-				// Call the leave promoter logic here
 			}
 		});
 	}

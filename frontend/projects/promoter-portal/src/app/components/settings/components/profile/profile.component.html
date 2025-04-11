@@ -1,24 +1,33 @@
-<div class="w-full max-w-[640px] h-auto min-h-[320px] flex flex-col rounded-[5px] border border-outline-variant">
-	<!-- Details display -->
-	<div class="w-full h-auto min-h-[264px] p-6 flex flex-col gap-6 mat-body-large">
-		<div class="max-w-[592px] h-auto min-h-14 flex flex-col gap-2">
-			<div><span class="text-on-surface-variant">Email</span></div>
-			<div><span class="text-on-surface">{{ member()?.email }}</span></div>
+<div class="w-full max-w-[640px] flex flex-col gap-6">
+	<div class="w-full h-auto min-h-[320px] flex flex-col rounded-[5px] border border-outline-variant">
+		<!-- Details display -->
+		<div class="w-full h-auto min-h-[264px] p-6 flex flex-col gap-6 mat-body-large">
+			<div class="max-w-[592px] h-auto min-h-14 flex flex-col gap-2">
+				<div><span class="text-on-surface-variant">Email</span></div>
+				<div><span class="text-on-surface">{{ member()?.email }}</span></div>
+			</div>
+			<div class="max-w-[592px] h-auto min-h-14 flex flex-col gap-2">
+				<div><span class="text-on-surface-variant">Name</span></div>
+				<div><span class="text-on-surface">{{ displayName() }}</span></div>
+			</div>
+			<div class="max-w-[592px] h-auto min-h-14 flex flex-col gap-2">
+				<div><span class="text-on-surface-variant">Password</span></div>
+				<div><span class="text-on-surface">••••••••••</span></div>
+			</div>
 		</div>
-		<div class="max-w-[592px] h-auto min-h-14 flex flex-col gap-2">
-			<div><span class="text-on-surface-variant">Name</span></div>
-			<div><span class="text-on-surface">{{ displayName() }}</span></div>
-		</div>
-		<div class="max-w-[592px] h-auto min-h-14 flex flex-col gap-2">
-			<div><span class="text-on-surface-variant">Password</span></div>
-			<div><span class="text-on-surface">••••••••••</span></div>
-		</div>
+
+		<mat-divider class="border-outline-variant" />
+
+		<!-- Edit details button -->
+		<button mat-button class="w-full rounded-none overflow-hidden flex gap-2 px-6 py-3 grow justify-start" (click)="onClickEditDetailsBtn()">
+			<span>Edit details</span>
+		</button>
 	</div>
 
-	<mat-divider class="border-outline-variant" />
+	<!-- Danger Zone -->
+	<div class="w-full h-auto min-h-[220px] flex flex-col gap-5">
+		<div class="mat-title-medium text-on-surface"><span>Danger zone</span></div>
 
-	<!-- Edit details button -->
-	<button mat-button class="w-full rounded-none overflow-hidden flex gap-2 px-6 py-3 grow justify-start" (click)="onClickEditDetailsBtn()">
-		<span>Edit details</span>
-	</button>
+		<app-actionable-list-item [title]="actionableItem.title" [description]="actionableItem.description" [icon]="actionableItem.icon" [onClick]="actionableItem.onClick" />
+	</div>
 </div>
