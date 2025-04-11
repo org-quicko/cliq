@@ -196,9 +196,7 @@ export class ProgramService {
 		const programResult = await this.getProgramEntity(programId);
 
 		if (!programResult) {
-			throw new NotFoundException(
-				`Error. Program ${programId} not found.`,
-			);
+			throw new NotFoundException(`Error. Program ${programId} not found.`);
 		}
 
 		this.logger.info('END: updateProgram service');
@@ -486,8 +484,8 @@ export class ProgramService {
 			);
 		}
 
-		const programPromotersDto = programPromotersResult.map((pp) =>
-			this.promoterConverter.convert(pp.promoter),
+		const programPromotersDto = programPromotersResult.map((programPromoter) =>
+			this.promoterConverter.convert(programPromoter.promoter, programPromoter.acceptedTermsAndConditions),
 		);
 
 		this.logger.info(`END: getAllPromoters service`);
@@ -648,14 +646,14 @@ export class ProgramService {
 	}
 
 	async getAllProgramReferrals(programId: string) {
-		this.logger.info(`START: getPromoterReferrals service`);
+		this.logger.info(`START: getAllProgramReferrals service`);
 
 		await this.getProgram(programId);
 		const referralResult = await this.referralViewRepository.find({
 			where: { programId },
 		});
 
-		this.logger.info(`END: getPromoterReferrals service`);
+		this.logger.info(`END: getAllProgramReferrals service`);
 		return referralResult;
 	}
 
