@@ -39,6 +39,9 @@ export class LinkService {
 		body: CreateLinkDto,
 	) {
 		this.logger.info('START: createLink service');
+
+		await this.promoterService.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const program = await this.programService.getProgram(programId);
 		const promoter = await this.promoterService.getPromoter(promoterId);
 
@@ -93,6 +96,9 @@ export class LinkService {
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllLinks service');
+
+		await this.promoterService.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const links = await this.linkRepository.find({
 			where: {
 				program: {
@@ -173,8 +179,11 @@ export class LinkService {
 	/**
 	 * Get link by ID
 	 */
-	async getLink(linkId: string) {
+	async getLink(programId: string, promoterId: string, linkId: string) {
 		this.logger.info('START: getLink service');
+
+		await this.promoterService.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const linkResult = await this.linkRepository.findOne({
 			where: { linkId },
 		});
@@ -222,8 +231,10 @@ export class LinkService {
 	/**
 	 * Delete a link
 	 */
-	async deleteLink(linkId: string) {
+	async deleteLink(programId: string, promoterId: string, linkId: string) {
 		this.logger.info('START: deleteLink service');
+		
+		await this.promoterService.hasAcceptedTermsAndConditions(programId, promoterId);
 		
 		await this.linkRepository.update({ linkId }, { status: linkStatusEnum.INACTIVE });
 		this.logger.info('END: deleteLink service');

@@ -170,20 +170,19 @@ export class PromoterService {
 		this.logger.info('END: deletePromoter service');
 	}
 
-	async updatePromoterInfo(promoterId: string, body: UpdatePromoterDto) {
+	async updatePromoterInfo(programId: string, promoterId: string, body: UpdatePromoterDto) {
 		this.logger.info('START: updatePromoterInfo service');
 
-		const promoter = await this.promoterRepository.findOne({ where: { promoterId } });
-
-		if (!promoter) {
-			this.logger.error(`Promoter does not exist: ${promoterId}`);
-			throw new BadRequestException(`Promoter does not exist.`);
-		}
+		const promoter = await this.getPromoterEntity(promoterId, { programPromoters: true });
 
 		Object.assign(promoter, body);
-		await this.promoterRepository.update({ promoterId }, body);
+		await this.promoterRepository.save(promoter);
 
-		const promoterDto = this.promoterConverter.convert(promoter);
+		const acceptedTermsAndConditions = promoter.programPromoters.find(
+			programPromoter => programPromoter.programId === programId
+		)!.acceptedTermsAndConditions;
+
+		const promoterDto = this.promoterConverter.convert(promoter, acceptedTermsAndConditions);
 
 		this.logger.info('END: updatePromoterInfo service');
 		return promoterDto;
@@ -258,12 +257,15 @@ export class PromoterService {
 	/**
 	 * Get promoter
 	 */
-	async getPromoter(promoterId: string) {
+	async getPromoter(programId: string, promoterId: string) {
 		this.logger.info('START: getPromoter service');
 		const promoter = await this.promoterRepository.findOne({
 			where: {
 				promoterId,
 			},
+			relations: {
+				programPromoters: true
+			}
 		});
 
 		if (!promoter) {
@@ -273,8 +275,13 @@ export class PromoterService {
 			);
 		}
 
+		const acceptedTermsAndConditions = promoter.programPromoters.find(
+			programPromoter => programPromoter.programId === programId
+		)!.acceptedTermsAndConditions;
+
+		const promoterDto = this.promoterConverter.convert(promoter, acceptedTermsAndConditions)
 		this.logger.info('END: getPromoter service');
-		return this.promoterConverter.convert(promoter);
+		return promoterDto;
 	}
 
 	/**
@@ -536,6 +543,8 @@ export class PromoterService {
 	) {
 		this.logger.info('START: getSignUpsForPromoter service');
 
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		// getting signups for: program -> promoter -> signups
 		const signUpsResult = await this.signUpRepository.find({
 			where: {
@@ -630,6 +639,8 @@ export class PromoterService {
 	) {
 		this.logger.info('START: getPurchasesForPromoter service');
 
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const purchases = await this.purchaseRepository.find({
 			where: {
 				promoter: {
@@ -681,7 +692,9 @@ export class PromoterService {
 
 		// checking if the program and promoter exist
 		await this.programService.getProgram(programId);
-		await this.getPromoter(promoterId);
+		await this.getPromoter(programId, promoterId);
+
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const [referralResult, count] = await this.referralViewRepository.findAndCount({
 			where: {
@@ -714,7 +727,9 @@ export class PromoterService {
 
 		// checking if the program and promoter exist
 		await this.programService.getProgram(programId);
-		await this.getPromoter(promoterId);
+		await this.getPromoter(programId, promoterId);
+
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const referralResult = await this.referralViewRepository.findOne({
 			where: {
@@ -771,24 +786,7 @@ export class PromoterService {
 
 		const referralKeyType = (await this.programService.getProgramEntity(programId)).referralKeyType;
 
-		// const promoterResult = await this.promoterRepository.findOne({
-		// 	where: {
-		// 		promoterId,
-		// 		programPromoters: {
-		// 			program: {
-		// 				programId,
-		// 			},
-		// 		},
-		// 		...whereOptions
-		// 	},
-		// 	relations: {
-		// 		commissions: {
-		// 			link: true,
-		// 			contact: true
-		// 		},
-		// 	},
-		// 	...queryOptions,
-		// });
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const [commissionResult, count] = await this.commissionRepository.findAndCount({
 			where: {
@@ -845,6 +843,8 @@ export class PromoterService {
 			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
 				start: startDate.toISOString(),
@@ -900,6 +900,8 @@ export class PromoterService {
 			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
+
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
@@ -960,6 +962,8 @@ export class PromoterService {
 			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
 				start: startDate.toISOString(),
@@ -1000,6 +1004,8 @@ export class PromoterService {
 			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
+
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
@@ -1072,6 +1078,8 @@ export class PromoterService {
 			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const filter = {
 			createdAt: Raw((alias) => `${alias} BETWEEN :start AND :end`, {
 				start: startDate.toISOString(),
@@ -1133,7 +1141,9 @@ export class PromoterService {
 
 		// checking if the program and promoter exist
 		await this.programService.getProgram(programId);
-		await this.getPromoter(promoterId);
+		await this.getPromoter(programId, promoterId);
+
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const promoterStatsResult = await this.promoterStatsRepository.findOne(
 			{
@@ -1178,8 +1188,18 @@ export class PromoterService {
 		return referralDto;
 	}
 
-	async getPromoterLinkStatistics(programId: string, promoterId: string, toUseSheetJsonFormat: boolean = true, queryOptions: QueryOptionsInterface = defaultQueryOptions) {
-		this.logger.info(`START: getPromoterLinkStatistics service`);
+	async getPromoterLinkAnalytics(
+		programId: string, 
+		promoterId: string, 
+		sortBy?: linkSortByEnum,
+		sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
+		toUseSheetJsonFormat: boolean = true, 
+		queryOptions: QueryOptionsInterface = defaultQueryOptions
+	) {
+		this.logger.info(`START: getPromoterLinkAnalytics service`);
+
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
 		const [linkStatsResult, count] = await this.linkStatsViewRepository.findAndCount({
 			where: {
 				programId,
