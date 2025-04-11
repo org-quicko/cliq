@@ -32,8 +32,8 @@ export class PromoterService {
 		return promoterStore.promoter();
 	}
 
-	getPromoterStatistics() {
-		const url = this.getEndpoint() + '/stats';
+	getPromoterAnalytics(programId: string, promoterId: string) {
+		const url = this.getEndpoint(programId, promoterId) + '/analytics';
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
@@ -43,8 +43,8 @@ export class PromoterService {
 		});
 	}
 
-	updatePromoterInfo(updatedInfo: UpdatePromoterDto) {
-		const url = this.getEndpoint();
+	updatePromoterInfo(programId: string, promoterId: string, updatedInfo: UpdatePromoterDto) {
+		const url = this.getEndpoint(programId, promoterId);
 
 		const body = instanceToPlain(updatedInfo);
 
@@ -55,8 +55,8 @@ export class PromoterService {
 		});
 	}
 
-	removeMember(memberId: string) {
-		const url = this.getEndpoint() + `/members/${memberId}`;
+	removeMember(programId: string, promoterId: string, memberId: string) {
+		const url = this.getEndpoint(programId, promoterId) + `/members/${memberId}`;
 
 		return this.httpClient.patch<ApiResponse<any>>(url, {}, {
 			headers: {
@@ -66,8 +66,8 @@ export class PromoterService {
 
 	}
 
-	updateMemberRole(memberId: string, updatedInfo: UpdatePromoterMemberDto) {
-		const url = this.getEndpoint() + `/members/${memberId}/role`;
+	updateMemberRole(programId: string, promoterId: string, memberId: string, updatedInfo: UpdatePromoterMemberDto) {
+		const url = this.getEndpoint(programId, promoterId) + `/members/${memberId}/role`;
 
 		const body = instanceToPlain(updatedInfo);
 
@@ -78,8 +78,8 @@ export class PromoterService {
 		});
 	}
 
-	getPromoterCommissions(queryParams: { sort_by?: referralSortByEnum, sort_order?: sortOrderEnum, link_id?: string, contact_id?: string, conversion_type?: conversionTypeEnum, skip?: number, take?: number }) {
-		const url = this.getEndpoint() + '/commissions';
+	getPromoterCommissions(programId: string, promoterId: string, queryParams: { sort_by?: commissionSortByEnum, sort_order?: sortOrderEnum, link_id?: string, contact_id?: string, conversion_type?: conversionTypeEnum, skip?: number, take?: number }) {
+		const url = this.getEndpoint(programId, promoterId) + '/commissions';
 
 		if (!queryParams.skip) queryParams.skip = 0;
 		if (!queryParams.take) queryParams.take = 5;
@@ -98,8 +98,12 @@ export class PromoterService {
 		});
 	}
 
-	getPromoterReferrals(queryParams: { sort_by?: referralSortByEnum, sort_order?: sortOrderEnum, skip?: number, take?: number }) {
-		const url = this.getEndpoint() + '/referrals';
+	getPromoterReferrals(
+		programId: string,
+		promoterId: string,
+		queryParams: { sort_by?: referralSortByEnum, sort_order?: sortOrderEnum, skip?: number, take?: number }
+	) {
+		const url = this.getEndpoint(programId, promoterId) + '/referrals';
 
 		if (!queryParams.skip) queryParams.skip = 0;
 		if (!queryParams.take) queryParams.take = 5;
@@ -115,8 +119,8 @@ export class PromoterService {
 		});
 	}
 
-	getPromoterReferral(contactId: string) {
-		const url = this.getEndpoint() + `/referrals/${contactId}`;
+	getPromoterReferral(programId: string, promoterId: string, contactId: string) {
+		const url = this.getEndpoint(programId, promoterId) + `/referrals/${contactId}`;
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
@@ -126,10 +130,11 @@ export class PromoterService {
 	}
 
 	getReport(
+		programId: string, promoterId: string,
 		reportType: reportEnum,
 		queryParams: { report_period?: reportPeriodEnum, start_date?: string, end_date?: string }
 	) {
-		const url = this.getEndpoint() + `/reports/${reportType}`;
+		const url = this.getEndpoint(programId, promoterId) + `/reports/${reportType}`;
 
 		return this.httpClient.get(url, {
 			headers: {
@@ -162,8 +167,8 @@ export class PromoterService {
 		)
 	}
 
-	getAllMembers(queryParams: { sort_by?: memberSortByEnum, sort_order?: sortOrderEnum, skip?: number, take?: number }) {
-		const url = this.getEndpoint() + `/members`;
+	getAllMembers(programId: string, promoterId: string, queryParams: { sort_by?: memberSortByEnum, sort_order?: sortOrderEnum, skip?: number, take?: number }) {
+		const url = this.getEndpoint(programId, promoterId) + `/members`;
 
 		if (!queryParams.skip) queryParams.skip = 0;
 		if (!queryParams.take) queryParams.take = 5;
@@ -182,8 +187,8 @@ export class PromoterService {
 		})
 	}
 
-	addMember(member: CreateMemberDto) {
-		const url = this.getEndpoint() + `/members`;
+	addMember(programId: string, promoterId: string, member: CreateMemberDto) {
+		const url = this.getEndpoint(programId, promoterId) + `/members`;
 
 		const body = instanceToPlain(member);
 
@@ -194,8 +199,8 @@ export class PromoterService {
 		});
 	}
 
-	deletePromoter() {
-		const url = this.getEndpoint();
+	deletePromoter(programId: string, promoterId: string, ) {
+		const url = this.getEndpoint(programId, promoterId);
 
 		return this.httpClient.delete<ApiResponse<any>>(url, {
 			headers: {
@@ -204,12 +209,8 @@ export class PromoterService {
 		});
 	}
 
-	private getEndpoint(): string {
-		const endpoint = this.endpoint();
-		if (!endpoint) {
-			console.error(`Error. Failed to load endpoint for program`, endpoint);
-			throw new Error(`Error. Failed to load endpoint for program`);
-		}
-		return endpoint;
+	private getEndpoint(programId: string, promoterId?: string): string {
+		if (promoterId) return `${environment.base_api_url}/programs/${programId}/promoters/${promoterId}`;
+		else return `${environment.base_api_url}/programs/${programId}/promoters`;
 	}
 }

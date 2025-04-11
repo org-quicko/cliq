@@ -7,6 +7,7 @@ import { PromoterStore } from '../store/promoter.store';
 import { ProgramStore } from '../store/program.store';
 import { CreateLinkDto } from '../../../../org-quicko-cliq-core/src/lib/dtos';
 import { instanceToPlain } from 'class-transformer';
+import { linkSortByEnum, sortOrderEnum } from '@org.quicko.cliq/ngx-core';
 
 @Injectable({
 	providedIn: 'root'
@@ -17,21 +18,19 @@ export class LinkService {
 
 	readonly promoterStore = inject(PromoterStore);
 
-	private endpoint = computed(() => {
-		const promoter = this.promoterStore.promoter();
-		const program = this.programStore.program();
-		return (promoter && program) ? `${environment.base_api_url}/programs/${program.programId}/promoters/${promoter.promoterId}` : null;
-	});
+	constructor(private httpClient: HttpClient, private authService: AuthService) { }
 
-	constructor(private httpClient: HttpClient, private authService: AuthService) {
-
-	}
-
-	getPromoterLinkStatistics(queryParams: { skip?: number, take?: number }) {
-		const url = this.getEndpoint() + '/link_stats';
+	getPromoterLinkAnalytics(
+		programId: string,
+		promoterId: string,
+		queryParams: { sort_by?: linkSortByEnum, sort_order?: sortOrderEnum, skip?: number, take?: number }
+	) {
+		const url = this.getEndpoint(programId, promoterId) + '/link_analytics';
 
 		if (!queryParams.skip) queryParams.skip = 0;
 		if (!queryParams.take) queryParams.take = 5;
+		if (!queryParams.sort_by) delete queryParams.sort_by;
+		if (!queryParams.sort_order) delete queryParams.sort_order;
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
@@ -42,8 +41,8 @@ export class LinkService {
 		});
 	}
 
-	createLink(body: CreateLinkDto) {
-		const url = this.getEndpoint() + '/links';
+	createLink(programId: string, promoterId: string, body: CreateLinkDto) {
+		const url = this.getEndpoint(programId, promoterId) + '/links';
 
 		const newLink = instanceToPlain(body);
 
@@ -54,8 +53,8 @@ export class LinkService {
 		});
 	}
 
-	getLink(linkId: string) {
-		const url = this.getEndpoint() + `/links/${linkId}`;
+	getLink(programId: string, promoterId: string, linkId: string) {
+		const url = this.getEndpoint(programId, promoterId) + `/links/${linkId}`;
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
@@ -64,8 +63,8 @@ export class LinkService {
 		});
 	}
 
-	deleteLink(linkId: string) {
-		const url = this.getEndpoint() + `/links/${linkId}`;
+	deleteLink(programId: string, promoterId: string, linkId: string) {
+		const url = this.getEndpoint(programId, promoterId) + `/links/${linkId}`;
 
 		return this.httpClient.patch<ApiResponse<any>>(url, {}, {
 			headers: {
@@ -74,13 +73,7 @@ export class LinkService {
 		});
 	}
 
-	private getEndpoint(): string {
-
-		const endpoint = this.endpoint();
-		if (!endpoint) {
-			console.log(endpoint);
-			throw new Error(`Error. Failed to load endpoint for program`);
-		}
-		return endpoint;
+	private getEndpoint(programId: string, promoterId: string): string {
+		return `${environment.base_api_url}/programs/${programId}/promoters/${promoterId}`;
 	}
 }
