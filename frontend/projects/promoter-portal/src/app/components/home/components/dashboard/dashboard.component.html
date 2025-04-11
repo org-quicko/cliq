@@ -163,7 +163,7 @@
 				@if (isLinksLoading()) {
 				<app-skeleton-load-table
 					[maxHeight]="'548px'"
-					[rowCount]="3"
+					[rowCount]="5"
 					headerClass="flex px-4"
 					rowClass="flex px-4"
 					[headers]="headersStyling"
@@ -171,7 +171,16 @@
 				/>
 				}
 				@else {
-				<table mat-table matSort [dataSource]="dataSource" class="w-full bg-transparent" >
+				<table
+					mat-table
+					matSort
+					[dataSource]="dataSource"
+					class="w-full h-auto max-h-[548px] bg-transparent"
+					[matSortActive]="sortOptions().active"
+					[matSortDirection]="sortOptions().direction"
+					(matSortChange)="onSortChange($event)"
+					[matSortDisableClear]="true"
+				>
 					<ng-container matColumnDef="link">
 						<th mat-header-cell *matHeaderCellDef
 							class="mat-body-medium text-outline w-[328px]">
@@ -216,7 +225,13 @@
 						</td>
 					</ng-container>
 					<ng-container matColumnDef="created on">
-						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-[200px]">
+						<th
+							mat-header-cell
+							mat-sort-header
+							[class.hide-sort-arrow]="!totalLinkDataLength()"
+							*matHeaderCellDef
+							class="mat-body-medium text-outline w-[200px]"
+						>
 							Created on
 						</th>
 						<td mat-cell *matCellDef="let row; let i = index"

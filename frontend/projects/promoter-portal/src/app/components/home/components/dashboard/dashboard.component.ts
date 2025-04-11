@@ -10,13 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { LinkStatsRow, PromoterStatsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { CreateLinkDto, FormatCurrencyPipe, LinkDto, OrdinalDatePipe, PaginationOptions, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { CreateLinkDto, FormatCurrencyPipe, LinkDto, linkSortByEnum, OrdinalDatePipe, PaginationOptions, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { CreateLinkDialogBoxComponent } from './components/create-link-dialog-box/create-link-dialog-box.component';
-import { LinkStore } from './store/link.store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PromoterStatsStore } from './store/promoter-stats.store';
 import { MemberStore } from '../../../../store/member.store';
 import { ProgramStore } from '../../../../store/program.store';
 import { StrokedBtnComponent } from '../../../common/stroked-btn/stroked-btn.component';
@@ -24,6 +22,10 @@ import { MemberAbility, MemberAbilityTuple } from '../../../../permissions/abili
 import { TableRowStyling } from '../../../../interfaces';
 import { SkeletonLoadTableComponent } from "../../../common/skeleton-load-table/skeleton-load-table.component";
 import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
+import { NgxSkeletonLoaderComponent } from 'ngx-skeleton-loader';
+import { PromoterStore } from '../../../../store/promoter.store';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { DashboardStore, onCreateLinkSuccess, onDeleteLinkSuccess } from './store/dashboard.store';
 
 @Component({
 	selector: 'app-dashboard',
@@ -37,6 +39,7 @@ import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dia
 		MatDialogModule,
 		MatMenuModule,
 		MatRippleModule,
+		MatSortModule,
 		CreateLinkDialogBoxComponent,
 		StrokedBtnComponent,
 		OrdinalDatePipe,
@@ -47,35 +50,48 @@ import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dia
 		NgxSkeletonLoaderComponent,
 		InfoDialogBoxComponent,
 	],
-	providers: [LinkStore, PromoterStatsStore],
+	providers: [DashboardStore],
 	templateUrl: './dashboard.component.html',
 	styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
 
-	readonly linkStore = inject(LinkStore);
-	readonly promoterStatsStore = inject(PromoterStatsStore);
+	readonly dashboardStore = inject(DashboardStore);
+
 	readonly programStore = inject(ProgramStore);
+	readonly promoterStore = inject(PromoterStore);
 	readonly memberStore = inject(MemberStore);
 	readonly dialog = inject(MatDialog);
 
-	readonly isLinksLoading = computed(() => this.linkStore.status() === Status.LOADING);
-	readonly isStatisticsLoading = computed(() => this.promoterStatsStore.status() === Status.LOADING);
+	readonly isLinksLoading = computed(() => this.dashboardStore.links().status === Status.LOADING);
+	readonly isStatisticsLoading = computed(() => this.dashboardStore.analytics().status === Status.LOADING);
 
 	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
 	protected readonly can = this.abilityService.can;
 	private readonly ability = inject<PureAbility<MemberAbilityTuple>>(PureAbility);
 
+	@ViewChild(MatSort) sort: MatSort;
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 
 	dataSource: MatTableDataSource<LinkStatsRow> = new MatTableDataSource<LinkStatsRow>([]);
 
-	statistics = computed(() => this.promoterStatsStore.statistics()?.getRow(0));
-	program = computed(() => this.programStore.program());
+	statistics = computed(() => this.dashboardStore.analytics().analytics?.getRow(0));
+
+	readonly program = computed(() => this.programStore.program());
+	readonly promoter = computed(() => this.promoterStore.promoter());
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
+
+
 	totalLinkDataLength = computed(() => {
-		const metadata = this.linkStore.links()?.getMetadata();
+		const metadata = this.dashboardStore.links().links?.getMetadata();
 		const count = metadata ? metadata.get('count') : null;
 		return count ? Number(count) : 0;
+	});
+
+	sortOptions = signal<{ active: 'created on', direction: 'asc' | 'desc' }>({
+		active: 'created on',
+		direction: 'desc',
 	});
 
 	paginationOptions = signal<PaginationOptions>({
@@ -84,7 +100,7 @@ export class DashboardComponent implements OnInit {
 	});
 
 	readonly linkStatsLength = computed(() => {
-		const links = this.linkStore.links();
+		const links = this.dashboardStore.links().links;
 		return links ? links.length() : 0;
 	});
 
@@ -153,7 +169,7 @@ export class DashboardComponent implements OnInit {
 
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
-			const linkRows = (this.linkStore.links()?.getRows() ?? []) as LinkStatsRow[];
+			const linkRows = (this.dashboardStore.links().links?.getRows() ?? []) as LinkStatsRow[];
 
 			const { pageIndex, pageSize } = this.paginationOptions();
 
@@ -163,28 +179,65 @@ export class DashboardComponent implements OnInit {
 
 			this.dataSource.data = dataRows;
 		});
+
+		onCreateLinkSuccess.subscribe(() => {
+			this.loadFirstPage();
+		});
+
+		onDeleteLinkSuccess.subscribe(() => {
+			this.loadFirstPage();
+		});
 	}
 
 	ngOnInit() {
-		this.linkStore.resetLoadedPages();
+		this.dashboardStore.resetLoadedPages();
 		this.loadLinks();
-		this.promoterStatsStore.getPromoterStats();
+		this.dashboardStore.getPromoterStats({
+			programId: this.program()!.programId,
+			promoterId: this.promoter()!.promoterId,
+		});
 	}
 
-	loadLinks = () => {
+	loadFirstPage = () => {
+		this.dashboardStore.resetLoadedPages();
+		this.dashboardStore.resetLinks();
+
+		this.paginationOptions.update((options) => ({
+			...options,
+			pageIndex: 0
+		}));
+
+		this.loadLinks();
+	}
+
+	loadLinks (isSorting: boolean = false) {
 		const { pageIndex, pageSize } = this.paginationOptions();
 		const skip = pageIndex * pageSize;
 
-		this.linkStore.getPromoterLinks({
+		this.dashboardStore.getPromoterLinks({
+			sortBy: this.sortOptions().active === 'created on' ? linkSortByEnum.CREATED_AT : linkSortByEnum.COMMISSION,
+			sortOrder: this.sortOptions().direction === 'asc' ? sortOrderEnum.ASCENDING : sortOrderEnum.DESCENDING,
 			skip,
-			take: pageSize
+			take: pageSize,
+			isSorting,
+			programId: this.programId(),
+			promoterId: this.promoterId()
 		});
+	}
+
+	onSortChange(event: Sort) {
+		this.paginationOptions.set({ pageSize: 5, pageIndex: 0 });
+		this.dashboardStore.resetLoadedPages();
+		this.sortOptions.set({ active: event.active as 'created on', direction: event.direction as 'asc' | 'desc' });
+
+		this.loadLinks(true);
 	}
 
 	onPageChange(event: PageEvent) {
 		this.paginationOptions.set({ pageIndex: event.pageIndex, pageSize: event.pageSize });
 		this.loadLinks();
 	}
+
 
 	onClickLink(row: any[]) {
 		const link = this.convertToLinkStatsRow(row);
@@ -213,7 +266,11 @@ export class DashboardComponent implements OnInit {
 	}
 
 	createLink = (link: CreateLinkDto) => {
-		this.linkStore.createLink({ link });
+		this.dashboardStore.createLink({
+			link,
+			programId: this.programId(),
+			promoterId: this.promoterId()
+		});
 	}
 
 	openNotAllowedDialogBox(restrictionReason: string) {
@@ -239,12 +296,16 @@ export class DashboardComponent implements OnInit {
 
 	deleteLink(row: any[]) {
 		const link = this.convertToLinkStatsRow(row);
-		this.linkStore.deleteLink({ linkId: link.getLinkId() });
+		this.dashboardStore.deleteLink({
+			linkId: link.getLinkId(),
+			programId: this.programId(),
+			promoterId: this.promoterId()
+		});
 	}
 
 	onCopyLink(row: any[]) {
 		const link = this.convertToLinkStatsRow(row);
-		this.linkStore.copyLinkToClipboard(this.program()!.website, link);
+		this.dashboardStore.copyLinkToClipboard(this.program()!.website, link);
 	}
 
 }
