@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { PromoterService } from '../../../../services/promoter.service';
 import { ReportsStore } from './store/reports.store';
 import { MatCardModule } from '@angular/material/card';
@@ -7,7 +7,9 @@ import { TitleCasePipe } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReportDialogBoxComponent } from './report-dialog-box/report-dialog-box.component';
-import { reportEnum } from '@org.quicko.cliq/ngx-core';
+import { reportEnum, reportPeriodEnum } from '@org.quicko.cliq/ngx-core';
+import { ProgramStore } from '../../../../store/program.store';
+import { PromoterStore } from '../../../../store/promoter.store';
 
 @Component({
 	selector: 'app-reports',
@@ -19,6 +21,13 @@ import { reportEnum } from '@org.quicko.cliq/ngx-core';
 export class ReportsComponent {
 
 	readonly promoterService = inject(PromoterService);
+
+	readonly programStore = inject(ProgramStore);
+	readonly promoterStore = inject(PromoterStore);
+
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
+
 
 	readonly reportsStore = inject(ReportsStore);
 
@@ -38,10 +47,19 @@ export class ReportsComponent {
 		this.dialog.open(ReportDialogBoxComponent, {
 			data: {
 				reportName,
-				getReport: this.reportsStore.getReport,
+				getReport: this.getReport,
 				status: this.reportsStore.status
 			}
 		});
+	}
+
+
+	getReport = (reportInfo: { report: reportEnum, reportPeriod: reportPeriodEnum, startDate: Date, endDate: Date }) => {
+		this.reportsStore.getReport({
+			...reportInfo,
+			programId: this.programId(),
+			promoterId: this.promoterId(),
+		})
 	}
 
 }
