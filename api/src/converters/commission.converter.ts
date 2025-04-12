@@ -72,6 +72,8 @@ export class CommissionConverter {
 	convertToReportWorkbook(
 		signUps: SignUp[],
 		purchases: Purchase[],
+		signUpsCommissions: Map<string, Commission>,
+		purchasesCommissions: Map<string, Commission[]>,
 		promoter: Promoter,
 		startDate: Date,
 		endDate: Date,
@@ -91,7 +93,7 @@ export class CommissionConverter {
 			const row = new PurchaseRow([]);
 
 			let commissionAmount = 0;
-			purchase.contact.commissions.forEach((commission) => {
+			purchasesCommissions.get(purchase.purchaseId)!.forEach((commission) => {
 				commissionAmount += Number(commission.amount);
 			});
 
@@ -129,8 +131,8 @@ export class CommissionConverter {
 		signUps.forEach((signUp) => {
 			const row = new SignupRow([]);
 
-			const commissionAmount = signUp.contact.commissions.find(commission => commission.conversionType === conversionTypeEnum.SIGNUP)?.amount ?? 0;
-
+			const commission = signUpsCommissions.get(signUp.contactId);
+			const commissionAmount = commission?.amount ?? 0;
 			totalSignUpCommission += Number(commissionAmount);
 
 			row.setContactId(signUp.contact.contactId);

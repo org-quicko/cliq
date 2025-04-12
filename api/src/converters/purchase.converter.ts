@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PurchaseDto } from '../dtos';
-import { Promoter, Purchase } from '../entities';
+import { Commission, Promoter, Purchase } from '../entities';
 import { maskInfo } from 'src/utils';
 import { formatDate } from 'src/utils';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
@@ -80,6 +80,7 @@ export class PurchaseConverter {
 	/** For getting purchases report for the promoter */
 	convertToReportWorkbook(
 		purchases: Purchase[],
+		purchasesCommissions: Map<string, Commission[]>,
 		promoter: Promoter,
 		startDate: Date,
 		endDate: Date,
@@ -92,18 +93,21 @@ export class PurchaseConverter {
 		let totalCommission = 0;
 		let totalRevenue = 0;
 
+		// console.log(purchasesCommissions);
+
 		purchases.forEach((purchase) => {
 			const row = new PurchaseRow([]);
 
 			let commissionAmount = 0;
-			purchase.contact.commissions.forEach((commission) => {
+			// purchase.contact.commissions.forEach((commission) => {
+			// 	commissionAmount += Number(commission.amount);
+			// });
+			purchasesCommissions.get(purchase.purchaseId)!.forEach((commission) => {
 				commissionAmount += Number(commission.amount);
-			});
-
-			// console.log(purchase);
-			// console.log(`${commissionAmount} for contact ${purchase.contact.contactId}`);
+			})
 
 			totalCommission += Number(commissionAmount);
+
 			totalRevenue += Number(purchase.amount);
 
 			row.setPurchaseId(purchase.purchaseId);

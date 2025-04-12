@@ -20,6 +20,9 @@ export class Commission {
 	@Column('enum', { name: 'conversion_type', enum: conversionTypeEnum })
 	conversionType: conversionTypeEnum; // inquire about this
 
+	@Column('uuid', { name: 'external_id' })
+	externalId: string;
+
 	@Column('decimal')
 	amount: number;
 

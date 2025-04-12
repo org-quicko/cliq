@@ -38,7 +38,7 @@ import { MemberConverter } from '../converters/member.converter';
 import { ContactConverter } from '../converters/contact.converter';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { commissionSortByEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, statusEnum, visibilityEnum } from '../enums';
+import { commissionSortByEnum, conversionTypeEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, statusEnum, visibilityEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { CommissionConverter } from '../converters/commission.converter';
@@ -817,8 +817,9 @@ export class PromoterService {
 
 		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, false, filter) as SignUp[];
 		const promoterResult = await this.getPromoterEntity(promoterId);
+		const signUpsCommissions = await this.getSignUpsCommissions(signUpsResult);
 
-		const signUpSheetJsonWorkbook = this.signUpConverter.convertToReportWorkbook(signUpsResult, promoterResult, startDate, endDate);
+		const signUpSheetJsonWorkbook = this.signUpConverter.convertToReportWorkbook(signUpsResult, signUpsCommissions, promoterResult, startDate, endDate);
 
 		const signUpsTable = signUpSheetJsonWorkbook.getSignupSheet().getSignupTable();
 		const signUpSummaryList = signUpSheetJsonWorkbook.getSignupSummarySheet().getSignupSummaryList();
@@ -858,7 +859,7 @@ export class PromoterService {
 		endDate: Date,
 	) {
 		this.logger.info('START: getPurchasesReport service');
-
+		
 		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
 			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
@@ -874,15 +875,13 @@ export class PromoterService {
 		};
 
 		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
-
-
 		const promoterResult = await this.getPromoterEntity(promoterId);
-
-		const purchaseSheetJsonWorkbook = this.purchaseConverter.convertToReportWorkbook(purchasesResult, promoterResult, startDate, endDate);
+		const purchasesCommissions = await this.getPurchasesCommissions(purchasesResult);
+		
+		const purchaseSheetJsonWorkbook = this.purchaseConverter.convertToReportWorkbook(purchasesResult, purchasesCommissions, promoterResult, startDate, endDate);
 
 		const purchasesTable = purchaseSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
 		const purchaseSummaryList = purchaseSheetJsonWorkbook.getPurchaseSummarySheet().getPurchaseSummaryList();
-
 		const workbook = SignUpWorkbook.toXlsx();
 		const purchasesSheetData: any[] = [snakeCaseToHumanReadable(purchasesTable.getHeader())];
 		const purchasesSummarySheetData: any[] = [];
@@ -979,10 +978,20 @@ export class PromoterService {
 
 		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, false, filter) as SignUp[];
 		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
+		const signUpsCommissions = await this.getSignUpsCommissions(signUpsResult);
+		const purchasesCommissions = await this.getPurchasesCommissions(purchasesResult);
 
 		const promoterResult = await this.getPromoterEntity(promoterId);
 
-		const commissionSheetJsonWorkbook = this.commissionConverter.convertToReportWorkbook(signUpsResult, purchasesResult, promoterResult, startDate, endDate);
+		const commissionSheetJsonWorkbook = this.commissionConverter.convertToReportWorkbook(
+			signUpsResult, 
+			purchasesResult, 
+			signUpsCommissions,
+			purchasesCommissions,
+			promoterResult, 
+			startDate, 
+			endDate,
+		);
 
 		// get both tables and the list
 		const purchasesTable = commissionSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
@@ -1025,6 +1034,44 @@ export class PromoterService {
 
 		this.logger.info(`END: getCommissionsReport service`);
 		return fileBuffer;
+	}
+
+	private async getSignUpsCommissions(signUps: SignUp[]): Promise<Map<string, Commission>> {
+		const signUpsCommissions:  Map<string, Commission> = new Map();
+		
+		await Promise.all(
+			signUps.map(async (signUp) => {
+				const commission = (await this.commissionRepository.findOne({
+					where: {
+						conversionType: conversionTypeEnum.SIGNUP,
+						externalId: signUp.contactId,		
+					}
+				}))!;
+
+				signUpsCommissions.set(signUp.contactId, commission);
+			})
+		);
+
+		return signUpsCommissions;
+	}
+
+	private async getPurchasesCommissions(purchases: Purchase[]): Promise<Map<string, Commission[]>> {
+		const purchasesCommissions:  Map<string, Commission[]> = new Map();
+		
+		await Promise.all(
+			purchases.map(async (purchase) => {
+				const commissions = await this.commissionRepository.find({
+					where: {
+						conversionType: conversionTypeEnum.PURCHASE,
+						externalId: purchase.purchaseId,		
+					}
+				});
+
+				purchasesCommissions.set(purchase.purchaseId, commissions);
+			})
+		);
+
+		return purchasesCommissions;
 	}
 
 	async getLinksReport(

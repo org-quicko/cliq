@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SignUpDto } from '../dtos';
-import { Promoter, SignUp } from '../entities';
+import { Commission, Promoter, SignUp } from '../entities';
 import { maskInfo } from 'src/utils';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
@@ -75,6 +75,7 @@ export class SignUpConverter {
 	/** For getting signups report for the promoter */
 	convertToReportWorkbook(
 		signUps: SignUp[],
+		signUpsCommissions: Map<string, Commission>,
 		promoter: Promoter,
 		startDate: Date,
 		endDate: Date,
@@ -89,7 +90,8 @@ export class SignUpConverter {
 
 		signUps.forEach((signUp) => {
 			const row = new SignupRow([]);
-			const commission = signUp.contact.commissions.find(commission => commission.conversionType === conversionTypeEnum.SIGNUP);
+
+			const commission = signUpsCommissions.get(signUp.contactId);
 			totalCommission += commission?.amount ?? 0;
 
 			row.setCommission(commission?.amount ?? 0);

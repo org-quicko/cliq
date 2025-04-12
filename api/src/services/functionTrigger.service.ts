@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { LoggerService } from "./logger.service";
 import { commissionTypeEnum, conditionParameterEnum, conversionTypeEnum, effectEnum, functionStatusEnum, triggerEnum } from "../enums";
-import { PURCHASE_CREATED, SIGNUP_CREATED, TriggerEvent } from "../events";
+import { PURCHASE_CREATED, PurchaseCreatedEvent, SIGNUP_CREATED, SignUpCreatedEvent, TriggerEvent } from "../events";
 import { OnEvent } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -112,12 +112,20 @@ export class FunctionTriggerService {
             }
 
             const createCommissionDto = new CreateCommissionDto();
+
             createCommissionDto.contactId = eventEntityPayload.contactId;
             createCommissionDto.conversionType = conversionType;
             createCommissionDto.promoterId = eventEntityPayload.promoterId;
             createCommissionDto.linkId = eventEntityPayload.linkId;
             createCommissionDto.revenue = revenue;
             createCommissionDto.amount = commissionAmount;
+            
+            if (event instanceof PurchaseCreatedEvent) {
+                createCommissionDto.externalId = event.purchaseId!;
+                
+            } else if (event instanceof SignUpCreatedEvent) {
+                createCommissionDto.externalId = event.signUpId!;
+            }
 
             await this.commissionService.createCommission(createCommissionDto);
         }
