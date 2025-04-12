@@ -616,6 +616,9 @@ export class PromoterService {
 				promoter: {
 					commissions: true
 				},
+				contact: {
+					commissions: true
+				},
 				link: true
 			},
 		});
