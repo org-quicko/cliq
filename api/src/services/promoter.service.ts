@@ -132,7 +132,7 @@ export class PromoterService {
 			if (memberId) {
 				const memberResult = await this.memberService.getMemberEntity(memberId);
 	
-				if (await this.memberService.memberExistsInAnyPromoter(memberResult.email, programId)) {
+				if (await this.memberService.memberExistsInProgram(memberResult.email, programId)) {
 					this.logger.error(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
 					throw new UnauthorizedException(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
 				}
@@ -321,13 +321,13 @@ export class PromoterService {
 			const memberRepository = manager.getRepository(Member);
 
 			// First check if member exists in any promoter (returns false if account doesn't exist at all)
-			const memberExistsInAnyPromoter = await this.memberService.memberExistsInAnyPromoter(
+			const memberExistsInProgram = await this.memberService.memberExistsInProgram(
 				body.email,
 				programId,
 			);
 
 			// member does exist in at least 1 promoter => deny entry in another promoter
-			if (memberExistsInAnyPromoter) {
+			if (memberExistsInProgram) {
 				this.logger.error(`Error. Member already exists in a promoter, cannot join another promoter.`);
 				throw new ConflictException(`Error. Member already exists in a promoter, cannot join another promoter.`);
 			}
@@ -393,7 +393,7 @@ export class PromoterService {
 
 
 			// If member doesn't exist, create new member and promoter-member relationship
-			if (await this.memberService.memberExistsInAnyPromoter(body.email, programId)) {
+			if (await this.memberService.memberExistsInProgram(body.email, programId)) {
 				this.logger.error(`Error. Email ${body.email} is already part of Program ${programId}`);
 				throw new BadRequestException(`Error. Email ${body.email} is already part of Program ${programId}`);
 			}

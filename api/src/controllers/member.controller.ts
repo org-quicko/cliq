@@ -2,7 +2,7 @@ import { Controller, Get, Post, Patch, Body, Param, Delete, UseGuards } from '@n
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { MemberService } from '../services/member.service';
-import { CreateMemberDto, MemberDto, SignUpMemberDto, UpdateMemberDto } from '../dtos';
+import { CreateMemberDto, MemberDto, MemberExistsInProgramDto, SignUpMemberDto, UpdateMemberDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { MemberAuthService } from '../services/memberAuth.service';
 import { AuthGuard } from '../guards/auth.guard';
@@ -120,6 +120,23 @@ export class MemberController {
 	}
 
 	/**
+	 * Check if member exists in a promoter inside a given program
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Post('/exists')
+	async memberExistsInProgram(
+		@Param('program_id') programId: string,
+		@Body() body: MemberExistsInProgramDto,
+	) {
+		this.logger.info('START: memberExistsInProgram controller');
+
+		const result = await this.memberService.memberExistsInProgram(body.email, programId);
+
+		this.logger.info('END: memberExistsInProgram controller');
+		return { message: 'Successfully checked member existence in program.', result };
+	}
+
+	/**
 	* Leave promoter
 	*/
 	@ApiResponse({ status: 204, description: 'No Content' })
@@ -156,4 +173,6 @@ export class MemberController {
 		this.logger.info('END: getPromoterOfMemberInProgram controller');
 		return { message: `Successfully fetched promoter of Member ${memberId}.`, result };
 	}
+
+
 }

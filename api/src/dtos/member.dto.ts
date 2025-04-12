@@ -7,7 +7,7 @@ import {
 	IsOptional,
 	IsEnum,
 } from 'class-validator';
-import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType, PickType,  } from '@nestjs/mapped-types';
 import { memberRoleEnum, userRoleEnum, statusEnum } from 'src/enums';
 
 export class MemberDto {
@@ -84,3 +84,5 @@ export class UpdateMemberDto extends OmitType(CreateMemberDto, ['email', 'passwo
 }
 
 export class SignUpMemberDto extends OmitType(CreateMemberDto, ['role']) { }
+
+export class MemberExistsInProgramDto extends PickType(SignUpMemberDto, ['email']) { }

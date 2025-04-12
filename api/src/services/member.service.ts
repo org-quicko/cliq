@@ -43,7 +43,7 @@ export class MemberService {
 	async memberSignUp(programId: string, body: SignUpMemberDto) {
 		this.logger.info('START: memberSignUp service');
 
-		if (await this.memberExistsInAnyPromoter(body.email, programId)) {
+		if (await this.memberExistsInProgram(body.email, programId)) {
 			this.logger.error(`Error. Email ${body.email} is already part of Program ${programId}`);
 			throw new BadRequestException(`Error. Email ${body.email} is already part of Program ${programId}`);
 		}
@@ -177,7 +177,7 @@ export class MemberService {
 			}
 
 			if (email && email !== member.email) {
-				if (await this.memberExistsInAnyPromoter(email, member.program.programId)) {
+				if (await this.memberExistsInProgram(email, member.program.programId)) {
 					this.logger.error(`Error. Cannot use that email as it already exists in the program!`);
 					throw new BadRequestException(`Error. Cannot use that email as it already exists in the program!`);
 				}
@@ -225,8 +225,8 @@ export class MemberService {
 		this.logger.info('END: deleteMember service');
 	}
 
-	async memberExistsInAnyPromoter(email: string, programId: string) {
-		this.logger.info('START: memberExistsInAnyPromoter service');
+	async memberExistsInProgram(email: string, programId: string) {
+		this.logger.info('START: memberExistsInProgram service');
 		const member = await this.memberRepository.findOne({
 			where: {
 				email: email,
@@ -251,7 +251,7 @@ export class MemberService {
 			}
 		}
 
-		this.logger.info('END: memberExistsInAnyPromoter service');
+		this.logger.info('END: memberExistsInProgram service');
 		return exists;
 	}
 
