@@ -4,12 +4,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink, RouterOutlet, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
+import { TeamStore } from './components/team/store/team.store';
 
 @Component({
 	selector: 'app-settings',
 	imports: [MatTabsModule, MatDividerModule, RouterOutlet, RouterLink, RouterLinkActive, TitleCasePipe],
 	templateUrl: './settings.component.html',
-	styleUrl: './settings.component.scss'
+	styleUrl: './settings.component.scss',
+	providers: [TeamStore],
+
 })
 export class SettingsComponent implements OnInit, OnDestroy {
 
