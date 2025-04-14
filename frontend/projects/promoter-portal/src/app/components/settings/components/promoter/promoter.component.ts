@@ -54,11 +54,11 @@ export class PromoterComponent {
 	private readonly ability = inject<PureAbility<MemberAbilityTuple>>(PureAbility);
 
 	actionableItem: ActionableListItemInterface = {
-		title: 'Leave promoter',
-		description: 'Remove all your associated data',
-		icon: 'logout',
+		title: 'Delete promoter',
+		description: 'Remove all associated links, referrals and commission data',
+		icon: 'delete',
 		onClick: () => {
-			this.onLeavePromoter();
+			this.onDeletePromoter();
 		}
 	}
 
