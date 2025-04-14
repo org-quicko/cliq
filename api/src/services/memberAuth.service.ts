@@ -26,7 +26,7 @@ export class MemberAuthService {
 
 		if (!entity) {
 			throw new UnauthorizedException({
-				error: `Member does not exist.`,
+				error: errorMessage,
 				code: 401,
 			});
 		}
@@ -48,40 +48,26 @@ export class MemberAuthService {
 			input.email,
 		);
 
-		// const existsInAnyPromoter = await this.memberService.memberExistsInAnyPromoter(
-		// 	input.email,
-		// 	programId,
-		// );
-
 		// member isn't part of the program
 		if (!entity) {
 			logInData = null;
 			errorMessage = `You are not registered in this program!`;
 			throw new BadRequestException(errorMessage);
+
 		} else {
+			// incorrect password
+			if (!(await this.comparePasswords(input.password, entity.password))) {
+				logInData = null;
+				errorMessage = `Invalid password! Please try again!`;
+				throw new BadRequestException(errorMessage);
+			} else {
 
-			// member's part of the program but isn't part of any promoter
-			// if (!existsInAnyPromoter) {
-			// 	logInData = null;
-			// 	errorMessage = `You are not part of any promoter in this program right now!`;
-			// 	throw new BadRequestException(errorMessage);
-			// } else {
-
-				// incorrect password
-				if (!(await this.comparePasswords(input.password, entity.password))) {
-					logInData = null;
-					errorMessage = `Invalid password! Please try again!`;
-					throw new BadRequestException(errorMessage);
-				} else {
-
-					// valid member, allow login
-					logInData = {
-						member_id: entity.memberId,
-						email: entity.email,
-					};
-				}
-
-			// }
+				// valid member, allow login
+				logInData = {
+					member_id: entity.memberId,
+					email: entity.email,
+				};
+			}
 		}
 
 		this.logger.info(`END: validateMember service`);
