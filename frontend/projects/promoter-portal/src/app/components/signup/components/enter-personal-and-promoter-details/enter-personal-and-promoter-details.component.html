@@ -1,0 +1,61 @@
+<form [formGroup]="signUpForm" class="w-[400px] max-w-md space-y-4">
+
+	<!-- Form fields -->
+	<div class="flex flex-col gap-6">
+
+		<div class="flex gap-4">
+			<mat-form-field [appearance]="'outline'" class="w-1/2">
+				<mat-label>First Name</mat-label>
+				<input type="text" matInput formControlName="firstName" class="w-full max-w-[468px]" required />
+			</mat-form-field>
+
+			<mat-form-field [appearance]="'outline'" class="w-1/2">
+				<mat-label>Last Name</mat-label>
+				<input type="text" matInput formControlName="lastName" class="w-full max-w-[468px]" required />
+			</mat-form-field>
+		</div>
+
+		<mat-form-field [appearance]="'outline'" class="w-full">
+			<mat-label>Promoter Name</mat-label>
+			<input type="text" matInput formControlName="promoterName" class="w-full max-w-[468px]" required placeholder="for eg. Mr Beast" />
+		</mat-form-field>
+
+		<mat-form-field [appearance]="'outline'" class="w-full">
+			<mat-label>Password</mat-label>
+			<input [type]="hidePassword ? 'password': 'text'" matInput formControlName="password" autocomplete="off" required />
+			<button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+				<mat-icon class="material-symbols-outlined">{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+			</button>
+		</mat-form-field>
+
+		@if (error()) {
+		<mat-error class="text-on-error-container"><span>{{ error()?.error.message }}</span></mat-error>
+		}
+
+		<div class="flex flex-col gap-7">
+			<!-- Login Button -->
+			<button
+				mat-flat-button
+				color="primary"
+				class="w-full h-12 mat-label-large text-on-primary rounded-full"
+				type="button"
+				(click)="onClickContinue()"
+			>
+				Continue
+			</button>
+
+			<!-- Back Button -->
+			<button
+				mat-button
+				type="button"
+				class="w-full h-12 text-primary mat-label-large cursor-pointer"
+				(click)="onClickBack()"
+			>
+				Back
+			</button>
+
+
+		</div>
+	</div>
+
+</form>

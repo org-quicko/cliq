@@ -127,3 +127,9 @@ export class SignUpMemberDto implements Omit<CreateMemberDto, 'role'> {
 	@IsString()
 	lastName: string;
 }
+
+export class MemberExistsInProgramDto implements Pick<SignUpMemberDto, 'email'> {
+	@prop()
+	@IsEmail()
+	email: string;
+}

@@ -10,7 +10,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Status } from '@org.quicko.cliq/ngx-core';
 import { PromoterService } from '../../../services/promoter.service';
-import { onRegisterForProgramError, onRegisterForProgramSuccess } from '../../signup/store/signup.store';
+import { onRegisterForProgramError, onRegisterForProgramSuccess } from '../../terms-and-conditions/store/tnc.store';
 
 export interface LogInState {
 	member: MemberDto | null;

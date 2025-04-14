@@ -114,7 +114,14 @@ export const PromoterStore = signalStore(
 						)
 					})
 				)
-			)
+			),
+
+			updatePromoterTncAcceptedStatus(accepted: boolean) {
+				const promoter = Object.assign(new PromoterDto(), store.promoter());
+				promoter.acceptedTermsAndConditions = accepted;
+
+				patchState(store, { promoter });
+			}
 
 		})),
 );

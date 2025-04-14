@@ -48,7 +48,7 @@ export class PromoterService {
 
 		if (!queryParams.accepted_tnc) queryParams.accepted_tnc = false;
 
-		return this.httpClient.get<ApiResponse<any>>(url, {
+		return this.httpClient.post<ApiResponse<any>>(url, {}, {
 			headers: {
 				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'

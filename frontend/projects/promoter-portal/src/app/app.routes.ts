@@ -17,6 +17,8 @@ import { ProfileComponent } from './components/settings/components/profile/profi
 import { PromoterComponent } from './components/settings/components/promoter/promoter.component';
 import { TeamComponent } from './components/settings/components/team/team.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { TermsAndConditionsComponent } from './components/terms-and-conditions/terms-and-conditions.component';
+import { TncResolver } from './resolver/tnc.resolver';
 
 export const routes: Routes = [
 	{
@@ -30,64 +32,76 @@ export const routes: Routes = [
 					promoter: PromoterResolver,
 				},
 				path: '',
-				component: LayoutComponent,
 				children: [
 					{
-						path: 'home',
-						component: HomeComponent,
+						path: '',
+						resolve: {
+							tnc: TncResolver
+						},
+						component: LayoutComponent,
 						children: [
-							{ path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 							{
-								path: 'dashboard',
+								path: 'home',
+								component: HomeComponent,
 								children: [
+									{ path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 									{
-										path: '',
-										pathMatch: 'full',
-										component: DashboardComponent
-									},
-									{
-										path: 'links/:link_id/commissions',
-										component: LinkCommissionsComponent
-									}
-								]
+										path: 'dashboard',
+										children: [
+											{
+												path: '',
+												pathMatch: 'full',
+												component: DashboardComponent
+											},
+											{
+												path: 'links/:link_id/commissions',
+												component: LinkCommissionsComponent
+											}
+										]
 
-							},
-							{
-								path: 'referrals',
-								children: [
-									{
-										path: '',
-										pathMatch: 'full',
-										component: ReferralsComponent
 									},
 									{
-										path: 'referrals/:contact_id/commissions',
-										component: ReferralCommissionsComponent
-									}
+										path: 'referrals',
+										children: [
+											{
+												path: '',
+												pathMatch: 'full',
+												component: ReferralsComponent
+											},
+											{
+												path: 'referrals/:contact_id/commissions',
+												component: ReferralCommissionsComponent
+											}
+										]
+									},
+									{ path: 'reports', component: ReportsComponent },
 								]
 							},
-							{ path: 'reports', component: ReportsComponent },
+							{
+								path: 'settings',
+								component: SettingsComponent,
+								children: [
+									{ path: '', redirectTo: 'profile', pathMatch: 'full' },
+									{
+										path: 'profile',
+										component: ProfileComponent
+									},
+									{
+										path: 'promoter',
+										component: PromoterComponent
+									},
+									{
+										path: 'team',
+										component: TeamComponent
+									},
+								]
+							},
 						]
 					},
 					{
-						path: 'settings',
-						component: SettingsComponent,
-						children: [
-							{ path: '', redirectTo: 'profile', pathMatch: 'full' },
-							{
-								path: 'profile',
-								component: ProfileComponent
-							},
-							{
-								path: 'promoter',
-								component: PromoterComponent
-							},
-							{
-								path: 'team',
-								component: TeamComponent
-							},
-						]
-					},
+						path: 'tnc',
+						component: TermsAndConditionsComponent
+					}
 				],
 			},
 			{ path: 'login', component: LoginComponent },

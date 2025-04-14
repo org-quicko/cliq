@@ -4,7 +4,7 @@ import { instanceToPlain } from 'class-transformer';
 import { environment } from '../../../environments/environment.dev';
 import { AuthService } from './auth.service';
 import { ProgramStore } from '../store/program.store';
-import { ApiResponse, MemberDto, UpdateMemberDto, SignUpMemberDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, MemberDto, UpdateMemberDto, SignUpMemberDto, MemberExistsInProgramDto } from '@org.quicko.cliq/ngx-core';
 import { PromoterStore } from '../store/promoter.store';
 
 @Injectable({
@@ -31,6 +31,11 @@ export class MemberService {
 	signUp(programId: string, member: SignUpMemberDto) {
 		const url = `${this.getEndpoint(programId)}/members/signup`;
 		return this.httpClient.post<ApiResponse<any>>(url, instanceToPlain(member));
+	}
+
+	checkMemberExistenceInProgram(programId: string, memberExistence: MemberExistsInProgramDto) {
+		const url = `${this.getEndpoint(programId)}/members/exists`;
+		return this.httpClient.post<ApiResponse<any>>(url, instanceToPlain(memberExistence));
 	}
 
 	getMember(programId: string) {

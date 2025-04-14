@@ -1,17 +1,26 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { SnackbarService } from '../../../../../org-quicko-cliq-core/src/lib/services/snackbar.service';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
 import { CommonModule } from '@angular/common';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
-import { MemberDto } from '../../../../../org-quicko-cliq-core/src/lib/dtos';
 import { onSignUpError, onSignUpSuccess, SignUpStore } from './store/signup.store';
+import { TempLogoComponent } from '../temp-logo/temp-logo.component';
+import { CreatePromoterDto, MemberExistsInProgramDto, SignUpMemberDto, Status } from '@org.quicko.cliq/ngx-core';
+import { SnackbarService } from '@org.quicko/ngx-core';
+import { ProgramStore } from '../../store/program.store';
+import { EnterPersonalAndPromoterDetailsComponent } from './components/enter-personal-and-promoter-details/enter-personal-and-promoter-details.component';
+import { EnterEmailComponent } from './components/enter-email/enter-email.component';
+
+export enum signUpScreens {
+	ENTER_EMAIL = 'enter-email',
+	ENTER_PERSONAL_AND_PROMOTER_DETAILS = 'enter-personal-and-promoter-details'
+};
 
 @Component({
 	selector: 'app-signup',
@@ -23,9 +32,10 @@ import { onSignUpError, onSignUpSuccess, SignUpStore } from './store/signup.stor
 		MatSnackBarModule,
 		MatIconModule,
 		CommonModule,
-		RouterLinkActive,
-		RouterLink,
 		AccountsContainerComponent,
+		EnterEmailComponent,
+		EnterPersonalAndPromoterDetailsComponent,
+		TempLogoComponent,
 	],
 	providers: [SignUpStore],
 	templateUrl: './signup.component.html',
@@ -35,9 +45,18 @@ export class SignUpComponent {
 
 	signUpForm: FormGroup;
 
-	member: MemberDto;
+	member: SignUpMemberDto;
+
+	hidePassword: boolean = true;
 
 	readonly signUpStore = inject(SignUpStore);
+	readonly programStore = inject(ProgramStore);
+
+	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly isLoading = computed(() => this.signUpStore.status() === Status.LOADING);
+	readonly error = computed(() => this.signUpStore.error());
+
+	currentScreen: signUpScreens = signUpScreens.ENTER_EMAIL;
 
 	constructor(
 		private fb: RxFormBuilder,
@@ -45,15 +64,21 @@ export class SignUpComponent {
 		private snackBarService: SnackbarService,
 		private route: ActivatedRoute
 	) {
-		this.member = new MemberDto();
-
-		this.signUpForm = this.fb.formGroup(this.member);
+		this.member = new SignUpMemberDto();
+		this.signUpForm = this.fb.formGroup<SignUpMemberDto>(this.member);
+		this.signUpForm.addControl('promoterName', new FormControl());
 	}
 
 
 	ngOnInit() {
 		onSignUpSuccess.subscribe(() => {
-			this.router.navigate(['../login'], { relativeTo: this.route });
+			const createdPromoter = new CreatePromoterDto();
+			createdPromoter.name = this.signUpForm.get('promoterName')?.value;
+
+			this.signUpStore.createPromoter({
+				programId: this.programId(),
+				createdPromoter
+			});
 		});
 
 		onSignUpError.subscribe((message) => {
@@ -61,10 +86,31 @@ export class SignUpComponent {
 		});
 	}
 
-	onSignUp() {
+	changeScreen(value: signUpScreens) {
+		this.currentScreen = value;
+	}
+
+	onClickContinueOnFirstScreen = () => {
 		if (this.signUpForm.valid) {
-			// this.signUpStore.signUp(this.member);
-			console.log('ok');
+
+			const memberExists = new MemberExistsInProgramDto();
+			memberExists.email = this.signUpForm.get('email')?.value;
+
+			this.signUpStore.checkMemberExistenceInProgram({
+				memberExistence: memberExists,
+				programId: this.programId(),
+			});
+		}
+	}
+
+	onClickContinueOnSecondScreen = () => {
+		if (this.signUpForm.valid) {
+
+			this.signUpStore.signUp({
+				createdMember: this.member,
+				programId: this.programId(),
+			});
+			// this.router.navigate(['../tnc'], { relativeTo: this.route });
 		}
 	}
 }
