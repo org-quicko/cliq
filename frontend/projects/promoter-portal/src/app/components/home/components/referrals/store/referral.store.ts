@@ -8,6 +8,7 @@ import { PromoterService } from '../../../../../services/promoter.service';
 import { referralSortByEnum, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
 import { SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { ReferralTable, PromoterWorkbook, ReferralRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface ReferralStoreState {
 	referrals: ReferralTable | null;
@@ -93,9 +94,16 @@ export const ReferralStore = signalStore(
 									});
 
 								},
-								error: (err) => {
-									if (err instanceof Error) {
-										patchState(store, { status: Status.ERROR, error: err.message });
+								error: (error: HttpErrorResponse) => {
+									if (error.status == 404) {
+										patchState(store, {
+											status: Status.SUCCESS,
+											error: null,
+										});
+										return;
+									}
+									else {
+										patchState(store, { status: Status.ERROR, error });
 										snackbarService.openSnackBar('Failed to fetch referrals', '');
 									}
 								}

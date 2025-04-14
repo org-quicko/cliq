@@ -274,6 +274,12 @@ export const DashboardStore = signalStore(
 								},
 								error: (error: HttpErrorResponse) => {
 									if (error.status == 404) {
+										patchState(store, {
+											analytics: {
+												...store.analytics(),
+												status: Status.SUCCESS,
+											},
+										});
 										console.error('No analytics found for this promoter');
 									} else {
 										patchState(store, {
