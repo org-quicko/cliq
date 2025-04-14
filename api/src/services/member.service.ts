@@ -55,11 +55,13 @@ export class MemberService {
 			},
 		});
 		const savedMember = await this.memberRepository.save(newMember);
-
-		const memberDto = this.memberConverter.convert(savedMember);
+		const authResult = await this.memberAuthService.authenticateMember(programId, {
+			email: savedMember.email,
+			password: body.password
+		});
 
 		this.logger.info('END: memberSignUp service');
-		return memberDto;
+		return authResult;
 	}
 
 	/**
