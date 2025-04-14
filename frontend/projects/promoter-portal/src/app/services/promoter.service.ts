@@ -9,6 +9,7 @@ import {
 	CreatePromoterDto,
 	memberSortByEnum,
 	referralSortByEnum,
+	RegisterForProgramDto,
 	reportEnum,
 	reportPeriodEnum,
 	sortOrderEnum,
@@ -43,17 +44,15 @@ export class PromoterService {
 		});
 	}
 
-	registerForProgram(programId: string, promoterId: string, queryParams: { accepted_tnc?: boolean } = {}) {
+	registerForProgram(programId: string, promoterId: string, registerForProgram: RegisterForProgramDto) {
 		const url = this.getEndpoint(programId, promoterId) + '/register';
 
-		if (!queryParams.accepted_tnc) queryParams.accepted_tnc = false;
+		const body = instanceToPlain(registerForProgram);
 
-		return this.httpClient.post<ApiResponse<any>>(url, {}, {
+		return this.httpClient.post<ApiResponse<any>>(url, body, {
 			headers: {
 				Authorization: this.authService.getToken(),
-				'x-accept-type': 'application/json;format=sheet-json'
 			},
-			params: queryParams
 		});
 	}
 

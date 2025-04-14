@@ -6,6 +6,7 @@ import { ProgramStore } from '../../store/program.store';
 import { PromoterStore } from '../../store/promoter.store';
 import { onRegisterForProgramSuccess, TncStore } from './store/tnc.store';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RegisterForProgramDto } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-terms-and-conditions',
@@ -96,9 +97,13 @@ Let’s grow together.
 	}
 
 	onSubmit() {
+		const registerForProgram = new RegisterForProgramDto();
+		registerForProgram.acceptedTermsAndConditions = true;
+
 		this.tncStore.registerForProgram({
 			programId: this.programId(),
 			promoterId: this.promoterId(),
+			registerForProgram
 		});
 	}
 

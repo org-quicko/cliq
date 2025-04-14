@@ -51,3 +51,9 @@ export class UpdatePromoterDto {
 	logoUrl?: string;
 
 }
+
+export class RegisterForProgramDto implements Pick<PromoterDto, 'acceptedTermsAndConditions'> {
+	@Expose({ name: 'accepted_terms_and_conditions' })
+	@IsBoolean()
+	acceptedTermsAndConditions: boolean;
+}

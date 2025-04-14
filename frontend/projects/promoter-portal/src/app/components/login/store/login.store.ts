@@ -58,29 +58,6 @@ export const LogInStore = signalStore(
 				)
 			),
 
-			registerForProgram: rxMethod<{ programId: string, promoterId: string }>(
-				pipe(
-					tap(() => patchState(store, { status: Status.LOADING })),
-
-					switchMap(({ programId, promoterId }) => {
-						return promoterService.registerForProgram(programId, promoterId, { accepted_tnc: true }).pipe(
-							tapResponse({
-								next(response) {
-									onRegisterForProgramSuccess.emit();
-									patchState(store, { status: Status.SUCCESS, error: null });
-								},
-								error(error) {
-									console.error(error);
-									onRegisterForProgramError.emit();
-									patchState(store, { status: Status.ERROR, error });
-									snackBarService.openSnackBar('Failed to register for program', '');
-								},
-							})
-						)
-					})
-				)
-			)
-
 		})
 	),
 );

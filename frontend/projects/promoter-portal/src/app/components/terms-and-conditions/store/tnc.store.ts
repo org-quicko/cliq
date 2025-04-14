@@ -1,7 +1,7 @@
 import { withDevtools } from "@angular-architects/ngrx-toolkit";
 import { EventEmitter, inject } from "@angular/core";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
-import { Status } from "@org.quicko.cliq/ngx-core";
+import { RegisterForProgramDto, Status } from "@org.quicko.cliq/ngx-core";
 import { PromoterService } from "../../../services/promoter.service";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { pipe, switchMap, tap } from "rxjs";
@@ -30,12 +30,12 @@ export const TncStore = signalStore(
 		snackBarService = inject(SnackbarService),
 	) => ({
 
-		registerForProgram: rxMethod<{ programId: string, promoterId: string }>(
+		registerForProgram: rxMethod<{ programId: string, promoterId: string, registerForProgram: RegisterForProgramDto }>(
 			pipe(
 				tap(() => patchState(store, { status: Status.LOADING })),
 
-				switchMap(({ programId, promoterId }) => {
-					return promoterService.registerForProgram(programId, promoterId, { accepted_tnc: true }).pipe(
+				switchMap(({ programId, promoterId, registerForProgram }) => {
+					return promoterService.registerForProgram(programId, promoterId, registerForProgram).pipe(
 						tapResponse({
 							next(response) {
 								onRegisterForProgramSuccess.emit();

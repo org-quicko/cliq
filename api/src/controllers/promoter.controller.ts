@@ -5,6 +5,7 @@ import { PromoterService } from '../services/promoter.service';
 import {
 	CreateMemberDto,
 	CreatePromoterDto,
+	RegisterForProgramDto,
 	UpdatePromoterDto,
 	UpdatePromoterMemberDto,
 } from '../dtos';
@@ -658,17 +659,13 @@ export class PromoterController {
 	async registerForProgram(
 		@Param('program_id') programId: string, 
 		@Param('promoter_id') promoterId: string,
-		@Query('accepted_tnc') acceptedTermsAndConditions?: boolean,
+		@Body() body: RegisterForProgramDto,
 	) {
 		this.logger.info('START: registerForProgram controller');
 
-		if (acceptedTermsAndConditions === undefined || acceptedTermsAndConditions === null) {
-			throw new BadRequestException(`Error. Must pass in accepted_tnc query parameter`);
-		}
+		const result = await this.promoterService.registerForProgram(body.acceptedTermsAndConditions, programId, promoterId);
 
-		const result = await this.promoterService.registerForProgram(acceptedTermsAndConditions, programId, promoterId);
-
-		const message = acceptedTermsAndConditions 
+		const message = body.acceptedTermsAndConditions 
 			? `Successfully registered for Program ${programId} => 'terms and conditions accepted'` 
 			: `Warning. Terms and conditions rejected. You will be unable to create links, get reports or track referrals until TNC are accepted.`;
 

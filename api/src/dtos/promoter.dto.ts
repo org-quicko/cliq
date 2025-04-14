@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType, PickType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
 import { IsString, IsOptional, IsDate, IsUUID, IsBoolean } from 'class-validator';
 
@@ -38,3 +38,5 @@ export class CreatePromoterDto {
 }
 
 export class UpdatePromoterDto extends PartialType(CreatePromoterDto) {}
+
+export class RegisterForProgramDto extends PickType(PromoterDto, ['acceptedTermsAndConditions']) { }
