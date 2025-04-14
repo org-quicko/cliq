@@ -1,4 +1,10 @@
 <app-accounts-container>
+	@if (isLoading()) {
+		<div class="lg:w-1/2 bg-surface h-full space-y-4 flex justify-center items-center">
+			<mat-spinner></mat-spinner>
+		</div>
+	}
+	@else {
 	<div class="lg:w-1/2 flex flex-col justify-center items-center bg-surface px-20 py-16">
 		<div class="flex flex-col gap-8">
 			<div class="mat-headline-medium text-on-surface text-center">
@@ -7,8 +13,8 @@
 					please review the terms and conditions.</span>
 			</div>
 
-			<mat-card class="bg-surface-container mat-corner-small flex flex-col gap-5 p-6">
-				<mat-card-header class="mat-title-large">
+			<mat-card class="bg-surface-container text-on-surface mat-corner-small flex flex-col gap-5 p-6">
+				<mat-card-header class="mat-title-large flex justify-start">
 					<span>Terms & Conditions</span>
 				</mat-card-header>
 
@@ -39,4 +45,5 @@
 			</div>
 		</div>
 	</div>
+	}
 </app-accounts-container>

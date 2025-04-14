@@ -6,14 +6,16 @@ import { ProgramStore } from '../../store/program.store';
 import { PromoterStore } from '../../store/promoter.store';
 import { onRegisterForProgramSuccess, TncStore } from './store/tnc.store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RegisterForProgramDto } from '@org.quicko.cliq/ngx-core';
+import { RegisterForProgramDto, Status } from '@org.quicko.cliq/ngx-core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
 	selector: 'app-terms-and-conditions',
 	imports: [
 		AccountsContainerComponent,
 		MatButtonModule,
-		MatCardModule
+		MatCardModule,
+		MatProgressSpinnerModule
 	],
 	providers: [TncStore],
 	templateUrl: './terms-and-conditions.component.html',
@@ -27,6 +29,7 @@ export class TermsAndConditionsComponent implements OnInit {
 
 	readonly programId = computed(() => this.programStore.program()!.programId);
 	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
+	readonly isLoading = computed(() => this.tncStore.status() === Status.LOADING);
 
 	tncTextTemp = `
 		These Terms and Conditions govern your participation in the Logoipsum Affiliate Program. By signing up as an affiliate, you agree to abide by the terms detailed below.
