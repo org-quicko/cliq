@@ -297,9 +297,11 @@ export class MemberService {
 			throw new NotFoundException(`Error. Member ${memberId} isn't part of any promoter!`);
 		}
 
-		const acceptedTermsAndConditions = promoterMemberResult.promoter.programPromoters.find(
+		const programPromoterRow = promoterMemberResult.promoter.programPromoters.find(
 			programPromoter => programPromoter.programId === programId
-		)!.acceptedTermsAndConditions;
+		);
+
+		const acceptedTermsAndConditions = programPromoterRow?.acceptedTermsAndConditions ?? false;
 
 		const promoterDto = this.promoterConverter.convert(promoterMemberResult.promoter, acceptedTermsAndConditions);
 
