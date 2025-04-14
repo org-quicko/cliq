@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { ProgramService } from '../services/program.service';
 import { ProgramDto as Program, Status } from '@org.quicko.cliq/ngx-core';
+import { withDevtools } from '@angular-architects/ngrx-toolkit';
 
 export interface ProgramStoreState {
 	program: Program | null,
@@ -19,7 +20,7 @@ export const ProgramStore = signalStore(
 	{ providedIn: 'root' },
 
 	withState(initialProgramState),
-
+	withDevtools('program'),
 	withMethods(
 		(
 			store,
