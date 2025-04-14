@@ -1,5 +1,6 @@
 import {
 	BadRequestException,
+	ConflictException,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
@@ -39,6 +40,11 @@ export class LinkService {
 		this.logger.info('START: createLink service');
 
 		await this.promoterService.hasAcceptedTermsAndConditions(programId, promoterId);
+
+		if (!(await this.linkExists(body.refVal, programId))) {
+			this.logger.error(`Link with ref value ${body.refVal} already exists in this program!`);
+			throw new ConflictException(`Link with ref value ${body.refVal} already exists in this program!`);
+		}
 
 		const program = await this.programService.getProgram(programId);
 		const promoter = await this.promoterService.getPromoter(programId, promoterId);
@@ -237,5 +243,21 @@ export class LinkService {
 		
 		await this.linkRepository.update({ linkId }, { status: linkStatusEnum.INACTIVE });
 		this.logger.info('END: deleteLink service');
+	}
+
+	async linkExists(refVal: string, programId: string) {
+		this.logger.info('START: linkExists service');
+
+		const linkResult = await this.linkRepository.findOne({
+			where: {
+				refVal,
+				programId,
+			}
+		});
+
+		const exists = (linkResult === undefined) || (linkResult === null);
+
+		this.logger.info('END: linkExists service');
+		return exists;
 	}
 }

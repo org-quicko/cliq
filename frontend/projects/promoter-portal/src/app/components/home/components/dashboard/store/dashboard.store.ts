@@ -8,10 +8,10 @@ import { LinkService } from '../../../../../services/link.service';
 import { plainToInstance } from 'class-transformer';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { Status, CreateLinkDto, PaginationOptions, sortOrderEnum, linkSortByEnum } from '@org.quicko.cliq/ngx-core';
-import { SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { LinkStatsRow, LinkStatsTable, PromoterStatsTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PromoterService } from '../../../../../services/promoter.service';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 export interface DashboardStoreState {
 	links: Partial<{
@@ -197,7 +197,8 @@ export const DashboardStore = signalStore(
 									snackbarService.openSnackBar('Successfully created link', '');
 								},
 								error: (error: HttpErrorResponse) => {
-									console.error(error.error);
+									console.error(error);
+
 									patchState(store, {
 										links: {
 											...store.links(),
@@ -205,7 +206,12 @@ export const DashboardStore = signalStore(
 											error
 										}
 									})
-									snackbarService.openSnackBar('Failed to create link', '');
+
+									if (error.status == 409) {
+										snackbarService.openSnackBar(error.error.message, '');
+									} else {
+										snackbarService.openSnackBar('Failed to create link', '');
+									}
 								}
 							})
 						)
