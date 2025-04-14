@@ -37,8 +37,6 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 
 	linkRefSignal = signal(this.createLinkForm.controls.linkRefVal.value);
 
-	randomCode = signal(this.generateRandomCode());
-
 	constructor(
 		private dialogRef: MatDialogRef<CreateLinkDialogBoxComponent>,
 		@Inject(MAT_DIALOG_DATA) public data: { createLink: Function },
@@ -54,7 +52,6 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 		// Update signals when form control changes
 		this.createLinkForm.controls.linkRefVal.valueChanges.subscribe(value => {
 			this.linkRefSignal.set(value);
-			this.randomCode.set(this.generateRandomCode()); // Regenerate the random code
 		});
 	}
 	ngOnDestroy(): void {
@@ -66,7 +63,7 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 		if (this.createLinkForm.valid) {
 			const newLink = new CreateLinkDto();
 			newLink.name = this.createLinkForm.controls.name.value;
-			newLink.refVal = this.createLinkForm.controls.linkRefVal.value + '-' + this.randomCode();
+			newLink.refVal = this.createLinkForm.controls.linkRefVal.value;
 
 			this.data.createLink(newLink);
 			this.dialogRef.close();
@@ -78,14 +75,10 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 		const refVal = this.createLinkForm.get('linkRefVal')!.value!;
 		const dirty = this.createLinkForm.get('linkRefVal')?.dirty;
 
-		const regex = /^[a-zA-Z][a-zA-Z0-9_-]{0,29}$/;
+		const regex = /^[a-z][a-z0-9_-]{0,29}$/;
 
 		if (dirty && !regex.test(refVal)) {
 			return { invalidRefVal: true };
 		} else return null;
-	}
-
-	private generateRandomCode(): string {
-		return Math.random().toString(36).substring(2, 9); // Generates a random string of 7 characters
 	}
 }
