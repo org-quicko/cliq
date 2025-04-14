@@ -48,6 +48,7 @@ import { PromoterStore } from '../../../../store/promoter.store';
 		InfoDialogBoxComponent,
 		LabelChipComponent
 	],
+	providers: [TeamStore],
 	templateUrl: './team.component.html',
 	styleUrl: './team.component.scss'
 })
