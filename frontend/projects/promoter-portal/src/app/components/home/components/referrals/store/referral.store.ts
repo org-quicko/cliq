@@ -6,9 +6,9 @@ import { tapResponse } from '@ngrx/operators';
 import { plainToInstance } from 'class-transformer';
 import { PromoterService } from '../../../../../services/promoter.service';
 import { referralSortByEnum, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
-import { SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { ReferralTable, PromoterWorkbook, ReferralRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 export interface ReferralStoreState {
 	referrals: ReferralTable | null;

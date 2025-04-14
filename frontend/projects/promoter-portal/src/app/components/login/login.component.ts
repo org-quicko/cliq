@@ -2,7 +2,6 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { SnackbarService } from '../../../../../org-quicko-cliq-core/src/lib/services/snackbar.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,6 +14,7 @@ import { MemberDto } from '../../../../../org-quicko-cliq-core/src/lib/dtos';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
 import { TempLogoComponent } from "../temp-logo/temp-logo.component";
 import { ProgramStore } from '../../store/program.store';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 @Component({
 	selector: 'app-login',

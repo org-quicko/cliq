@@ -4,12 +4,13 @@ import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { of, pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
 import { plainToInstance } from "class-transformer";
-import { Status, SnackbarService, LinkDto, sortOrderEnum, referralSortByEnum, commissionSortByEnum } from "@org.quicko.cliq/ngx-core";
+import { Status, LinkDto, sortOrderEnum, referralSortByEnum, commissionSortByEnum } from "@org.quicko.cliq/ngx-core";
 import { CommissionRow, CommissionTable, PromoterWorkbook } from "@org.quicko.cliq/ngx-core/generated/sources/Promoter";
 import { PromoterService } from "../../../../../../../services/promoter.service";
 import { withDevtools } from "@angular-architects/ngrx-toolkit";
 import { LinkService } from "../../../../../../../services/link.service";
 import { HttpErrorResponse } from '@angular/common/http';
+import { SnackbarService } from "@org.quicko/ngx-core";
 
 export interface LinkCommissionsStoreState {
 	commissions: CommissionTable | null;

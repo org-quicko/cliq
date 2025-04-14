@@ -3,9 +3,10 @@ import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { reportEnum, reportPeriodEnum, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
+import { reportEnum, reportPeriodEnum, Status } from '@org.quicko.cliq/ngx-core';
 import { PromoterService } from '../../../../../services/promoter.service';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 export interface ReportsStoreState {
 	error: any | null,
