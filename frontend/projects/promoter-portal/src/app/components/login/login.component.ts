@@ -15,7 +15,6 @@ import { MemberDto } from '../../../../../org-quicko-cliq-core/src/lib/dtos';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
 import { TempLogoComponent } from "../temp-logo/temp-logo.component";
 import { ProgramStore } from '../../store/program.store';
-import { PromoterStore } from '../../store/promoter.store';
 
 @Component({
 	selector: 'app-login',
@@ -45,8 +44,6 @@ export class LoginComponent implements OnInit {
 	readonly logInStore = inject(LogInStore);
 	readonly programStore = inject(ProgramStore);
 
-	readonly promoterStore = inject(PromoterStore);
-
 	readonly programId = computed(() => this.programStore.program()!.programId);
 
 	member: MemberDto;
@@ -63,8 +60,6 @@ export class LoginComponent implements OnInit {
 
 	ngOnInit() {
 		onSignInSuccess.subscribe(() => {
-			const promoter = this.promoterStore.promoter();
-			console.log(promoter);
 			this.router.navigate(['../home/dashboard'], { relativeTo: this.route });
 		});
 
