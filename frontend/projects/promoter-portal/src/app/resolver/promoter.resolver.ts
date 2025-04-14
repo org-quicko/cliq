@@ -30,6 +30,7 @@ export class PromoterResolver implements Resolve<PromoterDto> {
 			}),
 			map((response) => plainToInstance(PromoterDto, response.data) ?? new PromoterDto()),
 			catchError((error) => {
+				console.error(error);
 				this.snackBarService.openSnackBar('Failed to get promoter', '');
 				this.promoterStore.setStatus(Status.ERROR, error);
 				return of(new PromoterDto());
