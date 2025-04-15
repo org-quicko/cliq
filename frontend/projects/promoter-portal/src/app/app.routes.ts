@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { MemberResolver } from './resolver/member.resolver';
 import { ProgramResolver } from './resolver/program.resolver';
-import { isLoggedIn } from './route-guard/auth.guard';
+import { IsLoggedIn } from './route-guard/auth.guard';
 import { LoginComponent } from './components/login/login.component';
 import { SignUpComponent } from './components/signup/signup.component';
 import { DashboardComponent } from './components/home/components/dashboard/dashboard.component';
@@ -26,7 +26,7 @@ export const routes: Routes = [
 		path: ':program_id',
 		children: [
 			{
-				canActivate: [isLoggedIn],
+				canActivateChild: [IsLoggedIn],
 				resolve: {
 					member: MemberResolver,
 					promoter: PromoterResolver,
@@ -35,9 +35,7 @@ export const routes: Routes = [
 				children: [
 					{
 						path: '',
-						resolve: {
-							tnc: TncResolver
-						},
+						resolve: { tnc: TncResolver },
 						component: LayoutComponent,
 						children: [
 							{
