@@ -47,11 +47,7 @@ export class MemberService {
 
 		const url = `${this.getEndpoint(programId)}/members/${memberId}`;
 
-		return this.httpClient.get<ApiResponse<any>>(url, {
-			headers: {
-				Authorization: this.authService.getToken()
-			}
-		});
+		return this.httpClient.get<ApiResponse<any>>(url);
 	}
 
 	updateMemberInfo(programId: string, updatedInfo: UpdateMemberDto) {
@@ -65,11 +61,7 @@ export class MemberService {
 
 		const body = instanceToPlain(updatedInfo);
 
-		return this.httpClient.patch<ApiResponse<any>>(url, body, {
-			headers: {
-				Authorization: this.authService.getToken()
-			}
-		});
+		return this.httpClient.patch<ApiResponse<any>>(url, body);
 	}
 
 	leavePromoter(programId: string) {
@@ -86,11 +78,7 @@ export class MemberService {
 
 		const url = `${this.getEndpoint(programId)}/members/${memberId}/promoters/${promoter.promoterId}`;
 
-		return this.httpClient.patch<ApiResponse<any>>(url, {}, {
-			headers: {
-				Authorization: this.authService.getToken()
-			}
-		});
+		return this.httpClient.patch<ApiResponse<any>>(url, {});
 	}
 
 	deleteAccount(programId: string) {
@@ -102,11 +90,7 @@ export class MemberService {
 
 		const url = `${this.getEndpoint(programId)}/members/${memberId}`;
 
-		return this.httpClient.delete<ApiResponse<any>>(url, {
-			headers: {
-				Authorization: this.authService.getToken()
-			}
-		});
+		return this.httpClient.delete<ApiResponse<any>>(url);
 	}
 
 	getPromoterOfMember(programId: string) {
@@ -118,11 +102,7 @@ export class MemberService {
 
 		const url = `${this.getEndpoint(programId)}/members/${memberId}/promoter`;
 
-		return this.httpClient.get<ApiResponse<any>>(url, {
-			headers: {
-				Authorization: this.authService.getToken()
-			}
-		});
+		return this.httpClient.get<ApiResponse<any>>(url);
 	}
 
 	private getEndpoint(programId: string): string {

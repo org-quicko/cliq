@@ -38,7 +38,6 @@ export class PromoterService {
 
 		return this.httpClient.post<ApiResponse<any>>(url, body, {
 			headers: {
-				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'
 			}
 		});
@@ -49,11 +48,7 @@ export class PromoterService {
 
 		const body = instanceToPlain(registerForProgram);
 
-		return this.httpClient.post<ApiResponse<any>>(url, body, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			},
-		});
+		return this.httpClient.post<ApiResponse<any>>(url, body);
 	}
 
 	getPromoterAnalytics(programId: string, promoterId: string) {
@@ -61,7 +56,6 @@ export class PromoterService {
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
-				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'
 			}
 		});
@@ -72,21 +66,13 @@ export class PromoterService {
 
 		const body = instanceToPlain(updatedInfo);
 
-		return this.httpClient.patch<ApiResponse<any>>(url, body, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.patch<ApiResponse<any>>(url, body);
 	}
 
 	removeMember(programId: string, promoterId: string, memberId: string) {
 		const url = this.getEndpoint(programId, promoterId) + `/members/${memberId}`;
 
-		return this.httpClient.patch<ApiResponse<any>>(url, {}, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.patch<ApiResponse<any>>(url, {});
 
 	}
 
@@ -95,11 +81,7 @@ export class PromoterService {
 
 		const body = instanceToPlain(updatedInfo);
 
-		return this.httpClient.patch<ApiResponse<any>>(url, body, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.patch<ApiResponse<any>>(url, body);
 	}
 
 	getPromoterCommissions(programId: string, promoterId: string, queryParams: { sort_by?: commissionSortByEnum, sort_order?: sortOrderEnum, link_id?: string, contact_id?: string, conversion_type?: conversionTypeEnum, skip?: number, take?: number }) {
@@ -115,7 +97,6 @@ export class PromoterService {
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
-				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json',
 			},
 			params: queryParams
@@ -136,7 +117,6 @@ export class PromoterService {
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
-				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'
 			},
 			params: queryParams
@@ -146,11 +126,7 @@ export class PromoterService {
 	getPromoterReferral(programId: string, promoterId: string, contactId: string) {
 		const url = this.getEndpoint(programId, promoterId) + `/referrals/${contactId}`;
 
-		return this.httpClient.get<ApiResponse<any>>(url, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			},
-		});
+		return this.httpClient.get<ApiResponse<any>>(url);
 	}
 
 	getReport(
@@ -162,7 +138,6 @@ export class PromoterService {
 
 		return this.httpClient.get(url, {
 			headers: {
-				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'
 			},
 			params: queryParams,
@@ -201,7 +176,6 @@ export class PromoterService {
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
-				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'
 			},
 			params: {
@@ -216,21 +190,13 @@ export class PromoterService {
 
 		const body = instanceToPlain(member);
 
-		return this.httpClient.post<ApiResponse<any>>(url, body, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.post<ApiResponse<any>>(url, body);
 	}
 
 	deletePromoter(programId: string, promoterId: string, ) {
 		const url = this.getEndpoint(programId, promoterId);
 
-		return this.httpClient.delete<ApiResponse<any>>(url, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.delete<ApiResponse<any>>(url);
 	}
 
 	private getEndpoint(programId: string, promoterId?: string): string {

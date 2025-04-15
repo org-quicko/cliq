@@ -2,15 +2,21 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { routes } from './app.routes';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { createMongoAbility, PureAbility } from '@casl/ability';
 import { MemberAbility } from './permissions/ability';
+import { RequestInterceptor } from './interceptors/request.interceptor';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideZoneChangeDetection({ eventCoalescing: true }),
 		provideRouter(routes),
+		{
+			provide: HTTP_INTERCEPTORS,
+			useClass: RequestInterceptor,
+			multi: true,
+		},
 		{
 			provide: PureAbility,
 			useFactory: () => createMongoAbility<MemberAbility>()

@@ -34,7 +34,6 @@ export class LinkService {
 
 		return this.httpClient.get<ApiResponse<any>>(url, {
 			headers: {
-				Authorization: this.authService.getToken(),
 				'x-accept-type': 'application/json;format=sheet-json'
 			},
 			params: queryParams
@@ -46,31 +45,19 @@ export class LinkService {
 
 		const newLink = instanceToPlain(body);
 
-		return this.httpClient.post<ApiResponse<any>>(url, newLink, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.post<ApiResponse<any>>(url, newLink);
 	}
 
 	getLink(programId: string, promoterId: string, linkId: string) {
 		const url = this.getEndpoint(programId, promoterId) + `/links/${linkId}`;
 
-		return this.httpClient.get<ApiResponse<any>>(url, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.get<ApiResponse<any>>(url);
 	}
 
 	deleteLink(programId: string, promoterId: string, linkId: string) {
 		const url = this.getEndpoint(programId, promoterId) + `/links/${linkId}`;
 
-		return this.httpClient.patch<ApiResponse<any>>(url, {}, {
-			headers: {
-				Authorization: this.authService.getToken(),
-			}
-		});
+		return this.httpClient.patch<ApiResponse<any>>(url, {});
 	}
 
 	private getEndpoint(programId: string, promoterId: string): string {
