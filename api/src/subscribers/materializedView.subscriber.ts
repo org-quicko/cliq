@@ -1,5 +1,5 @@
 import { linkStatsMVName, linkTableName, promoterStatsMVName, referralMVName } from 'src/constants';
-import { Commission, Link, Purchase, SignUp } from '../entities';
+import { Commission, Link, Promoter, Purchase, SignUp } from '../entities';
 import {
     EventSubscriber,
     EntitySubscriberInterface,
@@ -15,7 +15,8 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
         if (
             event.entity instanceof Purchase ||
             event.entity instanceof SignUp ||
-            event.entity instanceof Commission
+            event.entity instanceof Commission || 
+            event.entity instanceof Promoter
         ) {
             console.log('refreshing...');
             await this.refreshMaterializedViews(event);
