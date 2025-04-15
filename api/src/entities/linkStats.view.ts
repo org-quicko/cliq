@@ -1,9 +1,9 @@
-import { linkStatsMVName } from 'src/constants';
+import { linkAnalyticsMVName } from 'src/constants';
 import { linkStatusEnum } from 'src/enums';
 import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 'typeorm';
 
 @ViewEntity({
-    name: linkStatsMVName,
+    name: linkAnalyticsMVName,
     materialized: true,
     expression: (dataSource: DataSource): SelectQueryBuilder<any> => {
         return dataSource

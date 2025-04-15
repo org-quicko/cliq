@@ -8,20 +8,20 @@ import { LinkService } from '../../../../../services/link.service';
 import { plainToInstance } from 'class-transformer';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { Status, CreateLinkDto, PaginationOptions, sortOrderEnum, linkSortByEnum } from '@org.quicko.cliq/ngx-core';
-import { LinkStatsRow, LinkStatsTable, PromoterStatsTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { LinkAnalyticsRow, LinkAnalyticsTable, PromoterAnalyticsTable, PromoterWorkbook } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PromoterService } from '../../../../../services/promoter.service';
 import { SnackbarService } from '@org.quicko/ngx-core';
 
 export interface DashboardStoreState {
 	links: Partial<{
-		links: LinkStatsTable | null;
+		links: LinkAnalyticsTable | null;
 		error: any | null;
 		status: Status;
 		loadedPages: Set<number>;
 	}>;
 	analytics: Partial<{
-		analytics: PromoterStatsTable | null;
+		analytics: PromoterAnalyticsTable | null;
 		error: any | null;
 		status: Status;
 	}>;
@@ -97,22 +97,22 @@ export const DashboardStore = signalStore(
 						return linkService.getPromoterLinkAnalytics(programId, promoterId, { skip, take, sort_by: sortBy, sort_order: sortOrder }).pipe(
 							tapResponse({
 								next(response) {
-									const linkTable = plainToInstance(PromoterWorkbook, response.data).getLinkStatsSheet().getLinkStatsTable();
+									const linkTable = plainToInstance(PromoterWorkbook, response.data).getLinkAnalyticsSheet().getLinkAnalyticsTable();
 									const metadata = linkTable.getMetadata();
 
 									let currentLinkTable = store.links().links;
 
 									const updatedPages = store.links().loadedPages!.add(page);
-									let updatedLinkTable: LinkStatsTable;
+									let updatedLinkTable: LinkAnalyticsTable;
 
 									if (currentLinkTable && !isSorting) {
 										const rows = linkTable.getRows();
 										for (const row of rows) {
-											const link = new LinkStatsRow(row as any[]);
+											const link = new LinkAnalyticsRow(row as any[]);
 											currentLinkTable.addRow(link);
 										}
 
-										updatedLinkTable = Object.assign(new LinkStatsTable(), currentLinkTable);
+										updatedLinkTable = Object.assign(new LinkAnalyticsTable(), currentLinkTable);
 
 										// get the latest metadata from the incoming table
 										updatedLinkTable.metadata = metadata;
@@ -252,7 +252,7 @@ export const DashboardStore = signalStore(
 				)
 			),
 
-			copyLinkToClipboard(website: string, link: LinkStatsRow) {
+			copyLinkToClipboard(website: string, link: LinkAnalyticsRow) {
 				const fullLinkString = website + '?ref=' + link.getRefVal();
 				navigator.clipboard.writeText(fullLinkString);
 				snackbarService.openSnackBar('Link Copied!', '');
@@ -273,7 +273,7 @@ export const DashboardStore = signalStore(
 									patchState(store, {
 										analytics: {
 											...store.analytics(),
-											analytics: plainToInstance(PromoterWorkbook, response.data).getPromoterStatsSheet().getPromoterStatsTable(),
+											analytics: plainToInstance(PromoterWorkbook, response.data).getPromoterAnalyticsSheet().getPromoterAnalyticsTable(),
 											status: Status.SUCCESS
 										},
 									});

@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { LinkStatsRow, PromoterStatsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { LinkAnalyticsRow, PromoterAnalyticsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { CreateLinkDto, FormatCurrencyPipe, LinkDto, linkSortByEnum, OrdinalDatePipe, PaginationOptions, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit {
 	@ViewChild(MatSort) sort: MatSort;
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 
-	dataSource: MatTableDataSource<LinkStatsRow> = new MatTableDataSource<LinkStatsRow>([]);
+	dataSource: MatTableDataSource<LinkAnalyticsRow> = new MatTableDataSource<LinkAnalyticsRow>([]);
 
 	statistics = computed(() => this.dashboardStore.analytics().analytics?.getRow(0));
 
@@ -169,7 +169,7 @@ export class DashboardComponent implements OnInit {
 
 	constructor(private router: Router, private route: ActivatedRoute) {
 		effect(() => {
-			const linkRows = (this.dashboardStore.links().links?.getRows() ?? []) as LinkStatsRow[];
+			const linkRows = (this.dashboardStore.links().links?.getRows() ?? []) as LinkAnalyticsRow[];
 
 			const { pageIndex, pageSize } = this.paginationOptions();
 
@@ -245,11 +245,11 @@ export class DashboardComponent implements OnInit {
 	}
 
 	convertToLinkStatsRow(row: any[]) {
-		return new LinkStatsRow(row);
+		return new LinkAnalyticsRow(row);
 	}
 
 	convertToPromoterStatsRow(row: any[]) {
-		return new PromoterStatsRow(row);
+		return new PromoterAnalyticsRow(row);
 	}
 
 	onClickCreateLinkBtn = () => {

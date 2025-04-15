@@ -5,7 +5,7 @@ import { LinkStatsView } from 'src/entities/linkStats.view';
 import { JSONObject } from '@org.quicko/core';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
-import { LinkStatsTable, PromoterWorkbook, LinkStatsRow, LinkStatsSheet } from 'generated/sources/Promoter';
+import { LinkAnalyticsTable, PromoterWorkbook, LinkAnalyticsRow, LinkAnalyticsSheet } from 'generated/sources/Promoter';
 import { LinkRow, LinkSheet, LinkSummaryList, LinkSummarySheet, LinkTable, LinkWorkbook } from 'generated/sources/Link';
 
 @Injectable()
@@ -30,10 +30,10 @@ export class LinkConverter {
 		programId: string,
 		count: number
 	}): PromoterWorkbook {
-		const linkStatsTable = new LinkStatsTable();
+		const linkStatsTable = new LinkAnalyticsTable();
 
 		linkStats.forEach((linkStat) => {
-			const row = new LinkStatsRow([]);
+			const row = new LinkAnalyticsRow([]);
 
 			row.setLinkId(linkStat.linkId);
 			row.setLinkName(linkStat.name);
@@ -49,11 +49,11 @@ export class LinkConverter {
 
 		linkStatsTable.metadata = new JSONObject(metadata);
 
-		const linkStatsSheet = new LinkStatsSheet();
-		linkStatsSheet.addLinkStatsTable(linkStatsTable);
+		const linkStatsSheet = new LinkAnalyticsSheet();
+		linkStatsSheet.addLinkAnalyticsTable(linkStatsTable);
 
 		const promoterWorkbook = new PromoterWorkbook();
-		promoterWorkbook.addLinkStatsSheet(linkStatsSheet);
+		promoterWorkbook.addLinkAnalyticsSheet(linkStatsSheet);
 
 		return promoterWorkbook;
 	}

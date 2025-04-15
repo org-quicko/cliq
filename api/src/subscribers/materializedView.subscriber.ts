@@ -1,4 +1,4 @@
-import { linkStatsMVName, linkTableName, promoterStatsMVName, referralMVName } from 'src/constants';
+import { linkAnalyticsMVName, linkTableName, promoterAnalyticsMVName, referralMVName } from 'src/constants';
 import { Commission, Link, ProgramPromoter, Promoter, PromoterMember, Purchase, SignUp } from '../entities';
 import {
     EventSubscriber,
@@ -25,27 +25,27 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 
         if (event.entity instanceof Link) {
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+                `REFRESH MATERIALIZED VIEW ${linkAnalyticsMVName};`,
             );
 
-            console.log(`Materialized view- ${linkStatsMVName} refreshed successfully.`);
+            console.log(`Materialized view- ${linkAnalyticsMVName} refreshed successfully.`);
         }
     }
 
     async afterRemove(event: RemoveEvent<any>): Promise<void> {
         if (event.entity instanceof Link) {
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+                `REFRESH MATERIALIZED VIEW ${linkAnalyticsMVName};`,
             );
 
-            console.log(`Materialized view- ${linkStatsMVName} refreshed successfully.`);
+            console.log(`Materialized view- ${linkAnalyticsMVName} refreshed successfully.`);
         }
         if (event.entity instanceof Promoter) {
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${promoterStatsMVName};`
+                `REFRESH MATERIALIZED VIEW ${promoterAnalyticsMVName};`
             );
 
-            console.log(`Materialized view- ${promoterStatsMVName} refreshed successfully.`);
+            console.log(`Materialized view- ${promoterAnalyticsMVName} refreshed successfully.`);
         }
     }
 
@@ -54,15 +54,15 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
         
         if (event.metadata.tableName === linkTableName) {
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+                `REFRESH MATERIALIZED VIEW ${linkAnalyticsMVName};`,
             );
         } 
         if (event.entity instanceof ProgramPromoter) {
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${promoterStatsMVName};`
+                `REFRESH MATERIALIZED VIEW ${promoterAnalyticsMVName};`
             );
 
-            console.log(`Materialized view- ${promoterStatsMVName} refreshed successfully.`);
+            console.log(`Materialized view- ${promoterAnalyticsMVName} refreshed successfully.`);
         }
     }
 
@@ -81,16 +81,16 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
             );
 
             await event.queryRunner.query(`
-                CREATE UNIQUE INDEX IF NOT EXISTS ${promoterStatsMVName}_idx 
-                ON ${promoterStatsMVName} (program_id, promoter_id);
+                CREATE UNIQUE INDEX IF NOT EXISTS ${promoterAnalyticsMVName}_idx 
+                ON ${promoterAnalyticsMVName} (program_id, promoter_id);
             `);
 
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${promoterStatsMVName};`,
+                `REFRESH MATERIALIZED VIEW ${promoterAnalyticsMVName};`,
             );
 
             await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
+                `REFRESH MATERIALIZED VIEW ${linkAnalyticsMVName};`,
             );
 
             console.log('Materialized views refreshed successfully.');

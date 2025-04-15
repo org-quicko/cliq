@@ -1,9 +1,9 @@
-import { promoterStatsMVName, referralMVName } from "src/constants";
+import { promoterAnalyticsMVName, referralMVName } from "src/constants";
 import { Column, DataSource, Index, PrimaryColumn, ViewEntity } from "typeorm";
 import { ReferralView } from "./referral.view";
 
 @ViewEntity({
-	name: promoterStatsMVName,
+	name: promoterAnalyticsMVName,
 	expression: (datasource: DataSource) => {
 		const referralAgg = datasource
 			.createQueryBuilder()

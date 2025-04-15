@@ -54,7 +54,7 @@ import { SignUpWorkbook } from 'generated/sources/SignUp';
 import { PromoterWorkbook } from 'generated/sources/Promoter';
 import { CommissionWorkbook } from 'generated/sources/Commission';
 import { LinkWorkbook } from 'generated/sources/Link';
-import { PromoterStatsConverter } from 'src/converters/promoterStats.converter';
+import { PromoterAnalyticsConverter } from 'src/converters/promoterAnalytics.converter';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 
@@ -105,7 +105,7 @@ export class PromoterService {
 		private signUpConverter: SignUpConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
-		private promoterStatsConverter: PromoterStatsConverter,
+		private promoterStatsConverter: PromoterAnalyticsConverter,
 
 		private datasource: DataSource,
 

@@ -1,15 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { PromoterStatsRow, PromoterStatsSheet, PromoterStatsTable, PromoterWorkbook } from "generated/sources/Promoter";
+import { PromoterAnalyticsRow, PromoterAnalyticsSheet, PromoterAnalyticsTable, PromoterWorkbook } from "generated/sources/Promoter";
 import { PromoterStatsView } from "src/entities/promoterStats.view";
 
 @Injectable()
-export class PromoterStatsConverter {
+export class PromoterAnalyticsConverter {
 
     convertPromoterStatsViewToSheet(promoterStats: PromoterStatsView[]): PromoterWorkbook {
-        const promoterStatsTable = new PromoterStatsTable();
+        const promoterStatsTable = new PromoterAnalyticsTable();
     
         promoterStats.forEach((referralAgg) => {
-            const row = new PromoterStatsRow([]);
+            const row = new PromoterAnalyticsRow([]);
     
             row.setProgramId(referralAgg.programId);
             row.setPromoterId(referralAgg.promoterId);
@@ -21,8 +21,8 @@ export class PromoterStatsConverter {
             promoterStatsTable.addRow(row);
         });
     
-        const promoterStatsSheet = new PromoterStatsSheet();
-        promoterStatsSheet.addPromoterStatsTable(promoterStatsTable);
+        const promoterStatsSheet = new PromoterAnalyticsSheet();
+        promoterStatsSheet.addPromoterAnalyticsTable(promoterStatsTable);
     
         const promoterWorkbook = new PromoterWorkbook();
         promoterWorkbook.addSheet(promoterStatsSheet);
