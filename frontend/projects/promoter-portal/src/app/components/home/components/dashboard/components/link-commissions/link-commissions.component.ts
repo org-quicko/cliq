@@ -18,6 +18,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MemberSortOptions, TableRowStyling } from '../../../../../../interfaces';
 import { SkeletonLoadTableComponent } from '../../../../../common/skeleton-load-table/skeleton-load-table.component';
 import { PromoterStore } from '../../../../../../store/promoter.store';
+import { LabelChipComponent } from '../../../../../common/label-chip/label-chip.component';
 
 @Component({
 	selector: 'app-link-commissions',
@@ -30,13 +31,12 @@ import { PromoterStore } from '../../../../../../store/promoter.store';
 		MatFormFieldModule,
 		MatPaginatorModule,
 		MatSortModule,
-		MatChipsModule,
 		MatRippleModule,
-		NgClass,
 		TitleCasePipe,
 		OrdinalDatePipe,
 		FormatCurrencyPipe,
-		SkeletonLoadTableComponent
+		SkeletonLoadTableComponent,
+		LabelChipComponent,
 	],
 	providers: [LinkCommissionsStore],
 	templateUrl: './link-commissions.component.html',

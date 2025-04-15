@@ -80,10 +80,8 @@
 					Type
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-outline w-40">
-					<mat-chip [class]="`!p-0  gap-1 justify-center border-0 bg-surface-container text-on-surface`">
-						{{ convertToCommissionRow(row).getConversionType() | titlecase }}
-					</mat-chip>
-
+					<app-label-chip
+						[text]="convertToCommissionRow(row).getConversionType()" />
 				</td>
 			</ng-container>
 			<ng-container matColumnDef="commission">
