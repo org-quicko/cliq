@@ -24,11 +24,6 @@ export class AuthService {
 		this.authenticated = new BehaviorSubject(this.isAuthenticated());
 	}
 
-	signIn(member: MemberDto) {
-		const url = `${this.baseUrl}/signin`;
-		return this.httpClient.post<any>(url, instanceToPlain(member));
-	}
-
 	authenticated: BehaviorSubject<any>;
 	jwtHelper: JwtHelperService = new JwtHelperService();
 
