@@ -260,6 +260,8 @@ export class AuthorizationService {
 
                     return this.apiKeySerivce.getFirstKey(subjectProgramId);
                 } else if (subject === ReferralView) {
+                    if (action === 'read_all') return subject;
+
                     if (!subjectProgramId && !subjectPromoterId) {
                         throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
                     }

@@ -669,6 +669,7 @@ export class PromoterService {
 
 
 	async getPromoterReferrals(
+		memberId: string,
 		programId: string,
 		promoterId: string,
 		sortBy?: referralSortByEnum,
@@ -684,6 +685,11 @@ export class PromoterService {
 		await this.getPromoter(programId, promoterId);
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
+		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
+			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		}
 
 		const [referralResult, count] = await this.referralViewRepository.findAndCount({
 			where: {
@@ -937,9 +943,9 @@ export class PromoterService {
 	 * Get referrals report
 	 */
 	async getReferralsReport(
+		memberId: string,
 		programId: string,
 		promoterId: string,
-		memberId: string,
 		startDate: Date,
 		endDate: Date,
 	) {
@@ -959,7 +965,7 @@ export class PromoterService {
 			})
 		};
 
-		const referralsResult = await this.getPromoterReferrals(programId, promoterId, undefined, undefined, true, filter) as PromoterWorkbook;
+		const referralsResult = await this.getPromoterReferrals(memberId, programId, promoterId, undefined, undefined, true, filter) as PromoterWorkbook;
 
 		const referralTable = referralsResult.getReferralSheet().getReferralTable();
 

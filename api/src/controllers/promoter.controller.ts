@@ -293,6 +293,7 @@ export class PromoterController {
 	@Permissions('read_all', ReferralView)
 	@Get(':promoter_id/referrals')
 	async getPromoterReferrals(
+		@Headers('member_id') memberId: string,
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
@@ -304,8 +305,8 @@ export class PromoterController {
 		this.logger.info('START: getPromoterReferrals controller');
 
 		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
-		console.log(skip, take);
 		const result = await this.promoterService.getPromoterReferrals(
+			memberId,
 			programId,
 			promoterId,
 			sortBy,
@@ -555,8 +556,8 @@ export class PromoterController {
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Get(':promoter_id/reports/referrals')
 	async getReferralsReport(
-		@Headers('x-accept-type') acceptType: string,
 		@Headers('member_id') memberId: string,
+		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
@@ -575,9 +576,9 @@ export class PromoterController {
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
 
 		const workbookBuffer = await this.promoterService.getReferralsReport(
+			memberId,
 			programId,
 			promoterId,
-			memberId,
 			parsedStartDate,
 			parsedEndDate,
 		);
