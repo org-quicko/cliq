@@ -192,7 +192,7 @@ export class AuthorizationService {
                     return this.programPromoterService.getProgramPromoter(subjectProgramId, subjectPromoterId);
 
                 } else if (subject === Promoter) {
-                    if (action === 'create') return subject;
+                    if (action === 'create' || action === 'read_all') return subject;
 
                     if (!subjectPromoterId) {
                         throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);

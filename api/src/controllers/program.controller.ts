@@ -236,7 +236,7 @@ export class ProgramController {
    * Get all promoters
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @Permissions('read', ProgramPromoter)
+  @Permissions('read_all', ProgramPromoter)
   @Get(':program_id/promoters')
   async getAllPromoters(
     @Param('program_id') programId: string,
