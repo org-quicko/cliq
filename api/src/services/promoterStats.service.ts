@@ -27,13 +27,12 @@ export class PromoterStatsService {
             );
         }
 
-        const promoterStatResult =
-            await this.promoterStatsViewRepository.findOne({
-                where: {
-                    programId,
-                    promoterId,
-                },
-            });
+        const promoterStatResult = await this.promoterStatsViewRepository.findOne({
+            where: {
+                programId,
+                promoterId,
+            },
+        });
 
         if (!promoterStatResult) {
             this.logger.warn(`Error. No promoter statistic found for Promoter ${promoterId} in Program ID: ${programId}.`);

@@ -206,7 +206,7 @@ export class LinkService {
 	}
 
 	/**
-	 * Get link by ref val
+	 * Get link entity by ref val
 	 */
 	async getLinkEntityByRefVal(refVal: string, programId: string, whereOptions: FindOptionsWhere<Link> = {}) {
 		this.logger.info('START: getLinkByRefVal service');

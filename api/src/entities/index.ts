@@ -7,6 +7,7 @@ export * from './contact.entity';
 export * from '../classes/effect';
 export * from './function.entity';
 export * from './link.entity';
+export * from './linkStats.view';
 export * from './member.entity';
 export * from './program.entity';
 export * from './promoter.entity';

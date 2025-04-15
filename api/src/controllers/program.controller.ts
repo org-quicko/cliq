@@ -40,7 +40,7 @@ export class ProgramController {
     private readonly programService: ProgramService,
     private logger: LoggerService,
   ) { }
-  
+
   /**
    * Create program
    */
@@ -405,8 +405,7 @@ export class ProgramController {
   async getAllProgramReferrals(@Param('program_id') programId: string) {
     this.logger.info('START: getAllProgramReferrals controller');
 
-    const result =
-      await this.programService.getAllProgramReferrals(programId);
+    const result = await this.programService.getAllProgramReferrals(programId);
 
     this.logger.info('END: getAllProgramReferrals controller');
     return { message: 'Successfully got program referrals.', result };
