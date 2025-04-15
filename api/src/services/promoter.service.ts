@@ -1225,6 +1225,7 @@ export class PromoterService {
 	}
 
 	async getPromoterLinkAnalytics(
+		memberId: string, 
 		programId: string, 
 		promoterId: string, 
 		sortBy?: linkSortByEnum,
@@ -1235,6 +1236,11 @@ export class PromoterService {
 		this.logger.info(`START: getPromoterLinkAnalytics service`);
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
+		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
+			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		}
 
 		const [linkStatsResult, count] = await this.linkStatsViewRepository.findAndCount({
 			where: {

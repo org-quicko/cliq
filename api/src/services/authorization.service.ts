@@ -27,6 +27,7 @@ import {
     SignUp,
     User,
     Webhook,
+    LinkStatsView,
 } from '../entities';
 import { memberRoleEnum, userRoleEnum, statusEnum } from '../enums';
 import { UserService } from './user.service';
@@ -314,7 +315,7 @@ export class AuthorizationService {
                     }
 
                     return this.webhookService.getFirstWebhook(subjectProgramId);
-                }
+                } 
                 else {
                     return subject;
                 }
@@ -423,6 +424,7 @@ export class AuthorizationService {
 
             allow(['read', 'leave'], Promoter, { promoterId });
             allow(['read', 'read_all'], [PromoterStatsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link], { promoterId });
+            allow(['read', 'read_all'], LinkStatsView);
 
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 

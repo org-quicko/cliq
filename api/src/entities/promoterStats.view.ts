@@ -31,7 +31,7 @@ import { ReferralView } from "./referral.view";
 			.from('purchase', 'p')
 			.innerJoin('contact', 'c', 'p.contact_id = c.contact_id')
 			.groupBy('c.program_id, p.promoter_id');
-
+ 
 		return datasource
 			.createQueryBuilder()
 			.from('program_promoter', 'pp')
