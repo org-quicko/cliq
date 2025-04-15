@@ -19,7 +19,7 @@ import { ProgramStore } from '../../../../../../store/program.store';
 		MatDialogModule,
 		MatIconModule,
 		MatInputModule,
-		MatError
+		MatError,
 	],
 	templateUrl: './create-link-dialog-box.component.html',
 	styleUrl: './create-link-dialog-box.component.scss'
@@ -54,6 +54,7 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 			this.linkRefSignal.set(value);
 		});
 	}
+
 	ngOnDestroy(): void {
 		this.destroy$.next(true);
 		this.destroy$.complete();

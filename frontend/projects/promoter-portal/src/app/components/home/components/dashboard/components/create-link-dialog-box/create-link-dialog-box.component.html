@@ -1,6 +1,6 @@
-<mat-dialog-content class="w-[516px] rounded-[5px] p-6 bg-surface-container-lowest">
-	<form [formGroup]="createLinkForm" (ngSubmit)="onSubmit()">
-		<div class="flex flex-col gap-8">
+<mat-dialog-content class="w-[516px] h-auto max-h-[468px] rounded-[5px] p-6 bg-surface-container-lowest">
+	<form [formGroup]="createLinkForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
+		<div class="h-auto max-h-[348px] flex flex-col gap-8">
 			<!-- Create Link Header -->
 			<div class="flex justify-between">
 				<div class="flex flex-col gap-2">
@@ -21,7 +21,7 @@
 			</div>
 
 			<!-- Form fields -->
-			<div class="flex flex-col gap-6">
+			<div class="flex flex-col gap-1 h-auto max-h-[248px]">
 				<mat-form-field [appearance]="'outline'" class="w-full">
 					<mat-label>Name</mat-label>
 					<input type="text" matInput formControlName="name" class="w-full max-w-[468px]" required/>
@@ -55,12 +55,12 @@
 		</div>
 
 		<!-- Dialog control buttons -->
-		<div>
-			<mat-dialog-actions class="!px-0 flex justify-end gap-2">
+		<div class="hh-10">
+			<mat-dialog-actions class="!p-0 flex justify-end gap-2">
 				<button matRipple mat-button mat-dialog-close type="button"
-					class="w-auto min-w-[70px] h-10 text-primary mat-label-large cursor-pointer">Cancel</button>
+					class="w-auto min-w-[70px] text-primary mat-label-large cursor-pointer">Cancel</button>
 				<button mat-flat-button type="submit"
-					class="w-auto min-w-[93px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
+					class="w-auto min-w-[93px] rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
 					Create
 				</button>
 			</mat-dialog-actions>
