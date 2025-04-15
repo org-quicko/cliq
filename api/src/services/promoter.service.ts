@@ -124,6 +124,7 @@ export class PromoterService {
 			this.logger.info('START: createPromoter service');
 			
 			const promoterRepository = manager.getRepository(Promoter);
+
 			const promoterEntity = promoterRepository.create(body);
 			const savedPromoter = await promoterRepository.save(promoterEntity);
 
@@ -153,21 +154,44 @@ export class PromoterService {
 		});
 	}
 
-	async deletePromoter(programId: string, promoterId: string) {
-		this.logger.info('START: deletePromoter service');
+	async deletePromoter(memberId: string, programId: string, promoterId: string) {
+		return this.datasource.transaction(async (manager) => {
+			this.logger.info('START: deletePromoter service');
+	
+			const memberRepository = manager.getRepository(Member);
+			const promoterRepository = manager.getRepository(Promoter);
 
-		const promoter = await this.getPromoterEntity(promoterId, {
-			promoterMembers: true
+			const promoter = await this.getPromoterEntity(promoterId, {
+				promoterMembers: true
+			});
+	
+			if (promoter.promoterMembers.length > 1) {
+				this.logger.error(`Error. Cannot delete promoter right now- there are more than one members in it.`);
+				throw new BadRequestException(`Error. Cannot delete promoter right now- there are more than one members in it.`);
+			
+			} 
+
+			const member = await memberRepository.findOne({ 
+				where: { 
+					memberId,
+					promoterMembers: {
+						promoterId,
+						role: memberRoleEnum.ADMIN
+					}
+				} 
+			});
+
+			if (!member) {
+				this.logger.error(`Error. Only admin is allowed to delete promoter`);
+				throw new BadRequestException(`Error. Only admin is allowed to delete promoter`);
+			}
+
+			await memberRepository.remove(member);
+	
+			await promoterRepository.remove(promoter);
+	
+			this.logger.info('END: deletePromoter service');
 		});
-
-		if (promoter.promoterMembers.length > 1) {
-			this.logger.error(`Error. Cannot delete promoter right now- there are more than one members in it.`);
-			throw new BadRequestException(`Error. Cannot delete promoter right now- there are more than one members in it.`);
-		}
-
-		await this.promoterRepository.remove(promoter);
-
-		this.logger.info('END: deletePromoter service');
 	}
 
 	async updatePromoterInfo(programId: string, promoterId: string, body: UpdatePromoterDto) {
@@ -240,11 +264,13 @@ export class PromoterService {
 				});
 			}
 	
-			await programPromoterRepository.save({
+			const programPromoter = programPromoterRepository.create({
 				programId,
 				promoterId,
 				acceptedTermsAndConditions
 			});
+
+			await programPromoterRepository.save(programPromoter);
 
 			const promoter = await promoterRepository.findOneOrFail({ where: { promoterId } });
 			const promoterDto = this.promoterConverter.convert(promoter, acceptedTermsAndConditions);
@@ -1218,11 +1244,6 @@ export class PromoterService {
 			...(sortBy && { order: { [sortBy as string]: sortOrder } }),
 			...queryOptions
 		});
-
-		if (linkStatsResult.length === 0) {
-			this.logger.warn(`No link statistics found for promoter ${promoterId}`);
-			throw new NotFoundException(`No link statistics found for promoter ${promoterId}`);
-		}
 
 		const programResult = await this.programService.getProgramEntity(programId);
 

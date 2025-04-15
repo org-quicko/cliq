@@ -1,5 +1,5 @@
 import { linkStatsMVName, linkTableName, promoterStatsMVName, referralMVName } from 'src/constants';
-import { Commission, Link, Promoter, Purchase, SignUp } from '../entities';
+import { Commission, Link, ProgramPromoter, Promoter, PromoterMember, Purchase, SignUp } from '../entities';
 import {
     EventSubscriber,
     EntitySubscriberInterface,
@@ -11,12 +11,13 @@ import {
 @EventSubscriber()
 export class MaterializedViewSubscriber implements EntitySubscriberInterface {
     async afterInsert(event: InsertEvent<any>): Promise<void> {
+
         // Check if the inserted entity is one of the ones that should trigger a refresh
         if (
             event.entity instanceof Purchase ||
             event.entity instanceof SignUp ||
             event.entity instanceof Commission || 
-            event.entity instanceof Promoter
+            event.entity instanceof ProgramPromoter
         ) {
             console.log('refreshing...');
             await this.refreshMaterializedViews(event);
@@ -26,6 +27,8 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
             await event.queryRunner.query(
                 `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
             );
+
+            console.log(`Materialized view- ${linkStatsMVName} refreshed successfully.`);
         }
     }
 
@@ -34,6 +37,15 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
             await event.queryRunner.query(
                 `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
             );
+
+            console.log(`Materialized view- ${linkStatsMVName} refreshed successfully.`);
+        }
+        if (event.entity instanceof Promoter) {
+            await event.queryRunner.query(
+                `REFRESH MATERIALIZED VIEW ${promoterStatsMVName};`
+            );
+
+            console.log(`Materialized view- ${promoterStatsMVName} refreshed successfully.`);
         }
     }
 
@@ -44,6 +56,13 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
             await event.queryRunner.query(
                 `REFRESH MATERIALIZED VIEW ${linkStatsMVName};`,
             );
+        } 
+        if (event.entity instanceof ProgramPromoter) {
+            await event.queryRunner.query(
+                `REFRESH MATERIALIZED VIEW ${promoterStatsMVName};`
+            );
+
+            console.log(`Materialized view- ${promoterStatsMVName} refreshed successfully.`);
         }
     }
 

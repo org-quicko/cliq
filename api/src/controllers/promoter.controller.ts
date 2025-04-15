@@ -71,12 +71,14 @@ export class PromoterController {
 	@Permissions('delete', Promoter)
 	@Delete(':promoter_id')
 	async deletePromoter(
+		@Headers('member_id') memberId: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 	) {
 		this.logger.info('START: deletePromoter controller');
 
 		const result = await this.promoterService.deletePromoter(
+			memberId,
 			programId,
 			promoterId,
 		);
