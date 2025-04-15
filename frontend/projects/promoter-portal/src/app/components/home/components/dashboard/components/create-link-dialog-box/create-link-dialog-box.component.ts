@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
 import { CreateLinkDto, PaginationOptions } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../../../store/program.store';
+import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/form-dialog-box.component';
 
 @Component({
 	selector: 'app-create-link-dialog-box',
@@ -20,6 +21,7 @@ import { ProgramStore } from '../../../../../../store/program.store';
 		MatIconModule,
 		MatInputModule,
 		MatError,
+		FormDialogBoxComponent
 	],
 	templateUrl: './create-link-dialog-box.component.html',
 	styleUrl: './create-link-dialog-box.component.scss'
@@ -60,7 +62,7 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 		this.destroy$.complete();
 	}
 
-	onSubmit() {
+	onSubmit = () => {
 		if (this.createLinkForm.valid) {
 			const newLink = new CreateLinkDto();
 			newLink.name = this.createLinkForm.controls.name.value;

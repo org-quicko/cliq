@@ -12,6 +12,7 @@ import { Subject } from 'rxjs';
 import { MemberAddedSuccessDialogBoxComponent } from '../member-added-success-dialog-box/member-added-success-dialog-box.component';
 import { MatButtonModule } from '@angular/material/button';
 import { onAddMemberSuccess, TeamStore } from '../../store/team.store';
+import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/form-dialog-box.component';
 
 @Component({
 	selector: 'app-add-member-dialog-box',
@@ -25,7 +26,8 @@ import { onAddMemberSuccess, TeamStore } from '../../store/team.store';
 		MatSelectModule,
 		MatInputModule,
 		TitleCasePipe,
-		MemberAddedSuccessDialogBoxComponent
+		MemberAddedSuccessDialogBoxComponent,
+		FormDialogBoxComponent,
 	],
 	templateUrl: './add-member-dialog-box.component.html',
 	styleUrl: './add-member-dialog-box.component.scss'
@@ -58,7 +60,7 @@ export class AddMemberDialogBoxComponent implements OnDestroy {
 	}
 
 
-	onSubmit() {
+	onSubmit = () => {
 		if (this.addMemberForm.valid) {
 			this.data.addMember(this.newMember);
 		}

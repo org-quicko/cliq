@@ -11,6 +11,7 @@ import { MemberStore } from '../../../../../store/member.store';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProgramStore } from '../../../../../store/program.store';
+import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-dialog-box.component';
 
 @Component({
 	selector: 'app-edit-profile-dialog-box',
@@ -23,7 +24,8 @@ import { ProgramStore } from '../../../../../store/program.store';
 		MatButtonModule,
 		MatInputModule,
 		MatProgressSpinnerModule,
-		MatError
+		MatError,
+		FormDialogBoxComponent
 	],
 	templateUrl: './edit-profile-dialog-box.component.html',
 	styleUrl: './edit-profile-dialog-box.component.scss'
@@ -82,7 +84,7 @@ export class EditProfileDialogBoxComponent implements OnInit, OnDestroy {
 		this.destroy$.complete();
 	}
 
-	onSubmit() {
+	onSubmit = () => {
 		if (this.editProfileForm.valid) {
 			this.memberStore.updateMemberInfo({
 				updatedInfo: this.profileDetails,

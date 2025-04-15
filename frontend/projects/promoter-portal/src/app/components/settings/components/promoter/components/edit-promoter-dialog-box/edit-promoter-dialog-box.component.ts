@@ -11,6 +11,7 @@ import { Status, UpdatePromoterDto } from '@org.quicko.cliq/ngx-core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PromoterStore } from '../../../../../../store/promoter.store';
 import { ProgramStore } from '../../../../../../store/program.store';
+import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/form-dialog-box.component';
 
 @Component({
 	selector: 'app-edit-promoter-dialog-box',
@@ -22,7 +23,8 @@ import { ProgramStore } from '../../../../../../store/program.store';
 		MatDialogModule,
 		MatIconModule,
 		MatInputModule,
-		MatProgressSpinnerModule
+		MatProgressSpinnerModule,
+		FormDialogBoxComponent
 	],
 	templateUrl: './edit-promoter-dialog-box.component.html',
 	styleUrl: './edit-promoter-dialog-box.component.scss'
@@ -75,13 +77,15 @@ export class EditPromoterDialogBoxComponent implements OnInit, OnDestroy {
 		this.destroy$.complete();
 	}
 
-	onSubmit() {
+	onSubmit = () => {
 		if (this.editPromoterForm.valid) {
 			this.promoterStore.updatePromoterInfo({
 				updatedInfo: this.promoterDetails,
 				programId: this.programId(),
 				promoterId: this.promoterId()
 			});
+
+			this.dialogRef.close();
 		}
 	}
 }

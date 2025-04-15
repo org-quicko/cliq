@@ -14,6 +14,7 @@ import * as _moment from 'moment';
 import { default as _rollupMoment } from 'moment';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-dialog-box.component';
 
 const moment = _rollupMoment || _moment;
 
@@ -47,7 +48,8 @@ export const MY_FORMATS = {
 		SnakeToCapitalizedPipe,
 		MatDividerModule,
 		MatRippleModule,
-		CommonModule
+		CommonModule,
+		FormDialogBoxComponent
 	],
 	providers: [provideMomentDateAdapter(MY_FORMATS)],
 	templateUrl: './report-dialog-box.component.html',
@@ -110,7 +112,7 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 		this.destroy$.complete();
 	}
 
-	onSubmit() {
+	onSubmit = () => {
 		if (this.reportForm.valid) {
 			const start = this.reportForm.controls.start.value.toDate();
 			const end = this.reportForm.controls.end.value.toDate();

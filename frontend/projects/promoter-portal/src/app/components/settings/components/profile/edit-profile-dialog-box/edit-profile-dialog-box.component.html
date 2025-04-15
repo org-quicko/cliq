@@ -1,107 +1,72 @@
-<mat-dialog-content class="w-[516px] rounded-[5px] h-auto p-6 bg-surface-container-lowest">
-	<form [formGroup]="editProfileForm" (ngSubmit)="onSubmit()">
-		<div class="flex flex-col gap-8">
-			<!-- Edit Details Header -->
-			<div class="flex justify-between">
-				<div class="flex flex-col gap-2">
-					<div class="size-6">
-						<mat-icon class="text-on-surface">
-							edit
-						</mat-icon>
-					</div>
-					<div class="text-on-surface mat-title-large">
-						<span>Edit Profile</span>
-					</div>
-				</div>
-				<button type="button" mat-icon-button class="cursor-pointer" (click)="closeDialog()">
-					<mat-icon>
-						close
-					</mat-icon>
-				</button>
-			</div>
+<app-form-dialog-box
+	[formGroup]="editProfileForm"
+	[onSubmit]="onSubmit"
+	[height]="'h-auto'"
+	icon="edit"
+	headerText="Edit Profile"
+	submitBtnText="Save"
+>
+	<!-- Form fields -->
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col">
+			<mat-form-field [appearance]="'outline'" class="w-full">
+				<mat-label>Email</mat-label>
+				<input type="text" matInput formControlName="email" class="w-full max-w-[468px]" required />
+			</mat-form-field>
 
-			<!-- Form fields -->
-			<div class="flex flex-col gap-6">
-				<div class="flex flex-col">
-					<mat-form-field [appearance]="'outline'" class="w-full">
-						<mat-label>Email</mat-label>
-						<input type="text" matInput formControlName="email" class="w-full max-w-[468px]" required />
-					</mat-form-field>
+			<div class="flex gap-4">
+				<mat-form-field [appearance]="'outline'" class="w-1/2">
+					<mat-label>First Name</mat-label>
+					<input type="text" matInput formControlName="firstName" class="w-full max-w-[468px]"
+						required />
+				</mat-form-field>
 
-					<div class="flex gap-4">
-						<mat-form-field [appearance]="'outline'" class="w-1/2">
-							<mat-label>First Name</mat-label>
-							<input type="text" matInput formControlName="firstName" class="w-full max-w-[468px]"
-								required />
-						</mat-form-field>
-
-						<mat-form-field [appearance]="'outline'" class="w-1/2">
-							<mat-label>Last Name</mat-label>
-							<input type="text" matInput formControlName="lastName" class="w-full max-w-[468px]"
-								required />
-						</mat-form-field>
-					</div>
-				</div>
-
-				<div class="flex flex-col gap-2">
-					<div class="mat-title-medium text-on-surface-variant">
-						<span>Password</span>
-					</div>
-
-					<mat-form-field [appearance]="'outline'" class="w-full">
-						<mat-label>Current Password</mat-label>
-						<input [type]="hideCurrentPassword ? 'password': 'text'" matInput
-							formControlName="currentPassword" autocomplete="off" />
-						<button mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword"
-							type="button">
-							<mat-icon class="material-symbols-outlined">{{ hideCurrentPassword ? 'visibility_off' :
-								'visibility' }}</mat-icon>
-						</button>
-					</mat-form-field>
-
-					<mat-form-field [appearance]="'outline'" class="w-full">
-						<mat-label>New Password</mat-label>
-						<input [type]="hideNewPassword ? 'password': 'text'" matInput formControlName="newPassword" />
-
-						<button mat-icon-button matSuffix (click)="hideNewPassword = !hideNewPassword" type="button">
-							<mat-icon class="material-symbols-outlined">{{ hideNewPassword ? 'visibility_off' :
-								'visibility' }}</mat-icon>
-						</button>
-					</mat-form-field>
-
-					@if (editProfileForm.hasError('passwordsMatch')) {
-					<mat-error class="text-on-error-container"><span>New password must be different from current
-							password.</span></mat-error>
-					}
-					@if (editProfileForm.hasError('passwordsRequired')) {
-					<mat-error class="text-on-error-container"><span>Must enter both current and new password to change
-							password.</span></mat-error>
-					}
-					@if (error()) {
-					<mat-error class="text-on-error-container"><span>{{ error()?.error.message }}</span></mat-error>
-					}
-				</div>
-
+				<mat-form-field [appearance]="'outline'" class="w-1/2">
+					<mat-label>Last Name</mat-label>
+					<input type="text" matInput formControlName="lastName" class="w-full max-w-[468px]"
+						required />
+				</mat-form-field>
 			</div>
 		</div>
 
-		<!-- Dialog control buttons -->
-		<div>
-			<mat-dialog-actions class="!px-0 flex justify-end gap-2">
-				<button mat-button mat-dialog-close type="button"
-					class="w-auto min-w-[70px] h-10 text-primary mat-label-large cursor-pointer">
-					Cancel
+		<div class="flex flex-col gap-2">
+			<div class="mat-title-medium text-on-surface-variant">
+				<span>Password</span>
+			</div>
+
+			<mat-form-field [appearance]="'outline'" class="w-full">
+				<mat-label>Current Password</mat-label>
+				<input [type]="hideCurrentPassword ? 'password': 'text'" matInput
+					formControlName="currentPassword" autocomplete="off" />
+				<button mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword"
+					type="button">
+					<mat-icon class="material-symbols-outlined">{{ hideCurrentPassword ? 'visibility_off' :
+						'visibility' }}</mat-icon>
 				</button>
-				<button mat-flat-button type="submit"
-					class="w-auto min-w-[93px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer flex items-center justify-center gap-2">
-					@if (isLoading()) {
-					<mat-spinner class="!w-5 !h-5 btn-spinner" [diameter]="20"></mat-spinner>
-					} @else {
-					Save
-					}
+			</mat-form-field>
+
+			<mat-form-field [appearance]="'outline'" class="w-full">
+				<mat-label>New Password</mat-label>
+				<input [type]="hideNewPassword ? 'password': 'text'" matInput formControlName="newPassword" />
+
+				<button mat-icon-button matSuffix (click)="hideNewPassword = !hideNewPassword" type="button">
+					<mat-icon class="material-symbols-outlined">{{ hideNewPassword ? 'visibility_off' :
+						'visibility' }}</mat-icon>
 				</button>
-			</mat-dialog-actions>
+			</mat-form-field>
+
+			@if (editProfileForm.hasError('passwordsMatch')) {
+			<mat-error class="text-on-error-container"><span>New password must be different from current
+					password.</span></mat-error>
+			}
+			@if (editProfileForm.hasError('passwordsRequired')) {
+			<mat-error class="text-on-error-container"><span>Must enter both current and new password to change
+					password.</span></mat-error>
+			}
+			@if (error()) {
+			<mat-error class="text-on-error-container"><span>{{ error()?.error.message }}</span></mat-error>
+			}
 		</div>
 
-	</form>
-</mat-dialog-content>
+	</div>
+</app-form-dialog-box>
