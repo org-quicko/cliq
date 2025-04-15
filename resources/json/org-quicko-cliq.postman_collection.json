@@ -45,7 +45,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"jane@mail.com\",\r\n    \"password\": \"nice\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Doe\"\r\n}",
+							"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"nice\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Doe\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -592,7 +592,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMDVkOWIzZC1hMTQ3LTQzMjItOWZhZS00ZDAzZTU1NWMwOTIiLCJlbWFpbCI6Imp1bGllQG1haWwuY29tIiwiYXVkIjoicHJvZ3JhbV91c2VyIiwiaWF0IjoxNzQxODM2ODY3LCJleHAiOjE3NDQ0Mjg4Njd9.3Ew1M7wyQuRaLSBSVmbO1eRulXdScciGWmxp71wD9yw",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiNDM0ZjIyZS1mNDNiLTRlODktYmY4OC02NWI0NTQ2N2MwYWEiLCJlbWFpbCI6Indob0BtYWlsLmNvbSIsImF1ZCI6InByb2dyYW1fdXNlciIsImlhdCI6MTc0NDA5NzcxNCwiZXhwIjoxNzQ2Njg5NzE0fQ.ApgW2kNPkYSgS7D_vmT5UoaGfGrc13kbqyuVnjgYkrg",
 						"type": "string"
 					}
 				]
@@ -655,7 +655,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Novices\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"referral_key_type\": \"email\",\r\n    \"website\": \"www.example123.com\",\r\n    \"time_zone\": \"IST\",\r\n    \"date_format\": \"DD/MM/YYYY\"\r\n}",
+							"raw": "{\r\n    \"name\": \"Advanced\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"referral_key_type\": \"phone\",\r\n    \"website\": \"www.example123.com\",\r\n    \"time_zone\": \"IST\",\r\n    \"date_format\": \"DD/MM/YYYY\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1889,7 +1889,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MmRiYzA1OC03NmUyLTQ5MTUtYTVmNy1iODMyYWE5NTUyNDciLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDI4ODk3ODcsImV4cCI6MTc0NTQ4MTc4N30.2Q9oA_IRY4U8DejsRwdnwUOOyE3EagH4y2xSrhl_6-g",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxODM3Y2JhZC0yZDg0LTRhNjctYmVhZS0zNjE2YmNjYWNhNmQiLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDQ2Mzk3NjQsImV4cCI6MTc0NzIzMTc2NH0._3DjcTy1ZihvxR1lQSxTMlMh2pj1v-F0OW1H_AtUSUA",
 						"type": "string"
 					}
 				]
@@ -1966,7 +1966,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"F5\",\r\n    \"trigger\": \"purchase\",\r\n    \"effect_type\": \"generate_commission\",\r\n    \"effect\": {\r\n        \"commission\": {\r\n            \"commission_type\": \"percentage\",\r\n            \"commission_value\": 10\r\n        }\r\n    },\r\n    \"conditions\": [\r\n        {\r\n            \"condition\": {\r\n                \"parameter\": \"no. of purchases\",\r\n                \"operator\": \"less_than_or_equal_to\",\r\n                \"value\": 5\r\n            }\r\n        }\r\n    ],\r\n    \"circle_id\": \"c57238c8-02d2-46c6-94ea-7d1290c2cadb\"\r\n}",
+							"raw": "{\r\n    \"name\": \"F1\",\r\n    \"trigger\": \"purchase\",\r\n    \"effect_type\": \"generate_commission\",\r\n    \"effect\": {\r\n        \"commission\": {\r\n            \"commission_type\": \"percentage\",\r\n            \"commission_value\": 10\r\n        }\r\n    },\r\n    \"conditions\": [\r\n        {\r\n            \"condition\": {\r\n                \"parameter\": \"no. of purchases\",\r\n                \"operator\": \"less_than_or_equal_to\",\r\n                \"value\": 30\r\n            }\r\n        }\r\n    ],\r\n    \"circle_id\": \"0e26096e-c328-44cb-8d92-4686b1ee8fa9\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2865,7 +2865,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YTkyMTI0MC03MWRjLTQ5MjMtYTM1Yy0xYjJkODU0ZDQzZGUiLCJlbWFpbCI6ImphbmVAbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDI4MTA1MzYsImV4cCI6MTc0NTQwMjUzNn0.Mb1pX1uxz5XRVQ9i_03iB4E6Y2ulrRHe011dXgS7qbY",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxODM3Y2JhZC0yZDg0LTRhNjctYmVhZS0zNjE2YmNjYWNhNmQiLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDQ2Mzk3NjQsImV4cCI6MTc0NzIzMTc2NH0._3DjcTy1ZihvxR1lQSxTMlMh2pj1v-F0OW1H_AtUSUA",
 						"type": "string"
 					}
 				]
@@ -2921,6 +2921,16 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwNTM2NDJhNC1mNzQzLTRiMTgtOTBlZi01ZTcxZmI2ZjMyYzEiLCJlbWFpbCI6ImRlbGV0ZUBtYWlsLmNvbSIsImF1ZCI6InByb21vdGVyX3VzZXIiLCJpYXQiOjE3NDQyOTg0OTQsImV4cCI6MTc0Njg5MDQ5NH0.flbowlWPAkLUT3K2q7F8e7Y5XGnxuweavZyE-ZxfWrY",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -3627,7 +3637,8 @@
 							{
 								"key": "x-accept-type",
 								"value": "application/json;format=sheet-json",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"url": {
@@ -3740,7 +3751,8 @@
 							{
 								"key": "x-accept-type",
 								"value": "application/json;format=sheet-json",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"url": {
@@ -3942,7 +3954,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/commissions",
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/commissions?skip=0&take=5&sort_by=createdAt&sort_order=DESC",
 							"host": [
 								"{{base_url}}"
 							],
@@ -3972,13 +3984,19 @@
 								},
 								{
 									"key": "skip",
-									"value": "",
-									"disabled": true
+									"value": "0"
 								},
 								{
 									"key": "take",
-									"value": "",
-									"disabled": true
+									"value": "5"
+								},
+								{
+									"key": "sort_by",
+									"value": "createdAt"
+								},
+								{
+									"key": "sort_order",
+									"value": "DESC"
 								}
 							],
 							"variable": [
@@ -4119,7 +4137,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/purchases?start_date=03/09/2024&end_date=03/12/2024",
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/purchases?start_date=2025-03-11T09:23:42.473Z&end_date=2025-04-15T09:23:42.473Z",
 							"host": [
 								"{{base_url}}"
 							],
@@ -4134,11 +4152,11 @@
 							"query": [
 								{
 									"key": "start_date",
-									"value": "03/09/2024"
+									"value": "2025-03-11T09:23:42.473Z"
 								},
 								{
 									"key": "end_date",
-									"value": "03/12/2024"
+									"value": "2025-04-15T09:23:42.473Z"
 								},
 								{
 									"key": "report_period",
@@ -4201,11 +4219,11 @@
 							"variable": [
 								{
 									"key": "program_id",
-									"value": ""
+									"value": "{{program_id}}"
 								},
 								{
 									"key": "promoter_id",
-									"value": ""
+									"value": "{{promoter_id}}"
 								}
 							]
 						}
@@ -4258,7 +4276,7 @@
 					"response": []
 				},
 				{
-					"name": "Get promoter statistics",
+					"name": "Get promoter analytics",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -4269,7 +4287,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/stats",
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/analytics",
 							"host": [
 								"{{base_url}}"
 							],
@@ -4278,7 +4296,7 @@
 								":program_id",
 								"promoters",
 								":promoter_id",
-								"stats"
+								"analytics"
 							],
 							"variable": [
 								{
@@ -4295,7 +4313,7 @@
 					"response": []
 				},
 				{
-					"name": "Get promoter link statistics",
+					"name": "Get promoter link analytics",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -4306,7 +4324,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/link_stats",
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/link_analytics",
 							"host": [
 								"{{base_url}}"
 							],
@@ -4315,7 +4333,29 @@
 								":program_id",
 								"promoters",
 								":promoter_id",
-								"link_stats"
+								"link_analytics"
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "take",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "createdAt",
+									"disabled": true
+								},
+								{
+									"key": "sort_order",
+									"value": "ASC",
+									"disabled": true
+								}
 							],
 							"variable": [
 								{
@@ -4366,8 +4406,17 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"accepted_terms_and_conditions\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/",
+							"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/register",
 							"host": [
 								"{{base_url}}"
 							],
@@ -4376,7 +4425,14 @@
 								":program_id",
 								"promoters",
 								":promoter_id",
-								""
+								"register"
+							],
+							"query": [
+								{
+									"key": "accepted_tnc",
+									"value": "true",
+									"disabled": true
+								}
 							],
 							"variable": [
 								{
@@ -4398,7 +4454,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNTQ3MzIyYi1iMWRmLTQzYWItYTllYS1jNTY2YmNhNDNlYzUiLCJlbWFpbCI6ImRlbGV0ZUBtYWlsLmNvbSIsImF1ZCI6InByb21vdGVyX3VzZXIiLCJpYXQiOjE3NDM3NTE3MjgsImV4cCI6MTc0NjM0MzcyOH0.G46vyXw3ufqCKN3nOf0USUTp-osMuRkdMarBaC0yGJg",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTliYWUyMC0xYjQ3LTQ3YjgtYTA5ZC01YzAyNTc2Zjc3ZDAiLCJlbWFpbCI6ImJvYkBtYWlsLmNvbSIsImF1ZCI6InByb21vdGVyX3VzZXIiLCJpYXQiOjE3NDQ2MTEwMDcsImV4cCI6MTc0NzIwMzAwN30.7dyE5E5RQKm6liSsVe7QBCmt26U3pao0Q2Ez5Q551xw",
 						"type": "string"
 					}
 				]
@@ -4461,7 +4517,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"delete@mail.com\",\r\n    \"password\": \"delete\",\r\n    \"first_name\": \"delete\",\r\n    \"last_name\": \"delete\"\r\n}",
+							"raw": "{\r\n    \"email\": \"test@mail.com\",\r\n    \"password\": \"test\",\r\n    \"first_name\": \"test\",\r\n    \"last_name\": \"test\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -4554,7 +4610,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"delete@mail.com\",\r\n    \"password\": \"delete\"\r\n}",
+							"raw": "{\r\n    \"email\": \"anakin@mail.com\",\r\n    \"password\": \"starwars\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -5148,6 +5204,44 @@
 							"body": "{\n    \"code\": 200,\n    \"message\": \"Successfully fetched promoter of Member 23b4bcb8-a466-46d7-b241-af3822480747.\",\n    \"data\": {\n        \"promoter_id\": \"b3096757-5c66-46da-988c-d3dcc97de48e\",\n        \"name\": \"promoter man\",\n        \"logo_url\": \"www.promoter-man.com\",\n        \"created_at\": \"2025-03-10T09:15:21.945Z\",\n        \"updated_at\": \"2025-03-10T09:15:21.945Z\"\n    }\n}"
 						}
 					]
+				},
+				{
+					"name": "Check member existence in program",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"bababooey@mail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/members/exists",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"members",
+								"exists"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"auth": {
@@ -5155,7 +5249,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyM2I0YmNiOC1hNDY2LTQ2ZDctYjI0MS1hZjM4MjI0ODA3NDciLCJlbWFpbCI6ImFuYWtpbkBtYWlsLmNvbSIsImF1ZCI6InByb21vdGVyX3VzZXIiLCJpYXQiOjE3NDM2ODk0MjUsImV4cCI6MTc0NjI4MTQyNX0.4AYOxc69jgQpjHAE58IGeYwF_aFi0auQFydvbupFGQE",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTFiYjMyNi03NGNmLTQyYzctOTJhZC1kNmFmY2E2NjViMjIiLCJlbWFpbCI6Im1hdWxAbWFpbC5jb20iLCJhdWQiOiJwcm9tb3Rlcl91c2VyIiwiaWF0IjoxNzQ0Mjg4MDA4LCJleHAiOjE3NDY4ODAwMDh9.QxBPdVTMHFbxBzEwsIsiVs_yfV-SHz6g8R8L-Ah1q3s",
 						"type": "string"
 					}
 				]
@@ -5921,7 +6015,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMDVkOWIzZC1hMTQ3LTQzMjItOWZhZS00ZDAzZTU1NWMwOTIiLCJlbWFpbCI6Imp1bGllQG1haWwuY29tIiwiYXVkIjoicHJvZ3JhbV91c2VyIiwiaWF0IjoxNzQxNzgwMDk5LCJleHAiOjE3NDQzNzIwOTl9.QDodU7QbbGXqdbS2agyL_pLzw8foTKZb4qk6B-mUY18",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxODM3Y2JhZC0yZDg0LTRhNjctYmVhZS0zNjE2YmNjYWNhNmQiLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDQ2Mzk3NjQsImV4cCI6MTc0NzIzMTc2NH0._3DjcTy1ZihvxR1lQSxTMlMh2pj1v-F0OW1H_AtUSUA",
 						"type": "string"
 					}
 				]
@@ -5986,7 +6080,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"ref_val\": \"deleteme\",\r\n    \"name\": \"delete me link\"\r\n}",
+							"raw": "{\r\n    \"ref_val\": \"why-1aa42rk\",\r\n    \"name\": \"why\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6286,7 +6380,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyM2I0YmNiOC1hNDY2LTQ2ZDctYjI0MS1hZjM4MjI0ODA3NDciLCJlbWFpbCI6ImFuYWtpbkBtYWlsLmNvbSIsImF1ZCI6InByb21vdGVyX3VzZXIiLCJpYXQiOjE3NDI3OTQyOTMsImV4cCI6MTc0NTM4NjI5M30.nZ9D3C8VklNIyXh2w5KCMctYlR1nCXnL1MjiCrqpI38",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzYzhlOGM3Ni0wNjBmLTQ4NGEtYWI5Yy1lMDEyZDFjMzZmOGYiLCJlbWFpbCI6ImJvYkBtYWlsLmNvbSIsImF1ZCI6InByb21vdGVyX3VzZXIiLCJpYXQiOjE3NDQ2MTc2OTEsImV4cCI6MTc0NzIwOTY5MX0.dvNHxm5x0CGHEMDWdZEuqSvpvH88hBKbfl-MqGb3OAc",
 						"type": "string"
 					}
 				]
@@ -6370,7 +6464,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"ref_val\": \"bobafett-ii3850z\",\r\n    \"amount\": 207,\r\n    \"email\": \"jacques@mail.com\",\r\n    \"phone\": \"2834578171\",\r\n    \"external_id\": \"some_external_id\",\r\n    \"item_id\": \"some_item_id\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"1234\",\r\n        \"utm_source\": \"youtube\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"ref_val\": \"anakin-syrppvm\",\r\n    \"amount\": 400,\r\n    \"email\": \"tom@mail.com\",\r\n    \"phone\": \"5162535634\",\r\n    \"external_id\": \"doge_id\",\r\n    \"item_id\": \"doge_123\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6475,7 +6569,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"ref_val\": \"man123\",\r\n    \"email\": \"pam@mail.com\",\r\n    \"first_name\": \"Pam\",\r\n    \"last_name\": \"Beasly\",\r\n    \"phone\": \"7183951723\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"1234\",\r\n        \"utm_source\": \"youtube\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"ref_val\": \"anakin\",\r\n    \"email\": \"micahel@mail.com\",\r\n    \"first_name\": \"Michael\",\r\n    \"last_name\": \"Scott\",\r\n    \"phone\": \"9264866342\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6771,7 +6865,7 @@
 				"bearer": [
 					{
 						"key": "token",
-						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMDVkOWIzZC1hMTQ3LTQzMjItOWZhZS00ZDAzZTU1NWMwOTIiLCJlbWFpbCI6Imp1bGllQG1haWwuY29tIiwiYXVkIjoicHJvZ3JhbV91c2VyIiwiaWF0IjoxNzQyMzczMzkxLCJleHAiOjE3NDQ5NjUzOTF9.AG4m72sydoVe3aXecRWHA54ScIMHH2ucshryK2ZBg04",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxODM3Y2JhZC0yZDg0LTRhNjctYmVhZS0zNjE2YmNjYWNhNmQiLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDQ2Mzk3NjQsImV4cCI6MTc0NzIzMTc2NH0._3DjcTy1ZihvxR1lQSxTMlMh2pj1v-F0OW1H_AtUSUA",
 						"type": "string"
 					}
 				]
@@ -6820,7 +6914,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"url\": \"{{webhook_url}}\",\r\n    \"events\": [\"commission.created\"],\r\n    \"secret\": \"not very secret\"\r\n}",
+							"raw": "{\r\n    \"url\": \"{{webhook_url}}\",\r\n    \"events\": [\"commission.created\", \"purchase.created\", \"signup.created\"],\r\n    \"secret\": \"not very secret\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6920,7 +7014,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"events\": [\"commission.created\"],\r\n    \"secret\": \"very secret\",\r\n    \"url\": \"https://webhook.site/b741bd01-4ef3-44f5-a6e9-e4e78a79c9a3\"\r\n}",
+							"raw": "{\r\n    \"events\": [\"commission.created\", \"signup.created\", \"purchase.created\"],\r\n    \"secret\": \"very secret\",\r\n    \"url\": \"https://webhook.site/b741bd01-4ef3-44f5-a6e9-e4e78a79c9a3\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6982,6 +7076,16 @@
 					"response": []
 				}
 			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxODM3Y2JhZC0yZDg0LTRhNjctYmVhZS0zNjE2YmNjYWNhNmQiLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDQ2Mzk3NjQsImV4cCI6MTc0NzIzMTc2NH0._3DjcTy1ZihvxR1lQSxTMlMh2pj1v-F0OW1H_AtUSUA",
+						"type": "string"
+					}
+				]
+			},
 			"event": [
 				{
 					"listen": "prerequest",
