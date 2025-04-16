@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Contact } from '../entities';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateContactDto } from '../dtos';
 import { ContactConverter } from '../converters/contact.converter';
 import { ProgramService } from './program.service';
@@ -47,7 +47,7 @@ export class ContactService {
 		return this.contactConverter.convert(savedContact);
 	}
 
-	async contactExists(programId: string, whereOptions: object) {
+	async contactExists(programId: string, whereOptions: FindOptionsWhere<Contact>) {
 		this.logger.info('START: contactExists service');
 
 		const contactResult = await this.contactRepository.findOne({
