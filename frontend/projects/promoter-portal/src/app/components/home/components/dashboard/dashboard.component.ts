@@ -1,8 +1,7 @@
 import { MatRippleModule } from '@angular/material/core';
-import { Component, inject, OnInit, effect, computed, ViewChild, signal } from '@angular/core';
+import { Component, inject, OnInit, effect, computed, ViewChild, signal, WritableSignal } from '@angular/core';
 import { AbilityServiceSignal } from '@casl/angular';
 import { PureAbility } from '@casl/ability';
-import { CurrencyPipe, NgClass, TitleCasePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,7 +42,6 @@ import { DashboardStore, onCreateLinkSuccess, onDeleteLinkSuccess } from './stor
 		CreateLinkDialogBoxComponent,
 		StrokedBtnComponent,
 		OrdinalDatePipe,
-		TitleCasePipe,
 		ZeroToDashPipe,
 		FormatCurrencyPipe,
 		SkeletonLoadTableComponent,
@@ -83,7 +81,7 @@ export class DashboardComponent implements OnInit {
 	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
 
 
-	totalLinkDataLength = computed(() => {
+	readonly totalLinkDataLength = computed(() => {
 		const metadata = this.dashboardStore.links().links?.getMetadata();
 		const count = metadata ? metadata.get('count') : null;
 		return count ? Number(count) : 0;
@@ -103,6 +101,8 @@ export class DashboardComponent implements OnInit {
 		const links = this.dashboardStore.links().links;
 		return links ? links.length() : 0;
 	});
+
+	selectedRow = signal<any[] | null>(null);
 
 	displayedColumns: string[] = ['link', 'commission', 'signups', 'purchases', 'created on', 'menu'];
 
@@ -287,15 +287,29 @@ export class DashboardComponent implements OnInit {
 
 	onDeleteLink(row: any[]) {
 		if (this.can('delete', LinkDto)) {
-			this.deleteLink(row);
+			this.selectedRow.set(row);
+			this.dialog.open(InfoDialogBoxComponent, {
+				data: {
+					message: `You won't be able to create another link with the same ref value again. This action can't be undone.`,
+					confirmButtonText: 'Delete',
+					title: 'Delete link',
+					onSubmit: () => { this.deleteLink() }
+				}
+			});
 		} else {
 			const rule = this.ability.relevantRuleFor('delete', LinkDto)!;
 			this.openNotAllowedDialogBox(rule.reason!);
 		}
 	}
 
-	deleteLink(row: any[]) {
-		const link = this.convertToLinkStatsRow(row);
+	deleteLink() {
+		const selectedRow = this.selectedRow();
+
+		if (!selectedRow) {
+			throw new Error(`Error. No row selected for deletion`);
+		}
+
+		const link = this.convertToLinkStatsRow(selectedRow);
 		this.dashboardStore.deleteLink({
 			linkId: link.getLinkId(),
 			programId: this.programId(),
