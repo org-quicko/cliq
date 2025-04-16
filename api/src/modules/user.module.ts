@@ -11,11 +11,10 @@ import { UserAuthService } from '../services/userAuth.service';
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([User, ProgramUser]),
-		JwtModule.register({
-			global: true,
-			secret: process.env.JWT_SECRET!,
-			signOptions: { expiresIn: '30d' },
-		}),
+		// JwtModule.register({
+		// 	secret: process.env.JWT_SECRET!,
+		// 	signOptions: { expiresIn: '30d' },
+		// }),
 	],
 	controllers: [UserController],
 	providers: [UserService, UserAuthService, UserConverter],

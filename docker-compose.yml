@@ -14,16 +14,21 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
     environment:
-      - DB_HOST=db
+      - PORT=3000
       - DB_PORT=5432
+      - DB_HOST=db
       - DB_USERNAME=postgres
       - DB_PASSWORD=admin
       - DB_NAME=cliq
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=30d
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - SALT_ROUNDS=10
+      - NODE_ENV=prod
+    ports:
+      - "3000:3000"
     depends_on:
       - db
       - redis

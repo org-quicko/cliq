@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import 'reflect-metadata';
 import { BullModule } from '@nestjs/bullmq';
 import { Logger, Module } from '@nestjs/common';
@@ -23,31 +22,36 @@ import { ReferralModule } from './modules/referral.module';
 import { WebhookModule } from './modules/webhook.module';
 import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
 import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { bullMqConfig, jwtConfig, typeOrmConfig } from './config';
 
 
 @Module({
 	imports: [
-		TypeOrmModule.forRoot({
-			type: 'postgres',
-			host: process.env.DB_HOST,
-			port: parseInt(process.env.DB_PORT ?? '5432'),
-			username: process.env.DB_USERNAME,
-			password: process.env.DB_PASSWORD,
-			database: process.env.DB_NAME,
-			autoLoadEntities: true,
-			synchronize: true,
-			logging: true, // TODO: implement only the info logging level for typeorm in prod
-			poolSize: 10,
-			connectTimeoutMS: 2000,
-			maxQueryExecutionTime: 5000,
-			subscribers: [MaterializedViewSubscriber],
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: ['.env'],
+		}),
+		TypeOrmModule.forRootAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => ({
+				...(typeOrmConfig(configService)),
+				subscribers: [MaterializedViewSubscriber],
+			})
 		}),
 		EventEmitterModule.forRoot(),
-		BullModule.forRoot({
-			connection: {
-				host: 'localhost',
-				port: parseInt(process.env.REDIS_PORT ?? '6379')
-			},
+		BullModule.forRootAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: bullMqConfig,
+		}),
+		JwtModule.registerAsync({
+			imports: [ConfigModule],
+			inject: [ConfigService],
+			useFactory: jwtConfig,
+			global: true
 		}),
 		AuthModule,
 		ApiKeyModule,

@@ -1,9 +1,8 @@
 import 'dotenv/config';
 import { QueryOptionsInterface } from './interfaces/queryOptions.interface';
+import { ConfigService } from '@nestjs/config';
 
-export const SALT_ROUNDS = process.env.SALT_ROUNDS
-	? parseInt(process.env.SALT_ROUNDS)
-	: 10;
+export const SALT_ROUNDS = parseInt((new ConfigService()).get('SALT_ROUNDS') ?? '10');
 
 export const referralMVName = 'referral_mv';
 export const promoterAnalyticsMVName = 'promoter_analytics_mv';
