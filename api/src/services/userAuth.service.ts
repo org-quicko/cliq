@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
@@ -17,15 +17,15 @@ export class UserAuthService {
 		private userService: UserService,
 		private jwtService: JwtService,
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	async authenticateUser(input: AuthInput): Promise<AuthResult> {
 		this.logger.info(`START: authenticateUser service`);
-		const entity = await this.validateUser(input);
+		const [entity, errorMessage] = await this.validateUser(input);
 
 		if (!entity) {
 			throw new UnauthorizedException({
-				error: `User does not exist.`,
+				error: errorMessage,
 				code: 401,
 			});
 		}
@@ -36,26 +36,40 @@ export class UserAuthService {
 		return authResult;
 	}
 
-	async validateUser(input: AuthInput): Promise<UserLoginData | null> {
+	async validateUser(input: AuthInput): Promise<[UserLoginData | null, string]> {
 		this.logger.info(`START: validateUser service`);
 
 		const entity: User | null = await this.userService.getUserByEmail(
 			input.email,
 		);
 
-		let loginData: UserLoginData | null;
-		if (
-			entity &&
-			(await this.comparePasswords(input.password, entity.password))
-		) {
-			loginData = {
-				user_id: entity.userId,
-				email: entity.email,
-			};
-		} else loginData = null;
+		let logInData: UserLoginData | null;
+		let errorMessage: string = '';
+
+		// user isn't part of the program
+		if (!entity) {
+			logInData = null;
+			errorMessage = `User email isn't registered!`;
+			throw new BadRequestException(errorMessage);
+
+		} else {
+			// incorrect password
+			if (!(await this.comparePasswords(input.password, entity.password))) {
+				logInData = null;
+				errorMessage = `Invalid password! Please try again!`;
+				throw new BadRequestException(errorMessage);
+			} else {
+
+				// valid member, allow login
+				logInData = {
+					user_id: entity.userId,
+					email: entity.email,
+				};
+			}
+		}
 
 		this.logger.info(`END: validateUser service`);
-		return loginData;
+		return [logInData, errorMessage];
 	}
 
 	async loginUser(entity: UserLoginData): Promise<AuthResult> {

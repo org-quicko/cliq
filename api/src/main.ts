@@ -49,8 +49,10 @@ async function bootstrap() {
 				console.error(
 					'Validation Errors:',
 					JSON.stringify(errors, null, 2),
-				); // 🔥 Logs errors in detail
-				return new BadRequestException(errors);
+				);
+				return new BadRequestException({
+					validationErrors: errors
+				});
 			},
 		}),
 	);

@@ -12,9 +12,26 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse<Response>();
 		const status = exception.getStatus();
+
+		const exceptionResponse = exception.getResponse();
+
+		let message = exception.message;
+
+		if (
+			typeof exceptionResponse === 'object' && 
+			exceptionResponse['validationErrors']
+		) {
+			const messages: string[] = [];
+			for (const validationError of exceptionResponse['validationErrors']) {
+				messages.push(Object.values(validationError['constraints'] as object)[0] as string);
+			}
+
+			message = `Validation errors: ${messages.join(', ')}`;
+		}
+
 		response.status(status).json({
 			code: status,
-			message: exception.message,
+			message,
 			error: exception.cause,
 		});
 	}
