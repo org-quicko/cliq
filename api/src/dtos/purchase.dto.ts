@@ -9,6 +9,7 @@ import {
 	IsDate,
 	Length,
 	Matches,
+	IsEmail,
 } from 'class-validator';
 import { UtmParams } from 'src/classes';
 
@@ -22,12 +23,11 @@ export class PurchaseDto {
 	linkId: string;
 
 	@IsNumber()
-	// @IsPositive({ message: 'amount entered must be greater than 0' })
-	@Min(0, { message: 'amount entered must be non negative.' })
+	@Min(0, { message: 'amount entered must be non negative' })
 	amount: number;
 
 	@IsOptional()
-	@IsString()
+	@IsEmail()
 	email?: string;
 
 	@IsOptional()
@@ -42,8 +42,8 @@ export class PurchaseDto {
 
 	@IsOptional()
 	@IsString()
-	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
-	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
+	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long' })
+	@Matches(/^\d+$/, { message: 'phone number must contain only digits' })
 	phone?: string;
 
 	@Expose({ name: 'external_id' })
@@ -77,8 +77,7 @@ export class CreatePurchaseDto {
 	refVal: string;
 
 	@IsNumber()
-	// @IsPositive({ message: 'amount entered must be greater than 0' })
-	@Min(0, { message: 'amount entered must be non negative.' })
+	@Min(0, { message: 'amount entered must be non negative' })
 	amount: number;
 
 	@IsOptional()
@@ -110,8 +109,8 @@ export class CreatePurchaseDto {
 
 	@IsOptional()
 	@IsString()
-	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
-	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
+	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long' })
+	@Matches(/^\d+$/, { message: 'phone number must contain only digits' })
 	phone?: string;
 }
 

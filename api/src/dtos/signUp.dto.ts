@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsDate, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
+import { IsDate, IsEmail, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
 import { UtmParams } from 'src/classes';
 
 export class SignUpDto {
@@ -35,8 +35,8 @@ export class SignUpDto {
 
 	@IsOptional()
 	@IsString()
-	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
-	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
+	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long' })
+	@Matches(/^\d+$/, { message: 'phone number must contain only digits' })
 	phone?: string;
 
 	@Expose({ name: 'promoter_id' })
@@ -58,7 +58,7 @@ export class CreateSignUpDto {
 	refVal: string;
 
 	@IsOptional()
-	@IsString()
+	@IsEmail()
 	email?: string;
 
 	@IsOptional()
@@ -82,8 +82,8 @@ export class CreateSignUpDto {
 
 	@IsOptional()
 	@IsString()
-	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
-	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
+	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long' })
+	@Matches(/^\d+$/, { message: 'phone number must contain only digits' })
 	phone?: string;
 }
 

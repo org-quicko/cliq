@@ -1,5 +1,5 @@
 import { Expose, Transform } from 'class-transformer';
-import { IsDate, IsEnum, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
+import { IsDate, IsEmail, IsEnum, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
 import { contactStatusEnum } from '../enums';
 import { PartialType } from '@nestjs/mapped-types';
 
@@ -15,7 +15,7 @@ export class ContactDto {
 	programId: string;
 
 	@IsOptional()
-	@IsString()
+	@IsEmail()
 	email?: string;
 
 	@IsOptional()
