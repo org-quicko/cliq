@@ -15,7 +15,7 @@ import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from 'src/constants';
 import { linkStatusEnum } from 'src/enums';
-import { LinkStatsView } from 'src/entities/linkStats.view';
+import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
 
 @Injectable()
 export class LinkService {
@@ -70,7 +70,7 @@ export class LinkService {
 
 		const savedLink = await this.linkRepository.save(newLink);
 
-		const linkStats = new LinkStatsView();
+		const linkStats = new LinkAnalyticsView();
 		linkStats.linkId = savedLink.linkId;
 		linkStats.name = savedLink.name;
 		linkStats.refVal = savedLink.refVal;

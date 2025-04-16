@@ -25,7 +25,7 @@ import {
 	PromoterMember,
 	Purchase,
 	ReferralView,
-	PromoterStatsView,
+	PromoterAnalyticsView,
 	SignUp,
 	Link,
 	Commission,
@@ -45,7 +45,7 @@ import { CommissionConverter } from '../converters/commission.converter';
 import { ProgramService } from './program.service';
 import { sortOrderEnum } from '../enums/sortOrder.enum';
 import { referralSortByEnum } from '../enums/referralSortBy.enum';
-import { LinkStatsView } from '../entities/linkStats.view';
+import { LinkAnalyticsView } from '../entities/linkAnalytics.view';
 import { ReferralConverter } from '../converters/referral.converter';
 import { LinkConverter } from '../converters/link.converter';
 import { defaultQueryOptions } from '../constants';
@@ -79,8 +79,8 @@ export class PromoterService {
 		@InjectRepository(Link)
 		private readonly linkRepository: Repository<Link>,
 
-		@InjectRepository(LinkStatsView)
-		private readonly linkStatsViewRepository: Repository<LinkStatsView>,
+		@InjectRepository(LinkAnalyticsView)
+		private readonly LinkAnalyticsViewRepository: Repository<LinkAnalyticsView>,
 
 		@InjectRepository(Purchase)
 		private purchaseRepository: Repository<Purchase>,
@@ -88,8 +88,8 @@ export class PromoterService {
 		@InjectRepository(ReferralView)
 		private referralViewRepository: Repository<ReferralView>,
 
-		@InjectRepository(PromoterStatsView)
-		private promoterStatsRepository: Repository<PromoterStatsView>,
+		@InjectRepository(PromoterAnalyticsView)
+		private promoterStatsRepository: Repository<PromoterAnalyticsView>,
 
 		@InjectRepository(ProgramPromoter)
 		private programPromoterRepository: Repository<ProgramPromoter>,
@@ -1211,7 +1211,7 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const promoterWorkbook = this.promoterStatsConverter.convertPromoterStatsViewToSheet([
+			const promoterWorkbook = this.promoterStatsConverter.convertPromoterAnalyticsViewToSheet([
 				promoterStatsResult ?? {
 					programId,
 					promoterId,
@@ -1248,7 +1248,7 @@ export class PromoterService {
 			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
-		const [linkStatsResult, count] = await this.linkStatsViewRepository.findAndCount({
+		const [linkStatsResult, count] = await this.LinkAnalyticsViewRepository.findAndCount({
 			where: {
 				programId,
 				promoterId,

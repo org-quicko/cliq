@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { PromoterStatsView } from 'src/entities';
+import { PromoterAnalyticsView } from 'src/entities';
 import { Repository } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class PromoterStatsService {
+export class PromoterAnalyticsService {
     constructor(
 
-        @InjectRepository(PromoterStatsView)
-        private readonly promoterStatsViewRepository: Repository<PromoterStatsView>,
+        @InjectRepository(PromoterAnalyticsView)
+        private readonly PromoterAnalyticsViewRepository: Repository<PromoterAnalyticsView>,
 
         private logger: LoggerService,
     ) { }
@@ -27,7 +27,7 @@ export class PromoterStatsService {
             );
         }
 
-        const promoterStatResult = await this.promoterStatsViewRepository.findOne({
+        const promoterStatResult = await this.PromoterAnalyticsViewRepository.findOne({
             where: {
                 programId,
                 promoterId,

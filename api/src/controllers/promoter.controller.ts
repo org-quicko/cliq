@@ -20,10 +20,10 @@ import {
 	PromoterMember,
 	Purchase,
 	ReferralView,
-	PromoterStatsView,
+	PromoterAnalyticsView,
 	SignUp,
 	Link,
-	LinkStatsView,
+	LinkAnalyticsView,
 } from '../entities';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { sortOrderEnum } from 'src/enums/sortOrder.enum';
@@ -596,7 +596,7 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@Permissions('read_all', LinkStatsView)
+	@Permissions('read_all', LinkAnalyticsView)
 	@Get(':promoter_id/link_analytics')
 	async getPromoterLinkAnalytics(
 		@Headers('x-accept-type') acceptType: string,
@@ -633,7 +633,7 @@ export class PromoterController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 400, description: 'Bad Request' })
-	@Permissions('read', PromoterStatsView)
+	@Permissions('read', PromoterAnalyticsView)
 	@Get(':promoter_id/analytics')
 	async getPromoterAnalytics(
 		@Headers('x-accept-type') acceptType: string,

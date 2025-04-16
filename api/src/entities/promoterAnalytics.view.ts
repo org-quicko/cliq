@@ -48,7 +48,7 @@ import { ReferralView } from "./referral.view";
 	materialized: true,
 	dependsOn: [ReferralView],
 })
-export class PromoterStatsView {
+export class PromoterAnalyticsView {
 	@Index()
 	@PrimaryColumn('uuid', { name: 'program_id' })
 	programId: string;

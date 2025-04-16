@@ -23,11 +23,11 @@ import {
     PromoterMember,
     Purchase,
     ReferralView,
-    PromoterStatsView,
+    PromoterAnalyticsView,
     SignUp,
     User,
     Webhook,
-    LinkStatsView,
+    LinkAnalyticsView,
 } from '../entities';
 import { memberRoleEnum, userRoleEnum, statusEnum } from '../enums';
 import { UserService } from './user.service';
@@ -46,7 +46,7 @@ import { SignUpService } from './signUp.service';
 import { PurchaseService } from './purchase.service';
 import { ReferralService } from './referral.service';
 import { WebhookService } from './webhook.service';
-import { PromoterStatsService } from './promoterStats.service';
+import { PromoterAnalyticsService } from './promoterAnalytics.service';
 import { actionsType, subjectsType } from 'src/types';
 
 // these types are in order to check nested properties
@@ -91,7 +91,7 @@ export class AuthorizationService {
         private programPromoterService: ProgramPromoterService,
         private promoterMemberService: PromoterMemberService,
         private referralService: ReferralService,
-        private promoterStatsService: PromoterStatsService,
+        private PromoterAnalyticsService: PromoterAnalyticsService,
         private webhookService: WebhookService,
 
         private logger: LoggerService,
@@ -270,12 +270,12 @@ export class AuthorizationService {
                         subjectProgramId,
                         subjectPromoterId,
                     );
-                } else if (subject === PromoterStatsView) {
+                } else if (subject === PromoterAnalyticsView) {
                     if (!subjectProgramId && !subjectPromoterId) {
                         throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
                     }
 
-                    return this.promoterStatsService.getFirstPromoterStat(
+                    return this.PromoterAnalyticsService.getFirstPromoterStat(
                         subjectProgramId,
                         subjectPromoterId,
                     );
@@ -342,7 +342,7 @@ export class AuthorizationService {
         }
 
         for (const [programId, role] of Object.entries(programUserPermissions)) {
-            allow('read', [ReferralView, PromoterStatsView, ProgramPromoter, Link, Circle, Program, Function], { programId });
+            allow('read', [ReferralView, PromoterAnalyticsView, ProgramPromoter, Link, Circle, Program, Function], { programId });
             allow('read', User, { programUsers: { $elemMatch: { programId } } });
 
             allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
@@ -425,8 +425,8 @@ export class AuthorizationService {
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
 
             allow(['read', 'leave'], Promoter, { promoterId });
-            allow(['read', 'read_all'], [PromoterStatsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link], { promoterId });
-            allow(['read', 'read_all'], LinkStatsView);
+            allow(['read', 'read_all'], [PromoterAnalyticsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link], { promoterId });
+            allow(['read', 'read_all'], LinkAnalyticsView);
 
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { LinkDto } from '../dtos';
 import { Link } from '../entities';
-import { LinkStatsView } from 'src/entities/linkStats.view';
+import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
 import { JSONObject } from '@org.quicko/core';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
@@ -25,7 +25,7 @@ export class LinkConverter {
 	}
 
 	/** For getting link statistics sheet inside a Promoter Workbook */
-	convertLinkStatsToSheet(linkStats: LinkStatsView[], metadata: {
+	convertLinkStatsToSheet(linkStats: LinkAnalyticsView[], metadata: {
 		website: string,
 		programId: string,
 		count: number

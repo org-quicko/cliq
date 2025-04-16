@@ -22,7 +22,8 @@ import { ApiKeyModule } from './modules/apiKey.module';
 import { ReferralModule } from './modules/referral.module';
 import { WebhookModule } from './modules/webhook.module';
 import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
-import { PromoterStatsModule } from './modules/promoterStats.module';
+import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
+
 
 @Module({
 	imports: [
@@ -60,7 +61,7 @@ import { PromoterStatsModule } from './modules/promoterStats.module';
 		PromoterModule,
 		PurchaseModule,
 		ReferralModule,
-		PromoterStatsModule,
+		PromoterAnalyticsModule,
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,

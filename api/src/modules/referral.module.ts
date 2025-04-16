@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ReferralConverter } from "src/converters/referral.converter";
-import { PromoterStatsView, ReferralView } from "src/entities";
+import { ReferralView } from "src/entities";
 import { ReferralService } from "src/services/referral.service";
 
 @Module({

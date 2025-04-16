@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { PromoterAnalyticsRow, PromoterAnalyticsSheet, PromoterAnalyticsTable, PromoterWorkbook } from "generated/sources/Promoter";
-import { PromoterStatsView } from "src/entities/promoterStats.view";
+import { PromoterAnalyticsView } from "src/entities/promoterAnalytics.view";
 
 @Injectable()
 export class PromoterAnalyticsConverter {
 
-    convertPromoterStatsViewToSheet(promoterStats: PromoterStatsView[]): PromoterWorkbook {
+    convertPromoterAnalyticsViewToSheet(promoterStats: PromoterAnalyticsView[]): PromoterWorkbook {
         const promoterStatsTable = new PromoterAnalyticsTable();
     
         promoterStats.forEach((referralAgg) => {

@@ -1,6 +1,6 @@
 import { InferSubjects } from "@casl/ability";
 import { Contact } from "@org.quicko/core";
-import { ApiKey, Circle, Commission, Condition, Link, Member, Program, Function, ProgramUser, Promoter, PromoterMember, ProgramPromoter, Purchase, ReferralView, PromoterStatsView, SignUp, User, Webhook, LinkStatsView } from "src/entities";
+import { ApiKey, Circle, Commission, Condition, Link, Member, Program, Function, ProgramUser, Promoter, PromoterMember, ProgramPromoter, Purchase, ReferralView, PromoterAnalyticsView, SignUp, User, Webhook, LinkAnalyticsView } from "src/entities";
 
 export type subjectsType =
     InferSubjects<
@@ -19,10 +19,10 @@ export type subjectsType =
         | typeof ProgramPromoter
         | typeof Purchase
         | typeof ReferralView
-        | typeof PromoterStatsView
+        | typeof PromoterAnalyticsView
         | typeof SignUp
         | typeof User
         | typeof Webhook
-        | typeof LinkStatsView
+        | typeof LinkAnalyticsView
     >
     | 'all';

@@ -6,13 +6,13 @@ import { Link } from '../entities';
 import { LinkController } from '../controllers/link.controller';
 import { LinkService } from '../services/link.service';
 import { LinkConverter } from '../converters/link.converter';
-import { LinkStatsView } from 'src/entities/linkStats.view';
+import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([
 			Link, 
-			LinkStatsView
+			LinkAnalyticsView
 		]), 
 		forwardRef(() => ProgramModule), 
 		forwardRef(() => PromoterModule),

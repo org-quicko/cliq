@@ -52,7 +52,7 @@ import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 't
     }
 
 })
-export class LinkStatsView {
+export class LinkAnalyticsView {
     @ViewColumn({ name: 'link_id' })
     linkId: string;
 
