@@ -128,9 +128,7 @@ export class PurchaseService {
 
 				if (!associatedContact) {
 					this.logger.error(`Error. Failed to create new contact.`);
-					throw new InternalServerErrorException(
-						`Error. Failed to create new contact.`,
-					);
+					throw new InternalServerErrorException(`Error. Failed to create new contact.`);
 				}
 			}
 
@@ -144,13 +142,6 @@ export class PurchaseService {
 			});
 
 			const savedPurchase = await purchaseRepository.save(newPurchase);
-
-			if (!savedPurchase) {
-				this.logger.error(`Error. Failed to create new purchase.`);
-				throw new InternalServerErrorException(
-					`Error. Failed to create new purchase.`,
-				);
-			}
 
 			await contactRepository.update(
 				{ contactId: associatedContact.contactId },
