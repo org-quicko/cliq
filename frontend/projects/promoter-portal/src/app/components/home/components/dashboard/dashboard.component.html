@@ -7,8 +7,9 @@
 
 			<!-- Dashboard welcome header -->
 			<div class="w-full justify-between">
-				<h3 class="text-on-surface mat-title-large">Welcome to your dashboard, {{
-					memberStore.member()?.firstName }}</h3>
+				<span class="text-on-surface mat-title-large">
+					Welcome to your dashboard, {{ memberStore.member()?.firstName }}
+				</span>
 			</div>
 
 			<!-- Statistics info -->
@@ -174,8 +175,8 @@
 				<table
 					mat-table
 					matSort
-					[dataSource]="dataSource"
 					class="w-full h-auto max-h-[548px] bg-transparent"
+					[dataSource]="dataSource"
 					[matSortActive]="sortOptions().active"
 					[matSortDirection]="sortOptions().direction"
 					(matSortChange)="onSortChange($event)"
@@ -189,8 +190,7 @@
 						<td mat-cell *matCellDef="let row; let i = index"
 							class="mat-body-large text-on-surface-variant w-fit max-w-[328px] overflow-hidden text-ellipsis whitespace-nowrap">
 							<div>
-								<div class="text-on-surface-variant">{{ convertToLinkStatsRow(row).getLinkName() |
-									titlecase }}</div>
+								<div class="text-on-surface-variant">{{ convertToLinkStatsRow(row).getLinkName() }}</div>
 								<div class="text-outline">
 									<span>{{ program()?.website }}?ref=</span>
 									<span class="text-on-surface">{{ convertToLinkStatsRow(row).getRefVal() }}</span>
@@ -268,6 +268,7 @@
 						(click)="onClickLink(row)">
 					</tr>
 
+					@if (totalLinkDataLength()) {
 					<tr class="empty-row" *matNoDataRow>
 						<td [attr.colspan]="displayedColumns.length">
 							<div class="flex flex-col justify-center items-center h-[300px]">
@@ -294,6 +295,7 @@
 							</div>
 						</td>
 					</tr>
+					}
 				</table>
 				}
 			</div>
