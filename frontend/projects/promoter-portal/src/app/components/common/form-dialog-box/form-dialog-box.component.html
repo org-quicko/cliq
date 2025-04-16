@@ -1,4 +1,7 @@
-<mat-dialog-content class="rounded-[5px] p-6 bg-surface-container-lowest" [ngClass]="`${width ?? 'w-[516px]'} ${height ?? 'h-auto max-h-[468px]'}`">
+<mat-dialog-content
+	class="rounded-[5px] p-6 bg-surface-container-lowest info-dialog-shadow"
+	[ngClass]="`${width ?? 'w-[516px]'} ${height ?? 'h-auto max-h-[468px]'}`"
+>
 	<form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
 		<div class="flex flex-col gap-8" [ngClass]="height?.includes('h-auto') ? 'h-auto' : 'h-auto max-h-[348px]'">
 			<!-- Create Link Header -->
