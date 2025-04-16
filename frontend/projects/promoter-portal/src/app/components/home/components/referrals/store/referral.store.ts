@@ -115,7 +115,9 @@ export const ReferralStore = signalStore(
 			),
 
 			resetLoadedPages() {
-				patchState(store, { loadedPages: new Set(), referrals: null });
+				patchState(store, {
+					loadedPages: new Set(),
+				});
 			},
 
 			getPerReferralCommissions: rxMethod<{ contactId: string, programId: string, promoterId: string }>(

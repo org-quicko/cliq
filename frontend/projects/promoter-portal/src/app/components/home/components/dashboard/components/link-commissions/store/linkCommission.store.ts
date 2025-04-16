@@ -108,7 +108,9 @@ export const LinkCommissionsStore = signalStore(
 			),
 
 			resetLoadedPages() {
-				patchState(store, { loadedPages: new Set(), commissions: null, link: store.link() });
+				patchState(store, {
+					loadedPages: new Set(),
+				});
 			},
 
 			getLink: rxMethod<{ linkId: string, programId: string, promoterId: string,  }>(
