@@ -27,7 +27,6 @@ import { PromoterStore } from '../../../../../store/promoter.store';
     MatChipsModule,
     MatRippleModule,
     MatPaginatorModule,
-    TitleCasePipe,
     OrdinalDatePipe,
     FormatCurrencyPipe,
     SkeletonLoadTableComponent,
