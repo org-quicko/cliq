@@ -224,7 +224,7 @@ export class LinkService {
 
 		if (!linkResult) {
 			this.logger.warn(`Failed to get link with ref val ${refVal}.`);
-			throw new NotFoundException(
+			throw new ConflictException(
 				`Failed to get link with ref val ${refVal}.`,
 			);
 		}
@@ -241,7 +241,7 @@ export class LinkService {
 		
 		await this.promoterService.hasAcceptedTermsAndConditions(programId, promoterId);
 		
-		await this.linkRepository.update({ linkId }, { status: linkStatusEnum.INACTIVE });
+		await this.linkRepository.update({ linkId }, { status: linkStatusEnum.ARCHIVED });
 		this.logger.info('END: deleteLink service');
 	}
 
