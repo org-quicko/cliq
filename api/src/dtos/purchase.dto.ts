@@ -7,6 +7,8 @@ import {
 	IsUUID,
 	Min,
 	IsDate,
+	Length,
+	Matches,
 } from 'class-validator';
 import { UtmParams } from 'src/classes';
 
@@ -40,6 +42,8 @@ export class PurchaseDto {
 
 	@IsOptional()
 	@IsString()
+	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
+	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
 	phone?: string;
 
 	@Expose({ name: 'external_id' })
@@ -106,6 +110,8 @@ export class CreatePurchaseDto {
 
 	@IsOptional()
 	@IsString()
+	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
+	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
 	phone?: string;
 }
 

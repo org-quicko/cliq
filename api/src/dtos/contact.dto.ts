@@ -1,5 +1,5 @@
 import { Expose, Transform } from 'class-transformer';
-import { IsDate, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsDate, IsEnum, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
 import { contactStatusEnum } from '../enums';
 import { PartialType } from '@nestjs/mapped-types';
 
@@ -32,6 +32,8 @@ export class ContactDto {
 
 	@IsOptional()
 	@IsString()
+	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
+	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
 	phone?: string;
 
 	@IsEnum(contactStatusEnum)
