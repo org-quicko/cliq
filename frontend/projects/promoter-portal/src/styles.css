@@ -28,3 +28,7 @@ th.hide-sort-arrow:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
 th {
 	user-select: none;
 }
+
+.info-dialog-shadow {
+	box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.15);
+}
