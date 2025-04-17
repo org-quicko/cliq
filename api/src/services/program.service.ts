@@ -89,20 +89,23 @@ export class ProgramService {
 			const programEntity = programRepository.create(body);
 			const savedProgram = await programRepository.save(programEntity);
 
-			// set creator user to super admin
-			await programUserRepository.save({
+			const programUser = programUserRepository.create({
 				userId,
 				programId: savedProgram.programId,
 				role: userRoleEnum.SUPER_ADMIN,
 			});
+			// set creator user to super admin
+			await programUserRepository.save(programUser);
 
-			await circleRepository.save({
+			const circle = circleRepository.create({
 				name: 'DEFAULT_CIRCLE',
 				isDefaultCircle: true,
 				program: savedProgram,
 			});
+			await circleRepository.save(circle);
 
 			const programDto = this.programConverter.convert(savedProgram);
+
 			this.logger.info('END: createProgram service');
 			return programDto;
 		});
@@ -207,20 +210,6 @@ export class ProgramService {
 	}
 
 	/**
-	 * Forms relation between program and user
-	 */
-	async relateProgramToUser(programId: string, userId: string) {
-		this.logger.info('START: relateProgramToUser service');
-
-		const newProgramUser = new ProgramUser();
-		newProgramUser.programId = programId;
-		newProgramUser.userId = userId;
-
-		this.logger.info('END: relateProgramToUser service');
-		await this.programUserRepository.save(newProgramUser);
-	}
-
-	/**
 	 * Delete program
 	 */
 	async deleteProgram(programId: string) {
@@ -256,7 +245,7 @@ export class ProgramService {
 					password: body.password,
 					firstName: body.firstName,
 					lastName: body.lastName,
-				} as CreateUserDto);
+				});
 
 				newUser = await userRepository.save(newUser);
 
@@ -316,18 +305,13 @@ export class ProgramService {
 				);
 			}
 
-			const newProgramUser = programUserRepository.create();
-			newProgramUser.program = programResult;
-			newProgramUser.user = newUser;
-			newProgramUser.role = body.role ?? userRoleEnum.VIEWER;
+			const newProgramUser = programUserRepository.create({
+				program: programResult,
+				user: newUser,
+				role: body.role ?? userRoleEnum.VIEWER
+			});
 
-			const result = await programUserRepository.save(newProgramUser);
-			if (!result) {
-				this.logger.error('Failed to invite user');
-				throw new InternalServerErrorException(
-					'Failed to invite user.',
-				);
-			}
+			await programUserRepository.save(newProgramUser);
 
 			this.logger.info('END: addUser service');
 			return;

@@ -187,8 +187,6 @@ export class MemberService {
 				member.email = email;
 			}
 
-			console.log(body);
-
 			// Update other fields
 			Object.assign(member, updateFields);
 

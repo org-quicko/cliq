@@ -139,13 +139,14 @@ export class PromoterService {
 				}
 
 				const promoterMemberRepository = manager.getRepository(PromoterMember);
-				
-				// set creator member to admin
-				await promoterMemberRepository.save({
+				const promoterMember = promoterMemberRepository.create({
 					memberId,
 					promoterId: savedPromoter.promoterId,
 					role: memberRoleEnum.ADMIN,
 				});
+
+				// set creator member to admin
+				await promoterMemberRepository.save(promoterMember);
 			}
 
 			const promoterDto = this.promoterConverter.convert(savedPromoter, false);
@@ -257,11 +258,12 @@ export class PromoterService {
 						`Error. Default Circle not found for Program ${programId}`,
 					);
 				}
-	
-				await circlePromoterRepository.save({
+				
+				const circlePromoter = circlePromoterRepository.create({
 					circleId: defaultCircle.circleId,
 					promoterId,
 				});
+				await circlePromoterRepository.save(circlePromoter);
 			}
 	
 			const programPromoter = programPromoterRepository.create({
@@ -406,9 +408,9 @@ export class PromoterService {
 					memberId: existingMember.memberId,
 					role: body.role,
 					status: statusEnum.ACTIVE,
+					member: existingMember
 				});
 
-				newPromoterMember.member = existingMember;
 				const promoterMemberResult = await manager.save(newPromoterMember);
 
 				const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMemberResult], promoterId, 1);
@@ -445,9 +447,9 @@ export class PromoterService {
 				memberId: newMember.memberId,
 				role: body.role,
 				status: statusEnum.ACTIVE,
+				member: newMember
 			});
 
-			promoterMember.member = newMember;
 			const promoterMemberResult = await manager.save(promoterMember);
 
 			const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMemberResult], promoterId, 1);
@@ -834,8 +836,8 @@ export class PromoterService {
 		this.logger.info('START: getSignUpsReport service');
 
 		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -893,8 +895,8 @@ export class PromoterService {
 		this.logger.info('START: getPurchasesReport service');
 		
 		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -952,8 +954,8 @@ export class PromoterService {
 		this.logger.info('START: getReferralsReport service');
 
 		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -995,8 +997,8 @@ export class PromoterService {
 		this.logger.info(`START: getCommissionsReport service`);
 
 		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -1116,8 +1118,8 @@ export class PromoterService {
 		this.logger.info(`START: getLinksReport service`);
 
 		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -1244,8 +1246,8 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
 		}
 
 		const [linkStatsResult, count] = await this.LinkAnalyticsViewRepository.findAndCount({

@@ -43,10 +43,11 @@ export class ApiKeyService {
 		const key = crypto.randomBytes(16).toString('hex');
 		const secret = crypto.randomBytes(32).toString('hex');
 
-		const newApiKey = new ApiKey();
-		newApiKey.key = key;
-		newApiKey.secret = secret;
-		newApiKey.programId = programId;
+		const newApiKey = this.apiKeyRepository.create({
+			key,
+			secret,
+			programId
+		});
 
 		const apiKey = await this.apiKeyRepository.save(newApiKey);
 		const apiKeyDto = this.apiKeyConverter.convert(apiKey, secret);

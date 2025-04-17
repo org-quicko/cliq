@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityNotFoundError } from 'typeorm';
-import { CreateUserDto, SignUpUserDto, UpdateUserDto } from '../dtos';
+import { SignUpUserDto, UpdateUserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
 import { UserConverter } from '../converters/user.converter';
 import { LoggerService } from './logger.service';
@@ -9,8 +9,6 @@ import { userRoleEnum, statusEnum } from 'src/enums';
 
 @Injectable()
 export class UserService {
-	public ability;
-
 	constructor(
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
@@ -21,9 +19,7 @@ export class UserService {
 		private userConverter: UserConverter,
 
 		private logger: LoggerService,
-	) {
-		this.ability = undefined;
-	}
+	) { }
 
 	async isFirstUserSignUp(): Promise<boolean> {
 		const isFirstUser = (await this.userRepository.find()).length === 0;
@@ -36,6 +32,11 @@ export class UserService {
 	async userSignUp(body: SignUpUserDto) {
 		try {
 			this.logger.info('START: userSignUp service');
+
+			if (await this.getUserByEmail(body.email)) {
+				this.logger.error(`Error. Email ${body.email} already exists!`);
+				throw new BadRequestException(`Error. Email ${body.email} already exists!`);
+			}
 	
 			const userEntity = this.userRepository.create(body);
 	

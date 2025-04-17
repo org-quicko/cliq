@@ -121,8 +121,10 @@ export class PurchaseService {
 			);
 
 			if (!associatedContact) {
-				associatedContact = contactRepository.create(createContactBody);
-				associatedContact.program = programResult;
+				associatedContact = contactRepository.create({
+					...createContactBody,
+					program: programResult
+				});
 
 				associatedContact = await contactRepository.save(associatedContact);
 
