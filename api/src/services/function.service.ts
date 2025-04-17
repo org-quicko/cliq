@@ -47,30 +47,19 @@ export class FunctionService {
 			}
 
 			const programResult = await this.programService.getProgramEntity(programId);
-			const circleResult = await this.circleService.getCircleEntity(
-				body.circleId,
-			);
 
-			if (!programResult) {
-				this.logger.warn(
-					`Failed to get Program ${programId} for createFunction`,
-				);
-				throw new NotFoundException(
-					`Failed to get Program ${programId}.`,
-				);
+			if (!(await this.circleService.circleExists(programId, body.circleId))) {
+				this.logger.error(`Circle ${body.circleId} does not exist in program ${programId}.`);
+				throw new NotFoundException(`Circle ${body.circleId} does not exist in program ${programId}.`);
 			}
+			const circleResult = await this.circleService.getCircleEntity(body.circleId);
+
 			if (
 				body.effect instanceof SwitchCircleEffect &&
-				!(await this.circleService.circleExists(
-					body.effect.targetCircleId,
-				))
+				!(await this.circleService.circleExists(programId, body.effect.targetCircleId))
 			) {
-				this.logger.warn(
-					`Circle ${body.effect.targetCircleId} does not exist.`,
-				);
-				throw new NotFoundException(
-					`Circle ${body.effect.targetCircleId} does not exist.`,
-				);
+				this.logger.warn(`Target Circle ${body.effect.targetCircleId} does not exist in program ${programId}.`);
+				throw new NotFoundException(`Target Circle ${body.effect.targetCircleId} does not exist in program ${programId}.`);
 			}
 
 			const functionRepository = manager.getRepository(Function);
@@ -101,8 +90,6 @@ export class FunctionService {
 			const savedFunction = await functionRepository.save(newFunction);
 			const functionDto = this.functionConverter.convert(savedFunction);
 			
-			console.log(savedFunction, functionDto);
-
 			this.logger.info('END: createFunction service');
 			return functionDto;
 		});
@@ -214,20 +201,13 @@ export class FunctionService {
 
 			if (
 				body.effect instanceof SwitchCircleEffect &&
-				!(await this.circleService.circleExists(
-					body.effect.targetCircleId,
-				))
+				!(await this.circleService.circleExists(programId, body.effect.targetCircleId))
 			) {
-				this.logger.warn(
-					`Circle ${body.effect.targetCircleId} does not exist.`,
-				);
-				throw new NotFoundException(
-					`Circle ${body.effect.targetCircleId} does not exist.`,
-				);
+				this.logger.warn(`Target Circle ${body.effect.targetCircleId} does not exist in program ${programId}.`);
+				throw new NotFoundException(`Target Circle ${body.effect.targetCircleId} does not exist in program ${programId}.`);
 			}
 
 			// Fetch function with current conditions
-			// const functionResult = await this.getFunctionEntity(programId, functionId, { conditions: true });
 			const functionResult = await functionRepository.findOne({
 				where: {
 					programId,
@@ -239,9 +219,7 @@ export class FunctionService {
 			});
 
 			if (!functionResult) {
-				throw new NotFoundException(
-					`Error. Function ${functionId} not found.`,
-				);
+				throw new NotFoundException(`Error. Function ${functionId} not found.`);
 			}
 
 			// Extract existing conditions

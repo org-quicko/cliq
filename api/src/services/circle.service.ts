@@ -235,8 +235,19 @@ export class CircleService {
 		return circle;
 	}
 
-	async circleExists(circleId: string) {
-		return await this.circleRepository.findOne({ where: { circleId } });
+	async circleExists(programId: string, circleId: string) {
+		this.logger.info('START: circleExists service');
+
+		const circleResult = await this.circleRepository.findOne({ 
+			where: { 
+				programId,
+				circleId,
+			} 
+		});
+		const exists = circleResult !== null;
+		
+		this.logger.info('END: circleExists service');
+		return exists;
 	}
 
 	/**
