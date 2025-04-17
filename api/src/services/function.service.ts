@@ -293,7 +293,19 @@ export class FunctionService {
 	async deleteFunction(programId: string, functionId: string) {
 		this.logger.info('START: deleteFunction service');
 
-		await this.functionRepository.delete({ functionId });
+		const functionResult = await this.functionRepository.findOne({
+			where: {
+				programId,
+				functionId,
+			}
+		});
+
+		if (!functionResult) {
+			this.logger.error(`Error. Function ${functionId} does not exist in program ${programId}`);
+			throw new NotFoundException(`Error. Function ${functionId} does not exist in program ${programId}`);
+		}
+
+		await this.functionRepository.remove(functionResult);
 
 		this.logger.info('END: deleteFunction service');
 	}
