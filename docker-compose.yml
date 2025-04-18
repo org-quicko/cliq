@@ -5,11 +5,11 @@ services:
       dockerfile: Dockerfile
       target: final
     ports:
-      - "3000:3000"
+      - "3001:3001"
     env_file:
       - ./.env
     environment:
-      - PORT=3000
+      - PORT=3001
       - DB_PORT=5432
       - DB_HOST=db
       - DB_USERNAME=postgres
