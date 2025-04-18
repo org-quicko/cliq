@@ -1,19 +1,11 @@
 services:
-  frontend:
+  app:
     build:
-      context: ./frontend
+      context: .
       dockerfile: Dockerfile
+      target: final
     ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - app-network
-
-  backend:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
+      - "3000:3000"
     env_file:
       - ./.env
     environment:
@@ -29,11 +21,9 @@ services:
       - NODE_ENV=prod
       - JWT_SECRET
       - JWT_EXPIRES_IN
-    ports:
-      - "3000:3000"
     depends_on:
-      - db
       - redis
+      - db
     networks:
       - app-network
 
