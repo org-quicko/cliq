@@ -168,6 +168,7 @@ export class ProgramService {
 		});
 
 		if (!programResult) {
+			this.logger.error(`Error. Program ${programId} not found.`);
 			throw new NotFoundException(`Error. Program ${programId} not found.`);
 		}
 
