@@ -25,10 +25,14 @@ import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { bullMqConfig, jwtConfig, typeOrmConfig } from './config';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
 	imports: [
+		ServeStaticModule.forRoot({
+			rootPath: join(__dirname, '..', '..', 'public'),
+		}),
 		ConfigModule.forRoot({
 			isGlobal: true,
 			envFilePath: ['.env'],

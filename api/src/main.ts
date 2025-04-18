@@ -57,6 +57,8 @@ async function bootstrap() {
 		}),
 	);
 
+	app.setGlobalPrefix('/api');
+
 	app.enableCors({
 		exposedHeaders: ['Content-Disposition'],
 		origin: '*',
