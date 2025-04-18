@@ -4,7 +4,6 @@ import {
     AbilityBuilder,
     CreateAbility,
     MongoAbility as Ability,
-    InferSubjects,
     ExtractSubjectType,
 } from '@casl/ability';
 import {
@@ -129,10 +128,10 @@ export class AuthorizationService {
         this.logger.info(`START: getSubjects service`);
         subjectObjects = await Promise.all(
             requiredPermissions.map(({ action, subject }) => {
-                const subjectUserId = request.params.user_id as string;
-                const subjectProgramId = request.params.program_id as string;
-                const subjectMemberId = request.params.member_id as string;
-                const subjectPromoterId = request.params.promoter_id as string;
+                const subjectUserId = request.params.user_id as string | undefined;
+                const subjectProgramId = request.params.program_id as string | undefined;
+                const subjectMemberId = request.params.member_id as string | undefined;
+                const subjectPromoterId = request.params.promoter_id as string | undefined;
 
                 if (subject === User) {
                     if (action === 'create')
@@ -148,7 +147,7 @@ export class AuthorizationService {
                     if (action === 'read_all' || action === 'create') return subject;
 
                     if (!subjectProgramId) {
-                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
+                        throw new BadRequestException(`Error. Must provide a Program ID for performing action on object`);
                     }
 
                     return this.programService.getProgramEntity(
@@ -169,7 +168,7 @@ export class AuthorizationService {
                 } else if (subject === Member) {
 
                     if (!subjectMemberId) {
-                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
+                        throw new BadRequestException(`Error. Must provide a Member ID for performing action on object`);
                     }
 
                     return this.memberService.getMemberEntity(subjectMemberId);
@@ -178,13 +177,13 @@ export class AuthorizationService {
                         if (!subjectProgramId) {
                             throw new BadRequestException(`Error. Must provide a Program ID for performing action on object`);
                         }
-                        
+
                         // in case user can read even on row, this means they can read all rows
                         return this.programPromoterService.getFirstProgramPromoter(
                             subjectProgramId,
                         );
                     }
-                    
+
                     if (!subjectProgramId || !subjectPromoterId) {
                         throw new BadRequestException(`Error. Must provide Program ID and Promoter ID for performing action on object`);
                     }
@@ -196,7 +195,7 @@ export class AuthorizationService {
                     if (action === 'create' || action === 'read_all') return subject;
 
                     if (!subjectPromoterId) {
-                        throw new BadRequestException(`Error. Must provide a ${subject} ID for performing action on object`);
+                        throw new BadRequestException(`Error. Must provide a Promoter ID for performing action on object`);
                     }
 
                     return this.promoterService.getPromoterEntity(
@@ -228,11 +227,10 @@ export class AuthorizationService {
 
                     if (action === 'create') return subject;
 
-                    const link = this.linkService.getFirstLink(
+                    return this.linkService.getFirstLink(
                         subjectProgramId,
                         subjectPromoterId,
                     );
-                    return link;
                 } else if (subject === Circle) {
                     if (!subjectProgramId) {
                         throw new BadRequestException(`Error. Must provide one of Program ID for performing action on object.`);
@@ -244,12 +242,15 @@ export class AuthorizationService {
                 } else if (subject === Function) {
                     if (action === 'create' || action === 'read_all') return subject;
 
-                    if (!subjectProgramId) {
-                        throw new BadRequestException(`Error. Must provide Program ID for performing action on object.`);
+                    const subjectFunctionId = request.params.function_id as string | undefined;
+
+                    if (!subjectProgramId || !subjectFunctionId) {
+                        throw new BadRequestException(`Error. Must provide Program ID and Function ID for performing action on object.`);
                     }
 
-                    return this.functionService.getFirstFunctionOfProgram(
+                    return this.functionService.getFunctionEntity(
                         subjectProgramId,
+                        subjectFunctionId
                     );
                 } else if (subject === ApiKey) {
                     if (action === 'create') return subject;
