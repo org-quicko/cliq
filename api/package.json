@@ -9,7 +9,6 @@
     "build": "nest build",
     "clean": "npm cache clean --force",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "install-snapshot": "npm --userconfig ./.npmrc install && npm run generate",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
