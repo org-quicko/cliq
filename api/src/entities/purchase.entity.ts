@@ -50,7 +50,7 @@ export class Purchase {
 	})
 	link: Link;
 
-	@ManyToOne(() => Promoter, (promoter) => promoter.purchases, { onDelete: 'CASCADE' })
+	@ManyToOne(() => Promoter, (promoter) => promoter.purchases, { onDelete: 'SET NULL' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',

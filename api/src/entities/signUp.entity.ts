@@ -42,7 +42,7 @@ export class SignUp {
 	})
 	updatedAt: Date;
 
-	@ManyToOne(() => Promoter, (promoter) => promoter.signUps, { onDelete: 'CASCADE' })
+	@ManyToOne(() => Promoter, (promoter) => promoter.signUps, { onDelete: 'SET NULL' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',
