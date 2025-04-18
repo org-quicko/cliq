@@ -107,6 +107,9 @@ export class FunctionService {
 	) {
 		this.logger.info('START: getAllFunctions service');
 
+		// will throw error in case the program doesn't exist
+		await this.programService.getProgramEntity(programId);
+
 		if (!(await this.programService.checkIfUserExistsInProgram(programId, userId))) {
 			this.logger.error(`Error. User ${userId} is not part of Program ${programId}`);
 			throw new ForbiddenException(`Forbidden. User ${userId} is not part of Program ${programId}`);
@@ -129,7 +132,8 @@ export class FunctionService {
 		});
 
 		if (!functionsResult) {
-			throw new NotFoundException(`Error. Functions of Program ${programId} not found.`);
+			this.logger.error(`Error. Failed to fetch functions of program ${programId}.`);
+			throw new NotFoundException(`Error. Failed to fetch functions of program ${programId}.`);
 		}
 
 		this.logger.info('END: getAllFunctions service');
@@ -171,22 +175,31 @@ export class FunctionService {
 		return functionDto;
 	}
 
-	async getFirstFunctionOfProgram(programId: string) {
-		this.logger.info('START: getFirstFunctionOfProgram service');
+	/**
+	 * Get function entity
+	 */
+	async getFunctionEntity(programId: string, functionId: string) {
+		this.logger.info('START: getFunctionEntity service');
 
 		const functionResult = await this.functionRepository.findOne({
 			where: {
-				programId,
+				program: { programId },
+				functionId,
+			},
+			relations: {
+				circle: true,
+				conditions: {
+					func: true,
+				},
 			},
 		});
 
 		if (!functionResult) {
-			throw new NotFoundException(
-				`Error. Failed to get first function for Program ID: ${programId}.`,
-			);
+			this.logger.warn(`Error. Function ${functionId} not found.`);
+			throw new NotFoundException(`Error. Function ${functionId} not found.`);
 		}
 
-		this.logger.info('END: getFirstFunctionOfProgram service');
+		this.logger.info('END: getFunctionEntity service');
 		return functionResult;
 	}
 
@@ -224,6 +237,7 @@ export class FunctionService {
 			});
 
 			if (!functionResult) {
+				this.logger.error(`Error. Function ${functionId} not found.`);
 				throw new NotFoundException(`Error. Function ${functionId} not found.`);
 			}
 
