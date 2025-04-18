@@ -137,24 +137,6 @@ export class MemberController {
 	}
 
 	/**
-	* Leave promoter
-	*/
-	@ApiResponse({ status: 204, description: 'No Content' })
-	@UseGuards(AuthGuard, PermissionsGuard)
-	@Patch(':member_id/promoters/:promoter_id')
-	async leavePromoter(
-		@Param('member_id') memberId: string,
-		@Param('promoter_id') promoterId: string,
-	) {
-		this.logger.info('START: leavePromoter controller');
-
-		const result = await this.memberService.leavePromoter(memberId, promoterId);
-
-		this.logger.info('END: leavePromoter controller');
-		return { message: `Successfully left promoter ${promoterId}.`, result };
-	}
-
-	/**
 	* Get promoter of member.
 	* Given that a member can only be part of one promoter inside a given program (thus every member ID) is
 	* associated with only one promoter.

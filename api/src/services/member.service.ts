@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberConverter } from 'src/converters/member.converter';
-import { CreateMemberDto, SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
+import { SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
 import { Member, PromoterMember } from 'src/entities';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
 import { LoggerService } from './logger.service';
@@ -84,9 +84,7 @@ export class MemberService {
 
 		if (!memberResult || !promoterMemberResult) {
 			this.logger.warn(`Failed to get member of ID: ${memberId}`);
-			throw new NotFoundException(
-				`Failed to get member of ID: ${memberId}.`,
-			);
+			throw new NotFoundException(`Failed to get member of ID: ${memberId}.`);
 		}
 		const memberDto = this.memberConverter.convert(memberResult, promoterMemberResult);
 
@@ -207,6 +205,7 @@ export class MemberService {
 		});
 
 	}
+
 	/**
 	 * Delete member
 	 */
@@ -214,11 +213,23 @@ export class MemberService {
 		this.logger.info('START: deleteMember service');
 		const member = await this.memberRepository.findOne({
 			where: { memberId: memberId },
+			relations: {
+				promoterMembers: {
+					promoter: true
+				}
+			}
 		});
 
 		if (!member) {
-			this.logger.error('Member does not exist');
-			throw new Error(`Member does not exist.`);
+			this.logger.error(`Member ${memberId} does not exist`);
+			throw new Error(`Member ${memberId} does not exist.`);
+		}
+
+		const canDelete = await this.canDeleteAccount(memberId);
+
+		if (!canDelete) {
+			this.logger.error(`Error. Cannot delete account due to being the only admin in the promoter`);
+			throw new BadRequestException(`Error. Cannot delete account due to being the only admin in the promoter`);
 		}
 
 		await this.memberRepository.remove(member);
@@ -255,27 +266,6 @@ export class MemberService {
 		return exists;
 	}
 
-	async leavePromoter(memberId: string, promoterId: string) {
-		this.logger.info(`START: leavePromoter service`);
-
-		const canLeave = await this.canLeavePromoter(promoterId, memberId);
-		if (!canLeave) {
-			this.logger.error(`Error. Cannot leave promoter due to being the only admin in the promoter`);
-			throw new BadRequestException(`Error. Cannot leave program due to being the only admin in the promoter`);
-		}
-		
-		if (!(await this.promoterMemberRepository.findOne({ where: { promoterId, memberId, status: statusEnum.ACTIVE } }))) {
-			this.logger.error(`Error. Member is already not part of this program`);
-			throw new BadRequestException(`Error. Member is already not part of this program`);	
-		}
-
-		await this.promoterMemberRepository.update({ promoterId, memberId }, {
-			status: statusEnum.INACTIVE
-		});
-
-		this.logger.info(`START: leavePromoter service`);
-	}
-
 	async getPromoterOfMember(programId: string, memberId: string) {
 		this.logger.info(`START: getPromoterOfMember service`);
 
@@ -307,34 +297,47 @@ export class MemberService {
 		return promoterDto;
 	}
 
-	private async canLeavePromoter(promoterId: string, memberId: string) {
-		this.logger.info(`START: canLeavePromoter service`);
+	private async canDeleteAccount(memberId: string) {
+		this.logger.info(`START: canDeleteAccount service`);
 
-		const adminResult = await this.promoterMemberRepository.find({
+		const adminResult = await this.promoterMemberRepository.findOne({
 			where: {
-				promoterId,
+				memberId,
 				role: memberRoleEnum.ADMIN,
+			},
+			relations: {
+				promoter: true
 			}
 		});
 
-		let canLeave = true;
+		let canDelete = true;
 
-		if (adminResult.length > 1) {
-			canLeave = true;
+		// member isn't admin at all, can delete
+		if (!adminResult) {
+			canDelete = true;
 		}
-		// at least 1 admin is present
-		else if (adminResult.length === 1) {
+		else {
+			const promoter = adminResult.promoter;
+			const promoterMemberResult = await this.promoterMemberRepository.find({
+				where: {
+					promoterId: promoter.promoterId,
+					role: memberRoleEnum.ADMIN
+				}
+			});
 
-			//user is the admin, the only admin, thus cannot leave
-			if (adminResult[0].memberId === memberId) {
-				canLeave = false;
-			} else {
-				// this user ain't the admin, can leave 
-				canLeave = true;
+			// at least 1 more admin is present, can delete
+			if (promoterMemberResult.length > 1) {
+				canDelete = true;
 			}
+
+			else if (promoterMemberResult.length === 1) {
+				// user is the admin, the only admin, thus cannot delete
+				canDelete = false;
+			}
+
 		}
 
-		this.logger.info(`END: canLeavePromoter service`);
-		return canLeave;
+		this.logger.info(`END: canDeleteAccount service`);
+		return canDelete;
 	}
 }
