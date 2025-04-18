@@ -102,6 +102,7 @@
 				(click)="onClickReferral(getCellValue(row, 'contact id'))">
 			</tr>
 
+			@if (!totalDataLength()) {
 			<tr class="empty-row" *matNoDataRow>
 				<td [attr.colspan]="displayedColumns.length">
 					<div class="flex flex-col justify-center items-center h-[504px]">
@@ -129,6 +130,7 @@
 					</div>
 				</td>
 			</tr>
+			}
 		</table>
 		}
 	</div>

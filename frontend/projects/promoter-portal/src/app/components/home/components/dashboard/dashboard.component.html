@@ -268,7 +268,7 @@
 						(click)="onClickLink(row)">
 					</tr>
 
-					@if (totalLinkDataLength()) {
+					@if (!totalLinkDataLength()) {
 					<tr class="empty-row" *matNoDataRow>
 						<td [attr.colspan]="displayedColumns.length">
 							<div class="flex flex-col justify-center items-center h-[300px]">
