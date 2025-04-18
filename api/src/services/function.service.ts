@@ -1,11 +1,12 @@
 import {
+	ForbiddenException,
 	Injectable,
 	NotFoundException,
 	UnauthorizedException,
 } from '@nestjs/common';
 import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, FindOptionsWhere, EntityManager } from 'typeorm';
+import { Repository, DataSource, FindOptionsWhere } from 'typeorm';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import {
 	Condition,
@@ -86,10 +87,10 @@ export class FunctionService {
 				conditions,
 			});
 
-			
+
 			const savedFunction = await functionRepository.save(newFunction);
 			const functionDto = this.functionConverter.convert(savedFunction);
-			
+
 			this.logger.info('END: createFunction service');
 			return functionDto;
 		});
@@ -99,11 +100,17 @@ export class FunctionService {
 	 * Get all functions
 	 */
 	async getAllFunctions(
+		userId: string,
 		programId: string,
 		whereOptions: FindOptionsWhere<Function> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllFunctions service');
+
+		if (!(await this.programService.checkIfUserExistsInProgram(programId, userId))) {
+			this.logger.error(`Error. User ${userId} is not part of Program ${programId}`);
+			throw new ForbiddenException(`Forbidden. User ${userId} is not part of Program ${programId}`);
+		}
 
 		const functionsResult = await this.functionRepository.find({
 			where: {
@@ -121,10 +128,8 @@ export class FunctionService {
 			...queryOptions,
 		});
 
-		if (!functionsResult || functionsResult.length === 0) {
-			throw new NotFoundException(
-				`Error. Functions of Program ${programId} not found.`,
-			);
+		if (!functionsResult) {
+			throw new NotFoundException(`Error. Functions of Program ${programId} not found.`);
 		}
 
 		this.logger.info('END: getAllFunctions service');
