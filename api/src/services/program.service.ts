@@ -1,5 +1,4 @@
 import {
-	BadGatewayException,
 	ConflictException,
 	ForbiddenException,
 	forwardRef,
@@ -139,10 +138,8 @@ export class ProgramService {
 		});
 
 		if (!programResult) {
-			this.logger.warn(`Program not found: ${programId}`);
-			throw new NotFoundException(
-				`Error. Program ${programId} not found.`,
-			);
+			this.logger.warn(`Error. Program ${programId} not found.`);
+			throw new NotFoundException(`Error. Program ${programId} not found.`);
 		}
 
 		this.logger.info('END: getProgram service');
@@ -251,11 +248,6 @@ export class ProgramService {
 				});
 
 				newUser = await userRepository.save(newUser);
-
-				if (!newUser) {
-					this.logger.error(`Error. Failed to create invited user.`);
-					throw new InternalServerErrorException(`Error. Failed to create invited user.`);
-				}
 			} else {
 				// does program-user relation exist?
 				const programUserResult = await this.checkIfUserExistsInProgram(
@@ -269,7 +261,7 @@ export class ProgramService {
 					if (programUserResult.status === statusEnum.ACTIVE) {
 						const message = 'Failed to invite user. User is already part of the program.';
 						this.logger.warn(message);
-						throw new Error(message);
+						throw new ConflictException(message);
 					}
 
 					const salt = await bcrypt.genSalt(SALT_ROUNDS);
@@ -299,14 +291,6 @@ export class ProgramService {
 				newUser = user;
 			}
 
-			const programResult = await this.getProgramEntity(programId);
-
-			if (!programResult) {
-				this.logger.warn('Error. Program ${programId} not found.');
-				throw new NotFoundException(
-					`Error. Program ${programId} not found.`,
-				);
-			}
 
 			const newProgramUser = programUserRepository.create({
 				program: programResult,
@@ -614,9 +598,7 @@ export class ProgramService {
 
 		if (!programResult) {
 			this.logger.warn(`Error. Program ${programId} not found.`);
-			throw new NotFoundException(
-				`Error. Program ${programId} not found.`,
-			);
+			throw new NotFoundException(`Error. Program ${programId} not found.`);
 		}
 
 		let commissions: Commission[] = [];
@@ -697,7 +679,7 @@ export class ProgramService {
 		const programResult = await query.getOne();
 
 		if (!programResult) {
-			this.logger.error(`Error. Failed to get report for Program ${programId} for period: ${startDate} - ${endDate}`);
+			this.logger.warn(`Warning. No data found for Program ${programId} for period: ${startDate} - ${endDate}`);
 		}
 
 		const programSheetJsonWorkbook = this.programConverter.convertToReportWorkbook(programId, programResult, startDate, endDate);
