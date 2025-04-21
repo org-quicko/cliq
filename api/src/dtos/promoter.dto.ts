@@ -1,6 +1,7 @@
 import { PartialType, PickType } from '@nestjs/mapped-types';
 import { Expose } from 'class-transformer';
 import { IsString, IsOptional, IsDate, IsUUID, IsBoolean } from 'class-validator';
+import { promoterStatusEnum } from 'src/enums';
 
 export class PromoterDto {
 	@Expose({ name: 'promoter_id' })
@@ -13,6 +14,9 @@ export class PromoterDto {
 	@Expose({ name: 'logo_url' })
 	@IsString()
 	logoUrl: string;
+	
+	@IsString()
+	status: promoterStatusEnum;
 
 	@Expose({ name: 'accepted_terms_and_conditions' })
 	@IsBoolean()

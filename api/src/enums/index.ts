@@ -11,6 +11,7 @@ export * from './linkSortBy.enum';
 export * from './linkStatus.enum';
 export * from './memberRole.enum';
 export * from './memberSortBy.enum';
+export * from './promoterStatus.enum';
 export * from './referralKeyType.enum';
 export * from './referralSortBy.enum';
 export * from './reportPeriod.enum';

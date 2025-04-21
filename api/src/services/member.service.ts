@@ -16,6 +16,7 @@ import { PromoterConverter } from 'src/converters/promoter.converter';
 import { MemberAuthService } from './memberAuth.service';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
+import { promoterStatusEnum } from '../enums/promoterStatus.enum';
 
 @Injectable()
 export class MemberService {
@@ -247,7 +248,9 @@ export class MemberService {
 			},
 			relations: {
 				program: true,
-				promoterMembers: true,
+				promoterMembers: {
+					promoter: true
+				},
 			},
 		});
 
@@ -255,7 +258,10 @@ export class MemberService {
 
 		if (member?.promoterMembers) {
 			for (const promoterMember of member.promoterMembers) {
-				if (promoterMember.status === statusEnum.ACTIVE) {
+				if (
+					(promoterMember.promoter.status === promoterStatusEnum.ACTIVE) && 
+					(promoterMember.status === statusEnum.ACTIVE)
+				) {
 					exists = true;
 					break;
 				}
@@ -280,7 +286,10 @@ export class MemberService {
 			},
 		});
 
-		if (!promoterMemberResult) {
+		if (
+			!promoterMemberResult || 
+			(promoterMemberResult.promoter.status === promoterStatusEnum.ARCHIVED)
+		) {
 			this.logger.error(`Error. Member ${memberId} isn't part of any promoter!`);
 			throw new NotFoundException(`Error. Member ${memberId} isn't part of any promoter!`);
 		}

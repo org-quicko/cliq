@@ -13,6 +13,7 @@ import { ProgramPromoter } from './programPromoter.entity';
 import { PromoterMember } from './promoterMember.entity';
 import { Purchase } from './purchase.entity';
 import { Commission } from './commission.entity';
+import { promoterStatusEnum } from 'src/enums';
 
 @Entity()
 export class Promoter {
@@ -24,6 +25,9 @@ export class Promoter {
 
 	@Column('varchar', { name: 'logo_url', nullable: true })
 	logoUrl: string;
+
+	@Column('enum', { enum: promoterStatusEnum, default: promoterStatusEnum.ACTIVE })
+	status: promoterStatusEnum;
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',
@@ -48,22 +52,13 @@ export class Promoter {
 	@OneToMany(() => Purchase, (purchase) => purchase.promoter)
 	purchases: Purchase[];
 
-	@OneToMany(
-		() => PromoterMember,
-		(promoterMember) => promoterMember.promoter,
-	)
+	@OneToMany(() => PromoterMember, (promoterMember) => promoterMember.promoter)
 	promoterMembers: PromoterMember[];
 
-	@OneToMany(
-		() => CirclePromoter,
-		(circlePromoter) => circlePromoter.promoter,
-	)
+	@OneToMany(() => CirclePromoter, (circlePromoter) => circlePromoter.promoter)
 	circlePromoters: CirclePromoter[];
 
-	@OneToMany(
-		() => ProgramPromoter,
-		(programPromoter) => programPromoter.promoter,
-	)
+	@OneToMany(() => ProgramPromoter, (programPromoter) => programPromoter.promoter)
 	programPromoters: ProgramPromoter[];
 
 	@OneToMany(() => Commission, (commission) => commission.promoter)

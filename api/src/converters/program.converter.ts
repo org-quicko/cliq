@@ -87,6 +87,7 @@ export class ProgramConverter {
 	
 				row.setPromoterId(promoter.promoterId);
 				row.setPromoterName(promoter.name);
+				row.setStatus(promoter.status);
 				row.setSignups(Number(signUps));
 				row.setCommissionOnSignups(Number(signUpsCommission));
 				row.setPurchases(Number(purchases));

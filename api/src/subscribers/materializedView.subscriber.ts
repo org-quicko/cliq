@@ -40,13 +40,6 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
 
             console.log(`Materialized view- ${linkAnalyticsMVName} refreshed successfully.`);
         }
-        if (event.entity instanceof Promoter) {
-            await event.queryRunner.query(
-                `REFRESH MATERIALIZED VIEW ${promoterAnalyticsMVName};`
-            );
-
-            console.log(`Materialized view- ${promoterAnalyticsMVName} refreshed successfully.`);
-        }
     }
 
     async afterUpdate(event: UpdateEvent<any>): Promise<void> {
@@ -56,7 +49,16 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
             await event.queryRunner.query(
                 `REFRESH MATERIALIZED VIEW ${linkAnalyticsMVName};`,
             );
-        } 
+        }
+        
+        if (event.entity instanceof Promoter) {
+            await event.queryRunner.query(
+                `REFRESH MATERIALIZED VIEW ${promoterAnalyticsMVName};`
+            );
+
+            console.log(`Materialized view- ${promoterAnalyticsMVName} refreshed successfully.`);
+        }
+
         if (event.entity instanceof ProgramPromoter) {
             await event.queryRunner.query(
                 `REFRESH MATERIALIZED VIEW ${promoterAnalyticsMVName};`

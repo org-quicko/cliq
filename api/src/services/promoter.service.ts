@@ -8,7 +8,7 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, Brackets, FindOptionsWhere, Raw, FindOptionsRelations } from 'typeorm';
+import { Repository, DataSource, FindOptionsWhere, Raw, FindOptionsRelations } from 'typeorm';
 import * as XLSX from 'xlsx';
 import {
 	CreatePromoterDto,
@@ -19,7 +19,6 @@ import {
 import {
 	Circle,
 	CirclePromoter,
-	Contact,
 	ProgramPromoter,
 	Promoter,
 	PromoterMember,
@@ -35,10 +34,9 @@ import { MemberService } from './member.service';
 import { PromoterConverter } from '../converters/promoter.converter';
 import { PromoterMemberService } from './promoterMember.service';
 import { MemberConverter } from '../converters/member.converter';
-import { ContactConverter } from '../converters/contact.converter';
 import { PurchaseConverter } from '../converters/purchase.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { commissionSortByEnum, conversionTypeEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, statusEnum, visibilityEnum } from '../enums';
+import { commissionSortByEnum, conversionTypeEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, promoterStatusEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { SignUpConverter } from '../converters/signUp.converter';
 import { CommissionConverter } from '../converters/commission.converter';
@@ -66,9 +64,6 @@ export class PromoterService {
 
 		@InjectRepository(PromoterMember)
 		private promoterMemberRepository: Repository<PromoterMember>,
-
-		@InjectRepository(Contact)
-		private contactRepository: Repository<Contact>,
 
 		@InjectRepository(Commission)
 		private commissionRepository: Repository<Commission>,
@@ -189,7 +184,8 @@ export class PromoterService {
 
 			await memberRepository.remove(member);
 	
-			await promoterRepository.remove(promoter);
+			promoter.status = promoterStatusEnum.ARCHIVED;
+			await promoterRepository.save(promoter);
 	
 			this.logger.info('END: deletePromoter service');
 		});
@@ -668,7 +664,6 @@ export class PromoterService {
 		this.logger.info('END: getPurchasesForPromoter service');
 		return purchases;
 	}
-
 
 	async getPromoterReferrals(
 		memberId: string,

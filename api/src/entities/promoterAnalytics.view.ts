@@ -1,6 +1,7 @@
 import { promoterAnalyticsMVName, referralMVName } from "src/constants";
 import { Column, DataSource, Index, PrimaryColumn, ViewEntity } from "typeorm";
 import { ReferralView } from "./referral.view";
+import { promoterStatusEnum } from "src/enums";
 
 @ViewEntity({
 	name: promoterAnalyticsMVName,
@@ -35,6 +36,7 @@ import { ReferralView } from "./referral.view";
 		return datasource
 			.createQueryBuilder()
 			.from('program_promoter', 'pp')
+			.innerJoin('promoter', 'pr', 'pp.promoter_id = pr.promoter_id')
 			.select('pp.program_id', 'program_id')
 			.addSelect('pp.promoter_id', 'promoter_id')
 			.addSelect('COALESCE(rv.total_revenue, 0)', 'total_revenue')
@@ -43,7 +45,9 @@ import { ReferralView } from "./referral.view";
 			.addSelect('COALESCE(pu.total_purchases, 0)', 'total_purchases')
 			.leftJoin(`(${referralAgg.getQuery()})`, 'rv', 'rv.program_id = pp.program_id AND rv.promoter_id = pp.promoter_id')
 			.leftJoin(`(${signUpAgg.getQuery()})`, 'su', 'su.program_id = pp.program_id AND su.promoter_id = pp.promoter_id')
-			.leftJoin(`(${purchaseAgg.getQuery()})`, 'pu', 'pu.program_id = pp.program_id AND pu.promoter_id = pp.promoter_id');
+			.leftJoin(`(${purchaseAgg.getQuery()})`, 'pu', 'pu.program_id = pp.program_id AND pu.promoter_id = pp.promoter_id')
+			.where(`pr.status = '${promoterStatusEnum.ACTIVE}'`)
+			;
 	},
 	materialized: true,
 	dependsOn: [ReferralView],
