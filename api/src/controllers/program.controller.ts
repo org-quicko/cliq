@@ -106,7 +106,7 @@ export class ProgramController {
   /**
    * Update program
    */
-  @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @Permissions('update', Program)
   @Patch(':program_id')
@@ -125,7 +125,7 @@ export class ProgramController {
   /**
    * Delete program
    */
-  @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @Permissions('delete', Program)
   @Delete(':program_id')
