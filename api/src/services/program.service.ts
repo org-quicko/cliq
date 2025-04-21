@@ -661,7 +661,7 @@ export class ProgramService {
 			.leftJoinAndSelect(
 				"promoter.signUps",
 				"signUps",
-				"signUps.createdAt >= :start signUps.createdAt <= :end"
+				"signUps.createdAt >= :start AND signUps.createdAt <= :end"
 			)
 			.leftJoinAndSelect(
 				"promoter.purchases",
@@ -671,9 +671,9 @@ export class ProgramService {
 			.leftJoinAndSelect(
 				"promoter.commissions",
 				"commissions",
-				"commissions.createdAt >= :start commissions.createdAt <= :end"
+				"commissions.createdAt >= :start AND commissions.createdAt <= :end"
 			)
-			.where("program.programId = :programId", { programId })
+			.where("program.programId = :programId AND promoter.createdAt <= :end", { programId })
 			.setParameters({ start: startDate.toISOString(), end: endDate.toISOString() });
 
 		const programResult = await query.getOne();
