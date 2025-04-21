@@ -4,7 +4,6 @@ import {
 	forwardRef,
 	Inject,
 	Injectable,
-	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
 import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere } from 'typeorm';
@@ -404,6 +403,9 @@ export class ProgramService {
 	async getProgramUserRowEntity(programId: string, userId: string) {
 		this.logger.info(`START: getProgramUserRowEntity service`);
 
+		// will throw error in case program doesn't exist
+		await this.getProgramEntity(programId);
+
 		const programUserResult = await this.programUserRepository.findOne({
 			where: {
 				programId,
@@ -413,9 +415,8 @@ export class ProgramService {
 		});
 
 		if (!programUserResult) {
-			throw new NotFoundException(
-				`Error. Failed to get program user row of Program ID ${programId}, User ID ${userId}`,
-			);
+			this.logger.error(`Error. User ${userId} not found in Program ${programId}.`);
+			throw new NotFoundException(`Error. User ${userId} not found in Program ${programId}.`);
 		}
 
 		this.logger.info(`END: getProgramUserRowEntity service`);
