@@ -227,11 +227,13 @@ export class ProgramService {
 	}
 
 	/**
-	 * Invite user
+	 * Add user
 	 */
 	async addUser(programId: string, body: CreateUserDto) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: addUser service');
+			const programResult = await this.getProgramEntity(programId);
+			
 			const user = await this.userService.getUserByEmail(body.email);
 
 			let newUser: User;
