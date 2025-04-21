@@ -79,4 +79,35 @@ export class CreateProgramDto {
 	timeZone: string;
 }
 
-export class UpdateProgramDto extends PartialType(CreateProgramDto) {}
+export class UpdateProgramDto extends PartialType(CreateProgramDto) {
+	@IsOptional()
+	@IsString()
+	name?: string;
+
+	@IsOptional()
+	@IsString()
+	currency?: string;
+
+	@IsOptional()
+	@IsString()
+	website?: string;
+
+	@IsOptional()
+	@IsEnum(visibilityEnum)
+	visibility?: visibilityEnum;
+
+	@IsOptional()
+	@Expose({ name: 'theme_color' })
+	@IsString()
+	themeColor?: string;
+
+	@Expose({ name: 'date_format' })
+	@IsOptional()
+	@IsEnum(dateFormatEnum)
+	dateFormat?: dateFormatEnum;
+	
+	@Expose({ name: 'time_zone' })
+	@IsOptional()
+	@IsString()
+	timeZone?: string;
+}
