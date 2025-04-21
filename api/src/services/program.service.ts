@@ -677,17 +677,17 @@ export class ProgramService {
 			.leftJoinAndSelect(
 				"promoter.signUps",
 				"signUps",
-				"signUps.createdAt BETWEEN :start AND :end"
+				"signUps.createdAt >= :start signUps.createdAt <= :end"
 			)
 			.leftJoinAndSelect(
 				"promoter.purchases",
 				"purchases",
-				"purchases.createdAt BETWEEN :start AND :end"
+				"purchases.createdAt >= :start AND purchases.createdAt <= :end"
 			)
 			.leftJoinAndSelect(
 				"promoter.commissions",
 				"commissions",
-				"commissions.createdAt BETWEEN :start AND :end"
+				"commissions.createdAt >= :start commissions.createdAt <= :end"
 			)
 			.where("program.programId = :programId", { programId })
 			.setParameters({ start: startDate.toISOString(), end: endDate.toISOString() });
