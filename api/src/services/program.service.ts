@@ -230,7 +230,7 @@ export class ProgramService {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: addUser service');
 			const programResult = await this.getProgramEntity(programId);
-			
+
 			const user = await this.userService.getUserByEmail(body.email);
 
 			let newUser: User;
@@ -378,21 +378,22 @@ export class ProgramService {
 	async removeUser(programId: string, userId: string) {
 		this.logger.info('START: removeUser service');
 
+		// will throw error in case program doesn't exist
+		await this.getProgramEntity(programId);
+
 		const programUserResult = await this.checkIfUserExistsInProgram(
 			programId,
 			userId,
 		);
 
 		if (!programUserResult) {
-			throw new NotFoundException(
-				`Error. User ${userId} of Program ${programId} not found.`,
-			);
+			this.logger.error(`Error. User ${userId} not found in Program ${programId}.`);
+			throw new NotFoundException(`Error. User ${userId} not found in Program ${programId}.`);
 		}
 
 		await this.programUserRepository.update(
 			{ programId, userId },
 			{
-				...programUserResult,
 				status: statusEnum.INACTIVE,
 				updatedAt: () => `NOW()`,
 			},
