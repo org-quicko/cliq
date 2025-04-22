@@ -153,12 +153,8 @@ export class LinkService {
 		this.logger.info('START: getFirstLink service');
 
 		if (!programId && !promoterId) {
-			this.logger.error(
-				`Error. Must provide one of Program ID or Promoter ID to get random link.`,
-			);
-			throw new BadRequestException(
-				`Error. Must provide one of Program ID or Promoter ID to get random link.`,
-			);
+			this.logger.error(`Error. Must provide one of Program ID or Promoter ID to get random link.`);
+			throw new BadRequestException(`Error. Must provide one of Program ID or Promoter ID to get random link.`);
 		}
 
 		const linkResult = await this.linkRepository.findOne({
@@ -169,12 +165,8 @@ export class LinkService {
 		});
 
 		if (!linkResult) {
-			this.logger.warn(
-				`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`,
-			);
-			throw new NotFoundException(
-				`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`,
-			);
+			this.logger.warn(`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
+			throw new NotFoundException(`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
 		}
 
 		this.logger.info('END: getFirstLink service');
@@ -224,9 +216,7 @@ export class LinkService {
 
 		if (!linkResult) {
 			this.logger.warn(`Failed to get link with ref val ${refVal}.`);
-			throw new ConflictException(
-				`Failed to get link with ref val ${refVal}.`,
-			);
+			throw new NotFoundException(`Failed to get link with ref val ${refVal}.`);
 		}
 
 		this.logger.info('END: getLinkByRefVal service');

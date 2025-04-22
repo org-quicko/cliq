@@ -58,35 +58,19 @@ export class SignUpService {
 			);
 
 			if (!linkResult.programId) {
-				this.logger.error(
-					`Failed to get program for ref val ${body.refVal} for signup creation.`,
-				);
-				throw new NotFoundException(
-					`Failed to get program for ref val ${body.refVal} for signup creation.`,
-				);
+				this.logger.error(`Failed to get program for ref val ${body.refVal} for signup creation.`);
+				throw new NotFoundException(`Failed to get program for ref val ${body.refVal} for signup creation.`);
 			}
 			if (!linkResult.promoterId) {
-				this.logger.error(
-					`Failed to get promoter for ref val ${body.refVal} for signup creation.`,
-				);
-				throw new NotFoundException(
-					`Failed to get promoter for ref val ${body.refVal} for signup creation.`,
-				);
+				this.logger.error(`Failed to get promoter for ref val ${body.refVal} for signup creation.`);
+				throw new NotFoundException(`Failed to get promoter for ref val ${body.refVal} for signup creation.`);
 			}
-			const validApiKeyOfProgram =
-				await this.apiKeyService.keyExistsInProgram(
-					linkResult.programId,
-					apiKeyId,
-				);
+			
+			const validApiKeyOfProgram = await this.apiKeyService.keyExistsInProgram(linkResult.programId, apiKeyId);
 			if (!validApiKeyOfProgram) {
-				this.logger.error(
-					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
-				);
-				throw new ForbiddenException(
-					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
-				);
+				this.logger.error(`Error. Provided API key is not part of Program ${linkResult.programId}.`);
+				throw new ForbiddenException(`Error. Provided API key is not part of Program ${linkResult.programId}`);
 			}
-
 			const programResult = linkResult.program;
 
 			const createContactBody: CreateContactDto = {
@@ -104,9 +88,8 @@ export class SignUpService {
 					createContactBody,
 				)
 			) {
-				throw new BadRequestException(
-					`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`,
-				);
+				this.logger.error(`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`);
+				throw new BadRequestException(`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`);
 			}
 
 			const contactRepository = manager.getRepository(Contact);
@@ -123,12 +106,8 @@ export class SignUpService {
 			);
 
 			if (contactExists) {
-				this.logger.error(
-					'Error. Failed to create contact - contact already exists.',
-				);
-				throw new ConflictException(
-					'Error. Failed to create contact - contact already exists.',
-				);
+				this.logger.error('Error. Failed to create contact - contact already exists.');
+				throw new ConflictException('Error. Failed to create contact - contact already exists.');
 			}
 
 			const newContact = contactRepository.create({
@@ -139,9 +118,7 @@ export class SignUpService {
 
 			if (!savedContact) {
 				this.logger.error(`Error. Failed to create new contact.`);
-				throw new InternalServerErrorException(
-					`Error. Failed to create new contact.`,
-				);
+				throw new InternalServerErrorException(`Error. Failed to create new contact.`);
 			}
 
 			const newSignUp = signUpRepository.create({
@@ -155,9 +132,7 @@ export class SignUpService {
 
 			if (!savedSignUp) {
 				this.logger.error(`Error. Failed to create new signup.`);
-				throw new InternalServerErrorException(
-					`Error. Failed to create new signup.`,
-				);
+				throw new InternalServerErrorException(`Error. Failed to create new signup.`);
 			}
 
 			const signUpCreatedEvent = new SignUpCreatedEvent(
@@ -191,9 +166,8 @@ export class SignUpService {
 		this.logger.info('START: getFirstSignUp service');
 
 		if (!programId && !promoterId) {
-			throw new BadRequestException(
-				`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`,
-			);
+			this.logger.error(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
+			throw new BadRequestException(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
 		}
 
 		if (programId && promoterId) {

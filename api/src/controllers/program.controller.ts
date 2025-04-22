@@ -400,12 +400,15 @@ export class ProgramController {
    */
   @ApiResponse({ status: 201, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  @Permissions('read', ReferralView)
+  @Permissions('read_all', ReferralView)
   @Get(':program_id/referrals')
-  async getAllProgramReferrals(@Param('program_id') programId: string) {
+  async getAllProgramReferrals(
+    @Headers('user_id') userId: string,
+    @Param('program_id') programId: string
+  ) {
     this.logger.info('START: getAllProgramReferrals controller');
 
-    const result = await this.programService.getAllProgramReferrals(programId);
+    const result = await this.programService.getAllProgramReferrals(userId, programId);
 
     this.logger.info('END: getAllProgramReferrals controller');
     return { message: 'Successfully got program referrals.', result };

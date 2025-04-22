@@ -53,20 +53,12 @@ export class PurchaseService {
 			);
 
 			if (!linkResult.program) {
-				this.logger.error(
-					`Failed to get program for ref val ${body.refVal} for purchase creation.`,
-				);
-				throw new NotFoundException(
-					`Failed to get program for ref val ${body.refVal} for purchase creation.`,
-				);
+				this.logger.error(`Failed to get program for ref val ${body.refVal} for purchase creation.`);
+				throw new NotFoundException(`Failed to get program for ref val ${body.refVal} for purchase creation.`);
 			}
 			if (!linkResult.promoter) {
-				this.logger.error(
-					`Failed to get promoter for ref val ${body.refVal} for purchase creation.`,
-				);
-				throw new NotFoundException(
-					`Failed to get promoter for ref val ${body.refVal} for purchase creation.`,
-				);
+				this.logger.error(`Failed to get promoter for ref val ${body.refVal} for purchase creation.`);
+				throw new NotFoundException(`Failed to get promoter for ref val ${body.refVal} for purchase creation.`);
 			}
 
 			const validApiKeyOfProgram =
@@ -75,12 +67,8 @@ export class PurchaseService {
 					apiKeyId,
 				);
 			if (!validApiKeyOfProgram) {
-				this.logger.error(
-					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
-				);
-				throw new ForbiddenException(
-					`Error. API key ${apiKeyId} is not part of Program ${linkResult.programId}`,
-				);
+				this.logger.error(`Error. Provided API key is not part of Program ${linkResult.programId}`);
+				throw new ForbiddenException(`Error. Provided API key is not part of Program ${linkResult.programId}`);
 			}
 
 			const programResult = linkResult.program;
@@ -102,9 +90,8 @@ export class PurchaseService {
 					createContactBody,
 				)
 			) {
-				throw new BadRequestException(
-					`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`,
-				);
+				this.logger.error(`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`);
+				throw new BadRequestException(`Error. Program ${programResult.programId} referral key "${programResult.referralKeyType}" absent from request.`);
 			}
 
 			const contactRepository = manager.getRepository(Contact);
