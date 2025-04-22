@@ -5,6 +5,7 @@ import {
 	Inject,
 	Injectable,
 	NotFoundException,
+	UnauthorizedException,
 } from '@nestjs/common';
 import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -35,6 +36,7 @@ import { defaultQueryOptions } from 'src/constants';
 import { snakeCaseToHumanReadable } from 'src/utils';
 import { CircleService } from './circle.service';
 import { ProgramWorkbook } from 'generated/sources/Program';
+import { ReferralConverter } from 'src/converters/referral.converter';
 
 @Injectable()
 export class ProgramService {
@@ -65,10 +67,9 @@ export class ProgramService {
 		private signUpConverter: SignUpConverter,
 		private purchaseConverter: PurchaseConverter,
 		private commissionConverter: CommissionConverter,
+		private referralConverter: ReferralConverter,
 
 		private datasource: DataSource,
-
-		private eventEmitter: EventEmitter2,
 
 		private logger: LoggerService,
 	) { }
@@ -359,9 +360,8 @@ export class ProgramService {
 		);
 
 		if (!programUserResult) {
-			throw new NotFoundException(
-				`Error. User ${userId} of Program ${programId} not found.`,
-			);
+			this.logger.error(`Error. User ${userId} of Program ${programId} not found.`);
+			throw new NotFoundException(`Error. User ${userId} of Program ${programId} not found.`);
 		}
 
 		await this.programUserRepository.update(
@@ -616,37 +616,24 @@ export class ProgramService {
 		return commissionsDto;
 	}
 
-	async getAllProgramReferrals(programId: string) {
+	async getAllProgramReferrals(userId: string, programId: string) {
 		this.logger.info(`START: getAllProgramReferrals service`);
 
-		await this.getProgram(programId);
-		const referralResult = await this.referralViewRepository.find({
-			where: { programId },
-		});
+		// will throw error in case program doesn't exist
+		await this.getProgramEntity(programId);
 
-		this.logger.info(`END: getAllProgramReferrals service`);
-		return referralResult;
-	}
-
-	async getFirstProgramReferral(programId: string) {
-		this.logger.info(`START: getFirstProgramReferral service`);
-
-		await this.getProgram(programId);
-		const referralResult = await this.referralViewRepository.findOne({
-			where: { programId },
-		});
-
-		if (!referralResult) {
-			this.logger.error(
-				`Error. Failed to get first referral for Program ID: ${programId}.`,
-			);
-			throw new NotFoundException(
-				`Error. Failed to get first link for Program ID: ${programId}.`,
-			);
+		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+			throw new UnauthorizedException();
 		}
 
-		this.logger.info(`END: getFirstProgramReferral service`);
-		return referralResult;
+		const referralsResult = await this.referralViewRepository.find({
+			where: { programId },
+		});
+
+		const referralsDto = referralsResult.map(referral => this.referralConverter.convertTo(referral));
+		
+		this.logger.info(`END: getAllProgramReferrals service`);
+		return referralsDto;
 	}
 
 	async getProgramReport(
