@@ -8,13 +8,9 @@ export function maskInfo(value: string): string {
     }
 
     // Mask phone numbers (e.g., `+1234567890` → `+12****7890`)
-    if (/^\+?\d{10,15}$/.test(value)) {
+    if (/^\+?\d{8,13}$/.test(value)) {
         return value.replace(/(\d{2})\d+(\d{2})/, '$1****$2');
     }
 
-    // Mask names (e.g., `John Doe` → `J*** D**`)
-    return value
-        .split(' ')
-        .map(part => (part.length > 2 ? part[0] + '*'.repeat(part.length - 2) + part.slice(-1) : part))
-        .join(' ');
+    return value;
 }
