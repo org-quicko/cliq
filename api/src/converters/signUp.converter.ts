@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SignUpDto } from '../dtos';
 import { Commission, Promoter, SignUp } from '../entities';
 import { maskInfo } from 'src/utils';
-import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
-import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
-import { defaultQueryOptions } from 'src/constants';
-import { JSONObject } from '@org.quicko/core';
 import { 
 	PromoterWorkbook, 
 	SignupRow as PromoterSignupRow, 
@@ -34,9 +30,10 @@ export class SignUpConverter {
 		signUpDto.promoterId = signUp.promoterId;
 		signUpDto.linkId = signUp.linkId;
 		signUpDto.email = maskInfo(signUp.contact?.email);
-		signUpDto.firstName = signUp.contact?.lastName;
+		signUpDto.firstName = signUp.contact?.firstName;
 		signUpDto.lastName = signUp.contact?.lastName;
 		signUpDto.phone = maskInfo(signUp.contact?.phone);
+		signUpDto.utmParams = signUp.utmParams;
 
 		signUpDto.createdAt = new Date(signUp.createdAt);
 		signUpDto.updatedAt = new Date(signUp.updatedAt);
