@@ -11,6 +11,11 @@ import {
 	UpdateDateColumn,
 } from 'typeorm';
 
+const NumericToNumber = {
+	to: (value: number) => value,
+	from: (value: string | null) => value !== null ? parseFloat(value) : null
+};
+
 @ViewEntity({
 	name: referralMVName,
 	expression: (datasource: DataSource): SelectQueryBuilder<any> => {
@@ -28,7 +33,7 @@ import {
 			.groupBy('c.program_id')
 			.addGroupBy('pu.promoter_id')
 			.addGroupBy('c.contact_id');
-	
+
 		const commissionSubquery = datasource
 			.createQueryBuilder()
 			.select('c.program_id', 'program_id')
@@ -43,7 +48,7 @@ import {
 			.groupBy('c.program_id')
 			.addGroupBy('com.promoter_id')
 			.addGroupBy('c.contact_id');
-	
+
 		const signupSubquery = datasource
 			.createQueryBuilder()
 			.select('c.program_id', 'program_id')
@@ -58,7 +63,7 @@ import {
 			.groupBy('c.program_id')
 			.addGroupBy('su.promoter_id')
 			.addGroupBy('su.contact_id');
-	
+
 		const unionQuery = `
 		(${revenueSubquery.getQuery()}) 
 		UNION ALL 
@@ -66,7 +71,7 @@ import {
 		UNION ALL 
 		(${signupSubquery.getQuery()})
 	`;
-	
+
 		return datasource
 			.createQueryBuilder()
 			.select('combined.program_id', 'program_id')
@@ -121,10 +126,10 @@ export class ReferralView {
 	@Column('varchar', { name: 'contact_info' })
 	contactInfo: string;
 
-	@Column('decimal', { name: 'total_revenue' })
+	@Column('numeric', { name: 'total_revenue', transformer: NumericToNumber })
 	totalRevenue: number;
 
-	@Column('decimal', { name: 'total_commission' })
+	@Column('numeric', { name: 'total_commission', transformer: NumericToNumber })
 	totalCommission: number;
 
 	@CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })
