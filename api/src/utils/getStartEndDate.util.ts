@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { subMonths, subWeeks, startOfWeek, startOfMonth, subDays } from 'date-fns';
 import { reportPeriodEnum } from '../enums/reportPeriod.enum';
-import { StartEndDateInterface } from 'src/interfaces/startEndDate.interface';
+import { StartEndDateInterface } from '../interfaces';
 
 export function getStartEndDate(startDate: (string | undefined), endDate: (string | undefined), reportPeriod?: reportPeriodEnum): StartEndDateInterface {
     
@@ -15,6 +15,10 @@ export function getStartEndDate(startDate: (string | undefined), endDate: (strin
 
     if (reportPeriod && reportPeriod !== reportPeriodEnum.CUSTOM) {
         return getPeriodStartEndDate(reportPeriod);
+    }
+
+    else if (reportPeriod && reportPeriod === reportPeriodEnum.CUSTOM && (!startDate || !endDate)) {
+        throw new BadRequestException(`Error. start and end date must be provided for a custom report period`);
     }
 
     const defaultStartDate = subDays(new Date(), 30); // last 30 days
@@ -52,7 +56,7 @@ function getPeriodStartEndDate(reportPeriod: reportPeriodEnum): StartEndDateInte
             parsedStartDate = subDays(parsedEndDate, 90);
             break;
         default:
-            throw new BadRequestException(`Incorrect report period passed.`);
+            throw new BadRequestException('Incorrect report period passed.');
     }
 
     return {
