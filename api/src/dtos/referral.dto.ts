@@ -17,7 +17,8 @@ export class ReferralDto {
     @Transform(({ value }) => value, { toClassOnly: true })
     @IsUUID()
     promoterId: string;
-
+    
+    @Expose({ name: 'contact_info' })
     @IsString()
     contactInfo: string;
 

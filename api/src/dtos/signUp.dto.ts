@@ -4,6 +4,7 @@ import { IsDate, IsEmail, IsOptional, IsString, IsUUID, Length, Matches } from '
 import { UtmParams } from 'src/classes';
 
 export class SignUpDto {
+	@Expose({ name: 'contact_id' })
 	@IsUUID()
 	contactId: string;
 
@@ -16,7 +17,7 @@ export class SignUpDto {
 	externalId?: string;
 
 	@IsOptional()
-	@IsString()
+	@IsEmail({  }, { message: 'invalid email passed' })
 	email?: string;
 
 	@IsOptional()
