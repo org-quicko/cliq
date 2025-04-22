@@ -26,7 +26,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 				messages.push(Object.values(validationError['constraints'] as object)[0] as string);
 			}
 
-			message = `Validation errors: ${messages.join(', ')}`;
+			message = `Validation errors: ${messages.join(', ')}.`;
 		}
 
 		response.status(status).json({
