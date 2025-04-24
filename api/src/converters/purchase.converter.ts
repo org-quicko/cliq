@@ -38,6 +38,7 @@ export class PurchaseConverter {
 		purchaseDto.itemId = purchase.itemId;
 		purchaseDto.contactId = purchase.contact.contactId;
 		purchaseDto.utmParams = purchase.utmParams;
+		purchaseDto.promoterId = purchase.promoterId;
 
 		purchaseDto.createdAt = purchase.createdAt;
 		purchaseDto.updatedAt = purchase.updatedAt;
