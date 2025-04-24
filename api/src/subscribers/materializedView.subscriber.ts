@@ -43,7 +43,6 @@ export class MaterializedViewSubscriber implements EntitySubscriberInterface {
     }
 
     async afterUpdate(event: UpdateEvent<any>): Promise<void> {
-        console.log('Updated fields:', event.updatedColumns.map(col => col.propertyName), event.entity, event.databaseEntity);
         
         if (event.metadata.tableName === linkTableName) {
             await event.queryRunner.query(
