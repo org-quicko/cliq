@@ -259,7 +259,7 @@ export class ProgramService {
 					// if it does, is status active?
 					// if both yes, throw error -> cannot invite user, since they're already part of the program
 					if (programUserResult.status === statusEnum.ACTIVE) {
-						const message = 'Failed to invite user. User is already part of the program.';
+						const message = 'Failed to add user. User is already part of the program.';
 						this.logger.warn(message);
 						throw new ConflictException(message);
 					}
