@@ -18,6 +18,7 @@ export class ReferralDto {
     @IsUUID()
     promoterId: string;
 
+    @Expose({ name: 'contact_info' })
     @IsString()
     contactInfo: string;
 
