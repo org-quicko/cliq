@@ -1,5 +1,4 @@
 import { Component, computed, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { TitleCasePipe } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
