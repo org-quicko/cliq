@@ -27,7 +27,7 @@ export class PurchaseDto {
 	amount: number;
 
 	@IsOptional()
-	@IsEmail()
+	@IsEmail({  }, { message: 'invalid email passed' })
 	email?: string;
 
 	@IsOptional()
@@ -62,6 +62,10 @@ export class PurchaseDto {
 	@IsUUID()
 	contactId: string;
 
+	@Expose({ name: 'promoter_id' })
+	@IsUUID()
+	promoterId: string;
+
 	@Expose({ name: 'created_at' })
 	@IsDate()
 	createdAt: Date;
@@ -91,7 +95,7 @@ export class CreatePurchaseDto {
 	lastName?: string;
 
 	@IsOptional()
-	@IsString()
+	@IsEmail({  }, { message: 'invalid email passed' })
 	email?: string;
 
 	@IsOptional()
