@@ -45,6 +45,7 @@ export class LoginComponent implements OnInit {
 	readonly programStore = inject(ProgramStore);
 
 	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly programName = computed(() => this.programStore.program()!.name);
 
 	member: MemberDto;
 

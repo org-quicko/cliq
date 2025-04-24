@@ -6,7 +6,8 @@
 			<!-- Header -->
 			<div class="flex flex-col gap-8 items-center">
 				<!-- <img src="assets/logo.png" alt="Logo" class="mb-4 w-40"> -->
-				<app-temp-logo />
+				<!-- <app-temp-logo /> -->
+				<h3>{{ programName() }}</h3>
 				<h2 class="text-3xl font-medium mb-20 text-on-surface">Sign up</h2>
 			</div>
 
@@ -18,7 +19,7 @@
 				[onClickContinue]="onClickContinueOnFirstScreen"
 
 				(currentScreenEvent)="changeScreen($event)"
-				/>
+			/>
 			}
 			@else {
 				<app-enter-personal-and-promoter-details

@@ -21,6 +21,10 @@ export class ProgramDto {
 	@IsEnum(referralKeyTypeEnum)
 	referralKeyType: referralKeyTypeEnum;
 
+	@Expose({ name: 'terms_and_conditions' })
+	@IsString()
+	termsAndConditions: string;
+
 	@IsString()
 	currency: string;
 
@@ -59,6 +63,10 @@ export class CreateProgramDto {
 	@IsEnum(visibilityEnum)
 	visibility: visibilityEnum;
 
+	@Expose({ name: 'terms_and_conditions' })
+	@IsString()
+	termsAndConditions: string;
+
 	@Expose({ name: 'referral_key_type' })
 	@IsEnum(referralKeyTypeEnum)
 	referralKeyType: referralKeyTypeEnum;
@@ -95,6 +103,11 @@ export class UpdateProgramDto {
 	@Expose({ name: 'theme_color' })
 	@IsString()
 	themeColor?: string;
+
+	@IsOptional()
+	@Expose({ name: 'terms_and_conditions' })
+	@IsString()
+	termsAndConditions?: string;
 
 	@Expose({ name: 'date_format' })
 	@IsOptional()

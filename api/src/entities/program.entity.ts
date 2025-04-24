@@ -40,6 +40,9 @@ export class Program {
 	@Column('varchar', { name: 'theme_color', default: '' })
 	themeColor: string;
 
+	@Column('varchar', { name: 'terms_and_conditions', default: '' })
+	termsAndConditions: string;
+
 	@Column('enum', {
 		enum: dateFormatEnum,
 		default: dateFormatEnum.DD_MM_YYYY, 

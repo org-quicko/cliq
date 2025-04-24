@@ -26,6 +26,10 @@ export class ProgramDto {
 	@IsString()
 	currency: string;
 
+	@Expose({ name: 'terms_and_conditions' })
+	@IsString()
+	termsAndConditions: string;
+
 	@Expose({ name: 'theme_color' })
 	@IsString()
 	themeColor: string;
@@ -70,6 +74,12 @@ export class CreateProgramDto {
 	@Expose({ name: 'theme_color' })
 	@IsString()
 	themeColor?: string;
+	
+	
+	@IsOptional()
+	@Expose({ name: 'terms_and_conditions' })
+	@IsString()
+	termsAndConditions?: string;
 
 	@Expose({ name: 'date_format' })
 	@IsOptional()
@@ -102,6 +112,11 @@ export class UpdateProgramDto {
 	@Expose({ name: 'theme_color' })
 	@IsString()
 	themeColor?: string;
+
+	@IsOptional()
+	@Expose({ name: 'terms_and_conditions' })
+	@IsString()
+	termsAndConditions?: string;
 
 	@Expose({ name: 'date_format' })
 	@IsOptional()

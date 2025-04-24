@@ -29,6 +29,7 @@ export class ProgramConverter {
 		programDto.dateFormat = program.dateFormat;
 		programDto.timeZone = program.timeZone;
 		programDto.referralKeyType = program.referralKeyType;
+		programDto.termsAndConditions = program.termsAndConditions;
 
 		programDto.createdAt = program.createdAt;
 		programDto.updatedAt = program.updatedAt;

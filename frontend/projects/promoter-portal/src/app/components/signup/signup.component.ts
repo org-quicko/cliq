@@ -53,6 +53,7 @@ export class SignUpComponent {
 	readonly programStore = inject(ProgramStore);
 
 	readonly programId = computed(() => this.programStore.program()!.programId);
+	readonly programName = computed(() => this.programStore.program()!.name);
 	readonly isLoading = computed(() => this.signUpStore.status() === Status.LOADING);
 	readonly error = computed(() => this.signUpStore.error());
 
