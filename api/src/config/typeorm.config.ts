@@ -9,7 +9,7 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
     password: configService.get('DB_PASSWORD'),
     database: configService.get('DB_NAME'),
     autoLoadEntities: true,
-    synchronize: configService.get('NODE_ENV') !== 'development',
+    synchronize: configService.get('NODE_ENV') !== 'production',
     logging: configService.get('NODE_ENV') === 'production' ? ['info'] : true,
     poolSize: 10,
     connectTimeoutMS: 2000,
