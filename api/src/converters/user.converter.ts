@@ -14,8 +14,11 @@ export class UserConverter {
 		userDto.firstName = user.firstName;
 		userDto.lastName = user.lastName;
 		// userDto.role = programUser?.role;
-		userDto.status = programUser?.status;
-		userDto.role = user.role;
+
+		if (programUser) {
+			userDto.status = programUser.status;
+			userDto.role = programUser.role;
+		}
 
 		userDto.createdAt = new Date(user.createdAt);
 		userDto.updatedAt = new Date(user.updatedAt);
