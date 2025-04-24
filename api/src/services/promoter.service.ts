@@ -798,7 +798,7 @@ export class PromoterService {
 			...queryOptions
 		})
 
-		if (commissionResult.length === 0) {
+		if (!commissionResult) {
 			this.logger.warn(`No commissions found for promoter ${promoterId}`);
 			throw new NotFoundException(`No commissions found for promoter ${promoterId}`);
 		}
