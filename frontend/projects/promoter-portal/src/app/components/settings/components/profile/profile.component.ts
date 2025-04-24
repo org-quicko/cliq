@@ -69,6 +69,6 @@ export class ProfileComponent {
 
 	logout() {
 		this.authService.deleteToken();
-		window.location.href = [environment.dashboard_host, this.programId(), 'login'].join('/');
+		window.location.href = [window.location.origin, this.programId(), 'login'].join('/');
 	}
 }

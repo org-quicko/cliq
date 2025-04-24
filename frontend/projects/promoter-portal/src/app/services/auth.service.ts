@@ -40,7 +40,7 @@ export class AuthService {
 	}
 
 	public deleteToken() {
-		this.cookieService.delete('CLIQ_ACCESS_TOKEN', `/`, undefined, true, 'Strict');
+		this.cookieService.delete('CLIQ_ACCESS_TOKEN', `/`, undefined, false, 'Lax');
 	}
 
 	public getToken(): string {
