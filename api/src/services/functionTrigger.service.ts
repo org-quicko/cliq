@@ -63,9 +63,7 @@ export class FunctionTriggerService {
                     (await this.evaluateAllConditions(func.conditions, event))
                 )
             ) {
-                this.logger.info(
-                    `Function not triggered. Moving to next function.`,
-                );
+                this.logger.info(`Function not triggered. Moving to next function.`);
                 continue;
             }
 
@@ -141,16 +139,13 @@ export class FunctionTriggerService {
 
         for (const condition of conditions) {
             if (!(await this.evaluateCondition(condition, event))) {
-                this.logger
-                    .info(`END: evaluateAllConditions service: false condition encountered:\
+                this.logger.info(`END: evaluateAllConditions service: false condition encountered:\
                ${JSON.stringify(condition, null, 2)} for event: ${JSON.stringify(event, null, 2)}.`);
                 return false;
             }
         }
 
-        this.logger.info(
-            `END: evaluateAllConditions service: all conditions satisfied.`,
-        );
+        this.logger.info(`END: evaluateAllConditions service: all conditions satisfied.`);
         return true;
     }
 
@@ -192,12 +187,8 @@ export class FunctionTriggerService {
             // ITEM ID condition
         } else if (condition.parameter === conditionParameterEnum.ITEM_ID) {
             if (!eventEntityPayload.itemId) {
-                this.logger.warn(
-                    `Error. API event requires item ID for this function condition.`,
-                );
-                throw new BadRequestException(
-                    `Error. API event requires item ID for this function condition.`,
-                );
+                this.logger.warn(`Error. API event requires item ID for this function condition.`);
+                throw new BadRequestException(`Error. API event requires item ID for this function condition.`);
             }
 
             evalResult = condition.evaluate({ itemId: eventEntityPayload.itemId });
