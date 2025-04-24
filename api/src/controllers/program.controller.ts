@@ -161,7 +161,7 @@ export class ProgramController {
    * Get all users
    */
   @ApiResponse({ status: 200, description: 'OK' })
-  @SkipTransform()
+  // @SkipTransform()
   @Permissions('read', ProgramUser)
   @Get(':program_id/users')
   async getAllUsers(
