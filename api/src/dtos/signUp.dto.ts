@@ -59,7 +59,7 @@ export class CreateSignUpDto {
 	refVal: string;
 
 	@IsOptional()
-	@IsEmail()
+	@IsEmail({  }, { message: 'invalid email passed' })
 	email?: string;
 
 	@IsOptional()
