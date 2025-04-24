@@ -1,9 +1,8 @@
+version: "3"
+
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: final
+  cliq-app:
+    image: "891612547769.dkr.ecr.ap-south-1.amazonaws.com/org.quicko.cliq:latest"
     ports:
       - "3001:3001"
     env_file:
@@ -11,50 +10,51 @@ services:
     environment:
       - PORT=3001
       - DB_PORT=5432
-      - DB_HOST=db
-      - DB_USERNAME=postgres
+      - DB_HOST=cliq-db
+      - DB_USERNAME=root
       - DB_PASSWORD=admin
       - DB_NAME=cliq
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - SALT_ROUNDS=10
-      - NODE_ENV=prod
+      - NODE_ENV=development
       - JWT_SECRET
       - JWT_EXPIRES_IN
     depends_on:
-      - redis
-      - db
+      - cliq-redis
+      - cliq-db
     networks:
-      - app-network
+      - nginxproxymanager_default
 
-  db:
+  cliq-db:
     image: postgres:latest
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=root
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=cliq
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 6
     ports:
-      - "5432:5432"
+      - 5432
     networks:
-      - app-network
+      - nginxproxymanager_default
 
-  redis:
+  cliq-redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+    volumes:
+      - ./redis_data:/data
     networks:
-      - app-network
+      - nginxproxymanager_default
 
 networks:
-  app-network:
-    driver: bridge
+  nginxproxymanager_default:
 
 volumes:
-  postgres_data:
+  cliq-data:
