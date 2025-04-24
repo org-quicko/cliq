@@ -23,7 +23,7 @@ export class UserDto {
 	@IsEnum(userRoleEnum)
 	programRole?: userRoleEnum;
 
-	@IsEnum(userRoleEnum)
+	@IsEnum(userRoleEnum, { message: `role must be one of ${Object.values(userRoleEnum).join(', ')}` })
 	role: userRoleEnum;
 
 	@IsOptional()
@@ -55,7 +55,7 @@ export class CreateUserDto {
 	lastName: string;
 
 	@IsOptional()
-	@IsEnum(userRoleEnum)
+	@IsEnum(userRoleEnum, { message: `role must be one of ${Object.values(userRoleEnum).join(', ')}` })
 	role?: userRoleEnum;
 }
 
