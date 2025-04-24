@@ -139,7 +139,7 @@ export class ProgramController {
   }
 
   /**
-   * Invite user
+   * Add user
    */
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
