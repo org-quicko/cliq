@@ -1,4 +1,4 @@
-import { IsString, IsEnum, IsOptional, IsUUID, IsDate } from 'class-validator';
+import { IsString, IsEnum, IsOptional, IsUUID, IsDate, IsUrl } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
@@ -12,14 +12,15 @@ export class ProgramDto {
 	name: string;
 
 	@IsString()
+	@IsUrl({}, { message: 'website url is invalid' })
 	website: string;
 
 	@IsOptional()
-	@IsEnum(visibilityEnum)
+	@IsEnum(visibilityEnum, { message: `visibility must be one of public or private` })
 	visibility: visibilityEnum;
 
 	@Expose({ name: 'referral_key_type' })
-	@IsEnum(referralKeyTypeEnum)
+	@IsEnum(referralKeyTypeEnum, { message: `referral key type must be one of ${Object.values(referralKeyTypeEnum).join(', ')}` })
 	referralKeyType: referralKeyTypeEnum;
 
 	@IsString()
@@ -31,7 +32,7 @@ export class ProgramDto {
 
 	@Expose({ name: 'date_format' })
 	@IsOptional()
-	@IsEnum(dateFormatEnum)
+	@IsEnum(dateFormatEnum, { message: `date format must be one of ${Object.values(dateFormatEnum).join(', ')}` })
 	dateFormat: dateFormatEnum;
 
 	@Expose({ name: 'time_zone' })
@@ -55,13 +56,14 @@ export class CreateProgramDto {
 	currency: string;
 
 	@IsString()
+	@IsUrl({}, { message: 'website url is invalid' })
 	website: string;
 
-	@IsEnum(visibilityEnum)
+	@IsEnum(visibilityEnum, { message: `visibility must be one of public or private` })
 	visibility: visibilityEnum;
 
 	@Expose({ name: 'referral_key_type' })
-	@IsEnum(referralKeyTypeEnum)
+	@IsEnum(referralKeyTypeEnum, { message: `referral key type must be one of ${Object.values(referralKeyTypeEnum).join(', ')}` })
 	referralKeyType: referralKeyTypeEnum;
 
 	@IsOptional()
@@ -71,15 +73,15 @@ export class CreateProgramDto {
 
 	@Expose({ name: 'date_format' })
 	@IsOptional()
-	@IsEnum(dateFormatEnum)
-	dateFormat: dateFormatEnum;
+	@IsEnum(dateFormatEnum, { message: `date format must be one of ${Object.values(dateFormatEnum).join(', ')}` })
+	dateFormat?: dateFormatEnum;
 
 	@Expose({ name: 'time_zone' })
 	@IsString()
 	timeZone: string;
 }
 
-export class UpdateProgramDto extends PartialType(CreateProgramDto) {
+export class UpdateProgramDto {
 	@IsOptional()
 	@IsString()
 	name?: string;
@@ -89,11 +91,11 @@ export class UpdateProgramDto extends PartialType(CreateProgramDto) {
 	currency?: string;
 
 	@IsOptional()
-	@IsString()
+	@IsUrl({}, { message: 'website url is invalid' })
 	website?: string;
 
 	@IsOptional()
-	@IsEnum(visibilityEnum)
+	@IsEnum(visibilityEnum, { message: `visibility must be one of public or private` })
 	visibility?: visibilityEnum;
 
 	@IsOptional()
@@ -103,7 +105,7 @@ export class UpdateProgramDto extends PartialType(CreateProgramDto) {
 
 	@Expose({ name: 'date_format' })
 	@IsOptional()
-	@IsEnum(dateFormatEnum)
+	@IsEnum(dateFormatEnum, { message: `date format must be one of ${Object.values(dateFormatEnum).join(', ')}` })
 	dateFormat?: dateFormatEnum;
 	
 	@Expose({ name: 'time_zone' })
