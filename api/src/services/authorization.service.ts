@@ -354,7 +354,7 @@ export class AuthorizationService {
 
                 // can update program or invite other users to the program
                 allow(['update', 'invite_user'], Program, { programId });
-
+                allow('read_all', LinkAnalyticsView)
                 allow('manage', Promoter);
 
                 // can only manage the program-promoter relations if you are admin of a program with this program ID
@@ -406,6 +406,7 @@ export class AuthorizationService {
         allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
         allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
         allow<FlatCommission>('read', Commission, { 'contact.programId': programId });
+        allow('read_all', LinkAnalyticsView)
 
         const ability = build({
             detectSubjectType: (item) => item.constructor as ExtractSubjectType<subjectsType>,
