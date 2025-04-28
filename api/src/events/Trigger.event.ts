@@ -1,5 +1,5 @@
 import { TriggerEventData } from '../interfaces/eventData.interface';
-import { BaseEvent } from '../events';
+import { BaseEvent } from './BaseEvent';
 
 export class TriggerEvent extends BaseEvent {
 	constructor(

@@ -1,5 +1,5 @@
 import { PurchaseCreatedEventData } from "../interfaces/eventData.interface";
-import { TriggerEvent } from "../events";
+import { TriggerEvent } from "./Trigger.event";
 
 export class PurchaseCreatedEvent extends TriggerEvent {
 	constructor(
