@@ -1,4 +1,4 @@
-import { SignUpCreatedEventData } from "src/interfaces/eventData.interface";
+import { SignUpCreatedEventData } from "../interfaces/eventData.interface";
 import { TriggerEvent } from "./Trigger.event";
 
 export class SignUpCreatedEvent extends TriggerEvent {

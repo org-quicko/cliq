@@ -1,5 +1,5 @@
-import { commissionEntityName, purchaseEntityName, signUpEntityName } from "src/constants";
-import { triggerEnum } from "src/enums";
+import { commissionEntityName, purchaseEntityName, signUpEntityName } from "../constants";
+import { triggerEnum } from "../enums";
 import { conversionTypeEnum } from '../enums/conversionType.enum';
 
 export interface TriggerEventData {

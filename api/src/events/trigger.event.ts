@@ -1,4 +1,4 @@
-import { TriggerEventData } from 'src/interfaces/eventData.interface';
+import { TriggerEventData } from '../interfaces/eventData.interface';
 import { BaseEvent } from './BaseEvent';
 
 export abstract class TriggerEvent extends BaseEvent {

@@ -1,4 +1,4 @@
-import { CommissionCreatedEventData } from "src/interfaces/eventData.interface";
+import { CommissionCreatedEventData } from "../interfaces/eventData.interface";
 import { BaseEvent } from "./BaseEvent";
 
 export class CommissionCreatedEvent extends BaseEvent {
