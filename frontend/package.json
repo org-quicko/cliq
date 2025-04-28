@@ -11,7 +11,7 @@
 		"promoter": "ng serve promoter-portal",
 		"build:core-lib": "ng build org-quicko-cliq-core",
 		"build:promoter": "ng build promoter-portal",
-		"install-snapshot": "npm --userconfig ./.npmrc install && npm run generate",
+		"install-snapshot": "npm --userconfig ./.npmrc install --legacy-peer-deps && npm run generate",
 		"generate": "npm run generateSchema && npm run generateObjects",
 		"generateSchema": "excel-to-schema --input ./resources/excel/ --output ./projects/org-quicko-cliq-core/generated/schemas",
 		"generateObjects": "schema-to-objects --input ./projects/org-quicko-cliq-core/generated/schemas --output ./projects/org-quicko-cliq-core/generated/sources"
@@ -46,7 +46,6 @@
 		"@tailwindcss/postcss": "^4.0.15",
 		"class-transformer": "^0.5.1",
 		"class-validator": "^0.14.1",
-		"lodash": "^4.17.21",
 		"lodash-es": "^4.17.21",
 		"moment": "^2.30.1",
 		"ngx-avatars": "^1.8.0",
