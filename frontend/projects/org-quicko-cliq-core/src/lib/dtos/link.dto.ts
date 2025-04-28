@@ -18,10 +18,6 @@ export class LinkDto {
 	@IsEnum(linkStatusEnum)
 	status?: linkStatusEnum;
 
-	@Expose({ name: 'product_path' })
-	@IsString()
-	productPath: string;
-
 	@Expose({ name: 'created_at' })
 	@IsDate()
 	createdAt: Date;
