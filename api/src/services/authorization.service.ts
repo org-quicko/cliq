@@ -394,6 +394,8 @@ export class AuthorizationService {
 
         allow('manage', [Member]);
         allow<User>('create', Promoter, { programUsers: { $elemMatch: { programId } } });
+        allow('read', Promoter, { programPromoters: { $elemMatch: { programId } } });
+        
 
         allow(['update', 'delete', 'include_promoter', 'update'], Promoter, { programPromoters: { $elemMatch: { programId } } }); // can manage a promoter of that program
         // can only manage the program-promoter relations if you are admin of a program with this program ID
@@ -406,7 +408,7 @@ export class AuthorizationService {
         allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
         allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
         allow<FlatCommission>('read', Commission, { 'contact.programId': programId });
-        allow('read_all', LinkAnalyticsView)
+        allow('read_all', LinkAnalyticsView);
 
         const ability = build({
             detectSubjectType: (item) => item.constructor as ExtractSubjectType<subjectsType>,
