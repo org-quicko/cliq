@@ -1,7 +1,7 @@
 import { TriggerEventData } from '../interfaces/eventData.interface';
-import { BaseEvent } from './BaseEvent';
+import { BaseEvent } from '../events';
 
-export abstract class TriggerEvent extends BaseEvent {
+export class TriggerEvent extends BaseEvent {
 	constructor(
 		public programId: string,
 		public source: string,
