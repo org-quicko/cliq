@@ -123,5 +123,4 @@ dist
 .pnp.*
 
 generated/
-.npmrc
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
