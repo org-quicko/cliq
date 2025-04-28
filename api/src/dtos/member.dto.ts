@@ -65,11 +65,21 @@ export class CreateMemberDto {
 
 }
 
-export class UpdateMemberDto extends OmitType(CreateMemberDto, ['email', 'password']) {
+export class UpdateMemberDto {
 
 	@IsOptional()
 	@IsEmail()
 	email?: string;
+
+	@Expose({ name: 'first_name' })
+	@IsOptional()
+	@IsString()
+	firstName?: string;
+	
+	@Expose({ name: 'last_name' })
+	@IsOptional()
+	@IsString()
+	lastName?: string;
 	
 	@Expose({ name: 'new_password' })
 	@IsOptional()

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
@@ -14,6 +14,7 @@ export interface UserLoginData extends LoginData {
 @Injectable()
 export class UserAuthService {
 	constructor(
+		@Inject(forwardRef(() => UserService))
 		private userService: UserService,
 		private jwtService: JwtService,
 		private logger: LoggerService,
@@ -89,7 +90,7 @@ export class UserAuthService {
 		};
 	}
 
-	private async comparePasswords(
+	async comparePasswords(
 		plainPassword: string,
 		hashedPassword: string,
 	): Promise<boolean> {

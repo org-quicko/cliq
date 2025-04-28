@@ -59,10 +59,20 @@ export class CreateUserDto {
 	role?: userRoleEnum;
 }
 
-export class UpdateUserDto extends OmitType(CreateUserDto, ['email', 'password']) {
+export class UpdateUserDto {
 	@IsOptional()
 	@IsEmail()
 	email?: string;
+
+	@Expose({ name: 'first_name' })
+	@IsOptional()
+	@IsString()
+	firstName?: string;
+	
+	@Expose({ name: 'last_name' })
+	@IsOptional()
+	@IsString()
+	lastName?: string;
 
 	@Expose({ name: 'new_password' })
 	@IsOptional()

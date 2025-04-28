@@ -1,11 +1,15 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityNotFoundError } from 'typeorm';
+import { Repository, EntityNotFoundError, DataSource } from 'typeorm';
 import { SignUpUserDto, UpdateUserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
 import { UserConverter } from '../converters/user.converter';
 import { LoggerService } from './logger.service';
 import { userRoleEnum, statusEnum } from 'src/enums';
+import { UserAuthService } from './userAuth.service';
+import * as bcrypt from 'bcrypt';
+import { SALT_ROUNDS } from 'src/constants';
+
 
 @Injectable()
 export class UserService {
@@ -16,7 +20,12 @@ export class UserService {
 		@InjectRepository(ProgramUser)
 		private readonly programUserRepository: Repository<ProgramUser>,
 
+		@Inject(forwardRef(() => UserAuthService))
+		private userAuthService: UserAuthService,
+
 		private userConverter: UserConverter,
+
+		private datasource: DataSource,
 
 		private logger: LoggerService,
 	) { }
@@ -37,19 +46,19 @@ export class UserService {
 				this.logger.error(`Error. Email ${body.email} already exists!`);
 				throw new BadRequestException(`Error. Email ${body.email} already exists!`);
 			}
-	
+
 			const userEntity = this.userRepository.create(body);
-	
+
 			if (await this.isFirstUserSignUp()) {
 				userEntity.role = userRoleEnum.SUPER_ADMIN;
 			}
-	
+
 			// has to be saved as an entity otherwise password hashing won't be triggered
 			const newUser = await this.userRepository.save(userEntity);
-	
+
 			this.logger.info('END: userSignUp service');
 			return this.userConverter.convert(newUser);
-		
+
 		} catch (error) {
 			if (error instanceof Error) {
 				this.logger.error(error.message);
@@ -111,21 +120,67 @@ export class UserService {
 	 * Update User info
 	 */
 	async updateUserInfo(userId: string, body: UpdateUserDto) {
-		this.logger.info('START: updateUserInfo service');
+		return this.datasource.transaction(async (manager) => {
+			this.logger.info('START: updateUserInfo service');
 
-		const userResult = await this.userRepository.findOne({
-			where: { userId: userId },
+			const userRepository = manager.getRepository(User);
+			const user = await userRepository.findOne({
+				where: { userId: userId },
+			});
+
+			if (!user) {
+				throw new Error(`User does not exist.`);
+			}
+
+			const { currentPassword, newPassword, email, ...updateFields } = body;
+
+			// If password update is attempted
+			if (currentPassword || newPassword) {
+				if (!currentPassword || !newPassword) {
+					this.logger.error(`Error. Both the current and the new password must be provided in order to update password.`);
+					throw new BadRequestException(`Error. Both the current and the new password must be provided in order to update password.`);
+				}
+
+				// Verify the current password
+				const isPasswordCorrect = await this.userAuthService.comparePasswords(currentPassword, user.password);
+				if (!isPasswordCorrect) {
+					this.logger.error(`Error. Incorrect password entered!`);
+					throw new BadRequestException(`Error. Incorrect password entered!`);
+				}
+
+				// Hash the new password
+				const salt = await bcrypt.genSalt(SALT_ROUNDS);
+				user.password = await bcrypt.hash(newPassword, salt);
+			}
+
+			if (email && email !== user.email) {
+				if (await this.userRepository.findOne({ where: { email } })) {
+					this.logger.error(`Error. Cannot use that email as it already exists in the program!`);
+					throw new BadRequestException(`Error. Cannot use that email as it already exists in the program!`);
+				}
+
+				user.email = email;
+			}
+
+			// Update other fields
+			Object.assign(user, updateFields);
+
+			await userRepository.save(user);
+
+			await manager
+				.createQueryBuilder()
+				.update(User)
+				.set({ updatedAt: () => 'NOW()' }) // Correctly updates timestamp with time zone
+				.where({ userId })
+				.execute();
+
+			console.log(user);
+
+			const userDto = this.userConverter.convert(user);
+
+			this.logger.info('END: updateUserInfo service');
+			return userDto;
 		});
-
-		if (!userResult) {
-			throw new Error(`User does not exist.`);
-		}
-
-		await this.userRepository.update(
-			{ userId: userId },
-			{ ...body, updatedAt: () => `NOW()` },
-		);
-		this.logger.info('END: updateUserInfo service');
 	}
 
 	/**
@@ -185,7 +240,7 @@ export class UserService {
 			canLeave = true;
 		}
 		else if (adminResult.length === 0) {
-			
+
 			// only super admin is left
 			if (superAdminResult) {
 				canLeave = true;
@@ -200,7 +255,7 @@ export class UserService {
 				// no super admin, and the user is the only remaining admin => cannot leave the program
 				if (!superAdminResult) {
 					canLeave = false;
-				} 
+				}
 			} else {
 				// this user ain't the admin, can leave 
 				canLeave = true;
