@@ -14,7 +14,7 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=admin
       - DB_NAME=cliq
-      - REDIS_HOST=redis
+      - REDIS_HOST=cliq-redis
       - REDIS_PORT=6379
       - SALT_ROUNDS=10
       - NODE_ENV=development
