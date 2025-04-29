@@ -9,7 +9,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { memberRoleEnum, Theme, ThemeService } from '@org.quicko.cliq/ngx-core';
 import { Router, RouterLink } from '@angular/router';
 import { EllipsisPipe } from '@org.quicko/ngx-core';
-import { environment } from '../../../../../../environments/environment.dev';
 import { AuthService } from '../../../../services/auth.service';
 import { MemberStore } from '../../../../store/member.store';
 import { ProgramStore } from '../../../../store/program.store';

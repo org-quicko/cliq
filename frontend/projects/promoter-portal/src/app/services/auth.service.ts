@@ -4,10 +4,8 @@ import { CookieService } from 'ngx-cookie-service';
 import * as _ from 'lodash-es';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { instanceToPlain } from 'class-transformer';
-import { environment } from '../../../environments/environment.dev';
 import { ProgramStore } from '../store/program.store';
-import { MemberDto } from '@org.quicko.cliq/ngx-core';
+import { environment } from '../../environments/environment';
 
 @Injectable({
 	providedIn: 'root'

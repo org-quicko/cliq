@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, Injector } from '@angular/core';
 import { instanceToPlain } from 'class-transformer';
-import { environment } from '../../../environments/environment.dev';
 import { AuthService } from './auth.service';
 import { ProgramStore } from '../store/program.store';
 import { ApiResponse, MemberDto, UpdateMemberDto, SignUpMemberDto, MemberExistsInProgramDto } from '@org.quicko.cliq/ngx-core';
 import { PromoterStore } from '../store/promoter.store';
+import { environment } from '../../environments/environment';
 
 @Injectable({
 	providedIn: 'root'

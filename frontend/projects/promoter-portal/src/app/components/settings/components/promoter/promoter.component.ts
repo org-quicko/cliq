@@ -7,7 +7,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MemberStore } from '../../../../store/member.store';
 import { AuthService } from '../../../../services/auth.service';
-import { environment } from '../../../../../../environments/environment.dev';
 import { ProgramStore } from '../../../../store/program.store';
 import { MatCardModule } from '@angular/material/card';
 import { ActionableListItemComponent } from './components/actionable-list-item/actionable-list-item.component';

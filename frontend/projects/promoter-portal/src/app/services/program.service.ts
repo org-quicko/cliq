@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiResponse } from '@org.quicko.cliq/ngx-core';
-import { environment } from '../../../environments/environment.dev';
+import { environment } from '../../environments/environment';
 
 @Injectable({
 	providedIn: 'root'

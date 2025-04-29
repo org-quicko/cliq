@@ -20,7 +20,7 @@ import {
 import { instanceToPlain } from "class-transformer";
 import { AuthService } from "./auth.service";
 import { ProgramStore } from "../store/program.store";
-import { environment } from "../../../environments/environment.dev";
+import { environment } from "../../environments/environment";
 
 @Injectable({
 	providedIn: 'root'

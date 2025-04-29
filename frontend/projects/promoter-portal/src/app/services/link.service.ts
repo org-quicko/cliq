@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment.dev';
 import { AuthService } from './auth.service';
 import { ApiResponse } from '../../../../org-quicko-cliq-core/src/lib/interfaces/apiResponse.interface';
 import { PromoterStore } from '../store/promoter.store';
@@ -8,6 +7,7 @@ import { ProgramStore } from '../store/program.store';
 import { CreateLinkDto } from '../../../../org-quicko-cliq-core/src/lib/dtos';
 import { instanceToPlain } from 'class-transformer';
 import { linkSortByEnum, sortOrderEnum } from '@org.quicko.cliq/ngx-core';
+import { environment } from '../../environments/environment';
 
 @Injectable({
 	providedIn: 'root'

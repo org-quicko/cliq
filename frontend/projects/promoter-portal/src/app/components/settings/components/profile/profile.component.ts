@@ -8,7 +8,6 @@ import { ActionableListItemComponent } from '../promoter/components/actionable-l
 import { ActionableListItemInterface } from '../../../../interfaces/actionableListItem.interface';
 import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
 import { AuthService } from '../../../../services/auth.service';
-import { environment } from '../../../../../../environments/environment.dev';
 import { ProgramStore } from '../../../../store/program.store';
 
 @Component({
