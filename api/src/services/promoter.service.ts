@@ -283,6 +283,9 @@ export class PromoterService {
 	 */
 	async getPromoter(programId: string, promoterId: string) {
 		this.logger.info('START: getPromoter service');
+
+		await this.programService.getProgramEntity(programId);
+
 		const promoter = await this.promoterRepository.findOne({
 			where: {
 				promoterId,
@@ -299,9 +302,21 @@ export class PromoterService {
 			);
 		}
 
-		const acceptedTermsAndConditions = promoter.programPromoters.find(
+		const programPromoterResult = promoter.programPromoters.find(
 			programPromoter => programPromoter.programId === programId
-		)!.acceptedTermsAndConditions;
+		);
+
+		let acceptedTermsAndConditions: boolean;
+		if (programPromoterResult) {
+			acceptedTermsAndConditions = programPromoterResult.acceptedTermsAndConditions;
+
+			if (!acceptedTermsAndConditions) {
+				this.logger.warn(`Warning. Promoter has not accepted terms and conditions.`);
+			}
+		} else {
+			this.logger.error(`Error. Promoter ${promoterId} is not part of Program ${programId}`);
+			throw new NotFoundException(`Error. Promoter ${promoterId} is not part of Program ${programId}`);
+		}
 
 		const promoterDto = this.promoterConverter.convert(promoter, acceptedTermsAndConditions)
 		this.logger.info('END: getPromoter service');

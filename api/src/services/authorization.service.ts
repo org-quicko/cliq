@@ -200,6 +200,9 @@ export class AuthorizationService {
 
                     return this.promoterService.getPromoterEntity(
                         subjectPromoterId,
+                        {
+                            programPromoters: true
+                        }
                     );
                 } else if (subject === PromoterMember) {
 
