@@ -396,8 +396,10 @@ export class AuthorizationService {
         const { can: allow, build } = abilityBuilder;
 
         allow('manage', [Member]);
+        allow('create', Link);
+        allow(['read', 'read_all', 'delete'], Link, { programId });
         allow<User>('create', Promoter, { programUsers: { $elemMatch: { programId } } });
-        allow('read', Promoter, { programPromoters: { $elemMatch: { programId } } });
+        allow(['read', 'update', 'delete', 'register'], Promoter, { programPromoters: { $elemMatch: { programId } } });
         
 
         allow(['update', 'delete', 'include_promoter', 'update'], Promoter, { programPromoters: { $elemMatch: { programId } } }); // can manage a promoter of that program
