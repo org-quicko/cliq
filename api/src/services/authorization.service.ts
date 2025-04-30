@@ -47,6 +47,7 @@ import { ReferralService } from './referral.service';
 import { WebhookService } from './webhook.service';
 import { PromoterAnalyticsService } from './promoterAnalytics.service';
 import { actionsType, subjectsType } from 'src/types';
+import { Request } from 'express';
 
 // these types are in order to check nested properties
 type FlatPurchase = Purchase & {
@@ -121,10 +122,10 @@ export class AuthorizationService {
     }
 
     async getSubjects(
-        request: any,
+        request: Request,
         requiredPermissions: { action: actionsType; subject: subjectsType }[],
     ) {
-        let subjectObjects: subjectsType[] = [];
+        let subjectObjects: (subjectsType | null | undefined)[] = [];
         this.logger.info(`START: getSubjects service`);
         subjectObjects = await Promise.all(
             requiredPermissions.map(({ action, subject }) => {
@@ -321,6 +322,8 @@ export class AuthorizationService {
                     }
 
                     return this.webhookService.getFirstWebhook(subjectProgramId);
+                } else if (subject === LinkAnalyticsView) {
+                    return this.checkIfMemberIsPartOfPromoter(request, subject);
                 }
                 else {
                     return subject;
@@ -330,6 +333,33 @@ export class AuthorizationService {
 
         this.logger.info(`END: getSubjects service`);
         return subjectObjects;
+    }
+
+    checkIfMemberIsPartOfPromoter(request: Request, subject: subjectsType) {
+        const subjectMemberId = request.headers.member_id as string | undefined;
+        const apiKey = request.headers['x-api-key'] as string | undefined;
+        const apiSecret = request.headers['x-api-secret'] as string | undefined;
+
+        const subjectProgramId = request.params.program_id as string | undefined;
+        const subjectPromoterId = request.params.promoter_id as string | undefined;
+
+        if (!subjectPromoterId) {
+            throw new BadRequestException(`Error. Must provide Promoter ID for performing action on object`);
+        } else {
+            if (!subjectMemberId) {
+                if (!apiKey || !apiSecret) {
+                    throw new BadRequestException(`Error. Must provide Promoter ID and either Member ID or API Key-secret pair for performing action on object`);
+                } else {
+                    if (subjectProgramId && subjectProgramId !== (request.headers.program_id as string)) {
+                        // trying to access a different program's information
+                        return null;
+                    }
+                    return subject;
+                }
+            } else {
+                return this.promoterService.memberExistsInPromoter(subjectMemberId, subjectPromoterId, subject);
+            }
+        }
     }
 
     getUserAbility(user: User) {
@@ -348,6 +378,7 @@ export class AuthorizationService {
         for (const [programId, role] of Object.entries(programUserPermissions)) {
             allow(['read', 'read_all'], [ReferralView, PromoterAnalyticsView, ProgramPromoter, Link, Circle, Program, Function], { programId });
             allow('read', User, { programUsers: { $elemMatch: { programId } } });
+            allow(['read', 'read_all'], LinkAnalyticsView)
 
             allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
             allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
@@ -357,7 +388,6 @@ export class AuthorizationService {
 
                 // can update program or invite other users to the program
                 allow(['update', 'invite_user'], Program, { programId });
-                allow('read_all', LinkAnalyticsView)
                 allow('manage', Promoter);
 
                 // can only manage the program-promoter relations if you are admin of a program with this program ID
@@ -414,7 +444,7 @@ export class AuthorizationService {
         allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
         allow<FlatSignUp>('read', SignUp, { 'contact.programId': programId });
         allow<FlatCommission>('read', Commission, { 'contact.programId': programId });
-        allow('read_all', LinkAnalyticsView, { programId });
+        allow(['read', 'read_all'], LinkAnalyticsView);
 
         const ability = build({
             detectSubjectType: (item) => item.constructor as ExtractSubjectType<subjectsType>,
@@ -449,7 +479,7 @@ export class AuthorizationService {
                 // also, can only register on behalf of the promoter if member is the admin of that promoter
                 allow('manage', [Promoter, PromoterMember, Link], { promoterId });
 
-                // can only manage the program-promoter relatoins if you are admin of this promoter
+                // can only manage the program-promoter relations if you are admin of this promoter
                 allow('manage', ProgramPromoter, { promoterId });
             }
         }

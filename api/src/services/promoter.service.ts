@@ -52,9 +52,10 @@ import { SignUpWorkbook } from 'generated/sources/SignUp';
 import { PromoterWorkbook } from 'generated/sources/Promoter';
 import { CommissionWorkbook } from 'generated/sources/Commission';
 import { LinkWorkbook } from 'generated/sources/Link';
-import { PromoterAnalyticsConverter } from 'src/converters/promoterAnalytics.converter';
+import { PromoterAnalyticsConverter } from '../converters/promoterAnalytics.converter';
 import * as bcrypt from 'bcrypt';
-import { SALT_ROUNDS } from 'src/constants';
+import { SALT_ROUNDS } from '../constants';
+import { subjectsType } from '../types';
 
 @Injectable()
 export class PromoterService {
@@ -297,9 +298,7 @@ export class PromoterService {
 
 		if (!promoter) {
 			this.logger.warn(`Failed to get Promoter ${promoterId}`);
-			throw new NotFoundException(
-				`Failed to get promoter for promoter_id: ${promoterId}`,
-			);
+			throw new NotFoundException(`Failed to get promoter for promoter_id: ${promoterId}`);
 		}
 
 		const programPromoterResult = promoter.programPromoters.find(
@@ -344,6 +343,23 @@ export class PromoterService {
 
 		this.logger.info('END: getPromoterEntity service');
 		return promoter;
+	}
+
+	/**
+	 * Check for authorization, whether member can access a promoter's information
+	 */
+	async memberExistsInPromoter(memberId: string, promoterId: string, subject: subjectsType) {
+		this.logger.info('START: memberExistsInPromoter service');
+
+		const memberResult = await this.promoterMemberRepository.findOne({ 
+			where: { 
+				promoterId, 
+				memberId 
+			},
+		});
+
+		this.logger.info('END: memberExistsInPromoter service');
+		return memberResult === null ? memberResult : subject;
 	}
 
 	/**
@@ -698,9 +714,15 @@ export class PromoterService {
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
-		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+		try {
+			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+			} else {
+				throw error;
+			}
 		}
 
 		const [referralResult, count] = await this.referralViewRepository.findAndCount({
@@ -760,18 +782,22 @@ export class PromoterService {
 	async hasAcceptedTermsAndConditions(programId: string, promoterId: string) {
 		this.logger.info(`START: hasAcceptedTermsAndConditions service`);
 
-		if (
-			!(await this.programPromoterRepository.findOne({
-				where: {
-					programId,
-					promoterId,
-					acceptedTermsAndConditions: true
-				}
-			}))
-		) {
+		const programPromoterRow = await this.programPromoterRepository.findOne({
+			where: {
+				programId,
+				promoterId,
+				acceptedTermsAndConditions: true
+			}
+		});
+
+		if (!programPromoterRow) {
+			this.logger.error(`Error. Promoter ${promoterId} not found in Program ${programId}.`);
+			throw new BadRequestException(`Error. Promoter ${promoterId} not found in Program ${programId}.`);
+
+		} else if (!programPromoterRow.acceptedTermsAndConditions) {
 			this.logger.error(`Error. Promoter ${promoterId} hasn't accepted terms and conditions required for Program ${programId}.`);
-			this.logger.info(`END: hasAcceptedTermsAndConditions service -> TNC not accepted`);
 			throw new BadRequestException(`Error. Promoter ${promoterId} hasn't accepted terms and conditions required for Program ${programId}.`);
+
 		}
 
 		this.logger.info(`END: hasAcceptedTermsAndConditions service -> TNC accepted`);
@@ -845,9 +871,15 @@ export class PromoterService {
 	) {
 		this.logger.info('START: getSignUpsReport service');
 
-		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+		try {
+			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+			} else {
+				throw error;
+			}
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -904,9 +936,15 @@ export class PromoterService {
 	) {
 		this.logger.info('START: getPurchasesReport service');
 		
-		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+		try {
+			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+			} else {
+				throw error;
+			}
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -963,9 +1001,15 @@ export class PromoterService {
 	) {
 		this.logger.info('START: getReferralsReport service');
 
-		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+		try {
+			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+			} else {
+				throw error;
+			}
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -1006,9 +1050,15 @@ export class PromoterService {
 	) {
 		this.logger.info(`START: getCommissionsReport service`);
 
-		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+		try {
+			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+			} else {
+				throw error;
+			}
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -1127,9 +1177,15 @@ export class PromoterService {
 	) {
 		this.logger.info(`START: getLinksReport service`);
 
-		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
+		try {
+			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
+		} catch (error) {
+			if (error instanceof NotFoundException) {
+				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+			} else {
+				throw error;
+			}
 		}
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
@@ -1243,7 +1299,6 @@ export class PromoterService {
 	}
 
 	async getPromoterLinkAnalytics(
-		memberId: string, 
 		programId: string, 
 		promoterId: string, 
 		sortBy?: linkSortByEnum,
@@ -1254,11 +1309,6 @@ export class PromoterService {
 		this.logger.info(`START: getPromoterLinkAnalytics service`);
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
-
-		if (!(await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId))) {
-			this.logger.error(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
-			throw new ForbiddenException(`Forbidden. Member ${memberId} is not part of Promoter ${promoterId}`);
-		}
 
 		const [linkStatsResult, count] = await this.LinkAnalyticsViewRepository.findAndCount({
 			where: {

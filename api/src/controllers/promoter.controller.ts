@@ -600,7 +600,6 @@ export class PromoterController {
 	@Get(':promoter_id/link_analytics')
 	async getPromoterLinkAnalytics(
 		@Headers('x-accept-type') acceptType: string,
-		@Headers('member_id') memberId: string,
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Query('sort_by') sortBy: linkSortByEnum.CREATED_AT,
@@ -613,7 +612,6 @@ export class PromoterController {
 		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
 
 		const result = await this.promoterService.getPromoterLinkAnalytics(
-			memberId,
 			programId,
 			promoterId,
 			sortBy,

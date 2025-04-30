@@ -10,7 +10,6 @@ import { CHECK_PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 import { LoggerService } from '../services/logger.service';
 import { MemberService } from '../services/member.service';
 import { UserService } from '../services/user.service';
-import { ApiKeyService } from 'src/services/apiKey.service';
 import { actionsType, subjectsType } from 'src/types';
 
 @Injectable()
@@ -80,12 +79,18 @@ export class PermissionsGuard implements CanActivate {
 
 			for (let i = 0; i < requiredPermissions.length; i++) {
 				const action = requiredPermissions[i].action;
-
+				const subjectObject = subjectObjects[i];
+				
 				console.log('\n\n', action, subjectObjects[i], '\n\n');
+
+				if (!subjectObject) {
+					this.logger.error(`${entityType} does not have permission to perform this action!`);
+					throw new ForbiddenError(ability);
+				}
 
 				ForbiddenError.from(ability).throwUnlessCan(
 					action,
-					subjectObjects[i],
+					subjectObject,
 				);
 			}
 
