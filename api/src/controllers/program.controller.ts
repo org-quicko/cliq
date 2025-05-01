@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers, Res, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers, Res, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ProgramService } from '../services/program.service';
 import { LoggerService } from '../services/logger.service';
@@ -31,6 +31,7 @@ import { reportPeriodEnum } from '../enums/reportPeriod.enum';
 import { Response } from 'express';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { SkipAuth } from '../decorators/skipAuth.decorator';
+import { isUUID } from 'class-validator';
 
 @ApiTags('Program')
 @Controller('/programs')
@@ -96,6 +97,10 @@ export class ProgramController {
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {
     this.logger.info('START: getProgram controller');
+
+    if (!isUUID(programId)) {
+      throw new NotFoundException('Program not found');
+    }
 
     const result = await this.programService.getProgram(programId);
 
