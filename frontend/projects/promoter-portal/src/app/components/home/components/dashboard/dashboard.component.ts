@@ -46,7 +46,7 @@ import { SnackbarService } from '@org.quicko/ngx-core';
 		ZeroToDashPipe,
 		FormatCurrencyPipe,
 		SkeletonLoadTableComponent,
-		NgxSkeletonLoaderComponent,
+		NgxSkeletonLoaderModule,
 		InfoDialogBoxComponent,
 	],
 	providers: [DashboardStore],

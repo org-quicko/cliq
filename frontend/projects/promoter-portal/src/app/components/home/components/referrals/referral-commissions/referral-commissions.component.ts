@@ -15,6 +15,7 @@ import { SkeletonLoadTableComponent } from '../../../../common/skeleton-load-tab
 import { TableRowStyling } from '../../../../../interfaces';
 import { LabelChipComponent } from "../../../../common/label-chip/label-chip.component";
 import { PromoterStore } from '../../../../../store/promoter.store';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @Component({
 	selector: 'app-referral-commissions',
@@ -29,7 +30,8 @@ import { PromoterStore } from '../../../../../store/promoter.store';
     OrdinalDatePipe,
     FormatCurrencyPipe,
     SkeletonLoadTableComponent,
-    LabelChipComponent
+    LabelChipComponent,
+	NgxSkeletonLoaderModule
 ],
 	providers: [ReferralCommissionsStore],
 	templateUrl: './referral-commissions.component.html',

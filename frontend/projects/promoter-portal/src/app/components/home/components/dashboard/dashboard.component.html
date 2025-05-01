@@ -219,10 +219,27 @@
 						</td>
 					</ng-container>
 					<ng-container matColumnDef="created on">
-						<th mat-header-cell mat-sort-header [class.hide-sort-arrow]="!totalLinkDataLength()"
-							*matHeaderCellDef class="mat-body-medium text-outline w-[200px]">
+						@if (totalLinkDataLength()) {
+						<th
+							mat-header-cell
+							mat-sort-header
+							[class.hide-sort-arrow]="!totalLinkDataLength()"
+							*matHeaderCellDef
+							class="mat-body-medium text-outline w-[200px]"
+						>
 							Created on
 						</th>
+						}
+						@else {
+						<th
+							mat-header-cell
+							[class.hide-sort-arrow]="!totalLinkDataLength()"
+							*matHeaderCellDef
+							class="mat-body-medium text-outline w-[200px]"
+						>
+							Created on
+						</th>
+						}
 						<td mat-cell *matCellDef="let row; let i = index"
 							class="mat-body-large text-on-surface-variant w-[200px]">
 							{{ convertToLinkStatsRow(row).getCreatedAt() | ordinalDate }}

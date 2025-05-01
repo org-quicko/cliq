@@ -27,7 +27,12 @@
 			[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction" (matSortChange)="onSortChange($event)" [matSortDisableClear]="true">
 			<!-- Define columns dynamically -->
 			<ng-container matColumnDef="name">
-				<th mat-header-cell mat-sort-header *matHeaderCellDef class="mat-body-medium text-on-surface">
+				<th
+					mat-header-cell
+					mat-sort-header
+					*matHeaderCellDef
+					class="mat-body-medium text-on-surface"
+				>
 					Name
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index"

@@ -19,6 +19,7 @@ import { MemberSortOptions, TableRowStyling } from '../../../../../../interfaces
 import { SkeletonLoadTableComponent } from '../../../../../common/skeleton-load-table/skeleton-load-table.component';
 import { PromoterStore } from '../../../../../../store/promoter.store';
 import { LabelChipComponent } from '../../../../../common/label-chip/label-chip.component';
+import { NgxSkeletonLoaderComponent, NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @Component({
 	selector: 'app-link-commissions',
@@ -37,6 +38,7 @@ import { LabelChipComponent } from '../../../../../common/label-chip/label-chip.
 		FormatCurrencyPipe,
 		SkeletonLoadTableComponent,
 		LabelChipComponent,
+		NgxSkeletonLoaderModule,
 	],
 	providers: [LinkCommissionsStore],
 	templateUrl: './link-commissions.component.html',
