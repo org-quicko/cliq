@@ -1,6 +1,7 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
@@ -10,6 +11,7 @@ import { RequestInterceptor } from './interceptors/request.interceptor';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
+		provideAnimations(),
 		provideZoneChangeDetection({ eventCoalescing: true }),
 		provideRouter(routes),
 		{
@@ -29,6 +31,6 @@ export const appConfig: ApplicationConfig = {
 			connectInZone: true // If set to true, the connection is established within the Angular zone
 		}),
 		provideHttpClient(withInterceptorsFromDi()),
-		RxFormBuilder
+		RxFormBuilder,
 	]
 };
