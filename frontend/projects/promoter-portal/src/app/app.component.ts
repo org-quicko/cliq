@@ -1,8 +1,9 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, computed, effect, inject, OnInit } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ProgramStore } from './store/program.store';
 import { ThemeService, ColorUtil } from '@org.quicko.cliq/ngx-core';
 import * as moment from 'moment';
+import { filter } from 'rxjs';
 
 @Component({
 	selector: 'app-root',
@@ -18,14 +19,25 @@ export class AppComponent implements OnInit {
 
 	title = computed(() => this.programStore.program()?.name);
 
-	constructor() {
+	constructor(private router: Router) {
 		moment.updateLocale('en', {
 			week: { dow: 1 } // setting monday as the start of the week
 		});
+
+		effect(() => {
+			const themeColor =this.programStore.program()?.themeColor;
+			ColorUtil.setThemeFromSeed(themeColor ?? '#fff');
+		})
 	}
 
 	ngOnInit() {
 		this.themeService.initializeTheme();
-		ColorUtil.setThemeFromSeed(`#4D5C92`);
+		// ColorUtil.setThemeFromSeed(`#4D5C92`);
+
+		this.router.events
+			.pipe(filter(event => event instanceof NavigationEnd))
+			.subscribe(() => {
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			});
 	}
 }
