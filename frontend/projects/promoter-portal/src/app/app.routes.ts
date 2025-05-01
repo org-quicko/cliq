@@ -21,6 +21,7 @@ import { TermsAndConditionsComponent } from './components/terms-and-conditions/t
 import { TncResolver } from './resolver/tnc.resolver';
 
 export const routes: Routes = [
+	{ path: '404', component: NotFoundComponent },
 	{
 		resolve: { program: ProgramResolver },
 		path: ':program_id',
@@ -106,5 +107,6 @@ export const routes: Routes = [
 			{ path: 'signup', component: SignUpComponent },
 		],
 	},
-	{ path: '**', component: NotFoundComponent },
+	{ path: '**', redirectTo: '404' },
+
 ];
