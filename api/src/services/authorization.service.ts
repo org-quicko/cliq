@@ -407,7 +407,7 @@ export class AuthorizationService {
 
         }
 
-        allow(['update', 'delete'], User, { userId: user.userId });
+        allow(['read', 'update', 'delete'], User, { userId: user.userId });
         allow('leave', Program);
 
         const ability = build({
