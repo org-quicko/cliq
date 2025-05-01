@@ -21,10 +21,11 @@
 			</mat-select>
 		</mat-form-field>
 
-		<mat-form-field [appearance]="'outline'" class="w-full mb-[-20px]">
+		<mat-form-field [appearance]="'outline'" class="w-full mb-[-20px]" (click)="reportStartEndPicker.open()">
 			<mat-label>Select date range</mat-label>
 			<mat-date-range-input
 				[rangePicker]="reportStartEndPicker"
+				[min]="minDate"
 				[comparisonStart]="reportForm.value.start"
 				[comparisonEnd]="reportForm.value.end"
 				(click)="reportStartEndPicker.open()"
