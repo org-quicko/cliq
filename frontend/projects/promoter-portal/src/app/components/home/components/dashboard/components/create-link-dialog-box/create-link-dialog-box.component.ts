@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { CreateLinkDto, PaginationOptions } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../../../store/program.store';
 import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/form-dialog-box.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
 	selector: 'app-create-link-dialog-box',
@@ -21,6 +22,7 @@ import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/fo
 		MatIconModule,
 		MatInputModule,
 		MatError,
+		CommonModule,
 		FormDialogBoxComponent
 	],
 	templateUrl: './create-link-dialog-box.component.html',
@@ -43,7 +45,7 @@ export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 		private dialogRef: MatDialogRef<CreateLinkDialogBoxComponent>,
 		@Inject(MAT_DIALOG_DATA) public data: { createLink: Function },
 	) {
-		this.createLinkForm.addValidators(this.validateLinkRefVal);
+		this.createLinkForm.get('linkRefVal')?.addValidators(this.validateLinkRefVal);
 	}
 
 	closeDialog(): void {

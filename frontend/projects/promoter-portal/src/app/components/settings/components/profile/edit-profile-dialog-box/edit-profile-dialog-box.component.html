@@ -8,20 +8,20 @@
 >
 	<!-- Form fields -->
 	<div class="flex flex-col gap-6">
-		<div class="flex flex-col">
-			<mat-form-field [appearance]="'outline'" class="w-full">
+		<div class="flex flex-col gap-5">
+			<mat-form-field [appearance]="'outline'" class="w-full" subscriptSizing="dynamic">
 				<mat-label>Email</mat-label>
 				<input type="text" matInput formControlName="email" class="w-full max-w-[468px]" required />
 			</mat-form-field>
 
 			<div class="flex gap-4">
-				<mat-form-field [appearance]="'outline'" class="w-1/2">
+				<mat-form-field [appearance]="'outline'" class="w-1/2" subscriptSizing="dynamic">
 					<mat-label>First Name</mat-label>
 					<input type="text" matInput formControlName="firstName" class="w-full max-w-[468px]"
 						required />
 				</mat-form-field>
 
-				<mat-form-field [appearance]="'outline'" class="w-1/2">
+				<mat-form-field [appearance]="'outline'" class="w-1/2" subscriptSizing="dynamic">
 					<mat-label>Last Name</mat-label>
 					<input type="text" matInput formControlName="lastName" class="w-full max-w-[468px]"
 						required />
@@ -29,12 +29,12 @@
 			</div>
 		</div>
 
-		<div class="flex flex-col gap-2">
-			<div class="mat-title-medium text-on-surface-variant">
+		<div class="flex flex-col gap-5">
+			<div class="mat-title-medium text-on-surface-variant font-semibold">
 				<span>Password</span>
 			</div>
 
-			<mat-form-field [appearance]="'outline'" class="w-full">
+			<mat-form-field [appearance]="'outline'" class="w-full" subscriptSizing="dynamic">
 				<mat-label>Current Password</mat-label>
 				<input [type]="hideCurrentPassword ? 'password': 'text'" matInput
 					formControlName="currentPassword" autocomplete="off" />
@@ -45,7 +45,7 @@
 				</button>
 			</mat-form-field>
 
-			<mat-form-field [appearance]="'outline'" class="w-full">
+			<mat-form-field [appearance]="'outline'" class="w-full" subscriptSizing="dynamic">
 				<mat-label>New Password</mat-label>
 				<input [type]="hideNewPassword ? 'password': 'text'" matInput formControlName="newPassword" />
 

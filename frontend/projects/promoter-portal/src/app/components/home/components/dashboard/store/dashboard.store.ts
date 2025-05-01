@@ -252,12 +252,6 @@ export const DashboardStore = signalStore(
 				)
 			),
 
-			copyLinkToClipboard(website: string, link: LinkAnalyticsRow) {
-				const fullLinkString = website + '?ref=' + link.getRefVal();
-				navigator.clipboard.writeText(fullLinkString);
-				snackbarService.openSnackBar('Link Copied!', '');
-			},
-
 			getPromoterStats: rxMethod<{ programId: string, promoterId: string }>(
 				pipe(
 					tap(() => patchState(store, {

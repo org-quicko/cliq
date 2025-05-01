@@ -25,6 +25,7 @@ import { NgxSkeletonLoaderComponent } from 'ngx-skeleton-loader';
 import { PromoterStore } from '../../../../store/promoter.store';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { DashboardStore, onCreateLinkSuccess, onDeleteLinkSuccess } from './store/dashboard.store';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 @Component({
 	selector: 'app-dashboard',
@@ -79,6 +80,7 @@ export class DashboardComponent implements OnInit {
 	readonly promoter = computed(() => this.promoterStore.promoter());
 	readonly programId = computed(() => this.programStore.program()!.programId);
 	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
+	readonly website = computed(() => this.programStore.program()!.website);
 
 
 	readonly totalLinkDataLength = computed(() => {
@@ -167,7 +169,7 @@ export class DashboardComponent implements OnInit {
 		},
 	];
 
-	constructor(private router: Router, private route: ActivatedRoute) {
+	constructor(private router: Router, private route: ActivatedRoute, private snackBarService: SnackbarService) {
 		effect(() => {
 			const linkRows = (this.dashboardStore.links().links?.getRows() ?? []) as LinkAnalyticsRow[];
 
@@ -210,7 +212,7 @@ export class DashboardComponent implements OnInit {
 		this.loadLinks();
 	}
 
-	loadLinks (isSorting: boolean = false) {
+	loadLinks(isSorting: boolean = false) {
 		const { pageIndex, pageSize } = this.paginationOptions();
 		const skip = pageIndex * pageSize;
 
@@ -317,9 +319,22 @@ export class DashboardComponent implements OnInit {
 		});
 	}
 
-	onCopyLink(row: any[]) {
+	copiedLinkId: string | null = null;
+
+	onCopyLink(event: MouseEvent, row: any[]) {
+		event.stopPropagation();
 		const link = this.convertToLinkStatsRow(row);
-		this.dashboardStore.copyLinkToClipboard(this.program()!.website, link);
+		// this.dashboardStore.copyLinkToClipboard(this.program()!.website, link);
+		const fullLinkString = this.website() + '?ref=' + link.getRefVal();
+
+		navigator.clipboard.writeText(fullLinkString).then(() => {
+			this.copiedLinkId = link.getLinkId(); // or row.linkId, anything unique
+			setTimeout(() => {
+				this.copiedLinkId = null;
+			}, 3000);
+		});
+
+		this.snackBarService.openSnackBar('Link Copied!', '');
 	}
 
 }
