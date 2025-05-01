@@ -176,14 +176,14 @@ export class ProgramService {
 	async isProgramPublic(programId: string): Promise<boolean> {
 		this.logger.info('START: isProgramPublic service');
 
-		const program = await this.programRepository.findOne({ 
-			where: {
-				programId,
-				visibility: visibilityEnum.PUBLIC
-			} 
-		});
+		const program = await this.programRepository.findOne({ where: { programId } });
 
-		const isPublic = (program === undefined || program === null);
+		if (!program) {
+			this.logger.error(`Error. Program ${programId} not found.`);
+			throw new NotFoundException(`Error. Program ${programId} not found.`);
+		}
+
+		const isPublic = program.visibility === visibilityEnum.PUBLIC;
 
 		this.logger.info('START: isProgramPublic service');
 		return isPublic;
