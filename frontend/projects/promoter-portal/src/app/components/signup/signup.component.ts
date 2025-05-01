@@ -93,7 +93,9 @@ export class SignUpComponent {
 	}
 
 	onClickContinueOnFirstScreen = () => {
-		this.signUpForm.markAllAsTouched();
+		const emailControl = this.signUpForm.get('email');
+  		emailControl?.markAsTouched();
+		
 		if (this.signUpForm.valid) {
 
 			const memberExists = new MemberExistsInProgramDto();

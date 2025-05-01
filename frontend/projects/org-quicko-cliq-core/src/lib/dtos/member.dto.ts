@@ -109,6 +109,7 @@ export class UpdateMemberDto implements Omit<CreateMemberDto, 'email' | 'passwor
 }
 
 export class SignUpMemberDto implements Omit<CreateMemberDto, 'role'> {
+	@required()
 	@prop()
 	@IsEmail()
 	email: string;
