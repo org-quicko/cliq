@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityNotFoundError, DataSource } from 'typeorm';
 import { SignUpUserDto, UpdateUserDto } from '../dtos';
@@ -44,7 +44,7 @@ export class UserService {
 
 			if (await this.getUserByEmail(body.email)) {
 				this.logger.error(`Error. Email ${body.email} already exists!`);
-				throw new BadRequestException(`Error. Email ${body.email} already exists!`);
+				throw new ConflictException(`Error. Email ${body.email} already exists!`);
 			}
 
 			const userEntity = this.userRepository.create(body);
@@ -62,7 +62,7 @@ export class UserService {
 		} catch (error) {
 			if (error instanceof Error) {
 				this.logger.error(error.message);
-				throw new InternalServerErrorException(error.message);
+				throw error;
 			}
 		}
 	}
