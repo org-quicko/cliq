@@ -215,7 +215,7 @@ export class PromoterService {
 
 			this.logger.info(`START: registerForProgram service`);
 	
-			const isPublic = !(await this.programService.isProgramPublic(programId));
+			const isPublic = await this.programService.isProgramPublic(programId);
 
 			const promoterRepository = manager.getRepository(Promoter);
 			const programPromoterRepository = manager.getRepository(ProgramPromoter);

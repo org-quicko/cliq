@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MemberConverter } from 'src/converters/member.converter';
 import { SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
-import { Member, PromoterMember } from 'src/entities';
+import { Member, Promoter, PromoterMember } from 'src/entities';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { memberRoleEnum, statusEnum } from 'src/enums';
@@ -211,30 +211,85 @@ export class MemberService {
 	 * Delete member
 	 */
 	async deleteMember(memberId: string) {
-		this.logger.info('START: deleteMember service');
-		const member = await this.memberRepository.findOne({
-			where: { memberId: memberId },
-			relations: {
-				promoterMembers: {
+		return this.datasource.transaction(async (manager) => {
+			this.logger.info('START: deleteMember service');
+
+			const memberRepository = manager.getRepository(Member);
+			const promoterRepository = manager.getRepository(Promoter);
+			const promoterMemberRepository = manager.getRepository(PromoterMember);
+
+			const member = await memberRepository.findOne({
+				where: { memberId: memberId },
+				relations: {
+					promoterMembers: {
+						promoter: true
+					}
+				}
+			});
+	
+			if (!member) {
+				this.logger.error(`Member ${memberId} does not exist`);
+				throw new Error(`Member ${memberId} does not exist.`);
+			}
+
+			const adminResult = await promoterMemberRepository.findOne({
+				where: {
+					memberId,
+					role: memberRoleEnum.ADMIN,
+				},
+				relations: {
 					promoter: true
 				}
+			});
+	
+			let canDelete = true;
+
+			// member isn't admin at all, can delete
+			if (!adminResult) {
+				canDelete = true;
 			}
+			else {
+				const promoter = adminResult.promoter;
+				const promoterAdmins = await promoterMemberRepository.find({
+					where: {
+						promoterId: promoter.promoterId,
+						role: memberRoleEnum.ADMIN
+					}
+				});
+				const promoterMembersResult = await promoterMemberRepository.find({
+					where: {
+						promoterId: promoter.promoterId
+					}
+				});
+	
+				// at least 1 more admin is present, can delete
+				if (promoterAdmins.length > 1) {
+					canDelete = true;
+				}
+
+				else if (promoterAdmins.length === 1) {
+					// the only member, thus can delete safely
+					if (promoterMembersResult.length === 1) {
+						canDelete = true;
+						promoter.status = promoterStatusEnum.ARCHIVED;
+
+						await promoterRepository.save(promoter);
+						await promoterRepository.update({ promoterId: promoter.promoterId }, {
+							updatedAt: () => `NOW()`,
+						});
+					} else {
+						// the only admin, thus cannot delete
+						canDelete = false;
+					}
+				}
+	
+			}
+	
+			if (canDelete) {
+				await memberRepository.remove(member);
+			}
+			this.logger.info('END: deleteMember service');
 		});
-
-		if (!member) {
-			this.logger.error(`Member ${memberId} does not exist`);
-			throw new Error(`Member ${memberId} does not exist.`);
-		}
-
-		const canDelete = await this.canDeleteAccount(memberId);
-
-		if (!canDelete) {
-			this.logger.error(`Error. Cannot delete account due to being the only admin in the promoter`);
-			throw new BadRequestException(`Error. Cannot delete account due to being the only admin in the promoter`);
-		}
-
-		await this.memberRepository.remove(member);
-		this.logger.info('END: deleteMember service');
 	}
 
 	async memberExistsInProgram(email: string, programId: string) {
@@ -304,49 +359,5 @@ export class MemberService {
 
 		this.logger.info(`END: getPromoterOfMember service`);
 		return promoterDto;
-	}
-
-	private async canDeleteAccount(memberId: string) {
-		this.logger.info(`START: canDeleteAccount service`);
-
-		const adminResult = await this.promoterMemberRepository.findOne({
-			where: {
-				memberId,
-				role: memberRoleEnum.ADMIN,
-			},
-			relations: {
-				promoter: true
-			}
-		});
-
-		let canDelete = true;
-
-		// member isn't admin at all, can delete
-		if (!adminResult) {
-			canDelete = true;
-		}
-		else {
-			const promoter = adminResult.promoter;
-			const promoterMemberResult = await this.promoterMemberRepository.find({
-				where: {
-					promoterId: promoter.promoterId,
-					role: memberRoleEnum.ADMIN
-				}
-			});
-
-			// at least 1 more admin is present, can delete
-			if (promoterMemberResult.length > 1) {
-				canDelete = true;
-			}
-
-			else if (promoterMemberResult.length === 1) {
-				// user is the admin, the only admin, thus cannot delete
-				canDelete = false;
-			}
-
-		}
-
-		this.logger.info(`END: canDeleteAccount service`);
-		return canDelete;
 	}
 }
