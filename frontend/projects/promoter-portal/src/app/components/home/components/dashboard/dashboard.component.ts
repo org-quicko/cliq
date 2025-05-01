@@ -21,11 +21,12 @@ import { MemberAbility, MemberAbilityTuple } from '../../../../permissions/abili
 import { TableRowStyling } from '../../../../interfaces';
 import { SkeletonLoadTableComponent } from "../../../common/skeleton-load-table/skeleton-load-table.component";
 import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
-import { NgxSkeletonLoaderComponent } from 'ngx-skeleton-loader';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { PromoterStore } from '../../../../store/promoter.store';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { DashboardStore, onCreateLinkSuccess, onDeleteLinkSuccess } from './store/dashboard.store';
 import { SnackbarService } from '@org.quicko/ngx-core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
 	selector: 'app-dashboard',
@@ -48,6 +49,7 @@ import { SnackbarService } from '@org.quicko/ngx-core';
 		SkeletonLoadTableComponent,
 		NgxSkeletonLoaderModule,
 		InfoDialogBoxComponent,
+		MatTooltipModule
 	],
 	providers: [DashboardStore],
 	templateUrl: './dashboard.component.html',
@@ -64,6 +66,7 @@ export class DashboardComponent implements OnInit {
 
 	readonly isLinksLoading = computed(() => this.dashboardStore.links().status === Status.LOADING);
 	readonly isStatisticsLoading = computed(() => this.dashboardStore.analytics().status === Status.LOADING);
+	readonly isMemberLoading = computed(() => this.memberStore.status() === Status.LOADING);
 
 	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
 	protected readonly can = this.abilityService.can;
@@ -82,6 +85,12 @@ export class DashboardComponent implements OnInit {
 	readonly promoterId = computed(() => this.promoterStore.promoter()!.promoterId);
 	readonly website = computed(() => this.programStore.program()!.website);
 
+	tooltips = new Map<string, string>([
+		['commissions', 'What you earn for every successful signup or purchase'],
+		['revenue', 'The total value driven through all your links'],
+		['signups', 'The number of people who signed up using your links'],
+		['purchases', 'The number of purchases made using your links'],
+	]);
 
 	readonly totalLinkDataLength = computed(() => {
 		const metadata = this.dashboardStore.links().links?.getMetadata();
@@ -324,7 +333,7 @@ export class DashboardComponent implements OnInit {
 	onCopyLink(event: MouseEvent, row: any[]) {
 		event.stopPropagation();
 		const link = this.convertToLinkStatsRow(row);
-		// this.dashboardStore.copyLinkToClipboard(this.program()!.website, link);
+
 		const fullLinkString = this.website() + '?ref=' + link.getRefVal();
 
 		navigator.clipboard.writeText(fullLinkString).then(() => {

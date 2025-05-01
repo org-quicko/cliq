@@ -8,7 +8,21 @@
 			<!-- Dashboard welcome header -->
 			<div class="w-full justify-between">
 				<span class="text-on-surface mat-title-large">
-					Welcome to your dashboard, {{ memberStore.member()?.firstName }}
+					Welcome to your dashboard,
+					@if (isMemberLoading()) {
+					<ngx-skeleton-loader
+						class="inline-block"
+						[theme]="{
+							width: '200px',
+							height: '22px',
+							'margin-bottom': '-2px',
+							'margin-left': '10px',
+						}"
+					/>
+					}
+					@else {
+					{{ memberStore.member()?.firstName }}
+					}
 				</span>
 			</div>
 
@@ -29,7 +43,13 @@
 							}" />
 							}
 							@else {
-							<span>Total Commission</span>
+							<span
+								[matTooltip]="tooltips.get('commissions')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Total Commission
+							</span>
 							}
 						</div>
 						<div class="w-[109px] h-10 mat-headline-large text-secondary">
@@ -57,7 +77,13 @@
 									}" />
 							}
 							@else {
-							<span>Total Revenue</span>
+							<span
+								[matTooltip]="tooltips.get('revenue')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Total Revenue
+							</span>
 							}
 						</div>
 						<div class="w-[109px] h-10 mat-title-large text-on-surface">
@@ -87,7 +113,13 @@
 								}" />
 							}
 							@else {
-							<span>Signups</span>
+							<span
+								[matTooltip]="tooltips.get('signups')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Signups
+							</span>
 							}
 						</div>
 						<div class="w-[78px] h-6 mat-title-large text-on-surface">
@@ -113,7 +145,13 @@
 								}" />
 							}
 							@else {
-							<span>Purchase</span>
+							<span
+								[matTooltip]="tooltips.get('purchases')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Purchase
+							</span>
 							}
 						</div>
 						<div class="w-[78px] h-6 mat-title-large text-on-surface">
@@ -179,7 +217,6 @@
 											<span class="text-on-surface">
 												{{ convertToLinkStatsRow(row).getRefVal() }}
 											</span>
-
 										</div>
 										<mat-icon
 											class="ml-1 text-on-surface text-base opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-pointer"
