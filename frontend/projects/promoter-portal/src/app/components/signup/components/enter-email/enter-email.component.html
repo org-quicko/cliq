@@ -10,6 +10,10 @@
 		<mat-form-field [appearance]="'outline'" class="w-full">
 			<mat-label>Email</mat-label>
 			<input matInput formControlName="email" type="email" required>
+
+			<mat-error *ngIf="signUpForm.get('email')?.hasError('required') && signUpForm.get('email')?.touched">
+				Email is required
+			</mat-error>
 		</mat-form-field>
 	</div>
 
@@ -22,13 +26,8 @@
 
 		<!-- Sign Up Link -->
 		<p class="text-center text-on-surface mt-4">
-			Already have an account? <a
-				routerLink="../login"
-				routerLinkActive
-				#signup="routerLinkActive"
-				class="text-primary font-semibold"
-
-			>  Login</a>
+			Already have an account? <a routerLink="../login" routerLinkActive #signup="routerLinkActive"
+				class="text-primary font-semibold"> Login</a>
 		</p>
 	</div>
 </form>

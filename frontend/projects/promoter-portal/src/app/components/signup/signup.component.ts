@@ -4,7 +4,7 @@ import { AccountsContainerComponent } from "../../components/accounts-container/
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -31,6 +31,7 @@ export enum signUpScreens {
 		MatButtonModule,
 		MatSnackBarModule,
 		MatIconModule,
+		MatError,
 		CommonModule,
 		AccountsContainerComponent,
 		EnterEmailComponent,
@@ -92,6 +93,7 @@ export class SignUpComponent {
 	}
 
 	onClickContinueOnFirstScreen = () => {
+		this.signUpForm.markAllAsTouched();
 		if (this.signUpForm.valid) {
 
 			const memberExists = new MemberExistsInProgramDto();
@@ -105,13 +107,12 @@ export class SignUpComponent {
 	}
 
 	onClickContinueOnSecondScreen = () => {
-		if (this.signUpForm.valid) {
 
+		if (this.signUpForm.valid) {
 			this.signUpStore.signUp({
 				createdMember: this.member,
 				programId: this.programId(),
 			});
-			// this.router.navigate(['../tnc'], { relativeTo: this.route });
 		}
 	}
 }
