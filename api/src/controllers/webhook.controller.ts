@@ -31,7 +31,7 @@ export class WebhookController {
     @ApiResponse({ status: 201, description: 'Created' })
     @Permissions('create', Webhook)
     @Post()
-    async createWebhook(@Headers('program_id') programId: string, @Body() body: CreateWebhookDto) {
+    async createWebhook(@Param('program_id') programId: string, @Body() body: CreateWebhookDto) {
         this.logger.info(`START: createWebhook controller`);
         
         const result = await this.webhookService.createWebhook(programId, body);
@@ -43,7 +43,7 @@ export class WebhookController {
     @ApiResponse({ status: 200, description: 'OK' })
     @Permissions('read_all', Webhook)
     @Get()
-    async getAllWebhooks(@Headers('program_id') programId: string) {
+    async getAllWebhooks(@Param('program_id') programId: string) {
         this.logger.info(`START: getAllWebhooks controller`);
 
         const result = await this.webhookService.getAllWebhooks(programId);
@@ -56,7 +56,7 @@ export class WebhookController {
     @ApiResponse({ status: 200, description: 'OK' })
     @Permissions('read', Webhook)
     @Get(':webhook_id')
-    async getWebhook(@Headers('program_id') programId: string, @Param('webhook_id') webhookId: string) {
+    async getWebhook(@Param('program_id') programId: string, @Param('webhook_id') webhookId: string) {
         this.logger.info(`START: getWebhook controller`);
         
         const result = await this.webhookService.getWebhook(programId, webhookId);
@@ -69,7 +69,7 @@ export class WebhookController {
     @Permissions('update', Webhook)
     @Patch(':webhook_id')
     async updateWebhook(
-        @Headers('program_id') programId: string, 
+        @Param('program_id') programId: string, 
         @Param('webhook_id') webhookId: string,
         @Body() body: UpdateWebhookDto
     ) {
@@ -84,7 +84,7 @@ export class WebhookController {
     @ApiResponse({ status: 204, description: 'No Content' })
     @Permissions('delete', Webhook)
     @Delete(':webhook_id')
-    async deleteWebhook(@Headers('program_id') programId: string, @Param('webhook_id') webhookId: string) {
+    async deleteWebhook(@Param('program_id') programId: string, @Param('webhook_id') webhookId: string) {
         this.logger.info(`START: deleteWebhook controller`);
 
         await this.webhookService.deleteWebhook(programId, webhookId);
