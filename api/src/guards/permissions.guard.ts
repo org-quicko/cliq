@@ -73,6 +73,7 @@ export class PermissionsGuard implements CanActivate {
 
 		try {
 			const subjectObjects = await this.authorizationService.getSubjects(
+				entityType,
 				request,
 				requiredPermissions,
 			);

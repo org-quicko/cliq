@@ -122,6 +122,7 @@ export class AuthorizationService {
     }
 
     async getSubjects(
+        entityType: 'User' | 'Member' | 'Api User',
         request: Request,
         requiredPermissions: { action: actionsType; subject: subjectsType }[],
     ) {
@@ -233,16 +234,11 @@ export class AuthorizationService {
                 } else if (subject === ApiKey) {
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } else if (subject === ReferralView) {
-                    if (action === 'read_all') return subject;
-
-                    if (!subjectProgramId && !subjectPromoterId) {
-                        throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
+                    if (entityType === 'Member') {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
+                        return this.checkIfUserIsPartOfProgram(request, subject);
                     }
-
-                    return this.referralService.getFirstReferral(
-                        subjectProgramId,
-                        subjectPromoterId,
-                    );
                 } else if (subject === PromoterAnalyticsView) {
                     if (!subjectProgramId && !subjectPromoterId) {
                         throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
@@ -253,13 +249,23 @@ export class AuthorizationService {
                         subjectPromoterId,
                     );
                 } else if (subject === Commission) {
-                    return this.checkIfUserIsPartOfProgram(request, subject);
+                    if (entityType === 'Member') {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
+                        return this.checkIfUserIsPartOfProgram(request, subject);
+                    }
                 } else if (subject === SignUp) {
-                    return this.checkIfUserIsPartOfProgram(request, subject);
-
+                    if (entityType === 'Member') {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
+                        return this.checkIfUserIsPartOfProgram(request, subject);
+                    }
                 } else if (subject === Purchase) {
-                    return this.checkIfUserIsPartOfProgram(request, subject);
-
+                    if (entityType === 'Member') {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
+                        return this.checkIfUserIsPartOfProgram(request, subject);
+                    }
                 } else if (subject === Webhook) {
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } else if (subject === LinkAnalyticsView) {
