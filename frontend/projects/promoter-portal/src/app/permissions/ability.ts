@@ -23,8 +23,7 @@ export function defineMemberAbilities(role: memberRoleEnum): MemberAbility {
 	allow(['read', 'read_all'], [LinkDto, ReferralDto, CommissionDto, MemberDto, PromoterMemberDto]);
 
 	forbid(['create', 'delete'], LinkDto).because('Only editors and admin can manage links');
-	forbid('invite_member', PromoterMemberDto).because('Only editors and admin can add members');
-	forbid('remove_member', PromoterMemberDto).because('Only admin can remove members');
+	forbid(['invite_member', 'remove_member'], PromoterMemberDto).because('Only admin can add or remove members');
 	forbid('change_role', PromoterMemberDto).because('Only admin can change member role');
 	forbid('update', PromoterDto).because('Only editors and admin can update promoter details');
 	forbid('delete', PromoterDto).because('Only admin can delete promoter');
@@ -32,7 +31,6 @@ export function defineMemberAbilities(role: memberRoleEnum): MemberAbility {
 	if (role === memberRoleEnum.EDITOR) {
 		allow('manage', LinkDto);
 		allow('update', PromoterDto);
-		allow('invite_member', PromoterMemberDto);
 
 	} else if (role === memberRoleEnum.ADMIN) {
 		allow('manage', [LinkDto, PromoterDto, PromoterMemberDto]);
