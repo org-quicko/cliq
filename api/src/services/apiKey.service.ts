@@ -13,7 +13,7 @@ import { LoggerService } from './logger.service';
 import { statusEnum } from '../enums';
 import { ProgramService } from './program.service';
 import { ApiKeyConverter } from '../converters/apiKey.converter';
-import { UpdateApiKeyDto } from 'src/dtos';
+import { UpdateApiKeyDto } from '../dtos';
 
 @Injectable()
 export class ApiKeyService {
@@ -28,17 +28,8 @@ export class ApiKeyService {
 		private logger: LoggerService,
 	) {}
 
-	async generateKey(programId: string, userId: string) {
+	async generateKey(programId: string) {
 		this.logger.info(`START: generateKey service`);
-
-		if (
-			!this.programService.checkIfUserExistsInProgram(programId, userId)
-		) {
-			this.logger.error(
-				`User ${userId} does not have permission to perform this action! Not part of this program!`,
-			);
-			throw new ForbiddenException(`Forbidden Resource`);
-		}
 
 		const key = crypto.randomBytes(16).toString('hex');
 		const secret = crypto.randomBytes(32).toString('hex');

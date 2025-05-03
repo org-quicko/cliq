@@ -38,14 +38,9 @@ export class FunctionService {
 	/**
 	 * Create function
 	 */
-	async createFunction(userId: string, programId: string, body: CreateFunctionDto) {
+	async createFunction(programId: string, body: CreateFunctionDto) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: createFunction service');
-
-			if (!await this.programService.checkIfUserExistsInProgram(programId, userId)) {
-				this.logger.error(`User does not have permission to perform this action! Not part of this program!`);
-				throw new UnauthorizedException(`User does not have permission to perform this action! Not part of this program!`);
-			}
 
 			const programResult = await this.programService.getProgramEntity(programId);
 
@@ -100,7 +95,6 @@ export class FunctionService {
 	 * Get all functions
 	 */
 	async getAllFunctions(
-		userId: string,
 		programId: string,
 		whereOptions: FindOptionsWhere<Function> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
@@ -109,11 +103,6 @@ export class FunctionService {
 
 		// will throw error in case the program doesn't exist
 		await this.programService.getProgramEntity(programId);
-
-		if (!(await this.programService.checkIfUserExistsInProgram(programId, userId))) {
-			this.logger.error(`Error. User ${userId} is not part of Program ${programId}`);
-			throw new ForbiddenException(`Forbidden. User ${userId} is not part of Program ${programId}`);
-		}
 
 		const functionsResult = await this.functionRepository.find({
 			where: {

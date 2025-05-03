@@ -37,6 +37,7 @@ import { snakeCaseToHumanReadable } from 'src/utils';
 import { CircleService } from './circle.service';
 import { ProgramWorkbook } from 'generated/sources/Program';
 import { ReferralConverter } from 'src/converters/referral.converter';
+import { subjectsType } from 'src/types';
 
 @Injectable()
 export class ProgramService {
@@ -113,18 +114,22 @@ export class ProgramService {
 	/**
 	 * Get all programs
 	 */
-	async getAllPrograms(whereOptions: FindOptionsWhere<Program> = {}, queryOptions: QueryOptionsInterface = defaultQueryOptions) {
+	async getAllPrograms(userId: string, whereOptions: FindOptionsWhere<Program> = {}, queryOptions: QueryOptionsInterface = defaultQueryOptions) {
 		this.logger.info('START: getAllPrograms service');
 
 		const programResult = await this.programRepository.find({
 			where: {
-				...whereOptions
+				programUsers: {
+					userId
+				},
+				...whereOptions,
 			},
 			...queryOptions
-		})
+		});
+		const programsDto = programResult.map(program => this.programConverter.convert(program));
 
 		this.logger.info('END: getAllPrograms service');
-		return programResult;
+		return programsDto;
 	}
 
 	/**
@@ -250,10 +255,12 @@ export class ProgramService {
 				newUser = await userRepository.save(newUser);
 			} else {
 				// does program-user relation exist?
-				const programUserResult = await this.checkIfUserExistsInProgram(
-					programId,
-					user.userId,
-				);
+				const programUserResult = await this.programUserRepository.findOne({
+					where: {
+						programId,
+						userId: user.userId
+					}
+				});
 
 				if (programUserResult) {
 					// if it does, is status active?
@@ -354,10 +361,12 @@ export class ProgramService {
 	) {
 		this.logger.info('START: updateRole service');
 
-		const programUserResult = await this.checkIfUserExistsInProgram(
-			programId,
-			userId,
-		);
+		const programUserResult = await this.programUserRepository.findOne({
+			where: {
+				programId,
+				userId
+			}
+		});
 
 		if (!programUserResult) {
 			this.logger.error(`Error. User ${userId} of Program ${programId} not found.`);
@@ -380,10 +389,12 @@ export class ProgramService {
 		// will throw error in case program doesn't exist
 		await this.getProgramEntity(programId);
 
-		const programUserResult = await this.checkIfUserExistsInProgram(
-			programId,
-			userId,
-		);
+		const programUserResult = await this.programUserRepository.findOne({
+			where: {
+				programId,
+				userId
+			}
+		});
 
 		if (!programUserResult) {
 			this.logger.error(`Error. User ${userId} not found in Program ${programId}.`);
@@ -423,12 +434,17 @@ export class ProgramService {
 		return programUserResult;
 	}
 
-	async checkIfUserExistsInProgram(programId: string, userId: string) {
+	async checkIfUserExistsInProgram(userId: string, programId: string, subject: subjectsType) {
+		this.logger.info('START: checkIfUserExistsInProgram service');
 		const programUserResult = await this.programUserRepository.findOne({
-			where: { programId, userId },
+			where: { 
+				programId, 
+				userId 
+			},
 		});
-
-		return programUserResult;
+		
+		this.logger.info('START: checkIfUserExistsInProgram service');
+		return programUserResult === null ? programUserResult : subject;
 	}
 
 	/**
@@ -476,7 +492,7 @@ export class ProgramService {
 		this.logger.info(`START: getSignUpsInProgram service`);
 
 		// will throw error if user isn't in the program
-		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
 			this.logger.error(
 				`User does not have permission to perform this action! Not part of this program!`,
 			);
@@ -522,7 +538,7 @@ export class ProgramService {
 	) {
 		this.logger.info(`START: getPurchasesInProgram service`);
 
-		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
 			this.logger.error(
 				`User does not have permission to perform this action! Not part of this program!`,
 			);
@@ -578,7 +594,7 @@ export class ProgramService {
 		this.logger.info(`START: getAllCommissions service`);
 
 		// will throw error if user isn't in the program
-		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
 			this.logger.error(
 				`User does not have permission to perform this action! Not part of this program!`,
 			);
@@ -622,7 +638,7 @@ export class ProgramService {
 		// will throw error in case program doesn't exist
 		await this.getProgramEntity(programId);
 
-		if (!(await this.checkIfUserExistsInProgram(programId, userId))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
 			throw new UnauthorizedException();
 		}
 

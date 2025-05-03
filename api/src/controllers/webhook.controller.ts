@@ -10,17 +10,17 @@ import {
     Headers
 } from "@nestjs/common";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Permissions } from "src/decorators/permissions.decorator";
-import { Webhook } from "src/entities";
-import { AuthGuard } from "src/guards/auth.guard";
-import { WebhookService } from "src/services/webhook.service";
-import { CreateWebhookDto, UpdateWebhookDto } from "src/dtos";
-import { LoggerService } from "src/services/logger.service";
-import { ApiKeyGuard } from "src/guards/apiKey.guard";
+import { Permissions } from "../decorators/permissions.decorator";
+import { Webhook } from "../entities";
+import { AuthGuard } from "../guards/auth.guard";
+import { WebhookService } from "../services/webhook.service";
+import { CreateWebhookDto, UpdateWebhookDto } from "../dtos";
+import { LoggerService } from "../services/logger.service";
+import { PermissionsGuard } from "../guards/permissions.guard";
 
 @ApiTags('Webhooks')
-@UseGuards(AuthGuard, ApiKeyGuard)
-@Controller('webhooks')
+@UseGuards(AuthGuard, PermissionsGuard)
+@Controller('programs/:program_id/webhooks')
 export class WebhookController {
     constructor(
         private readonly webhookService: WebhookService,

@@ -26,14 +26,12 @@ export class FunctionController {
 	@Permissions('create', Function)
 	@Post()
 	async createFunction(
-		@Headers('user_id') userId: string,
 		@Param('program_id') programId: string,
 		@Body() body: CreateFunctionDto,
 	) {
 		this.logger.info('START: createFunction controller');
 
 		const result = await this.functionService.createFunction(
-			userId,
 			programId,
 			body,
 		);
@@ -49,7 +47,6 @@ export class FunctionController {
 	@Permissions('read_all', Function)
 	@Get()
 	async getAllFunctions(
-		@Headers('user_id') userId: string,
 		@Param('program_id') programId: string,
 		@Query('circle_name') name: string,
 		@Query('trigger') trigger: triggerEnum,
@@ -60,7 +57,6 @@ export class FunctionController {
 		this.logger.info('START: getAllFunctions controller');
 
 		const result = await this.functionService.getAllFunctions(
-			userId,
 			programId,
 			{
 				name,

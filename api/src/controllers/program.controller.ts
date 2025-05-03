@@ -61,12 +61,13 @@ export class ProgramController {
   }
 
   /**
-   * Get all programs
+   * Get all programs that the user is part of.
    */
   @ApiResponse({ status: 200, description: 'OK' })
   @Permissions('read_all', Program)
   @Get()
   async getAllPrograms(
+    @Headers('user_id') userId: string,
     @Query('name') name: string,
     @Query('visibility') visibility: visibilityEnum,
     @Query('skip') skip: number = 0,
@@ -75,6 +76,7 @@ export class ProgramController {
     this.logger.info('START: getAllPrograms controller');
 
     const result = await this.programService.getAllPrograms(
+      userId,
       {
         name,
         visibility
@@ -85,14 +87,13 @@ export class ProgramController {
       });
 
     this.logger.info('END: getAllPrograms controller');
-    return { message: 'Successfully fetched all programs.', result };
+    return { message: `Successfully fetched all programs of user ${userId}.`, result };
   }
 
   /**
    * Get program
    */
   @ApiResponse({ status: undefined, description: '' })
-  // @Permissions('read', Program)
   @SkipAuth()
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {

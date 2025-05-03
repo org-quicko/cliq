@@ -24,12 +24,11 @@ export class ApiKeyController {
 	@Permissions('create', ApiKey)
 	@Post()
 	async generateKey(
-		@Headers('user_id') userId: string,
 		@Param('program_id') programId: string,
 	) {
 		this.logger.info(`START: generateKey controller`);
 
-		const result = await this.apiKeyService.generateKey(programId, userId);
+		const result = await this.apiKeyService.generateKey(programId);
 
 		this.logger.info(`END: generateKey controller`);
 		return {
