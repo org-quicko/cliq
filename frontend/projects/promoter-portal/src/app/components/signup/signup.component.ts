@@ -15,6 +15,7 @@ import { SnackbarService } from '@org.quicko/ngx-core';
 import { ProgramStore } from '../../store/program.store';
 import { EnterPersonalAndPromoterDetailsComponent } from './components/enter-personal-and-promoter-details/enter-personal-and-promoter-details.component';
 import { EnterEmailComponent } from './components/enter-email/enter-email.component';
+import { LogoComponent } from '../common/logo/logo.component';
 
 export enum signUpScreens {
 	ENTER_EMAIL = 'enter-email',
@@ -35,6 +36,7 @@ export enum signUpScreens {
 		AccountsContainerComponent,
 		EnterEmailComponent,
 		EnterPersonalAndPromoterDetailsComponent,
+		LogoComponent,
 	],
 	providers: [SignUpStore],
 	templateUrl: './signup.component.html',

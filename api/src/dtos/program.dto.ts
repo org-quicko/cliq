@@ -26,6 +26,10 @@ export class ProgramDto {
 	@IsString()
 	currency: string;
 
+	@Expose({ name: 'logo_url' })
+	@IsUrl()
+	logoUrl: string;
+
 	@Expose({ name: 'terms_and_conditions' })
 	@IsString()
 	termsAndConditions: string;
@@ -59,6 +63,11 @@ export class CreateProgramDto {
 	@IsString()
 	currency: string;
 
+	@IsOptional()
+	@Expose({ name: 'logo_url' })
+	@IsUrl()
+	logoUrl?: string;
+
 	@IsString()
 	@IsUrl({}, { message: 'website url is invalid' })
 	website: string;
@@ -74,7 +83,6 @@ export class CreateProgramDto {
 	@Expose({ name: 'theme_color' })
 	@IsString()
 	themeColor?: string;
-	
 	
 	@IsOptional()
 	@Expose({ name: 'terms_and_conditions' })
@@ -99,6 +107,11 @@ export class UpdateProgramDto {
 	@IsOptional()
 	@IsString()
 	currency?: string;
+
+	@IsOptional()
+	@Expose({ name: 'logo_url' })
+	@IsUrl()
+	logoUrl?: string;
 
 	@IsOptional()
 	@IsUrl({}, { message: 'website url is invalid' })

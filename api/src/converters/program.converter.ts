@@ -26,6 +26,7 @@ export class ProgramConverter {
 		programDto.themeColor = program.themeColor;
 		programDto.visibility = program.visibility;
 		programDto.currency = program.currency;
+		programDto.logoUrl = program.logoUrl;
 		programDto.dateFormat = program.dateFormat;
 		programDto.timeZone = program.timeZone;
 		programDto.referralKeyType = program.referralKeyType;

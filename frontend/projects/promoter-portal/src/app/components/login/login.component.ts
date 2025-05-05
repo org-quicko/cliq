@@ -14,6 +14,7 @@ import { MemberDto } from '../../../../../org-quicko-cliq-core/src/lib/dtos';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
 import { ProgramStore } from '../../store/program.store';
 import { SnackbarService } from '@org.quicko/ngx-core';
+import { LogoComponent } from '../common/logo/logo.component';
 
 @Component({
 	selector: 'app-login',
@@ -29,6 +30,7 @@ import { SnackbarService } from '@org.quicko/ngx-core';
 		RouterLinkActive,
 		RouterLink,
 		AccountsContainerComponent,
+		LogoComponent,
 	],
 	providers: [LogInStore],
 	templateUrl: './login.component.html',

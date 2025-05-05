@@ -1,4 +1,4 @@
-import { IsString, IsEnum, IsOptional, IsUUID, IsDate } from 'class-validator';
+import { IsString, IsEnum, IsOptional, IsUUID, IsDate, IsUrl } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
 
@@ -16,6 +16,11 @@ export class ProgramDto {
 	@IsOptional()
 	@IsEnum(visibilityEnum)
 	visibility: visibilityEnum;
+
+	@IsOptional()
+	@Expose({ name: 'logo_url' })
+	@IsUrl()
+	logoUrl: string;
 
 	@Expose({ name: 'referral_key_type' })
 	@IsEnum(referralKeyTypeEnum)
@@ -63,6 +68,11 @@ export class CreateProgramDto {
 	@IsEnum(visibilityEnum)
 	visibility: visibilityEnum;
 
+	@IsOptional()
+	@Expose({ name: 'logo_url' })
+	@IsUrl()
+	logoUrl?: string;
+
 	@Expose({ name: 'terms_and_conditions' })
 	@IsString()
 	termsAndConditions: string;
@@ -103,6 +113,11 @@ export class UpdateProgramDto {
 	@Expose({ name: 'theme_color' })
 	@IsString()
 	themeColor?: string;
+
+	@IsOptional()
+	@Expose({ name: 'logo_url' })
+	@IsUrl()
+	logoUrl?: string;
 
 	@IsOptional()
 	@Expose({ name: 'terms_and_conditions' })

@@ -37,6 +37,9 @@ export class Program {
 	@Column('enum', { name: 'referral_key_type', enum: referralKeyTypeEnum })
 	referralKeyType: referralKeyTypeEnum;
 
+	@Column('varchar', { name: 'logo_url', nullable: true })
+	logoUrl: string;
+
 	@Column('varchar', { name: 'theme_color', default: '' })
 	themeColor: string;
 
