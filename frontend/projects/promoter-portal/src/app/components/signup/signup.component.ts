@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { onSignUpError, onSignUpSuccess, SignUpStore } from './store/signup.store';
-import { TempLogoComponent } from '../temp-logo/temp-logo.component';
 import { CreatePromoterDto, MemberExistsInProgramDto, SignUpMemberDto, Status } from '@org.quicko.cliq/ngx-core';
 import { SnackbarService } from '@org.quicko/ngx-core';
 import { ProgramStore } from '../../store/program.store';
@@ -36,7 +35,6 @@ export enum signUpScreens {
 		AccountsContainerComponent,
 		EnterEmailComponent,
 		EnterPersonalAndPromoterDetailsComponent,
-		TempLogoComponent,
 	],
 	providers: [SignUpStore],
 	templateUrl: './signup.component.html',
@@ -95,7 +93,7 @@ export class SignUpComponent {
 	onClickContinueOnFirstScreen = () => {
 		const emailControl = this.signUpForm.get('email');
   		emailControl?.markAsTouched();
-		
+
 		if (this.signUpForm.valid) {
 
 			const memberExists = new MemberExistsInProgramDto();

@@ -1,11 +1,10 @@
 import { Component, computed, inject } from '@angular/core';
 import { ProfileComponent } from './profile/profile.component';
 import { ProgramStore } from '../../../store/program.store';
-import { TempLogoComponent } from "../../temp-logo/temp-logo.component";
 
 @Component({
 	selector: 'app-header',
-	imports: [ProfileComponent, TempLogoComponent],
+	imports: [ProfileComponent],
 	templateUrl: './header.component.html',
 	styleUrl: './header.component.scss'
 })

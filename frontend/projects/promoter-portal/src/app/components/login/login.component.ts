@@ -12,7 +12,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LogInStore, onSignInError, onSignInSuccess } from './store/login.store';
 import { MemberDto } from '../../../../../org-quicko-cliq-core/src/lib/dtos';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
-import { TempLogoComponent } from "../temp-logo/temp-logo.component";
 import { ProgramStore } from '../../store/program.store';
 import { SnackbarService } from '@org.quicko/ngx-core';
 
@@ -30,7 +29,6 @@ import { SnackbarService } from '@org.quicko/ngx-core';
 		RouterLinkActive,
 		RouterLink,
 		AccountsContainerComponent,
-		TempLogoComponent
 	],
 	providers: [LogInStore],
 	templateUrl: './login.component.html',
