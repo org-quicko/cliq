@@ -8,7 +8,7 @@ import { NgClass } from '@angular/common';
 	templateUrl: './logo.component.html',
 	styleUrl: './logo.component.scss'
 })
-export class LogoComponent implements OnInit {
+export class LogoComponent {
 	@Input({ required: false }) imgClass?: string;
 	@Input({ required: false }) nameClass?: string;
 
@@ -17,7 +17,4 @@ export class LogoComponent implements OnInit {
 	readonly programName = computed(() => this.programStore.program()?.name);
 	readonly programLogoUrl = computed(() => this.programStore.program()?.logoUrl);
 
-	ngOnInit(): void {
-		console.log(this.programStore.program());
-	}
 }
