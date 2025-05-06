@@ -1,5 +1,5 @@
 # building the frontend
-FROM node:22 AS frontend-build
+FROM node:22-alpine AS frontend-build
 
 WORKDIR /app/frontend
 
@@ -13,7 +13,7 @@ RUN npm run build:core-lib
 RUN npm run build -- --project=promoter-portal
 
 # building the backend
-FROM node:22 AS backend-build
+FROM node:22-alpine AS backend-build
 
 WORKDIR /app/backend
 
