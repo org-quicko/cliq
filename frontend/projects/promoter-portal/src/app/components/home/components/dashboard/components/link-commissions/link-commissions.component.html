@@ -36,7 +36,7 @@
 				}
 				@else {
 				<div class="relative group max-w-full">
-					<div class="flex items-center whitespace-nowrap">
+					<div class="flex items-center whitespace-nowrap cursor-pointer" (click)="onCopyLink($event)">
 						<span
 							class="mat-body-large text-on-surface-variant overflow-hidden text-ellipsis hover:underline hover:underline-offset-2 hover:decoration-dotted"
 							(click)="onCopyLink($event)"
