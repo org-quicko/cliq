@@ -20,6 +20,7 @@ import { SkeletonLoadTableComponent } from '../../../../../common/skeleton-load-
 import { PromoterStore } from '../../../../../../store/promoter.store';
 import { LabelChipComponent } from '../../../../../common/label-chip/label-chip.component';
 import { NgxSkeletonLoaderComponent, NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { SnackbarService } from '@org.quicko/ngx-core';
 
 @Component({
 	selector: 'app-link-commissions',
@@ -136,7 +137,7 @@ export class LinkCommissionsComponent implements OnInit {
 		},
 	];
 
-	constructor(private router: Router, private route: ActivatedRoute) {
+	constructor(private router: Router, private route: ActivatedRoute, private snackBarService: SnackbarService) {
 		effect(() => {
 			const linkCommissions = (this.linkCommissionsStore.commissions()?.getRows() ?? []) as CommissionRow[];
 			const { pageIndex, pageSize } = this.paginationOptions();
@@ -216,5 +217,22 @@ export class LinkCommissionsComponent implements OnInit {
 
 	convertToCommissionRow(row: any[]) {
 		return new CommissionRow(row);
+	}
+
+	copiedLink: boolean = false;
+
+	onCopyLink(event: MouseEvent) {
+		event.stopPropagation();
+
+		const fullLinkString = this.program()?.website + '?ref=' + this.link()?.refVal;
+
+		navigator.clipboard.writeText(fullLinkString).then(() => {
+			this.copiedLink = true; // or row.linkId, anything unique
+			setTimeout(() => {
+				this.copiedLink = false;
+			}, 3000);
+		});
+
+		this.snackBarService.openSnackBar('Link Copied!', '');
 	}
 }

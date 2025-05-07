@@ -14,15 +14,12 @@
 				<h3 class="text-on-surface mat-headline-medium flex items-center">
 					Commissions for
 					@if (isLoading()) {
-					<ngx-skeleton-loader
-						class="inline-block"
-						[theme]="{
+					<ngx-skeleton-loader class="inline-block" [theme]="{
 							width: '200px',
 							height: '30px',
 							'margin-bottom': '-5px',
 							'margin-left': '10px',
-						}"
-					/>
+						}" />
 					}
 					@else {
 					{{ link()?.name }}
@@ -31,16 +28,30 @@
 			</div>
 			<div>
 				@if (isLoading()) {
-				<ngx-skeleton-loader
-					[theme]="{
+				<ngx-skeleton-loader [theme]="{
 						width: '430px',
 						height: '20px',
 						class: 'inline-block'
-					}"
-				/>
+					}" />
 				}
 				@else {
-				<span class="mat-body-large text-on-surface-variant">{{ fullLinkString() }}</span>
+				<div class="relative group max-w-full">
+					<div class="flex items-center whitespace-nowrap">
+						<span
+							class="mat-body-large text-on-surface-variant overflow-hidden text-ellipsis hover:underline hover:underline-offset-2 hover:decoration-dotted"
+							(click)="onCopyLink($event)"
+						>
+							{{ fullLinkString() }}
+						</span>
+						<mat-icon
+							class="ml-1 text-on-surface text-base opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-pointer"
+							(click)="onCopyLink($event)"
+						>
+							{{ copiedLink ? 'check' : 'content_copy' }}
+						</mat-icon>
+
+					</div>
+				</div>
 				}
 			</div>
 		</div>
@@ -66,39 +77,34 @@
 
 	<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
 		@if (isLoading()) {
-			<app-skeleton-load-table
-			[maxHeight]="'548px'"
-			[rowCount]="5"
-			headerClass="flex gap-5 px-4"
-			rowClass="flex gap-5 px-4"
-			[headers]="headersStyling"
-			[rows]="rowsStyling"
-		/>
+		<app-skeleton-load-table [maxHeight]="'548px'" [rowCount]="5" headerClass="flex gap-5 px-4"
+			rowClass="flex gap-5 px-4" [headers]="headersStyling" [rows]="rowsStyling" />
 		}
 		@else {
 		<table mat-table matSort [dataSource]="dataSource" class="w-full h-auto max-h-[548px] bg-transparent"
-			[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction" (matSortChange)="onSortChange($event)" [matSortDisableClear]="true"
-		>
+			[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction"
+			(matSortChange)="onSortChange($event)" [matSortDisableClear]="true">
 			<!-- Define columns dynamically -->
 			<ng-container matColumnDef="created at">
 				@if (totalDataLength()) {
 				<th
 					mat-header-cell
-					[mat-sort-header]="sortOptions().active"
+					mat-sort-header
 					[class.hide-sort-arrow]="!totalDataLength()"
 					*matHeaderCellDef
 					class="mat-body-medium text-on-surface w-60"
-				>
+					>
 					Created At
 				</th>
-				}
-				@else {
+			}
+			@else {
 				<th
 					mat-header-cell
+					mat-sort-header
 					[class.hide-sort-arrow]="!totalDataLength()"
 					*matHeaderCellDef
 					class="mat-body-medium text-on-surface w-60"
-				>
+					>
 					Created At
 				</th>
 				}
@@ -119,8 +125,7 @@
 					Type
 				</th>
 				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-outline w-40">
-					<app-label-chip
-						[text]="convertToCommissionRow(row).getConversionType()" />
+					<app-label-chip [text]="convertToCommissionRow(row).getConversionType()" />
 				</td>
 			</ng-container>
 			<ng-container matColumnDef="commission">
@@ -174,6 +179,8 @@
 		}
 	</div>
 	@if (totalDataLength()) {
-		<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of members"></mat-paginator>
+	<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex"
+		[pageSize]="paginationOptions().pageSize" [length]="totalDataLength()"
+		aria-label="Select page of members"></mat-paginator>
 	}
 </div>

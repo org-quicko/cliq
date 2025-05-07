@@ -70,10 +70,12 @@ export const LinkCommissionsStore = signalStore(
 							tapResponse({
 								next: (response) => {
 									const commissionsTable = plainToInstance(PromoterWorkbook, response.data).getCommissionSheet().getCommissionTable()
+									const metadata = commissionsTable.getMetadata();
 
 									let currentCommissionsTable = store.commissions();
 
 									const updatedPages = store.loadedPages().add(page);
+									let updatedCommissionsTable: CommissionTable;
 
 									// append entries in case new entries incoming
 									if (currentCommissionsTable && !isSorting) {
@@ -83,13 +85,18 @@ export const LinkCommissionsStore = signalStore(
 											currentCommissionsTable.addRow(commission);
 										}
 
+										updatedCommissionsTable = Object.assign(new CommissionTable(), currentCommissionsTable);
+										currentCommissionsTable.metadata = metadata;
 									} else {
-										currentCommissionsTable = commissionsTable;
+										updatedCommissionsTable = commissionsTable;
 									}
 
-									const updatedMemberTable = Object.assign(new CommissionTable(), currentCommissionsTable);
-
-									patchState(store, { commissions: updatedMemberTable, status: Status.SUCCESS, loadedPages: updatedPages });
+									patchState(store, {
+										commissions: updatedCommissionsTable,
+										status: Status.SUCCESS,
+										loadedPages: updatedPages,
+										error: null
+									});
 								},
 								error: (error: HttpErrorResponse) => {
 									if (error.status == 404) {
