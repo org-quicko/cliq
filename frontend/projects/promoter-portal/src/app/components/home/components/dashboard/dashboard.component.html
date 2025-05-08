@@ -208,13 +208,13 @@
 											(click)="onCopyLink($event, row)"
 										>
 											<span
-												class="text-outline"
+												class="text-outline leading-none"
 												style="max-width: calc(100% - 24px);"
 												(click)="onCopyLink($event, row)"
 											>
-												{{ program()?.website }}?ref=
+												{{ program()?.website + '?ref=' }}
 											</span>
-											<span class="text-on-surface">
+											<span class="text-on-surface leading-none ml-[-4px]">
 												{{ convertToLinkStatsRow(row).getRefVal() }}
 											</span>
 										</div>
