@@ -1,6 +1,5 @@
 import {
 	BadRequestException,
-	ForbiddenException,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
@@ -21,8 +20,6 @@ export class ApiKeyService {
 		@InjectRepository(ApiKey)
 		private apiKeyRepository: Repository<ApiKey>,
 
-		private programService: ProgramService,
-
 		private apiKeyConverter: ApiKeyConverter,
 
 		private logger: LoggerService,
@@ -37,7 +34,7 @@ export class ApiKeyService {
 		const newApiKey = this.apiKeyRepository.create({
 			key,
 			secret,
-			programId
+			programId,
 		});
 
 		const apiKey = await this.apiKeyRepository.save(newApiKey);
