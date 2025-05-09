@@ -1,0 +1,645 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "enum": [
+        "CommissionWorkbook"
+      ]
+    },
+    "@entity": {
+      "type": "string",
+      "enum": [
+        "workbook"
+      ]
+    },
+    "sheets": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "commission_summary_sheet"
+                ]
+              },
+              "@entity": {
+                "type": "string",
+                "enum": [
+                  "sheet"
+                ]
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "commission_summary_list"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "list"
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "examples": [
+                                  "2024-03-10 14:45:21.945055+05:30"
+                                ]
+                              },
+                              "to": {
+                                "type": "string",
+                                "examples": [
+                                  "2025-03-10 14:45:21.945055+05:30"
+                                ]
+                              },
+                              "promoter_id": {
+                                "type": "string",
+                                "description": "UUID",
+                                "examples": [
+                                  "cf0c04ca-ac45-4373-9fcb-e64626c189ca"
+                                ]
+                              },
+                              "promoter_name": {
+                                "type": "string",
+                                "examples": [
+                                  "Affinity affiliate service"
+                                ]
+                              },
+                              "signups": {
+                                "type": "number",
+                                "examples": [
+                                  "91"
+                                ]
+                              },
+                              "commission_on_signups": {
+                                "type": "number",
+                                "examples": [
+                                  "987.6"
+                                ]
+                              },
+                              "purchases": {
+                                "type": "number",
+                                "examples": [
+                                  "76"
+                                ]
+                              },
+                              "revenue": {
+                                "type": "number",
+                                "examples": [
+                                  "18496"
+                                ]
+                              },
+                              "commission_on_purchases": {
+                                "type": "number",
+                                "examples": [
+                                  "765.4"
+                                ]
+                              },
+                              "total_commission": {
+                                "type": "number",
+                                "examples": [
+                                  "9127"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "items"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "@entity",
+              "blocks"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "signup_sheet"
+                ]
+              },
+              "@entity": {
+                "type": "string",
+                "enum": [
+                  "sheet"
+                ]
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "signup_table"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "table"
+                          ]
+                        },
+                        "header": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "contact_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "sign_up_date"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "email"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "phone"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "external_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_source"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_medium"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_campaign"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_term"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_content"
+                              ]
+                            }
+                          ],
+                          "additionalItems": false,
+                          "minItems": 12,
+                          "maxItems": 12
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": [
+                              {
+                                "type": "string",
+                                "description": "UUID",
+                                "examples": [
+                                  "cf0c04ca-ac45-4373-9fcb-e64626c189ca"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "examples": [
+                                  "2025-03-10 14:45:21.945055+05:30"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "j**@mail.com"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "98****76"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "91"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "#ioy2fcf"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "wvninnewn"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "youtube"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "social"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "fireship"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "apple"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "logolink"
+                                ]
+                              }
+                            ],
+                            "additionalItems": false,
+                            "minItems": 12,
+                            "maxItems": 12
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "header",
+                        "rows"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "@entity",
+              "blocks"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "purchase_sheet"
+                ]
+              },
+              "@entity": {
+                "type": "string",
+                "enum": [
+                  "sheet"
+                ]
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "purchase_table"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "table"
+                          ]
+                        },
+                        "header": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchase_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchase_date"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "contact_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "item_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "amount"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "external_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_source"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_medium"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_campaign"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_term"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "utm_content"
+                              ]
+                            }
+                          ],
+                          "additionalItems": false,
+                          "minItems": 13,
+                          "maxItems": 13
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": [
+                              {
+                                "type": "string",
+                                "description": "UUID",
+                                "examples": [
+                                  "cf0c04ca-ac45-4373-9fcb-e64626c189ca"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "examples": [
+                                  "2025-03-10 14:45:21.945055+05:30"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "description": "UUID",
+                                "examples": [
+                                  "29e2b940-7413-4e9a-89ce-bace8bfc6f3b"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "examples": [
+                                  "#pqij741"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "minimum": 0.01,
+                                "examples": [
+                                  "980"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "91"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "#ioy2fcf"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "wvninnewn"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "youtube"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "social"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "fireship"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "apple"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "examples": [
+                                  "logolink"
+                                ]
+                              }
+                            ],
+                            "additionalItems": false,
+                            "minItems": 13,
+                            "maxItems": 13
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "header",
+                        "rows"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "@entity",
+              "blocks"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "@entity",
+    "sheets"
+  ]
+}

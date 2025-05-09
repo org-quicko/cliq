@@ -1,0 +1,311 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "enum": [
+        "LinkWorkbook"
+      ]
+    },
+    "@entity": {
+      "type": "string",
+      "enum": [
+        "workbook"
+      ]
+    },
+    "sheets": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "link_summary_sheet"
+                ]
+              },
+              "@entity": {
+                "type": "string",
+                "enum": [
+                  "sheet"
+                ]
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "link_summary_list"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "list"
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "examples": [
+                                  "2024-03-10 14:45:21.945055+05:30"
+                                ]
+                              },
+                              "to": {
+                                "type": "string",
+                                "examples": [
+                                  "2025-03-10 14:45:21.945055+05:30"
+                                ]
+                              },
+                              "links": {
+                                "type": "number",
+                                "examples": [
+                                  "8"
+                                ]
+                              },
+                              "signups": {
+                                "type": "number",
+                                "examples": [
+                                  "91"
+                                ]
+                              },
+                              "commission_on_signups": {
+                                "type": "number",
+                                "examples": [
+                                  "987.6"
+                                ]
+                              },
+                              "purchases": {
+                                "type": "number",
+                                "examples": [
+                                  "76"
+                                ]
+                              },
+                              "revenue": {
+                                "type": "number",
+                                "examples": [
+                                  "18496"
+                                ]
+                              },
+                              "commission_on_purchases": {
+                                "type": "number",
+                                "examples": [
+                                  "765.4"
+                                ]
+                              },
+                              "total_commission": {
+                                "type": "number",
+                                "examples": [
+                                  "9127"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "items"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "@entity",
+              "blocks"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "link_sheet"
+                ]
+              },
+              "@entity": {
+                "type": "string",
+                "enum": [
+                  "sheet"
+                ]
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "link_table"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "table"
+                          ]
+                        },
+                        "header": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "link_name"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "link"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "signups"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission_on_signups"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchases"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "revenue"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission_on_purchases"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "total_commission"
+                              ]
+                            }
+                          ],
+                          "additionalItems": false,
+                          "minItems": 8,
+                          "maxItems": 8
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": [
+                              {
+                                "type": "string",
+                                "examples": [
+                                  "Marketing Dec 2024"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "examples": [
+                                  "https://it.quicko.com?ref=marketingoct2024-205bda6"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "91"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "987.6"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "76"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "18496"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "765.4"
+                                ]
+                              },
+                              {
+                                "type": "number",
+                                "examples": [
+                                  "9127"
+                                ]
+                              }
+                            ],
+                            "additionalItems": false,
+                            "minItems": 8,
+                            "maxItems": 8
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "header",
+                        "rows"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "@entity",
+              "blocks"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "@entity",
+    "sheets"
+  ]
+}
