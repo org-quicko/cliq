@@ -37,7 +37,7 @@ export class Link extends RestClient {
             this.logger.debug(`Request`, { program_id: programId, promoter_id: promoterId });
 
             const response = await super.get({
-                url: APIURL.GET_PROMOTER, params: [programId, promoterId], headers: {
+                url: APIURL.GET_LINK_ANALYTICS, params: [programId, promoterId], headers: {
                     'Content-Type': 'application/json;format=sheet-json',
                 }
             });
