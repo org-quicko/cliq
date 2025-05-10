@@ -26,6 +26,13 @@ export class Promoter extends RestClient {
 
             return plainToInstance(PromoterBean, response.data);
         } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error("Client Error occurred", {
+                    error: error.message,
+                    error_type: error.name,
+                    scope: "request",
+                });
+            }
             throw new ClientException('Failed to get Promoter', error);
         }
     }
@@ -42,6 +49,13 @@ export class Promoter extends RestClient {
 
             return plainToInstance(PromoterBean, response.data);
         } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error("Client Error occurred", {
+                    error: error.message,
+                    error_type: error.name,
+                    scope: "request",
+                });
+            }
             throw new ClientException('Failed to create Promoter', error);
         }
     }
@@ -58,6 +72,13 @@ export class Promoter extends RestClient {
 
             return plainToInstance(PromoterBean, response.data);
         } catch (error) {
+                        if (error instanceof Error) {
+                this.logger.error("Client Error occurred", {
+                    error: error.message,
+                    error_type: error.name,
+                    scope: "request",
+                });
+            }
             throw new ClientException('Failed to register Promoter in Program', error);
         }
     }

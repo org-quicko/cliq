@@ -27,6 +27,13 @@ export class Link extends RestClient {
 
             return plainToInstance(LinkBean, response.data);
         } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error("Client Error occurred", {
+                    error: error.message,
+                    error_type: error.name,
+                    scope: "request",
+                });
+            }
             throw new ClientException('Failed to create Link', error);
         }
     }
@@ -47,6 +54,13 @@ export class Link extends RestClient {
 
             return plainToInstance(PromoterWorkbook, response.data);
         } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error("Client Error occurred", {
+                    error: error.message,
+                    error_type: error.name,
+                    scope: "request",
+                });
+            }
             throw new ClientException('Failed to get Link Analytics', error);
         }
     }
