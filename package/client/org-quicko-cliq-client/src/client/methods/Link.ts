@@ -45,7 +45,7 @@ export class Link extends RestClient {
 
             const response = await super.get({
                 url: APIURL.GET_LINK_ANALYTICS, params: [programId, promoterId], headers: {
-                    'Content-Type': 'application/json;format=sheet-json',
+                    'x-accept-type': 'application/json;format=sheet-json',
                 }
             });
 
