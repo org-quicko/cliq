@@ -10,7 +10,6 @@ import { statusEnum } from 'src/enums';
 import { UpdateApiKeyDto } from 'src/dtos';
 
 @ApiTags('ApiKey')
-@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('/programs/:program_id/apikeys')
 export class ApiKeyController {
 	constructor(

@@ -30,12 +30,11 @@ import { getReportFileName, getStartEndDate } from '../utils';
 import { reportPeriodEnum } from '../enums/reportPeriod.enum';
 import { Response } from 'express';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
-import { SkipAuth } from '../decorators/skipAuth.decorator';
 import { isUUID } from 'class-validator';
+import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('Program')
 @Controller('/programs')
-@UseGuards(AuthGuard, PermissionsGuard)
 export class ProgramController {
   constructor(
     private readonly programService: ProgramService,
@@ -94,7 +93,7 @@ export class ProgramController {
    * Get program
    */
   @ApiResponse({ status: undefined, description: '' })
-  @SkipAuth()
+	@Public()
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {
     this.logger.info('START: getProgram controller');

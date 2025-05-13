@@ -9,6 +9,7 @@ import { UserAuthService } from '../services/userAuth.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
+import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('User')
 @Controller('/users')
@@ -23,6 +24,7 @@ export class UserController {
 	 * User sign up
 	 */
 	@ApiResponse({ status: 201, description: 'Created' })
+	@Public()
 	@Post('signup')
 	async userSignUp(@Body() body: SignUpUserDto) {
 		this.logger.info('START: userSignUp controller');
@@ -38,6 +40,7 @@ export class UserController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@Public()
 	@Post('login')
 	async login(@Body() body: any) {
 		this.logger.info('START: login controller');
@@ -57,7 +60,6 @@ export class UserController {
 	 * Get user
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('read', User)
 	@Get(':user_id')
 	async getUser(@Param('user_id') userId: string) {
@@ -73,7 +75,6 @@ export class UserController {
 	 * Update User info
 	 */
 	@ApiResponse({ status: 204, description: 'No Content' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('update', User)
 	@Patch(':user_id')
 	async updateUserInfo(
@@ -92,7 +93,6 @@ export class UserController {
 	 * Delete user
 	 */
 	@ApiResponse({ status: 204, description: 'No Content' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('delete', User)
 	@Delete(':user_id')
 	async deleteUser(@Param('user_id') userId: string) {
@@ -108,7 +108,6 @@ export class UserController {
 	 * Leave program
 	 */
 	@ApiResponse({ status: 204, description: 'No Content' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('leave', Program)
 	@Patch(':user_id/programs/:program_id')
 	async leaveProgram(

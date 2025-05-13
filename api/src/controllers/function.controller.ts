@@ -10,7 +10,6 @@ import { AuthGuard } from '../guards/auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
 
 @ApiTags('Function')
-@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('/programs/:program_id/functions')
 export class FunctionController {
 	constructor(

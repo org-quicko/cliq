@@ -9,7 +9,6 @@ import { AuthGuard } from '../guards/auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
 
 @ApiTags('Link')
-@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('programs/:program_id/promoters/:promoter_id/links')
 export class LinkController {
 	constructor(

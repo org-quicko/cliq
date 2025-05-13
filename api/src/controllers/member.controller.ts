@@ -9,6 +9,7 @@ import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Member } from '../entities';
 import { PermissionsGuard } from 'src/guards/permissions.guard';
+import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('Member')
 @Controller('/programs/:program_id/members')
@@ -23,6 +24,7 @@ export class MemberController {
 	 * Member sign up
 	 */
 	@ApiResponse({ status: 201, description: 'Created' })
+	@Public()
 	@Post('signup')
 	async memberSignUp(
 		@Param('program_id') programId: string,
@@ -41,6 +43,7 @@ export class MemberController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 401, description: 'Unauthorized' })
+	@Public()
 	@Post('login')
 	async login(
 		@Param('program_id') programId: string, 
@@ -66,7 +69,6 @@ export class MemberController {
 	 * Get member
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('read', Member)
 	@Get(':member_id')
 	async getMember(
@@ -86,7 +88,6 @@ export class MemberController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('update', Member)
 	@Patch(':member_id')
 	async updateMemberInfo(
@@ -104,7 +105,6 @@ export class MemberController {
 
 	@ApiResponse({ status: 204, description: 'No Content' })
 	@ApiResponse({ status: 403, description: 'Forbidden' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Permissions('delete', Member)
 	@Delete(':member_id')
 	async deleteUser(
@@ -123,6 +123,7 @@ export class MemberController {
 	 * Check if member exists in a promoter inside a given program
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
+	@Public()
 	@Post('/exists')
 	async memberExistsInProgram(
 		@Param('program_id') programId: string,
@@ -142,7 +143,6 @@ export class MemberController {
 	* associated with only one promoter.
 	*/
 	@ApiResponse({ status: 200, description: 'OK' })
-	@UseGuards(AuthGuard, PermissionsGuard)
 	@Get(':member_id/promoter')
 	async getPromoterOfMember(
 		@Param('program_id') programId: string,

@@ -11,10 +11,10 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../services/user.service';
 import { MemberService } from '../services/member.service';
 import { LoggerService } from '../services/logger.service';
-import { audienceEnum } from 'src/enums/audience.enum';
+import { audienceEnum } from '../enums/audience.enum';
 import { ApiKeyGuard } from './apiKey.guard';
 import { Reflector } from '@nestjs/core';
-import { SKIP_AUTH_KEY } from 'src/decorators/skipAuth.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -35,12 +35,14 @@ export class AuthGuard implements CanActivate {
 
 		const request: Request = context.switchToHttp().getRequest();
 
-		const SkipAuth = this.reflector.getAllAndOverride<boolean>(
-			SKIP_AUTH_KEY,
-			[context.getHandler(), context.getClass()],
-		);
+		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+			context.getHandler(),
+			context.getClass(),
+		]);
 
-		if (SkipAuth) return true;
+		if (isPublic) {
+			return true;
+		}
 
 		const key: string = request.headers['x-api-key'] as string;
 		const secret: string = request.headers['x-api-secret'] as string;

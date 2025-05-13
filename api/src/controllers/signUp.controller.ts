@@ -6,7 +6,6 @@ import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('SignUp')
-@UseGuards(AuthGuard)
 @Controller('/signups')
 export class SignUpController {
 	constructor(

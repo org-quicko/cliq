@@ -10,7 +10,6 @@ import { PermissionsGuard } from '../guards/permissions.guard';
 
 @ApiTags('Circle')
 @Controller('/programs/:program_id/circles')
-@UseGuards(AuthGuard, PermissionsGuard)
 export class CircleController {
 	constructor(
 		private readonly circleService: CircleService,

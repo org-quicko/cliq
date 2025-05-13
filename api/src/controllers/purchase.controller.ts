@@ -6,7 +6,6 @@ import { LoggerService } from '../services/logger.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('Purchase')
-@UseGuards(AuthGuard)
 @Controller('/purchases')
 export class PurchaseController {
 	constructor(

@@ -19,7 +19,6 @@ import { LoggerService } from "../services/logger.service";
 import { PermissionsGuard } from "../guards/permissions.guard";
 
 @ApiTags('Webhooks')
-@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('programs/:program_id/webhooks')
 export class WebhookController {
     constructor(

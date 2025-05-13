@@ -32,7 +32,6 @@ import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
 
 @ApiTags('Promoter')
-@UseGuards(AuthGuard, PermissionsGuard)
 @Controller('/programs/:program_id/promoters')
 export class PromoterController {
 	constructor(
