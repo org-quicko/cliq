@@ -190,25 +190,6 @@ export class CircleService {
 		return circleDto;
 	}
 
-	async getFirstCircleOfProgram(programId: string) {
-		this.logger.info('START: getRandomCircle service');
-
-		const circleResult = await this.circleRepository.findOne({
-			where: {
-				programId,
-			},
-		});
-
-		if (!circleResult) {
-			throw new NotFoundException(
-				`Error. Failed to get random circle for Program ID: ${programId}.`,
-			);
-		}
-
-		this.logger.info('END: getRandomCircle service');
-		return circleResult;
-	}
-
 	/**
 	 * Get circle
 	 */

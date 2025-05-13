@@ -163,33 +163,4 @@ export class PurchaseService {
 			return this.purchaseConverter.convert(savedPurchase);
 		});
 	}
-
-	async getFirstPurchase(programId?: string, promoterId?: string) {
-		this.logger.info('START: getFirstPurchase service');
-
-		if (!programId && !promoterId) {
-			throw new BadRequestException(
-				`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`,
-			);
-		}
-
-		const purchaseResult = await this.purchaseRepository.findOne({
-			where: {
-				...(programId && { contact: { programId } }),
-				...(promoterId && { promoterId }),
-			},
-			relations: {
-				contact: true
-			}
-		});
-
-		if (!purchaseResult) {
-			this.logger.warn(`No Purchases found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
-
-			throw new NotFoundException(`No Purchases found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
-		}
-
-		this.logger.info('END: getFirstPurchase service');
-		return purchaseResult;
-	}
 }

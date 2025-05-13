@@ -38,24 +38,4 @@ export class PromoterMemberService {
 		return promoterMember;
 	}
 
-	async getFirstPromoterMemberRow(programId: string, promoterId: string) {
-		const promoterMember = await this.promoterMemberRepository.findOne({
-			where: {
-				promoterId,
-				promoter: {
-					programPromoters: {
-						programId
-					}
-				},
-				status: statusEnum.ACTIVE
-			}
-		});
-
-		if (!promoterMember) {
-			this.logger.error(`Error. Promoter ${promoterId} not found in Program ${programId}`);
-			throw new BadRequestException(`Error. Promoter ${promoterId} not found in Program ${programId}`);
-		}
-
-		return promoterMember;
-	}
 }

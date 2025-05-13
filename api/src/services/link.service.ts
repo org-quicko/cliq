@@ -149,30 +149,6 @@ export class LinkService {
 		return linkResult;
 	}
 
-	async getFirstLink(programId?: string, promoterId?: string) {
-		this.logger.info('START: getFirstLink service');
-
-		if (!programId && !promoterId) {
-			this.logger.error(`Error. Must provide one of Program ID or Promoter ID to get random link.`);
-			throw new BadRequestException(`Error. Must provide one of Program ID or Promoter ID to get random link.`);
-		}
-
-		const linkResult = await this.linkRepository.findOne({
-			where: {
-				...(programId && { programId }),
-				...(promoterId && { promoterId }),
-			},
-		});
-
-		if (!linkResult) {
-			this.logger.warn(`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
-			throw new NotFoundException(`Error. No links found for Program ID: ${programId} and Promoter ID: ${promoterId}.`);
-		}
-
-		this.logger.info('END: getFirstLink service');
-		return linkResult;
-	}
-
 	/**
 	 * Get link by ID
 	 */

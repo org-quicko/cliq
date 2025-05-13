@@ -161,36 +161,4 @@ export class SignUpService {
 			return signUpDto;
 		});
 	}
-
-	async getFirstSignUp(programId?: string, promoterId?: string) {
-		this.logger.info('START: getFirstSignUp service');
-
-		if (!programId && !promoterId) {
-			this.logger.error(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
-			throw new BadRequestException(`Error. Must pass at least one of Program ID or Promoter ID to get signup result.`);
-		}
-
-		if (programId && promoterId) {
-			// will throw error if promoter isn't in the program
-			await this.programPromoterService.getProgramPromoter(programId, promoterId);
-		}
-
-		const signUpResult = await this.signUpRepository.findOne({
-			where: {
-				...(programId && {contact: { programId }}),
-				...(promoterId && { promoterId }),
-			},
-			relations: {
-				contact: true
-			}
-		});
-
-		if (!signUpResult) {
-			this.logger.warn(`No Signups found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
-			throw new NotFoundException(`No Signups found${promoterId ? ` for Promoter ${promoterId}` : ''} in Program ${programId}`);
-		}
-
-		this.logger.info('END: getFirstSignUp service');
-		return signUpResult;
-	}
 }

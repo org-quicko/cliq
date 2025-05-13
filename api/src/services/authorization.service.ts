@@ -45,7 +45,6 @@ import { SignUpService } from './signUp.service';
 import { PurchaseService } from './purchase.service';
 import { ReferralService } from './referral.service';
 import { WebhookService } from './webhook.service';
-import { PromoterAnalyticsService } from './promoterAnalytics.service';
 import { actionsType, subjectsType } from 'src/types';
 import { Request } from 'express';
 
@@ -91,7 +90,6 @@ export class AuthorizationService {
         private programPromoterService: ProgramPromoterService,
         private promoterMemberService: PromoterMemberService,
         private referralService: ReferralService,
-        private PromoterAnalyticsService: PromoterAnalyticsService,
         private webhookService: WebhookService,
 
         private logger: LoggerService,
