@@ -1,6 +1,6 @@
 import { WorkerHost, Processor } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { InternalServerErrorException } from '@nestjs/common';
 import { eventQueueName } from '../constants';
 import { instanceToPlain } from 'class-transformer';
@@ -10,14 +10,21 @@ export const webhookJobName = 'org-quicko-cliq-webhook-job';
 @Processor(eventQueueName)
 export class EventConsumer extends WorkerHost {
 
+    private client: AxiosInstance;
+
+    constructor() {
+        super();
+        this.client = axios.create();
+    }
+
     async process(job: Job) {
         
         const { url, event, signature } = job.data;
-        
+
         switch (job.name) {
             case webhookJobName:
                 try {
-                    const response = await axios.post(
+                    const response = await this.client.post(
                         url as string,
                         { event: instanceToPlain(event, { excludeExtraneousValues: true }) },
                         {
