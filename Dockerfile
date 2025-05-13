@@ -35,8 +35,9 @@ COPY --from=backend-build /app/backend ./
 
 # Copy frontend build into a public directory
 COPY --from=frontend-build /app/frontend/dist/promoter-portal/browser ./public
-
+RUN chmod +x /app/scripts/db-migrate.sh
 EXPOSE 3001
 
 # Command to start the NestJS backend and serve Angular frontend
+ENTRYPOINT [ "/app/scripts/db-migrate.sh" ]
 CMD ["node", "dist/src/main.js"]
