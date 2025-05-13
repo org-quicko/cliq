@@ -281,7 +281,7 @@ export class AuthorizationService {
         return subjectObjects;
     }
 
-    checkIfUserIsPartOfProgram(request: Request, subject: subjectsType) {
+    async checkIfUserIsPartOfProgram(request: Request, subject: subjectsType) {
         const subjectUserId = request.headers.user_id as string | undefined;
         const apiKey = request.headers['x-api-key'] as string | undefined;
         const apiSecret = request.headers['x-api-secret'] as string | undefined;
