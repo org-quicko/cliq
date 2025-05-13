@@ -115,26 +115,6 @@ export class ApiKeyService {
 		return isValid ? apiKey : null;
 	}
 
-	async getFirstKey(programId: string) {
-		this.logger.info(`START: getFirstKey service`);
-
-		const apiKeyResult = await this.apiKeyRepository.findOne({
-			where: { programId },
-		});
-
-		if (!apiKeyResult) {
-			this.logger.error(
-				`Error. Failed to find API key for Program ${programId}.`,
-			);
-			throw new NotFoundException(
-				`Error. Failed to find API key for Program ${programId}.`,
-			);
-		}
-
-		this.logger.info(`END: getFirstKey service`);
-		return apiKeyResult;
-	}
-
 	async keyExistsInProgram(programId: string, apiKeyId: string) {
 		const keyResult = await this.apiKeyRepository.findOne({
 			where: { programId, apiKeyId },

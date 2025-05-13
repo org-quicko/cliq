@@ -107,18 +107,4 @@ export class WebhookService {
         if (!webhookResult) return false;
         else return true;
     }
-
-    async getFirstWebhook(programId: string) {
-        this.logger.info(`START: getFirstWebhook service`);
-
-        const webhookResult = await this.webhookRepository.findOne({ where: { programId } });
-
-        if (!webhookResult) {
-            this.logger.error(`Error. Failed to find Webhook for Program ${programId}.`);
-            throw new NotFoundException(`Error. Failed to find Webhook for Program ${programId}.`);
-        }
-
-        this.logger.info(`END: getFirstWebhook service`);
-        return webhookResult;
-    }
 }

@@ -166,14 +166,7 @@ export class AuthorizationService {
                     return this.memberService.getMemberEntity(subjectMemberId);
                 } else if (subject === ProgramPromoter) {
                     if (action === 'read_all') {
-                        if (!subjectProgramId) {
-                            throw new BadRequestException(`Error. Must provide a Program ID for performing action on object`);
-                        }
-
-                        // in case user can read even on row, this means they can read all rows
-                        return this.programPromoterService.getFirstProgramPromoter(
-                            subjectProgramId,
-                        );
+                        return this.checkIfUserIsPartOfProgram(request, subject);
                     }
 
                     if (!subjectProgramId || !subjectPromoterId) {
@@ -197,35 +190,14 @@ export class AuthorizationService {
                         }
                     );
                 } else if (subject === PromoterMember) {
-
-                    if (action === 'read_all') {
-
-                        if (!(subjectProgramId && subjectPromoterId)) {
-                            throw new BadRequestException(`Error. Must provide a Program ID and Promoter ID for performing action on object`);
-                        }
-
-                        return this.promoterMemberService.getFirstPromoterMemberRow(subjectProgramId, subjectPromoterId);
-                    }
-
-                    if (!subjectPromoterId || !subjectMemberId) {
-                        throw new BadRequestException(`Error. Must provide Promoter ID and Member ID for performing action on object`);
-                    }
-
-                    return this.promoterMemberService.getPromoterMemberRowEntity(
-                        subjectPromoterId,
-                        subjectMemberId,
-                    );
+                    return this.checkIfMemberIsPartOfPromoter(request, subject);
                 } else if (subject === Link) {
-                    if (!(subjectProgramId && subjectPromoterId)) {
-                        throw new BadRequestException(`Error. Must provide one of Program ID and Promoter ID for performing action on object.`);
+                    if (entityType === 'Member') {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
+                        return this.checkIfUserIsPartOfProgram(request, subject);
                     }
 
-                    if (action === 'create') return subject;
-
-                    return this.linkService.getFirstLink(
-                        subjectProgramId,
-                        subjectPromoterId,
-                    );
                 } else if (subject === Circle) {
                     return this.checkIfUserIsPartOfProgram(request, subject);
 
@@ -240,14 +212,11 @@ export class AuthorizationService {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
                 } else if (subject === PromoterAnalyticsView) {
-                    if (!subjectProgramId && !subjectPromoterId) {
-                        throw new BadRequestException(`Error. Must provide a Program ID or a Promoter ID for performing action on object`);
+                    if (entityType === 'Member') {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
+                        return this.checkIfUserIsPartOfProgram(request, subject);
                     }
-
-                    return this.PromoterAnalyticsService.getFirstPromoterStat(
-                        subjectProgramId,
-                        subjectPromoterId,
-                    );
                 } else if (subject === Commission) {
                     if (entityType === 'Member') {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
@@ -307,7 +276,7 @@ export class AuthorizationService {
         }
     }
 
-    checkIfMemberIsPartOfPromoter(request: Request, subject: subjectsType) {
+    async checkIfMemberIsPartOfPromoter(request: Request, subject: subjectsType) {
         const subjectMemberId = request.headers.member_id as string | undefined;
         const apiKey = request.headers['x-api-key'] as string | undefined;
         const apiSecret = request.headers['x-api-secret'] as string | undefined;
