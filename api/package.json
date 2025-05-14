@@ -26,7 +26,7 @@
     "openapi-to-nestjs": "openapi-to-nestjs --input ./generated/openapi/openapi.json --output ./src",
     "db:fake-migrate": "npm run db:generate && npm run db:fake-migration-run",
     "db:migrate": "npm run db:generate && npm run db:migration-run",
-    "db:generate": "npm run typeorm -- migration:generate ./db/migrations/",
+    "db:generate": "npm run build && node ./node_modules/typeorm/cli.js migration:generate --dataSource ./dist/db/data-source.js",
     "db:migration-run": "npm run typeorm -- migration:run",
     "db:fake-migration-run": "npm run typeorm -- migration:run --fake",
     "typeorm": "npm run build && node ./node_modules/typeorm/cli.js --dataSource ./dist/db/data-source.js"
