@@ -1,6 +1,6 @@
 {
 	"name": "@org.quicko.cliq/sheet-core",
-	"version": "1.0.0-beta.0",
+	"version": "1.0.0-alpha.0",
 	"description": "A library in typescript for common sheet entities of Cliq",
 	"author": "Prateik Lohani <prateik.lohani@quicko.com>",
 	"main": "dist/index.js",
@@ -54,7 +54,7 @@
 	},
 	"dependencies": {
 		"@org.quicko/sheet-core": "^6.0.4",
-		"org.quicko/core": "8.1.0-beta.5",
+		"@org.quicko/core": "8.1.0-beta.5",
 		"class-transformer": "^0.5.1",
 	    "class-validator": "^0.14.2",
     	"reflect-metadata": "^0.2.2"
