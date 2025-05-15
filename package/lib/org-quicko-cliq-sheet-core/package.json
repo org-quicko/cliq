@@ -53,7 +53,12 @@
 		"lib": "./dist"
 	},
 	"dependencies": {
-		"@org.quicko/sheet-core": "^6.0.4"
+		"@org.quicko/sheet-core": "^6.0.4",
+		"org.quicko/core": "8.1.0-beta.5",
+		"class-transformer": "^0.5.1",
+	    "class-validator": "^0.14.2",
+    	"reflect-metadata": "^0.2.2"
+
 	},
 	"devDependencies": {
 		"@org.quicko/sheet-generator": "^6.0.2",
