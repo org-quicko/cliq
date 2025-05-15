@@ -1,11 +1,11 @@
-# Cliq 🎉🚀
+# Cliq 🚀
 
 Cliq is a self-hosted affiliate software solution designed for startups. It enables organizations to manage, track, and optimize their affiliate and promoter programs with ease. The platform provides robust APIs, a modern promoter portal, and is built with scalability and maintainability in mind.
 
 
 ## Table of Contents 📚
 
-- [Cliq 🎉🚀](#cliq-)
+- [Cliq 🚀](#cliq-)
   - [Table of Contents 📚](#table-of-contents-)
   - [Features ✨](#features-)
   - [Tech Stack 🛠️](#tech-stack-️)
