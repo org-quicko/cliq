@@ -2,7 +2,6 @@
 
 Cliq is a self-hosted affiliate software solution designed for startups. It enables organizations to manage, track, and optimize their affiliate and promoter programs with ease. The platform provides robust APIs, a modern promoter portal, and is built with scalability and maintainability in mind.
 
----
 
 ## Table of Contents 📚
 
@@ -22,7 +21,6 @@ Cliq is a self-hosted affiliate software solution designed for startups. It enab
     - [Docker 🐳](#docker-)
   - [Contributing 🤝](#contributing-)
 
----
 
 ## Features ✨
 
@@ -33,7 +31,6 @@ Cliq is a self-hosted affiliate software solution designed for startups. It enab
 - Responsive, modern UI for promoters
 - Extensible API for integrations
 
----
 
 ## Tech Stack 🛠️
 
@@ -58,7 +55,6 @@ Cliq is a self-hosted affiliate software solution designed for startups. It enab
 - **Containerization:** Docker, Docker Compose
 - **Linting & Formatting:** ESLint, Prettier
 
----
 
 ## Project Structure 🗂️
 
@@ -77,7 +73,6 @@ Cliq is a self-hosted affiliate software solution designed for startups. It enab
 └── README.md
 ```
 
----
 
 ## Resources 📦
 
@@ -87,7 +82,6 @@ The `resources/` directory contains supporting assets for the platform, includin
 
 These resources help with development, testing, and integration workflows.
 
----
 
 ## Getting Started 🏁
 
@@ -133,7 +127,6 @@ To run the entire stack using Docker Compose:
 docker-compose -f docker-compose.yml up --build
 ```
 
----
 
 ## Contributing 🤝
 

@@ -2,7 +2,7 @@
 
 This package contains the frontend applications for the Cliq platform, including the Promoter Portal and shared Angular libraries. It is designed to provide a modern, responsive, and maintainable user interface for promoters and other stakeholders.
 
----
+
 
 ## Tech Stack 🛠️
 
@@ -16,7 +16,7 @@ This package contains the frontend applications for the Cliq platform, including
 - **Form Validation:** @rxweb/reactive-form-validators
 - **Monorepo:** Managed via Angular CLI workspaces
 
----
+
 
 ## Project Structure 📁
 
@@ -32,7 +32,7 @@ frontend/
 └── README.md
 ```
 
----
+
 
 ## Getting Started 🏁
 
@@ -62,7 +62,7 @@ frontend/
    npm run build:core-lib
    ```
 
----
+
 
 ## Contributing 🤝
 

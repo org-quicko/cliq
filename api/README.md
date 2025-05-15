@@ -2,7 +2,6 @@
 
 This package contains the backend API for the Cliq platform, providing all core business logic, authentication, and data management for affiliate and promoter operations. The API is built with scalability, security, and extensibility in mind.
 
----
 
 ## Tech Stack 🛠️
 
@@ -16,7 +15,6 @@ This package contains the backend API for the Cliq platform, providing all core 
 - **Validation:** class-validator, class-transformer
 - **Containerization:** Docker
 
----
 
 ## Project Structure 📁
 
@@ -32,7 +30,6 @@ api/
 └── README.md
 ```
 
----
 
 ## Getting Started 🏁
 
@@ -65,7 +62,6 @@ api/
    npm run start:dev
    ```
 
----
 
 ## Contributing 🤝
 
