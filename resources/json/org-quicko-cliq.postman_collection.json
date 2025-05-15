@@ -196,7 +196,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"The Sith\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"referral_key_type\": \"phone\",\r\n    \"website\": \"www.example123.com\",\r\n    \"theme_color\": \"#4D5C92\",\r\n    \"time_zone\": \"IST\",\r\n    \"date_format\": \"DD/MM/YYYY\"\r\n}",
+									"raw": "{\r\n    \"name\": \"\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"referral_key_type\": \"\",\r\n    \"website\": \"www.quicko.com\",\r\n    \"theme_color\": \"#4D5C92\",\r\n    \"time_zone\": \"IST\",\r\n    \"date_format\": \"DD/MM/YYYY\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -481,76 +481,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const tnc = `\r",
-											"These Terms and Conditions govern your participation in the The Sith Affiliate Program. By signing up as an affiliate, you agree to abide by the terms detailed below.\r",
-											"\r",
-											"1. What is the Affiliate Program?\r",
-											"The Sith's Affiliate Program is a performance-based partnership that rewards you for referring new users to The Sith's products and services. You'll earn a commission every time someone signs up or makes a purchase through your unique affiliate link.\r",
-											"\r",
-											"2. Who Can Join?\r",
-											"Anyone over 18 years old with a valid Indian PAN and a functioning bank account can apply. We especially welcome bloggers, YouTubers, creators, educators, influencers, and community leaders who speak about finance, productivity, or digital tools.\r",
-											"Once you apply, our team will review your submission. We reserve the right to approve or decline applications at our sole discretion, particularly if your content misrepresents or violates our brand principles.\r",
-											"\r",
-											"3. How It Works\r",
-											"After approval, you'll receive a unique affiliate link. You can share it on your website, newsletter, social media, or any platform where you believe your audience would benefit from The Sith.\r",
-											"Here's how your referrals will be counted:\r",
-											"- A signup is when someone clicks your link and creates an account on The Sith, verifying their email.\r",
-											"- A purchase is when someone who came through your link completes a paid transaction (like filing a return, paying a tax, or syncing an investment portfolio).\r",
-											"To ensure attribution, both actions must be completed within 30 days of the user clicking your affiliate link. If multiple affiliates refer the same person, the last one gets the credit.\r",
-											"\r",
-											"4. What You'll Earn\r",
-											"You'll earn a fixed commission for every verified signup, and a percentage of the total net value of any purchases made by your referrals.\r",
-											"- For each verified signup: you earn a flat reward.\r",
-											"- For every qualifying purchase: you earn a percentage of the amount paid (excluding taxes and refunds).\r",
-											"There's no limit on how much you can earn.\r",
-											"\r",
-											"5. When and How You Get Paid\r",
-											"Payments are processed once a month, by the 10th of the following month.\r",
-											"To receive a payout:\r",
-											"- You must have earned at least Rs. 500.\r",
-											"- Your bank details must be correct and verified in your affiliate dashboard.\r",
-											"Commissions below the threshold will roll over to the next month. All payments are made via NEFT or IMPS.\r",
-											"\r",
-											"6. What's Allowed and What's Not\r",
-											"We want you to succeed — honestly and transparently.\r",
-											"\r",
-											"You can:\r",
-											"- Write blog posts or make videos about your experience with The Sith.\r",
-											"- Share your affiliate link on social media, email newsletters, and communities you actively participate in.\r",
-											"- Promote through personal conversations and direct recommendations.\r",
-											"\r",
-											"You cannot:\r",
-											"- Use Google Ads or any paid ads with brand terms like \"The Sith\".\r",
-											"- Pretend to be The Sith or mislead users about our services.\r",
-											"- Spam, mislead, or trick people into signing up.\r",
-											"- Use your own link to claim commissions (self-referrals).\r",
-											"Violating these rules may lead to account suspension and forfeiture of pending commissions.\r",
-											"\r",
-											"7. Tracking and Attribution\r",
-											"Tracking is powered by browser cookies and is valid for 30 days after a user clicks your affiliate link. If the user clears cookies or uses a different browser/device, we may not be able to track them accurately.\r",
-											"We recommend nudging your referrals to complete their signup or purchase in the same session for best results.\r",
-											"\r",
-											"8. Ending Your Participation\r",
-											"You can opt out anytime by emailing us. Likewise, The Sith reserves the right to suspend or terminate your affiliate account at any time, especially in case of misuse, inactivity, or violations of these Terms.\r",
-											"\r",
-											"9. Liability Disclaimer\r",
-											"While we do our best to track, report, and process payments accurately, The Sith is not liable for:\r",
-											"- Technical glitches or tracking issues beyond our control.\r",
-											"- Loss of commissions due to browser restrictions or user behavior.\r",
-											"- Delays in payouts due to incomplete or incorrect information provided by you.\r",
-											"\r",
-											"10. Updates to This Policy\r",
-											"These Terms may change from time to time. We'll notify you of significant updates, but it's your responsibility to stay informed. Your continued participation means you accept the updated Terms.\r",
-											"\r",
-											"11. Need Help?\r",
-											"We're here for you. For any questions or issues, reach out to our team at affiliates@logoipsum.com\r",
-											"\r",
-											"Let's grow together.\r",
-											"`\r",
-											"\r",
-											"const body = JSON.parse(pm.request.body.raw);\r",
-											"body['terms_and_conditions'] = tnc;\r",
-											"pm.request.body.raw = JSON.stringify(body);"
+											""
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -572,7 +503,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"The Sith\",\r\n    \"website\": \"www.example123.com\",\r\n    \"theme_color\": \"#4D5C92\",\r\n    \"visibility\": \"public\",\r\n    \"currency\": \"INR\",\r\n    \"date_format\": \"DD/MM/YYYY\",\r\n    \"time_zone\": \"IST\",\r\n    \"referral_key_type\": \"phone\",\r\n    \"terms_and_conditions\": \"\\nThese Terms and Conditions govern your participation in the The Sith Affiliate Program. By signing up as an affiliate, you agree to abide by the terms detailed below.\\n\\n1. What is the Affiliate Program?\\nThe Sith's Affiliate Program is a performance-based partnership that rewards you for referring new users to The Sith's products and services. You'll earn a commission every time someone signs up or makes a purchase through your unique affiliate link.\\n\\n2. Who Can Join?\\nAnyone over 18 years old with a valid Indian PAN and a functioning bank account can apply. We especially welcome bloggers, YouTubers, creators, educators, influencers, and community leaders who speak about finance, productivity, or digital tools.\\nOnce you apply, our team will review your submission. We reserve the right to approve or decline applications at our sole discretion, particularly if your content misrepresents or violates our brand principles.\\n\\n3. How It Works\\nAfter approval, you'll receive a unique affiliate link. You can share it on your website, newsletter, social media, or any platform where you believe your audience would benefit from The Sith.\\nHere's how your referrals will be counted:\\n- A signup is when someone clicks your link and creates an account on The Sith, verifying their email.\\n- A purchase is when someone who came through your link completes a paid transaction (like filing a return, paying a tax, or syncing an investment portfolio).\\nTo ensure attribution, both actions must be completed within 30 days of the user clicking your affiliate link. If multiple affiliates refer the same person, the last one gets the credit.\\n\\n4. What You'll Earn\\nYou'll earn a fixed commission for every verified signup, and a percentage of the total net value of any purchases made by your referrals.\\n- For each verified signup: you earn a flat reward.\\n- For every qualifying purchase: you earn a percentage of the amount paid (excluding taxes and refunds).\\nThere's no limit on how much you can earn.\\n\\n5. When and How You Get Paid\\nPayments are processed once a month, by the 10th of the following month.\\nTo receive a payout:\\n- You must have earned at least Rs. 500.\\n- Your bank details must be correct and verified in your affiliate dashboard.\\nCommissions below the threshold will roll over to the next month. All payments are made via NEFT or IMPS.\\n\\n6. What's Allowed and What's Not\\nWe want you to succeed — honestly and transparently.\\n\\nYou can:\\n- Write blog posts or make videos about your experience with The Sith.\\n- Share your affiliate link on social media, email newsletters, and communities you actively participate in.\\n- Promote through personal conversations and direct recommendations.\\n\\nYou cannot:\\n- Use Google Ads or any paid ads with brand terms like \\\"The Sith\\\".\\n- Pretend to be The Sith or mislead users about our services.\\n- Spam, mislead, or trick people into signing up.\\n- Use your own link to claim commissions (self-referrals).\\nViolating these rules may lead to account suspension and forfeiture of pending commissions.\\n\\n7. Tracking and Attribution\\nTracking is powered by browser cookies and is valid for 30 days after a user clicks your affiliate link. If the user clears cookies or uses a different browser/device, we may not be able to track them accurately.\\nWe recommend nudging your referrals to complete their signup or purchase in the same session for best results.\\n\\n8. Ending Your Participation\\nYou can opt out anytime by emailing us. Likewise, The Sith reserves the right to suspend or terminate your affiliate account at any time, especially in case of misuse, inactivity, or violations of these Terms.\\n\\n9. Liability Disclaimer\\nWhile we do our best to track, report, and process payments accurately, The Sith is not liable for:\\n- Technical glitches or tracking issues beyond our control.\\n- Loss of commissions due to browser restrictions or user behavior.\\n- Delays in payouts due to incomplete or incorrect information provided by you.\\n\\n10. Updates to This Policy\\nThese Terms may change from time to time. We'll notify you of significant updates, but it's your responsibility to stay informed. Your continued participation means you accept the updated Terms.\\n\\n11. Need Help?\\nWe're here for you. For any questions or issues, reach out to our team at affiliates@logoipsum.com\\n\\nLet's grow together.\\n\"\r\n}",
+									"raw": "{\r\n    \"terms_and_conditions\": \"\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1815,7 +1746,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/programs/:program_id/report?report_period=custom",
+									"raw": "{{base_url}}/programs/:program_id/report?start_date=03/09/2024&end_date=04/20/2025&report_period=custom",
 									"host": [
 										"{{base_url}}"
 									],
@@ -1827,13 +1758,11 @@
 									"query": [
 										{
 											"key": "start_date",
-											"value": "03/09/2024",
-											"disabled": true
+											"value": "03/09/2024"
 										},
 										{
 											"key": "end_date",
-											"value": "04/20/2025",
-											"disabled": true
+											"value": "04/20/2025"
 										},
 										{
 											"key": "report_period",
@@ -2015,7 +1944,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"tryme@mail.com\",\r\n    \"password\": \"tryme\",\r\n    \"first_name\": \"Try\",\r\n    \"last_name\": \"me\"\r\n}",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"test1234\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Doe\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2113,7 +2042,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"nice\"\r\n}",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"1nfu$10n\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2407,7 +2336,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"first_name\": \"Try\",\r\n    \"last_name\": \"Me\"\r\n    // \"current_password\": \"nice\",\r\n    // \"new_password\": \"1nfu$10n\"\r\n}",
+									"raw": "{\r\n    \"first_name\": \"Try\",\r\n    \"last_name\": \"Me\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3396,7 +3325,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Delete me\",\r\n    \"trigger\": \"purchase\",\r\n    \"effect_type\": \"generate_commission\",\r\n    \"effect\": {\r\n        \"commission\": {\r\n            \"commission_type\": \"percentage\",\r\n            \"commission_value\": 10\r\n        }\r\n    },\r\n    \"conditions\": [\r\n        {\r\n            \"condition\": {\r\n                \"parameter\": \"no. of purchases\",\r\n                \"operator\": \"less_than_or_equal_to\",\r\n                \"value\": 30\r\n            }\r\n        }\r\n    ],\r\n    \"circle_id\": \"c57238c8-02d2-46c6-94ea-7d1290c2cadb\"\r\n}",
+									"raw": "{\r\n    \"name\": \"PURCHASE_10\",\r\n    \"trigger\": \"purchase\",\r\n    \"effect_type\": \"generate_commission\",\r\n    \"effect\": {\r\n        \"commission\": {\r\n            \"commission_type\": \"percentage\",\r\n            \"commission_value\": 10\r\n        }\r\n    },\r\n    // \"conditions\": [\r\n    //     {\r\n    //         \"condition\": {\r\n    //             \"parameter\": \"no. of signups\",\r\n    //             \"operator\": \"less_than_or_equal_to\",\r\n    //             \"value\": 30\r\n    //         }\r\n    //     }\r\n    // ],\r\n    \"circle_id\": \"target-circle-id\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4464,7 +4393,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"events\": [\"commission.created\", \"signup.created\", \"purchase.created\"],\r\n    \"secret\": \"very secret\",\r\n    \"url\": \"https://webhook.site/b741bd01-4ef3-44f5-a6e9-e4e78a79c9a3\"\r\n}",
+									"raw": "{\r\n    \"url\": \"https://webhook.site/ba58a794-336a-4b10-ac46-f83309212eb4\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7157,14 +7086,12 @@
 									{
 										"key": "x-api-key",
 										"value": "{{api_key}}",
-										"type": "text",
-										"disabled": true
+										"type": "text"
 									},
 									{
 										"key": "x-api-secret",
 										"value": "{{api_secret}}",
-										"type": "text",
-										"disabled": true
+										"type": "text"
 									}
 								],
 								"url": {
@@ -7450,7 +7377,18 @@
 							"name": "Get all links",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "x-api-key",
+										"value": "{{api_key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-api-secret",
+										"value": "{{api_secret}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/links",
 									"host": [
@@ -7612,7 +7550,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"ref_val\": \"aditya\",\r\n    \"amount\": {{$randomInt}},\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"phone\": \"1234567890\",\r\n    \"external_id\": \"nice_external_id\",\r\n    \"item_id\": \"1234nice\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+									"raw": "{\r\n    \"ref_val\": \"anakin-syrppvm\",\r\n    \"amount\": {{$randomInt}},\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"phone\": \"1234567890\",\r\n    \"external_id\": \"nice_external_id\",\r\n    \"item_id\": \"1234nice\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7676,7 +7614,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"ref_val\": \"aditya\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"first_name\": \"{{$randomFirstName}}\",\r\n    \"last_name\": \"{{$randomLastName}}\",\r\n    \"phone\": \"{{$randomPhoneNumber}}\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+									"raw": "{\r\n    \"ref_val\": \"anakin-syrppvm\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"first_name\": \"{{$randomFirstName}}\",\r\n    \"last_name\": \"{{$randomLastName}}\",\r\n    \"phone\": \"098765432101\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7730,7 +7668,7 @@
 		},
 		{
 			"key": "user_access_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MmRiYzA1OC03NmUyLTQ5MTUtYTVmNy1iODMyYWE5NTUyNDciLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDUyMTM3NzMsImV4cCI6MTc0NzgwNTc3M30.HsDfT84h9yNznp3E5zzucaAgdFb_EJU64tOn3TY9SMg",
+			"value": "user-acces-token",
 			"type": "string"
 		},
 		{
