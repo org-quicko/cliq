@@ -8,7 +8,7 @@
 		"watch": "ng build --watch --configuration development",
 		"test": "ng test",
 		"clean": "npm cache clean --force",
-		"promoter": "ng serve promoter-portal",
+		"promoter": "ng serve promoter-portal", 
 		"build:core-lib": "ng build org-quicko-cliq-core",
 		"build:promoter": "ng build promoter-portal",
 		"generate": "npm run generateSchema && npm run generateObjects",
