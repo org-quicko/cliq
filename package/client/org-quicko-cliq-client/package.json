@@ -11,8 +11,8 @@
     "prebuild": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build-release": "rm -rf ./dist && npm run prebuild && tsc --build && copyfiles -u 1 ./environment/* dist/environment && npm ci --omit=dev",
     "build": "tsc --build && copyfiles -u 1 ./environment/* dist/environment",
-		"test-cliqClient": "set NODE_ENV=local && jest ./tests/CliqClient.test.ts"
-
+		"test-cliqClient": "jest ./tests/CliqClient.test.ts"
+    
   },
   "license": "ISC",
   "files": [
