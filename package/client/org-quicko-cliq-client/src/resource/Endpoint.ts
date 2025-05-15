@@ -40,7 +40,7 @@ export class Endpoint {
           value.forEach((item) => {
             constructedUrl.searchParams.append(key, item);
           });
-        } else {
+        } else { 
           constructedUrl.searchParams.append(key, value.toString());
         }
       });

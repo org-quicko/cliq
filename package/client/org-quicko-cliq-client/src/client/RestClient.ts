@@ -32,7 +32,7 @@ export class RestClient {
 
     if (options.headers && options.headers.responseType)
       config = {
-        headers,
+        headers, 
         responseType: options.headers.responseType,
       };
 

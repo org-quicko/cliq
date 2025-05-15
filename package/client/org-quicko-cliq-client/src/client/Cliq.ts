@@ -4,7 +4,7 @@ import { Link, Promoter } from './methods';
 import { Purchase } from './methods/Purchase';
 import { SignUp } from './methods/Signup';
 
-export class Cliq {
+export class Cliq { 
   public PROMOTERS: Promoter;
 
   public LINK: Link;
