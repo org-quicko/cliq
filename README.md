@@ -20,6 +20,7 @@ Cliq is a self-hosted affiliate software solution designed for startups. It enab
     - [Frontend (Promoter Portal) 💻](#frontend-promoter-portal--1)
     - [Docker 🐳](#docker-)
   - [Contributing 🤝](#contributing-)
+  - [Authors](#authors)
 
 
 ## Features ✨
@@ -131,3 +132,7 @@ docker-compose -f docker-compose.yml up --build
 ## Contributing 🤝
 
 Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
+
+## Authors
+- [Quicko Engineering](mailto:developer@quicko.org.in)
+- See individual `package.json` files for contributors.
