@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { CreateLink, CreatePromoter, CreatePurchase, CreateSignUp, RegisterForProgram } from "@org.quicko.cliq/core";
 import { LoggerFactory } from "@org.quicko/core";
 import winston from "winston";
@@ -10,8 +11,8 @@ let refVal: string;
 // dev
 const baseUrl = "https://dev-cliq.quicko.com/api";
 const programId = 'a3cef210-7b2c-4554-92ca-b7e02e64ccb8';
-const apiKey = 'ae632ed3dcdf1917991b4a36a491a450';
-const apiSecret = '2b23609c928742aa24243e8b5fd0db498c895927747f7939e4fc256d9fa62624';
+const apiKey = process.env.CLIQ_API_KEY || '';
+const apiSecret = process.env.CLIQ_API_SECRET || '';
 
 LoggerFactory.setLogger("logger", winston.createLogger({
     transports: [new winston.transports.Console()],

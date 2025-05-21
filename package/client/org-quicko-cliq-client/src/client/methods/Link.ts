@@ -1,4 +1,4 @@
-import { ClientException, LoggerFactory } from '@org.quicko/core';
+import { ClientException, ConflictException, LoggerFactory } from '@org.quicko/core';
 import winston from 'winston';
 import { CreateLink, Link as LinkBean } from '@org.quicko.cliq/core';
 import { PromoterWorkbook } from '@org.quicko.cliq/sheet-core/Promoter/beans';
@@ -33,6 +33,11 @@ export class Link extends RestClient {
                     error_type: error.name,
                     scope: "request",
                 });
+
+                // eslint-disable-next-line eqeqeq
+                if (error.cause == 409) {
+                    throw new ConflictException('Error: Link already exists');
+                }
             }
             throw new ClientException('Failed to create Link', error);
         }
@@ -59,7 +64,7 @@ export class Link extends RestClient {
                     error: error.message,
                     error_type: error.name,
                     scope: "request",
-                });
+                });                
             }
             throw new ClientException('Failed to get Link Analytics', error);
         }
