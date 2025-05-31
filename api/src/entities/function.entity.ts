@@ -28,7 +28,7 @@ export class Function {
 	trigger: triggerEnum;
 
 	@OneToMany(() => Condition, (condition) => condition.func)
-	conditions: Condition[];
+	conditions: Condition[]; 
 
 	@Column('enum', {
 		name: 'effect_type',

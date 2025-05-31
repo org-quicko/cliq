@@ -5,7 +5,7 @@ import { PURCHASE_CREATED, PurchaseCreatedEvent, SIGNUP_CREATED, SignUpCreatedEv
 import { OnEvent } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Condition, Function, GenerateCommissionEffect, Purchase, SignUp, SwitchCircleEffect } from "../entities";
+import { Condition, Function, GenerateCommissionEffect, PromoterAnalyticsView, Purchase, SignUp, SwitchCircleEffect } from "../entities";
 import { PromoterService } from "./promoter.service";
 import { CircleService } from "./circle.service";
 import { CommissionService } from "./commission.service";
@@ -160,7 +160,20 @@ export class FunctionTriggerService {
         const eventEntityPayload = Object.values(event.data)[0];
 
         // SIGNUPS condition
-        if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
+        if (condition.parameter === conditionParameterEnum.REVENUE) {
+            const purchases = await this.promoterService.getPurchasesForPromoter(
+                    event.programId,
+                    eventEntityPayload.promoterId,
+                    false,
+                ) as Purchase[];
+
+            const revenue = purchases.reduce((acc, purchase) => acc + Number(purchase.amount), 0);
+
+            evalResult = condition.evaluate({ revenue });
+
+            // PURCHASES condition
+        }
+        else if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
             const signUps = await this.promoterService.getSignUpsForPromoter(
                 event.programId,
                 eventEntityPayload.promoterId,

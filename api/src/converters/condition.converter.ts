@@ -4,6 +4,7 @@ import {
 	ItemIdConditionDto,
 	NumOfPurchasesConditionDto,
 	NumOfSignupsConditionDto,
+	RevenueConditionDto,
 } from '../dtos';
 import { Condition } from '../entities';
 import { conditionParameterEnum } from 'src/enums';
@@ -11,6 +12,13 @@ import { conditionParameterEnum } from 'src/enums';
 @Injectable()
 export class ConditionConverter {
 	private conditionFactories = {
+		[conditionParameterEnum.REVENUE]: (condition: Condition) => {
+			const dto = new RevenueConditionDto();
+			dto.parameter = conditionParameterEnum.REVENUE;
+			dto.operator = condition.operator;
+			dto.value = Number(condition.value);
+			return dto;
+		},
 		[conditionParameterEnum.NUM_OF_SIGNUPS]: (condition: Condition) => {
 			const dto = new NumOfSignupsConditionDto();
 			dto.parameter = conditionParameterEnum.NUM_OF_SIGNUPS;

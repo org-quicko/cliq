@@ -34,10 +34,12 @@ export class Condition {
 	value: string;
 
 	public evaluate({
+		revenue,
 		numSignUps,
 		numPurchases,
 		itemId,
 	}: {
+		revenue?: number;
 		numSignUps?: number;
 		numPurchases?: number;
 		itemId?: string;
@@ -45,15 +47,37 @@ export class Condition {
 		let parsedValue: string | number = this.value;
 
 		switch (this.parameter) {
+			case conditionParameterEnum.REVENUE:
+				parsedValue = Number(parsedValue);
+
+				if (revenue === undefined) return false;
+				if (this.operator === conditionOperatorEnum.GREATER_THAN_OR_EQUAL_TO) {
+					return revenue >= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
+					return revenue <= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.GREATER_THAN) {
+					console.log(revenue > parsedValue);
+					return revenue > parsedValue;
+				} else if (this.operator === conditionOperatorEnum.LESS_THAN) {
+					return revenue < parsedValue;
+				} else if (this.operator === conditionOperatorEnum.EQUALS) {
+					return revenue === parsedValue;
+				}
+				return false;
+
 			case conditionParameterEnum.NUM_OF_SIGNUPS:
 				parsedValue = Number(parsedValue);
 
 				if (numSignUps === undefined) return false;
-				if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
+				if (this.operator === conditionOperatorEnum.GREATER_THAN_OR_EQUAL_TO) {
+					return numSignUps >= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
 					return numSignUps <= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.GREATER_THAN) {
+					return numSignUps > parsedValue;
 				} else if (this.operator === conditionOperatorEnum.LESS_THAN) {
 					return numSignUps < parsedValue;
-				} else if (this.operator === conditionOperatorEnum.EQUALS) {
+				}else if (this.operator === conditionOperatorEnum.EQUALS) {
 					return numSignUps === parsedValue;
 				}
 				return false;
@@ -62,8 +86,12 @@ export class Condition {
 				parsedValue = Number(parsedValue);
 
 				if (numPurchases === undefined) return false;
-				if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
+				if (this.operator === conditionOperatorEnum.GREATER_THAN_OR_EQUAL_TO) {
+					return numPurchases >= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
 					return numPurchases <= parsedValue;
+				} else if (this.operator === conditionOperatorEnum.GREATER_THAN) {
+					return numPurchases > parsedValue;
 				} else if (this.operator === conditionOperatorEnum.LESS_THAN) {
 					return numPurchases < parsedValue;
 				} else if (this.operator === conditionOperatorEnum.EQUALS) {

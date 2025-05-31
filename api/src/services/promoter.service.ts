@@ -1246,7 +1246,7 @@ export class PromoterService {
 		programId: string,
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
-	) {
+	): Promise<PromoterWorkbook | PromoterAnalyticsView> {
 		this.logger.info(`START: getPromoterAnalytics service`);
 
 		// checking if the program and promoter exist
@@ -1266,14 +1266,14 @@ export class PromoterService {
 
 		let referralDto;
 		if (!promoterStatsResult) {
-			referralDto = {
+			referralDto = this.promoterStatsRepository.create({
 				programId,
 				promoterId,
 				totalCommission: 0,
 				totalRevenue: 0,
 				totalSignUps: 0,
 				totalPurchases: 0,
-			};
+			});
 		} else {
 			referralDto = promoterStatsResult;
 		}

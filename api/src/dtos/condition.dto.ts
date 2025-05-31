@@ -11,6 +11,8 @@ import {
 import { Expose, Type } from 'class-transformer';
 import { conditionOperatorEnum, conditionParameterEnum } from 'src/enums';
 
+export const numericalOperators = Object.values(conditionOperatorEnum).filter(operator => operator !== conditionOperatorEnum.CONTAINS);
+
 export class BaseConditionDto {
 	@Expose({ name: 'parameter' })
 	@IsDefined()
@@ -28,16 +30,28 @@ export class BaseConditionDto {
 	value: string | number; // Always stored as string, will be parsed at runtime
 }
 
+export class RevenueConditionDto extends BaseConditionDto {
+	@Expose({ name: 'parameter' })
+	@IsEnum([conditionParameterEnum.REVENUE])
+	parameter: conditionParameterEnum;
+
+	@Expose({ name: 'operator' })
+	@IsEnum(numericalOperators)
+	operator: conditionOperatorEnum;
+
+	@Expose({ name: 'value' })
+	@IsNumber()
+	@Min(1)
+	value: number;
+}
+
 export class NumOfSignupsConditionDto extends BaseConditionDto {
 	@Expose({ name: 'parameter' })
 	@IsEnum([conditionParameterEnum.NUM_OF_SIGNUPS])
 	parameter: conditionParameterEnum;
 
 	@Expose({ name: 'operator' })
-	@IsEnum([
-		conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO,
-		conditionOperatorEnum.EQUALS,
-	])
+	@IsEnum(numericalOperators)
 	operator: conditionOperatorEnum;
 
 	@Expose({ name: 'value' })
@@ -52,10 +66,7 @@ export class NumOfPurchasesConditionDto extends BaseConditionDto {
 	parameter: conditionParameterEnum;
 
 	@Expose({ name: 'operator' })
-	@IsEnum([
-		conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO,
-		conditionOperatorEnum.EQUALS,
-	])
+	@IsEnum(numericalOperators)
 	operator: conditionOperatorEnum;
 
 	@Expose({ name: 'value' })
@@ -91,6 +102,10 @@ export class ConditionDto {
 			property: 'parameter',
 			subTypes: [
 				{
+					value: RevenueConditionDto,
+					name: conditionParameterEnum.REVENUE as string,
+				},
+				{
 					value: NumOfSignupsConditionDto,
 					name: conditionParameterEnum.NUM_OF_SIGNUPS as string,
 				},
@@ -107,6 +122,7 @@ export class ConditionDto {
 		keepDiscriminatorProperty: true,
 	})
 	condition:
+		RevenueConditionDto
 		| NumOfSignupsConditionDto
 		| NumOfPurchasesConditionDto
 		| ItemIdConditionDto;
