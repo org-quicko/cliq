@@ -1,7 +1,5 @@
 import 'dotenv/config';
-import { CreateLink, CreatePromoter, CreatePurchase, CreateSignUp, RegisterForProgram } from "@org.quicko.cliq/core";
-import { LoggerFactory } from "@org.quicko/core";
-import winston from "winston";
+import { CreateLink, CreatePromoter, CreatePurchase, CreateSignUp, RegisterForProgram } from "@org-quicko/cliq-core/beans";
 import { CliqCredentials } from "../src/beans";
 import { Cliq } from '../src/client/Cliq';
 
@@ -13,10 +11,6 @@ const baseUrl = "https://dev-cliq.quicko.com/api";
 const programId = 'a3cef210-7b2c-4554-92ca-b7e02e64ccb8';
 const apiKey = process.env.CLIQ_API_KEY || '';
 const apiSecret = process.env.CLIQ_API_SECRET || '';
-
-LoggerFactory.setLogger("logger", winston.createLogger({
-    transports: [new winston.transports.Console()],
-  }));
 
 describe('Cliq Client tests.', () => {
     

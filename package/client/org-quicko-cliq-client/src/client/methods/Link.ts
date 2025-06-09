@@ -1,7 +1,8 @@
-import { ClientException, ConflictException, LoggerFactory } from '@org.quicko/core';
+import { ClientException, LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import winston from 'winston';
-import { CreateLink, Link as LinkBean } from '@org.quicko.cliq/core';
-import { PromoterWorkbook } from '@org.quicko.cliq/sheet-core/Promoter/beans';
+import { CreateLink, Link as LinkBean } from '@org-quicko/cliq-core/beans';
+import { ConflictException } from '@org-quicko/cliq-core/exceptions';
+import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { plainToInstance } from 'class-transformer';
 import { APIURL } from '../../resource';
 import { RestClient } from '../RestClient';
@@ -12,7 +13,7 @@ export class Link extends RestClient {
 
     constructor(config: CliqCredentials, baseUrl: string) {
         super(config, baseUrl);
-        this.logger = this.getLogger()!;
+        this.logger = LoggerFactory.createLogger('logger', LoggingLevel.info);
     }
 
     async createLink(programId: string, promoterId: string, createLink: CreateLink): Promise<LinkBean> {
@@ -68,13 +69,5 @@ export class Link extends RestClient {
             }
             throw new ClientException('Failed to get Link Analytics', error);
         }
-    }
-
-    public getLogger() {
-        if (!this.logger) {
-            this.logger = LoggerFactory.getLogger("logger")!;
-        }
-
-        return this.logger;
     }
 }

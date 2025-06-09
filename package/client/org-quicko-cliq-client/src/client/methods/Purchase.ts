@@ -1,16 +1,17 @@
-import { ClientException, LoggerFactory } from '@org.quicko/core';
+import { ClientException, LoggerFactory } from '@org-quicko/core';
 import winston from 'winston';
-import { CreatePurchase, Purchase as PurchaseBean } from '@org.quicko.cliq/core';
+import { CreatePurchase, Purchase as PurchaseBean } from '@org-quicko/cliq-core/beans';
 import { APIURL } from '../../resource';
 import { RestClient } from '../RestClient';
 import { CliqCredentials } from '../../beans';
+import { LoggingLevel } from '@org-quicko/core';
 
 export class Purchase extends RestClient {
     private logger: winston.Logger;
 
     constructor(config: CliqCredentials, baseUrl: string) {
         super(config, baseUrl);
-        this.logger = this.getLogger()!;
+        this.logger = LoggerFactory.createLogger('logger', LoggingLevel.info);
     }
 
     async createPurchase(createPurchase: CreatePurchase): Promise<PurchaseBean> {
@@ -27,15 +28,6 @@ export class Purchase extends RestClient {
         } catch (error) {
             throw new ClientException('Failed to create Purchase', error);
         }
-    }
-
-    
-    public getLogger() {
-        if (!this.logger) {
-            this.logger = LoggerFactory.getLogger("logger")!;
-        }
-
-        return this.logger;
     }
 
 }

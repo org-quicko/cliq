@@ -40,7 +40,7 @@ export class Endpoint {
           value.forEach((item) => {
             constructedUrl.searchParams.append(key, item);
           });
-        } else { 
+        } else {
           constructedUrl.searchParams.append(key, value.toString());
         }
       });
@@ -50,11 +50,11 @@ export class Endpoint {
 }
 
 export enum APIURL {
-	CREATE_PROMOTER = '/programs/{program_id}/promoters',
-	GET_PROMOTER = '/programs/{program_id}/promoters/{promoter_id}',
-	REGISTER_PROMOTER_IN_PROGRAM = '/programs/{program_id}/promoters/{promoter_id}/register',
-	CREATE_LINK = '/programs/{program_id}/promoters/{promoter_id}/links',
-	GET_LINK_ANALYTICS = '/programs/{program_id}/promoters/{promoter_id}/link_analytics',
+  CREATE_PROMOTER = '/programs/{program_id}/promoters',
+  GET_PROMOTER = '/programs/{program_id}/promoters/{promoter_id}',
+  REGISTER_PROMOTER_IN_PROGRAM = '/programs/{program_id}/promoters/{promoter_id}/register',
+  CREATE_LINK = '/programs/{program_id}/promoters/{promoter_id}/links',
+  GET_LINK_ANALYTICS = '/programs/{program_id}/promoters/{promoter_id}/link_analytics',
   CREATE_PURCHASE = '/purchases',
   CREATE_SIGNUP = '/signups',
 }

@@ -1,6 +1,6 @@
-import { ClientException, LoggerFactory } from '@org.quicko/core';
+import { ClientException, LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import winston from 'winston';
-import { CreatePromoter, Promoter as PromoterBean, RegisterForProgram } from '@org.quicko.cliq/core';
+import { CreatePromoter, Promoter as PromoterBean, RegisterForProgram } from '@org-quicko/cliq-core/beans';
 import { plainToInstance } from 'class-transformer';
 import { APIURL } from '../../resource';
 import { RestClient } from '../RestClient';
@@ -11,7 +11,7 @@ export class Promoter extends RestClient {
 
     constructor(config: CliqCredentials, baseUrl: string) {
         super(config, baseUrl);
-        this.logger = this.getLogger()!;
+        this.logger = LoggerFactory.createLogger('logger', LoggingLevel.info);
     }
 
     async getPromoter(programId: string, promoterId: string): Promise<PromoterBean> {
@@ -81,15 +81,6 @@ export class Promoter extends RestClient {
             }
             throw new ClientException('Failed to register Promoter in Program', error);
         }
-    }
-
-
-    public getLogger() {
-        if (!this.logger) {
-            this.logger = LoggerFactory.getLogger("logger")!;
-        }
-
-        return this.logger;
     }
 
 }

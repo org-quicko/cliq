@@ -1,6 +1,6 @@
-import { ClientException, LoggerFactory } from '@org.quicko/core';
+import { ClientException, LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import winston from 'winston';
-import { CreateSignUp, SignUp as SignUpBean } from '@org.quicko.cliq/core';
+import { CreateSignUp, SignUp as SignUpBean } from '@org-quicko/cliq-core/beans';
 import { APIURL } from '../../resource';
 import { RestClient } from '../RestClient';
 import { CliqCredentials } from '../../beans';
@@ -10,7 +10,7 @@ export class SignUp extends RestClient {
 
     constructor(config: CliqCredentials, baseUrl: string) {
         super(config, baseUrl);
-        this.logger = this.getLogger()!;
+        this.logger = LoggerFactory.createLogger('logger', LoggingLevel.info);
     }
 
     async createSignUp(createSignUp: CreateSignUp): Promise<SignUpBean> {
@@ -27,15 +27,6 @@ export class SignUp extends RestClient {
         } catch (error) {
             throw new ClientException('Failed to create SignUp', error);
         }
-    }
-
-    
-    public getLogger() {
-        if (!this.logger) {
-            this.logger = LoggerFactory.getLogger("logger")!;
-        }
-
-        return this.logger;
     }
 
 }

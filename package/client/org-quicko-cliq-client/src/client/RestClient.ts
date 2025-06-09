@@ -1,4 +1,4 @@
-import { ClientException } from '@org.quicko/core';
+import { ClientException } from '@org-quicko/core';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import { instanceToPlain } from 'class-transformer';
@@ -32,7 +32,7 @@ export class RestClient {
 
     if (options.headers && options.headers.responseType)
       config = {
-        headers, 
+        headers,
         responseType: options.headers.responseType,
       };
 
@@ -54,7 +54,7 @@ export class RestClient {
       'x-api-key': this.config.getApiKey(),
       'x-api-secret': this.config.getApiSecret(),
       ...(options.headers ? options.headers : {}),
-    }; 
+    };
 
     const body = instanceToPlain(data);
 
