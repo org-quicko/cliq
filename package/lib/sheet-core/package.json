@@ -87,8 +87,8 @@
 		"@org-quicko/core": "^1.1.0",
 		"class-transformer": "^0.5.1",
 	    "class-validator": "^0.14.2",
-    	"reflect-metadata": "^0.2.2"
-
+    	"reflect-metadata": "^0.2.2",
+    	"tslib": "^2.8.1"
 	},
 	"devDependencies": {
 		"@org-quicko/sheet-generator": "^1.0.0",
@@ -106,6 +106,7 @@
 		"eslint-config-airbnb": "^19.0.4",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-import-resolver-typescript": "^3.7.0",
-		"typescript": "^5.6.2"
+		"typescript": "^5.6.2",
+    	"tslib": "^2.8.1"
 	}
 }
