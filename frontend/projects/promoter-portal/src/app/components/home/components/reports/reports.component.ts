@@ -40,7 +40,6 @@ export class ReportsComponent {
 	]);
 
 	onClickReport(reportName: reportEnum) {
-		console.log('clicked!');
 
 		this.reportsStore.resetStatus();
 

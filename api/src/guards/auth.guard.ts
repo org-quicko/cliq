@@ -95,7 +95,6 @@ export class AuthGuard implements CanActivate {
 		} catch (error) {
 			this.logger.error('Authentication failed');
 			if (error instanceof Error) {
-				console.log(error.message);
 				throw new UnauthorizedException('Authentication failed');
 			}
 			throw error;

@@ -45,7 +45,6 @@ export class SkeletonLoadTableComponent implements OnInit {
 
 	removeMarginBottom(theme: Record<string, string>) {
 		const themeCopy = Object.assign({}, theme);
-		console.log(themeCopy);
 		themeCopy['margin-bottom'] = '0px';
 		return themeCopy;
 	}

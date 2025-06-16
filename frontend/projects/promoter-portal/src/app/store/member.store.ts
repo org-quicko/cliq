@@ -66,7 +66,6 @@ export const MemberStore = signalStore(
 									snackBarService.openSnackBar('Successfully updated your info!', '');
 								},
 								error(error: HttpErrorResponse) {
-									console.log(error.error.message);
 									patchState(store, { status: Status.ERROR, error });
 									snackBarService.openSnackBar(error.error.message, '');
 								},

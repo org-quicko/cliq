@@ -81,7 +81,6 @@ export const PromoterStore = signalStore(
 						return promoterService.removeMember(programId, promoterId, memberId).pipe(
 							tapResponse({
 								next(response) {
-									console.log(response.data);
 									snackBarService.openSnackBar('Successfully removed member!', '');
 								},
 								error(error: HttpErrorResponse) {
@@ -100,7 +99,6 @@ export const PromoterStore = signalStore(
 						return promoterService.deletePromoter(programId, promoterId).pipe(
 							tapResponse({
 								next(response) {
-									console.log(response);
 									snackBarService.openSnackBar('Successfully deleted promoter', '');
 								},
 								error(error: Error) {

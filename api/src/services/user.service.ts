@@ -174,8 +174,6 @@ export class UserService {
 				.where({ userId })
 				.execute();
 
-			console.log(user);
-
 			const userDto = this.userConverter.convert(user);
 
 			this.logger.info('END: updateUserInfo service');

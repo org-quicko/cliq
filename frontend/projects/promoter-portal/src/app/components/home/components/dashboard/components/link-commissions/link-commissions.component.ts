@@ -207,12 +207,10 @@ export class LinkCommissionsComponent implements OnInit {
 	}
 
 	onSearch() {
-		console.log('searching for', this.referralKey());
 	}
 
 	onClear() {
 		this.referralKey.set('');
-		console.log('referralKey reset', this.referralKey());
 	}
 
 	convertToCommissionRow(row: any[]) {

@@ -198,7 +198,6 @@ export class MemberService {
 				.where({ memberId })
 				.execute();
 
-			console.log(member);
 			const memberDto = this.memberConverter.convert(member);
 
 			this.logger.info('END: updateMemberInfo service');

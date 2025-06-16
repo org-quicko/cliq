@@ -190,12 +190,10 @@ export class ReferralsComponent implements OnInit {
 	}
 
 	onSearch() {
-		console.log('searching for', this.email());
 	}
 
 	onClear() {
 		this.email.set('');
-		console.log('email reset', this.email());
 	}
 
 

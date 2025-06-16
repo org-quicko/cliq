@@ -51,8 +51,6 @@ export const ReportsStore = signalStore(
 							tapResponse({
 								next: ({ blob, fileName }) => {
 
-									console.log(fileName, blob);
-
 									const a = document.createElement('a');
 									const objectUrl = URL.createObjectURL(blob);
 									a.href = objectUrl;

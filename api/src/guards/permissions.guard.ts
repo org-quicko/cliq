@@ -92,8 +92,6 @@ export class PermissionsGuard implements CanActivate {
 				const action = requiredPermissions[i].action;
 				const subjectObject = subjectObjects[i];
 
-				console.log('\n\n', action, subjectObjects[i], '\n\n');
-
 				if (!subjectObject) {
 					this.logger.error(`${entityType} does not have permission to perform this action!`);
 					throw new ForbiddenError(ability);

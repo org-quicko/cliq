@@ -95,15 +95,11 @@ export class PurchaseConverter {
 		let totalCommission = 0;
 		let totalRevenue = 0;
 
-		// console.log(purchasesCommissions);
 
 		purchases.forEach((purchase) => {
 			const row = new PurchaseRow([]);
 
 			let commissionAmount = 0;
-			// purchase.contact.commissions.forEach((commission) => {
-			// 	commissionAmount += Number(commission.amount);
-			// });
 			purchasesCommissions.get(purchase.purchaseId)!.forEach((commission) => {
 				commissionAmount += Number(commission.amount);
 			})

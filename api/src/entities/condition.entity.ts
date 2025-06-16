@@ -56,7 +56,6 @@ export class Condition {
 				} else if (this.operator === conditionOperatorEnum.LESS_THAN_OR_EQUAL_TO) {
 					return revenue <= parsedValue;
 				} else if (this.operator === conditionOperatorEnum.GREATER_THAN) {
-					console.log(revenue > parsedValue);
 					return revenue > parsedValue;
 				} else if (this.operator === conditionOperatorEnum.LESS_THAN) {
 					return revenue < parsedValue;

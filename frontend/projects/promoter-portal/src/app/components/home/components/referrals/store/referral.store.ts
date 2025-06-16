@@ -128,7 +128,6 @@ export const ReferralStore = signalStore(
 						return promoterService.getPromoterCommissions(programId, promoterId, { contact_id: contactId }).pipe(
 							tapResponse({
 								next(response) {
-									console.log(response.data);
 								},
 								error(error) {
 

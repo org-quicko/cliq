@@ -97,7 +97,6 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 
 		effect(() => {
 			if (this.data.status() === Status.SUCCESS) {
-				console.log('success');
 				this.closeDialog();
 			}
 		});
