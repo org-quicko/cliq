@@ -1,0 +1,107 @@
+[
+    {
+        "test_name": "Link ref value does not exist",
+        "request_name": "Create purchase",
+        "ref_val": "Hawk",
+        "email": "csutton0@t.co",
+        "phone": "3213439066",
+        "amount": 129,
+        "external_id": "ext-hawk-91",
+        "item_id": "item-abc-1",
+        "status_code": 404,
+        "message": "Failed to get link with ref val {{refVal}}."
+    },
+    {
+        "test_name": "Invalid email",
+        "request_name": "Create purchase",
+        "ref_val": "Capuchin",
+        "email": "echeshire1",
+        "phone": "5733763816",
+        "amount": 212,
+        "external_id": "ext-cap-22",
+        "item_id": "item-cap-2",
+        "status_code": 400,
+        "message": "Validation errors: invalid email passed."
+    },
+    {
+        "test_name": "Invalid phone number- length out of range",
+        "request_name": "Create purchase",
+        "ref_val": "Toucan",
+        "email": "lrape2@cloudflare.com",
+        "phone": "8315611473293057207577",
+        "amount": 175,
+        "external_id": "ext-tou-03",
+        "item_id": "item-tou-3",
+        "status_code": 400,
+        "message": "Validation errors: phone number must be between 8 and 13 digits long."
+    },
+    {
+        "test_name": "Invalid phone number- invalid characters",
+        "request_name": "Create purchase",
+        "ref_val": "Hawk",
+        "email": "csutton0@t.co",
+        "phone": "abcdefghi",
+        "amount": 488,
+        "external_id": "ext-hawk-92",
+        "item_id": "item-xyz-4",
+        "status_code": 400,
+        "message": "Validation errors: phone number must contain only digits."
+    },
+    {
+        "test_name": "Referral Key not passed",
+        "request_name": "Create purchase",
+        "ref_val": "fas",
+        "amount": 309,
+        "external_id": "ext-fas-11",
+        "item_id": "item-missing-ref",
+        "status_code": 400,
+        "message": "Error. Program {{programId}} referral key \"{{referralKeyType}}\" absent from request."
+    },
+    {
+        "test_name": "Successful purchase creation",
+        "request_name": "Create purchase",
+        "ref_val": "fas",
+        "email": "jrogez4@yellowpages.com",
+        "phone": "1046747006",
+        "amount": 299,
+        "external_id": "ext-fas-01",
+        "item_id": "item-good",
+        "status_code": 201,
+        "message": "Successfully created purchase."
+    },
+    {
+        "test_name": "external_id not passed",
+        "request_name": "Create purchase",
+        "ref_val": "fas",
+        "email": "zero@example.com",
+        "phone": "9000000001",
+        "amount": 145,
+        "item_id": "item-full",
+        "status_code": 201,
+        "message": "Successfully created purchase."
+    },
+    {
+        "test_name": "external_id is present",
+        "request_name": "Create purchase",
+        "ref_val": "fas",
+        "email": "ext@example.com",
+        "phone": "9000000003",
+        "amount": 163,
+        "external_id": "ext-only-10",
+        "item_id": "item-full",
+        "status_code": 201,
+        "message": "Successfully created purchase."
+    },
+    {
+        "test_name": "Negative amount",
+        "request_name": "Create purchase",
+        "ref_val": "fas",
+        "email": "neg@amount.com",
+        "phone": "9000000006",
+        "amount": -50,
+        "external_id": "ext-neg",
+        "item_id": "item-neg",
+        "status_code": 400,
+        "message": "Validation errors: amount entered must be non negative."
+    }
+]

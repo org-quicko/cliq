@@ -2,3 +2,6 @@
 **/node_modules
 **/generated
 **/.env
+resources/**/environments/
+resources/**/testcases/
+resources/**/test-results/
