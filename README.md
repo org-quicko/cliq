@@ -66,7 +66,7 @@ Cliq is a self-hosted affiliate software solution designed for startups. It enab
 │   ├── projects/
 │   │   └── promoter-portal/   # Angular frontend for promoters
 │   └── ...            # Frontend configuration and shared resources
-├── libs/
+├── lib/
 │   └── ...            # Client and core packages
 ├── resources/         # Static resources
 ├── docker-compose.*.yml
