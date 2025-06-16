@@ -1,122 +1,135 @@
 import { Expose, Transform } from 'class-transformer';
-import { IsDate, IsEmail, IsEnum, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
+import { IsDate, IsEmail, IsEnum, IsString, IsUUID, Length, Matches, IsOptional } from 'class-validator';
 import { ContactStatus } from '../enums';
 
 export class Contact {
 	@Expose({ name: 'contact_id' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsUUID()
-	contactId: string;
+	contactId?: string;
 
 	@Expose({ name: 'program_id' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsUUID()
-	programId: string;
-
+	programId?: string;
+	@Expose()
 	@IsOptional()
 	@IsEmail()
 	email?: string;
-
+	@Expose({ name: 'external_id' })
 	@IsOptional()
+	@IsString()
+	externalId?: string;
+
 	@Expose({ name: 'first_name' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsString()
-	firstName: string;
-
-	@IsOptional()
+	firstName?: string; 
+	
 	@Expose({ name: 'last_name' })
 	@Transform(({ value }) => value, { toClassOnly: true })
+	@IsOptional()
 	@IsString()
-	lastName: string;
+	lastName?: string;
 
+	@Expose()
 	@IsOptional()
 	@IsString()
 	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long.' })
 	@Matches(/^\d+$/, { message: 'phone number must contain only digits.' })
 	phone?: string;
 
+	@Expose()
 	@IsEnum(ContactStatus)
-	status: ContactStatus;
+	status?: ContactStatus;
 
 	@Expose({ name: 'created_at' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsDate()
-	createdAt: Date;
+	createdAt?: Date;
 
 	@Expose({ name: 'updated_at' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsDate()
-	updatedAt: Date;
-}
+	updatedAt?: Date;
 
-export class CreateContact {
-	@Expose({ name: 'program_id' })
-	@Transform(({ value }) => value, { toClassOnly: true })
-	@IsUUID()
-	programId: string;
+	getContactId(): string | undefined {
+		return this.contactId;
+	}
 
-	@IsOptional()
-	@IsString()
-	email?: string;
+	setContactId(value: string | undefined): void {
+		this.contactId = value;
+	}
 
-	@Expose({ name: 'external_id' })
-	@IsOptional()
-	@IsString()
-	externalId?: string;
+	getProgramId(): string | undefined {
+		return this.programId;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'first_name' })
-	@Transform(({ value }) => value, { toClassOnly: true })
-	@IsString()
-	firstName?: string;
+	setProgramId(value: string | undefined): void {
+		this.programId = value;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'last_name' })
-	@Transform(({ value }) => value, { toClassOnly: true })
-	@IsString()
-	lastName?: string;
+	getEmail(): string | undefined {
+		return this.email;
+	}
 
-	@IsOptional()
-	@IsString()
-	phone?: string;
+	setEmail(value: string | undefined): void {
+		this.email = value;
+	}
 
-	@IsOptional()
-	@IsEnum(ContactStatus)
-	status?: ContactStatus;
-}
+	getExternalId(): string | undefined {
+		return this.externalId;
+	}
 
-export class UpdateContact implements Partial<CreateContact> {
-	@Expose({ name: 'program_id' })
-	@Transform(({ value }) => value, { toClassOnly: true })
-	@IsUUID()
-	programId?: string;
+	setExternalId(value: string | undefined): void {
+		this.externalId = value;
+	}
 
-	@IsOptional()
-	@IsString()
-	email?: string;
+	getFirstName(): string | undefined {
+		return this.firstName;
+	}
 
-	@Expose({ name: 'external_id' })
-	@IsOptional()
-	@IsString()
-	externalId?: string;
+	setFirstName(value: string | undefined): void {
+		this.firstName = value;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'first_name' })
-	@Transform(({ value }) => value, { toClassOnly: true })
-	@IsString()
-	firstName?: string;
+	getLastName(): string | undefined {
+		return this.lastName;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'last_name' })
-	@Transform(({ value }) => value, { toClassOnly: true })
-	@IsString()
-	lastName?: string;
+	setLastName(value: string | undefined): void {
+		this.lastName = value;
+	}
 
-	@IsOptional()
-	@IsString()
-	phone?: string;
+	getPhone(): string | undefined {
+		return this.phone;
+	}
 
-	@IsOptional()
-	@IsEnum(ContactStatus)
-	status?: ContactStatus;
+	setPhone(value: string | undefined): void {
+		this.phone = value;
+	}
+
+	getStatus(): ContactStatus | undefined {
+		return this.status;
+	}
+
+	setStatus(value: ContactStatus | undefined): void {
+		this.status = value;
+	}
+
+	getCreatedAt(): Date | undefined {
+		return this.createdAt;
+	}
+
+	setCreatedAt(value: Date | undefined): void {
+		this.createdAt = value;
+	}
+
+	getUpdatedAt(): Date | undefined {
+		return this.updatedAt;
+	}
+
+	setUpdatedAt(value: Date | undefined): void {
+		this.updatedAt = value;
+	}
 }

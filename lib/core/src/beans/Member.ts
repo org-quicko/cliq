@@ -4,117 +4,155 @@ import {
 	IsEmail,
 	IsDate,
 	IsUUID,
-	IsOptional,
 	IsEnum,
+	IsOptional,
 } from 'class-validator';
 import { MemberRole, Status } from '../enums';
 
 export class Member {
 	@Expose({ name: 'member_id' })
 	@IsUUID()
-	memberId: string;
+	memberId?: string;
 
+	@Expose()
 	@IsEmail()
-	email: string;
+	email?: string;
+
+	@Expose()
+	@IsString()
+	password?: string;
 
 	@Expose({ name: 'first_name' })
 	@IsString()
-	firstName: string;
+	firstName?: string;
 
 	@Expose({ name: 'last_name' })
 	@IsString()
-	lastName: string;
+	lastName?: string;
 
+	@Expose()
 	@IsOptional()
 	@IsEnum(MemberRole)
 	role?: MemberRole;
 
+	@Expose()
 	@IsOptional()
 	@IsEnum(Status)
 	status?: Status;
 
-	@Expose({ name: 'created_at' })
-	@IsDate()
-	createdAt: Date;
-
-	@Expose({ name: 'updated_at' })
-	@IsDate()
-	updatedAt: Date;
-}
-
-export class CreateMember {
-	@IsEmail()
-	email: string;
-
-	@IsOptional()
-	@IsString()
-	password: string;
-
-	@Expose({ name: 'first_name' })
-	@IsString()
-	firstName: string;
-	
-	@Expose({ name: 'last_name' })
-	@IsString()
-	lastName: string;
-
-	@IsOptional()
-	@IsEnum(MemberRole)
-	role?: MemberRole;
-
-}
-
-export class UpdateMember {
-
-	@IsOptional()
-	@IsEmail()
-	email?: string;
-
-	@Expose({ name: 'first_name' })
-	@IsOptional()
-	@IsString()
-	firstName?: string;
-	
-	@Expose({ name: 'last_name' })
-	@IsOptional()
-	@IsString()
-	lastName?: string;
-	
 	@Expose({ name: 'new_password' })
-	@IsOptional()
 	@IsString()
 	newPassword?: string;
-	
+
 	@Expose({ name: 'current_password' })
-	@IsOptional()
 	@IsString()
 	currentPassword?: string;
 
-}
-
-export class SignUpMember implements Omit<CreateMember, 'role'> {
-	@IsEmail()
-	email: string;
-
-	@IsOptional()
-	@IsString()
-	password: string;
-
-	@Expose({ name: 'first_name' })
-	@IsString()
-	firstName: string;
-	
-	@Expose({ name: 'last_name' })
-	@IsString()
-	lastName: string;
-
 	@Expose({ name: 'external_id' })
-	@IsOptional()
 	@IsString()
 	externalId?: string;
-}
 
-export class MemberExistsInProgram implements Pick<SignUpMember, 'email'> {
-	@IsEmail()
-	email: string;
+	@Expose({ name: 'created_at' })
+	@IsDate()
+	createdAt?: Date;
+
+	@Expose({ name: 'updated_at' })
+	@IsDate()
+	updatedAt?: Date;
+
+	getMemberId(): string | undefined {
+		return this.memberId;
+	}
+
+	setMemberId(value: string | undefined): void {
+		this.memberId = value;
+	}
+
+	getEmail(): string | undefined {
+		return this.email;
+	}
+
+	setEmail(value: string | undefined): void {
+		this.email = value;
+	}
+
+	getPassword(): string | undefined {
+		return this.password;
+	}
+
+	setPassword(value: string | undefined): void {
+		this.password = value;
+	}
+
+	getFirstName(): string | undefined {
+		return this.firstName;
+	}
+
+	setFirstName(value: string | undefined): void {
+		this.firstName = value;
+	}
+
+	getLastName(): string | undefined {
+		return this.lastName;
+	}
+
+	setLastName(value: string | undefined): void {
+		this.lastName = value;
+	}
+
+	getRole(): MemberRole | undefined {
+		return this.role;
+	}
+
+	setRole(value: MemberRole | undefined): void {
+		this.role = value;
+	}
+
+	getStatus(): Status | undefined {
+		return this.status;
+	}
+
+	setStatus(value: Status | undefined): void {
+		this.status = value;
+	}
+
+	getNewPassword(): string | undefined {
+		return this.newPassword;
+	}
+
+	setNewPassword(value: string | undefined): void {
+		this.newPassword = value;
+	}
+
+	getCurrentPassword(): string | undefined {
+		return this.currentPassword;
+	}
+
+	setCurrentPassword(value: string | undefined): void {
+		this.currentPassword = value;
+	}
+
+	getExternalId(): string | undefined {
+		return this.externalId;
+	}
+
+	setExternalId(value: string | undefined): void {
+		this.externalId = value;
+	}
+
+	getCreatedAt(): Date | undefined {
+		return this.createdAt;
+	}
+
+	setCreatedAt(value: Date | undefined): void {
+		this.createdAt = value;
+	}
+
+	getUpdatedAt(): Date | undefined {
+		return this.updatedAt;
+	}
+
+	setUpdatedAt(value: Date | undefined): void {
+		this.updatedAt = value;
+	}
 }

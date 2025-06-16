@@ -5,54 +5,73 @@ import { LinkStatus } from '../enums';
 export class Link {
 	@Expose({ name: 'link_id' })
 	@IsUUID()
-	linkId: string;
+	linkId?: string;
 
+	@Expose()
 	@IsString()
-	name: string;
+	name?: string;
 
 	@Expose({ name: 'ref_val' })
 	@IsString()
-	refVal: string;
-
+	refVal?: string;
+	@Expose()
 	@IsOptional()
 	@IsEnum(LinkStatus)
 	status?: LinkStatus;
 
 	@Expose({ name: 'created_at' })
 	@IsDate()
-	createdAt: Date;
+	createdAt?: Date;
 
 	@Expose({ name: 'updated_at' })
 	@IsDate()
-	updatedAt: Date;
-}
+	updatedAt?: Date;
 
-export class CreateLink {
+	getLinkId(): string | undefined {
+		return this.linkId;
+	}
 
-	@IsString()
-	name: string;
-	
-	@Expose({ name: 'ref_val' })
-	@IsString()
-	refVal: string;
+	setLinkId(value: string | undefined): void {
+		this.linkId = value;
+	}
 
-	@IsOptional()
-	@IsEnum(LinkStatus)
-	status?: LinkStatus;
+	getName(): string | undefined {
+		return this.name;
+	}
 
-}
+	setName(value: string | undefined): void {
+		this.name = value;
+	}
 
-export class UpdateLink implements Partial<CreateLink> {
-	@IsOptional()
-	@IsString()
-	name?: string;
+	getRefVal(): string | undefined {
+		return this.refVal;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'ref_val' })
-	@IsString()
-	refVal?: string;
+	setRefVal(value: string | undefined): void {
+		this.refVal = value;
+	}
 
-	@IsOptional()
-	@IsEnum(LinkStatus)
-	status?: LinkStatus;
+	getStatus(): LinkStatus | undefined {
+		return this.status;
+	}
+
+	setStatus(value: LinkStatus | undefined): void {
+		this.status = value;
+	}
+
+	getCreatedAt(): Date | undefined {
+		return this.createdAt;
+	}
+
+	setCreatedAt(value: Date | undefined): void {
+		this.createdAt = value;
+	}
+
+	getUpdatedAt(): Date | undefined {
+		return this.updatedAt;
+	}
+
+	setUpdatedAt(value: Date | undefined): void {
+		this.updatedAt = value;
+	}
 }

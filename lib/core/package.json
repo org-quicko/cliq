@@ -31,11 +31,6 @@
 			"import": "./dist/esm/enums/index.js",
 			"require": "./dist/cjs/enums/index.cjs",
 			"types": "./dist/types/src/enums/index.d.ts"
-		},
-		"./exceptions": {
-			"import": "./dist/esm/exceptions/index.js",
-			"require": "./dist/cjs/exceptions/index.cjs",
-			"types": "./dist/types/src/exceptions/index.d.ts"
 		}
 	},
 	"typesVersions": {
@@ -45,9 +40,6 @@
 			],
 			"enums": [
 				"dist/src/enums/index.d.ts"
-			],
-			"exceptins": [
-				"dist/src/exceptions/index.d.ts"
 			]
 		}
 	},

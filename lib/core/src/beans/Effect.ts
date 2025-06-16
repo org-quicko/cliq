@@ -20,6 +20,18 @@ export class PercentageCommission {
 	@Min(0.01)
 	@Max(100)
 	commissionValue: number;
+
+	getCommissionType(): CommissionType {
+		return this.commissionType;
+	}
+
+	getCommissionValue(): number {
+		return this.commissionValue;
+	}
+
+	setCommissionValue(value: number): void {
+		this.commissionValue = value;
+	}
 }
 
 export class FixedCommission {
@@ -31,6 +43,18 @@ export class FixedCommission {
 	@IsNumber()
 	@Min(0.01)
 	commissionValue: number;
+
+	getCommissionType(): CommissionType {
+		return this.commissionType;
+	}
+
+	getCommissionValue(): number {
+		return this.commissionValue;
+	}
+
+	setCommissionValue(value: number): void {
+		this.commissionValue = value;
+	}
 }
 
 export class GenerateCommissionEffect {
@@ -53,12 +77,30 @@ export class GenerateCommissionEffect {
 		keepDiscriminatorProperty: true,
 	})
 	commission: PercentageCommission | FixedCommission;
+
+	getCommission(): PercentageCommission | FixedCommission {
+		return this.commission;
+	}
+
+	setCommission(
+		value: PercentageCommission | FixedCommission,
+	): void {
+		this.commission = value;
+	}
 }
 
 export class SwitchCircleEffect {
 	@Expose({ name: 'target_circle_id', toPlainOnly: true })
 	@IsUUID()
 	targetCircleId: string;
+
+	getTargetCircleId(): string {
+		return this.targetCircleId;
+	}
+
+	setTargetCircleId(value: string): void {
+		this.targetCircleId = value;
+	}
 }
 
 export type Effect = GenerateCommissionEffect | SwitchCircleEffect;

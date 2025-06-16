@@ -2,43 +2,46 @@ import { Expose } from 'class-transformer';
 import {
 	IsString,
 	IsNumber,
-	IsOptional,
 	IsUUID,
 	Min,
 	IsDate,
 	Length,
 	Matches,
 	IsEmail,
+	IsOptional,
 } from 'class-validator';
 import { UtmParams } from './UtmParams';
 
 export class Purchase {
 	@Expose({ name: 'purchase_id' })
 	@IsUUID()
-	purchaseId: string;
+	purchaseId?: string;
 
 	@Expose({ name: 'link_id' })
 	@IsUUID()
-	linkId: string;
+	linkId?: string;
 
+	@Expose()
 	@IsNumber()
 	@Min(0, { message: 'amount entered must be non negative' })
-	amount: number;
+	amount?: number;
 
+	@Expose()
 	@IsOptional()
-	@IsEmail({  }, { message: 'invalid email passed' })
+	@IsEmail({}, { message: 'invalid email passed' })
 	email?: string;
 
-	@IsOptional()
 	@Expose({ name: 'first_name' })
-	@IsString()
-	firstName: string;
-
 	@IsOptional()
-	@Expose({ name: 'last_name' })
 	@IsString()
-	lastName: string;
+	firstName?: string;
 
+	@Expose({ name: 'last_name' })
+	@IsOptional()
+	@IsString()
+	lastName?: string;
+
+	@Expose()
 	@IsOptional()
 	@IsString()
 	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long' })
@@ -51,7 +54,11 @@ export class Purchase {
 
 	@Expose({ name: 'item_id' })
 	@IsString()
-	itemId: string;
+	itemId?: string;
+
+	@Expose({ name: 'ref_val' })
+	@IsString()
+	refVal?: string;
 
 	@Expose({ name: 'utm_params' })
 	@IsOptional()
@@ -59,99 +66,137 @@ export class Purchase {
 
 	@Expose({ name: 'contact_id' })
 	@IsUUID()
-	contactId: string;
+	contactId?: string;
 
 	@Expose({ name: 'promoter_id' })
 	@IsUUID()
-	promoterId: string;
+	promoterId?: string;
 
 	@Expose({ name: 'created_at' })
 	@IsDate()
-	createdAt: Date;
+	createdAt?: Date;
 
 	@Expose({ name: 'updated_at' })
 	@IsDate()
-	updatedAt: Date;
-}
+	updatedAt?: Date;
 
-export class CreatePurchase {
-	@Expose({ name: 'ref_val' })
-	@IsString()
-	refVal: string;
+	getPurchaseId(): string | undefined {
+		return this.purchaseId;
+	}
 
-	@IsNumber()
-	@Min(0, { message: 'amount entered must be non negative' })
-	amount: number;
+	setPurchaseId(value: string | undefined): void {
+		this.purchaseId = value;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'first_name' })
-	@IsString()
-	firstName?: string;
+	getLinkId(): string | undefined {
+		return this.linkId;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'last_name' })
-	@IsString()
-	lastName?: string;
+	setLinkId(value: string | undefined): void {
+		this.linkId = value;
+	}
 
-	@IsOptional()
-	@IsEmail({  }, { message: 'invalid email passed' })
-	email?: string;
+	getAmount(): number | undefined {
+		return this.amount;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'external_id' })
-	@IsString()
-	externalId?: string;
+	setAmount(value: number | undefined): void {
+		this.amount = value;
+	}
 
-	@Expose({ name: 'utm_params' })
-	@IsOptional()
-	utmParams?: UtmParams;
+	getEmail(): string | undefined {
+		return this.email;
+	}
 
-	@Expose({ name: 'item_id' })
-	@IsString()
-	itemId: string;
+	setEmail(value: string | undefined): void {
+		this.email = value;
+	}
 
-	@IsOptional()
-	@IsString()
-	@Length(8, 13, { message: 'phone number must be between 8 and 13 digits long' })
-	@Matches(/^\d+$/, { message: 'phone number must contain only digits' })
-	phone?: string;
-}
+	getFirstName(): string | undefined {
+		return this.firstName;
+	}
 
-export class UpdatePurchase implements Partial<CreatePurchase> {
-	@IsOptional()
-	@Expose({ name: 'ref_val' })
-	@IsString()
-	refVal?: string;
+	setFirstName(value: string | undefined): void {
+		this.firstName = value;
+	}
 
-	@IsOptional()
-	@IsNumber()
-	@Min(0, { message: 'amount entered must be non negative' })
-	amount?: number;
+	getLastName(): string | undefined {
+		return this.lastName;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'first_name' })
-	@IsString()
-	firstName?: string;
+	setLastName(value: string | undefined): void {
+		this.lastName = value;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'last_name' })
-	@IsString()
-	lastName?: string;
+	getPhone(): string | undefined {
+		return this.phone;
+	}
 
-	@IsOptional()
-	@IsEmail({  }, { message: 'invalid email passed' })
-	email?: string;
+	setPhone(value: string | undefined): void {
+		this.phone = value;
+	}
 
-	@IsOptional()
-	@Expose({ name: 'external_id' })
-	@IsString()
-	externalId?: string;
+	getExternalId(): string | undefined {
+		return this.externalId;
+	}
 
-	@Expose({ name: 'utm_params' })
-	@IsOptional()
-	utmParams?: UtmParams;
+	setExternalId(value: string | undefined): void {
+		this.externalId = value;
+	}
 
-	@Expose({ name: 'item_id' })
-	@IsString()
-	itemId?: string;
+	getItemId(): string | undefined {
+		return this.itemId;
+	}
+
+	setItemId(value: string | undefined): void {
+		this.itemId = value;
+	}
+
+	getRefVal(): string | undefined {
+		return this.refVal;
+	}
+
+	setRefVal(value: string | undefined): void {
+		this.refVal = value;
+	}
+
+	getUtmParams(): UtmParams | undefined {
+		return this.utmParams;
+	}
+
+	setUtmParams(value: UtmParams | undefined): void {
+		this.utmParams = value;
+	}
+
+	getContactId(): string | undefined {
+		return this.contactId;
+	}
+
+	setContactId(value: string | undefined): void {
+		this.contactId = value;
+	}
+
+	getPromoterId(): string | undefined {
+		return this.promoterId;
+	}
+
+	setPromoterId(value: string | undefined): void {
+		this.promoterId = value;
+	}
+
+	getCreatedAt(): Date | undefined {
+		return this.createdAt;
+	}
+
+	setCreatedAt(value: Date | undefined): void {
+		this.createdAt = value;
+	}
+
+	getUpdatedAt(): Date | undefined {
+		return this.updatedAt;
+	}
+
+	setUpdatedAt(value: Date | undefined): void {
+		this.updatedAt = value;
+	}
 }

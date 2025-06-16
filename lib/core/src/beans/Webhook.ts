@@ -2,64 +2,90 @@ import { Expose } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class Webhook {
+	@Expose({ name: 'webhook_id' })
+	@IsUUID()
+	webhookId?: string;
 
-    @Expose({ name: 'webhook_id' })
-    @IsUUID()
-    webhookId: string;
+	@Expose({ name: 'program_id' })
+	@IsUUID()
+	programId?: string;
 
-    @Expose({ name: 'program_id' })
-    @IsUUID()
-    programId: string;
+	@Expose()
+	@IsString()
+	@IsNotEmpty()
+	secret?: string;
 
-    @IsOptional()
-    @IsString()
-    secret?: string;
+	@Expose()
+	@IsString()
+	@IsNotEmpty()
+	url?: string;
 
-    @IsString()
-    @IsNotEmpty()
-    url: string;
+	@Expose()
+	@IsArray()
+	@ArrayNotEmpty()
+	events?: string[];
 
-    @IsArray()
-    @ArrayNotEmpty()
-    events: string[];
+	@Expose({ name: 'created_at' })
+	@IsDate()
+	createdAt?: Date;
 
-    @Expose({ name: 'created_at' })
-    @IsDate()
-    createdAt: Date;
+	@Expose({ name: 'updated_at' })
+	@IsDate()
+	updatedAt?: Date;
 
-    @Expose({ name: 'updated_at' })
-    @IsDate()
-    updatedAt: Date;
-}
+	getWebhookId(): string | undefined {
+		return this.webhookId;
+	}
 
+	setWebhookId(value: string | undefined): void {
+		this.webhookId = value;
+	}
 
-export class CreateWebhook {
-    @IsString()
-    @IsNotEmpty()
-    url: string;
+	getProgramId(): string | undefined {
+		return this.programId;
+	}
 
-    @IsString()
-    @IsNotEmpty()
-    secret: string;
+	setProgramId(value: string | undefined): void {
+		this.programId = value;
+	}
 
-    @IsArray()
-    @ArrayNotEmpty()
-    events: string[];
-}
+	getSecret(): string | undefined {
+		return this.secret;
+	}
 
-export class UpdateWebhook {
-    @IsOptional()
-    @IsNotEmpty()
-    @IsString()
-    url?: string;
+	setSecret(value: string | undefined): void {
+		this.secret = value;
+	}
 
-    @IsOptional()
-    @IsNotEmpty()
-    @IsString()
-    secret?: string;
+	getUrl(): string | undefined {
+		return this.url;
+	}
 
-    @IsOptional()
-    @IsArray()
-    @ArrayNotEmpty()
-    events?: string[];
+	setUrl(value: string | undefined): void {
+		this.url = value;
+	}
+
+	getEvents(): string[] | undefined {
+		return this.events;
+	}
+
+	setEvents(value: string[] | undefined): void {
+		this.events = value;
+	}
+
+	getCreatedAt(): Date | undefined {
+		return this.createdAt;
+	}
+
+	setCreatedAt(value: Date | undefined): void {
+		this.createdAt = value;
+	}
+
+	getUpdatedAt(): Date | undefined {
+		return this.updatedAt;
+	}
+
+	setUpdatedAt(value: Date | undefined): void {
+		this.updatedAt = value;
+	}
 }

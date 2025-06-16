@@ -3,10 +3,10 @@ import {
 	IsArray,
 	ValidateNested,
 	IsEnum,
-	IsOptional,
 	IsUUID,
 	IsDate,
 	IsDefined,
+	IsOptional,
 } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 import {
@@ -20,25 +20,31 @@ import { EffectType, Trigger, FunctionStatus } from '../enums';
 export class Function {
 	@Expose({ name: 'function_id' })
 	@IsUUID()
-	functionId: string;
+	functionId?: string;
 
+	@Expose()
 	@IsString()
-	name: string;
+	name?: string;
 
+	@Expose()
 	@IsEnum(Trigger)
-	trigger: Trigger;
+	trigger?: Trigger;
 
 	@Expose({ name: 'effect_type' })
 	@IsEnum(EffectType)
-	effectType: EffectType;
-
+	effectType?: EffectType;
+	@Expose()
 	@IsOptional()
 	@IsEnum(FunctionStatus)
 	status?: FunctionStatus;
 
+	@Expose()
 	@IsDefined()
-	effect: Effect;
-
+	@ValidateNested()
+	@Type((object) => object?.object?.effect_type === EffectType.GENERATE_COMMISSION ? GenerateCommissionEffect : SwitchCircleEffect)
+	effect?: Effect;
+	
+	@Expose()
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
@@ -48,84 +54,108 @@ export class Function {
 	@Expose({ name: 'circle_id' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsUUID()
-	circleId: string;
+	circleId?: string;
 
 	@Expose({ name: 'circle_name' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsString()
-	circleName: string;
+	circleName?: string;
 
 	@Expose({ name: 'created_at' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsDate()
-	createdAt: Date;
+	createdAt?: Date;
 
 	@Expose({ name: 'updated_at' })
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsDate()
-	updatedAt: Date;
-}
+	updatedAt?: Date;
 
-export class CreateFunction {
-	@IsString()
-	name: string;
+	getFunctionId(): string | undefined {
+		return this.functionId;
+	}
 
-	@IsEnum(Trigger)
-	trigger: Trigger;
+	setFunctionId(value: string | undefined): void {
+		this.functionId = value;
+	}
 
-	@Expose({ name: 'effect_type' })
-	@IsEnum(FunctionStatus)
-	effectType: FunctionStatus;
+	getName(): string | undefined {
+		return this.name;
+	}
 
-	@IsOptional()
-	@IsEnum(FunctionStatus)
-	status?: FunctionStatus;
+	setName(value: string | undefined): void {
+		this.name = value;
+	}
 
-	@IsDefined()
-	@ValidateNested()
-	@Type((object) => object?.object?.effect_type === EffectType.GENERATE_COMMISSION ? GenerateCommissionEffect : SwitchCircleEffect)
-	effect: Effect;
+	getTrigger(): Trigger | undefined {
+		return this.trigger;
+	}
 
-	@IsOptional()
-	@IsArray()
-	@ValidateNested({ each: true })
-	@Type(() => Condition)
-	conditions?: Condition[];
+	setTrigger(value: Trigger | undefined): void {
+		this.trigger = value;
+	}
 
-	// defaults to the DEFAULT_CIRCLE
-	@IsOptional()
-	@Expose({ name: 'circle_id' })
-	@IsUUID()
-	circleId: string;
-}
+	getEffectType(): EffectType | undefined {
+		return this.effectType;
+	}
 
-export class UpdateFunction implements Partial<CreateFunction> {
-	@IsOptional()
-	@IsString()
-	name?: string;
+	setEffectType(value: EffectType | undefined): void {
+		this.effectType = value;
+	}
 
-	@IsOptional()
-	@IsEnum(Trigger)
-	trigger?: Trigger;
+	getStatus(): FunctionStatus | undefined {
+		return this.status;
+	}
 
-	@IsOptional()
-	@IsEnum(FunctionStatus)
-	status?: FunctionStatus;
+	setStatus(value: FunctionStatus | undefined): void {
+		this.status = value;
+	}
 
-	@IsOptional()
-	@ValidateNested()
-	@Type((object) => object?.object?.effect_type === EffectType.GENERATE_COMMISSION ? GenerateCommissionEffect : SwitchCircleEffect)
-	effect?: Effect;
+	getEffect(): Effect | undefined {
+		return this.effect;
+	}
 
-	@IsOptional()
-	@IsArray()
-	@ValidateNested({ each: true })
-	@Type(() => Condition)
-	conditions?: Condition[];
+	setEffect(value: Effect | undefined): void {
+		this.effect = value;
+	}
 
-	// defaults to the DEFAULT_CIRCLE
-	@IsOptional()
-	@Expose({ name: 'circle_id' })
-	@IsUUID()
-	circleId?: string;
+	getConditions(): Condition[] | undefined {
+		return this.conditions;
+	}
+
+	setConditions(value: Condition[] | undefined): void {
+		this.conditions = value;
+	}
+
+	getCircleId(): string | undefined {
+		return this.circleId;
+	}
+
+	setCircleId(value: string | undefined): void {
+		this.circleId = value;
+	}
+
+	getCircleName(): string | undefined {
+		return this.circleName;
+	}
+
+	setCircleName(value: string | undefined): void {
+		this.circleName = value;
+	}
+
+	getCreatedAt(): Date | undefined {
+		return this.createdAt;
+	}
+
+	setCreatedAt(value: Date | undefined): void {
+		this.createdAt = value;
+	}
+
+	getUpdatedAt(): Date | undefined {
+		return this.updatedAt;
+	}
+
+	setUpdatedAt(value: Date | undefined): void {
+		this.updatedAt = value;
+	}
 }

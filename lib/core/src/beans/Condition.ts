@@ -27,6 +27,30 @@ export class BaseCondition {
 	@IsDefined()
 	@IsString()
 	value: string | number; // Always stored as string, will be parsed at runtime
+
+	getParameter(): ConditionParameter {
+		return this.parameter;
+	}
+
+	setParameter(value: ConditionParameter): void {
+		this.parameter = value;
+	}
+
+	getOperator(): ConditionOperator {
+		return this.operator;
+	}
+
+	setOperator(value: ConditionOperator): void {
+		this.operator = value;
+	}
+
+	getValue(): string | number {
+		return this.value;
+	}
+
+	setValue(value: string | number): void {
+		this.value = value;
+	}
 }
 
 export class NumOfSignupsCondition extends BaseCondition {
@@ -111,4 +135,19 @@ export class Condition {
 		| NumOfSignupsCondition
 		| NumOfPurchasesCondition
 		| ItemIdCondition;
+
+
+	getConditionId(): string | undefined {
+		return this.conditionId;
+	}
+
+	getCondition(): NumOfSignupsCondition | NumOfPurchasesCondition | ItemIdCondition {
+		return this.condition;
+	}
+
+	setCondition(
+		value: NumOfSignupsCondition | NumOfPurchasesCondition | ItemIdCondition,
+	): void {
+		this.condition = value;
+	}
 }
