@@ -4,7 +4,7 @@
 >
 	<form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
 		<div class="flex flex-col gap-8" [ngClass]="height?.includes('h-auto') ? 'h-auto' : 'h-auto max-h-[348px]'">
-			<!-- Create Link Header -->
+			<!-- Header -->
 			<div class="flex justify-between">
 				<div class="flex flex-col gap-2">
 					<div class="size-6">
@@ -28,6 +28,8 @@
 		</div>
 
 		<!-- Dialog control buttons -->
+
+		<!-- TODO: removed fixed height -->
 		<div class="h-10">
 			<mat-dialog-actions class="!p-0 flex justify-end gap-2">
 				<button matRipple mat-button mat-dialog-close type="button"

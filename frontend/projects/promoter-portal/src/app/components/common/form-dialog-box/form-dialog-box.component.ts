@@ -31,6 +31,7 @@ export class FormDialogBoxComponent implements OnDestroy {
 	@Input({ required: true }) icon: string;
 	@Input({ required: true }) headerText: string;
 
+	// TODO: primary and secondary button action
 	@Input({ required: false }) cancelBtnText?: string;
 	@Input({ required: false }) submitBtnText?: string;
 

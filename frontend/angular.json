@@ -207,23 +207,23 @@
 				}
 			}
 		},
-		"org-quicko-cliq-core": {
+		"org-quicko-cliq-ngx-core": {
 			"projectType": "library",
-			"root": "projects/org-quicko-cliq-core",
-			"sourceRoot": "projects/org-quicko-cliq-core/src",
+			"root": "projects/org-quicko-cliq-ngx-core",
+			"sourceRoot": "projects/org-quicko-cliq-ngx-core/src",
 			"prefix": "lib",
 			"architect": {
 				"build": {
 					"builder": "@angular-devkit/build-angular:ng-packagr",
 					"options": {
-						"project": "projects/org-quicko-cliq-core/ng-package.json"
+						"project": "projects/org-quicko-cliq-ngx-core/ng-package.json"
 					},
 					"configurations": {
 						"production": {
-							"tsConfig": "projects/org-quicko-cliq-core/tsconfig.lib.prod.json"
+							"tsConfig": "projects/org-quicko-cliq-ngx-core/tsconfig.lib.prod.json"
 						},
 						"development": {
-							"tsConfig": "projects/org-quicko-cliq-core/tsconfig.lib.json"
+							"tsConfig": "projects/org-quicko-cliq-ngx-core/tsconfig.lib.json"
 						}
 					},
 					"defaultConfiguration": "production"
@@ -231,7 +231,7 @@
 				"test": {
 					"builder": "@angular-devkit/build-angular:karma",
 					"options": {
-						"tsConfig": "projects/org-quicko-cliq-core/tsconfig.spec.json",
+						"tsConfig": "projects/org-quicko-cliq-ngx-core/tsconfig.spec.json",
 						"polyfills": [
 							"zone.js",
 							"zone.js/testing"

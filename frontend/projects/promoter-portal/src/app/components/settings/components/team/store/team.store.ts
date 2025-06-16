@@ -7,9 +7,11 @@ import { PromoterService } from "../../../../../services/promoter.service";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { of, pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { JSONArray, JSONObject, SnackbarService } from "@org.quicko/ngx-core";
+import { HttpErrorResponse, } from '@angular/common/http';
+import { JSONArray } from "@org-quicko/core";
+import { SnackbarService } from "@org.quicko.cliq/ngx-core";
 import { plainToInstance } from "class-transformer";
+
 
 export interface TeamStoreState {
 	members: MemberTable | null;
@@ -76,7 +78,7 @@ export const TeamStore = signalStore(
 										}
 
 										updatedMemberTable = Object.assign(new MemberTable(), currentMemberTable);
-										updatedMemberTable.metadata = metadata;
+										updatedMemberTable.setMetadata(metadata);
 									} else {
 										updatedMemberTable = memberTable;
 									}
@@ -167,7 +169,7 @@ export const TeamStore = signalStore(
 
 									const updatedMemberTable = new MemberTable();
 									updatedMemberTable.rows = new JSONArray();
-									updatedMemberTable.metadata = metadata;
+									updatedMemberTable.setMetadata(metadata);
 
 									const rows = currentMemberTable.getRows();
 
