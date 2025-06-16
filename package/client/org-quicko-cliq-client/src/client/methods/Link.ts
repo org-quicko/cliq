@@ -1,7 +1,7 @@
 import { ClientException, LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import winston from 'winston';
-import { CreateLink, Link as LinkBean } from '@org-quicko/cliq-core/beans';
-import { ConflictException } from '@org-quicko/cliq-core/exceptions';
+import { CreateLink, Link as LinkBean } from '@org-quicko/cliq-core';
+import { ConflictException } from '@org-quicko/cliq-core';
 import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { plainToInstance } from 'class-transformer';
 import { APIURL } from '../../resource';

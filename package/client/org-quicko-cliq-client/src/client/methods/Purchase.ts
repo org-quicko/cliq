@@ -1,6 +1,6 @@
 import { ClientException, LoggerFactory } from '@org-quicko/core';
 import winston from 'winston';
-import { CreatePurchase, Purchase as PurchaseBean } from '@org-quicko/cliq-core/beans';
+import { CreatePurchase, Purchase as PurchaseBean } from '@org-quicko/cliq-core';
 import { APIURL } from '../../resource';
 import { RestClient } from '../RestClient';
 import { CliqCredentials } from '../../beans';

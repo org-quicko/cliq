@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { CreateLink, CreatePromoter, CreatePurchase, CreateSignUp, RegisterForProgram } from "@org-quicko/cliq-core/beans";
+import { CreateLink, CreatePromoter, CreatePurchase, CreateSignUp, RegisterForProgram } from "@org-quicko/cliq-core";
 import { CliqCredentials } from "../src/beans";
 import { Cliq } from '../src/client/Cliq';
 

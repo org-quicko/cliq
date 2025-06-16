@@ -1,6 +1,6 @@
 import { ClientException, LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import winston from 'winston';
-import { CreatePromoter, Promoter as PromoterBean, RegisterForProgram } from '@org-quicko/cliq-core/beans';
+import { CreatePromoter, Promoter as PromoterBean, RegisterForProgram } from '@org-quicko/cliq-core';
 import { plainToInstance } from 'class-transformer';
 import { APIURL } from '../../resource';
 import { RestClient } from '../RestClient';

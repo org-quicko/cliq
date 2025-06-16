@@ -1,6 +1,6 @@
 import { ClientException, LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import winston from 'winston';
-import { CreateSignUp, SignUp as SignUpBean } from '@org-quicko/cliq-core/beans';
+import { CreateSignUp, SignUp as SignUpBean } from '@org-quicko/cliq-core';
 import { APIURL } from '../../resource';
 import { RestClient } from '../RestClient';
 import { CliqCredentials } from '../../beans';

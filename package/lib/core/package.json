@@ -20,7 +20,7 @@
 		".": {
 			"import": "./dist/esm/index.js",
 			"require": "./dist/cjs/index.cjs",
-			"types": "./dist/types/index.d.ts"
+			"types": "./dist/types/src/index.d.ts"
 		},
 		"./beans": {
 			"import": "./dist/esm/beans/index.js",
