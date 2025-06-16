@@ -14,6 +14,7 @@ export class Link {
 	@Expose({ name: 'ref_val' })
 	@IsString()
 	refVal?: string;
+	
 	@Expose()
 	@IsOptional()
 	@IsEnum(LinkStatus)

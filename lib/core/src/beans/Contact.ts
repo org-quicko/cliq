@@ -12,10 +12,12 @@ export class Contact {
 	@Transform(({ value }) => value, { toClassOnly: true })
 	@IsUUID()
 	programId?: string;
+
 	@Expose()
 	@IsOptional()
 	@IsEmail()
 	email?: string;
+	
 	@Expose({ name: 'external_id' })
 	@IsOptional()
 	@IsString()
