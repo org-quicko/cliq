@@ -33,60 +33,60 @@ export class BaseConditionDto {
 export class RevenueConditionDto extends BaseConditionDto {
 	@Expose({ name: 'parameter' })
 	@IsEnum([conditionParameterEnum.REVENUE])
-	parameter: conditionParameterEnum;
+	declare parameter: conditionParameterEnum;
 
 	@Expose({ name: 'operator' })
 	@IsEnum(numericalOperators)
-	operator: conditionOperatorEnum;
+	declare operator: conditionOperatorEnum;
 
 	@Expose({ name: 'value' })
 	@IsNumber()
 	@Min(1)
-	value: number;
+	declare value: number;
 }
 
 export class NumOfSignupsConditionDto extends BaseConditionDto {
 	@Expose({ name: 'parameter' })
 	@IsEnum([conditionParameterEnum.NUM_OF_SIGNUPS])
-	parameter: conditionParameterEnum;
+	declare parameter: conditionParameterEnum;
 
 	@Expose({ name: 'operator' })
 	@IsEnum(numericalOperators)
-	operator: conditionOperatorEnum;
+	declare operator: conditionOperatorEnum;
 
 	@Expose({ name: 'value' })
 	@IsNumber()
 	@Min(1)
-	value: number;
+	declare value: number;
 }
 
 export class NumOfPurchasesConditionDto extends BaseConditionDto {
 	@Expose({ name: 'parameter' })
 	@IsEnum([conditionParameterEnum.NUM_OF_PURCHASES])
-	parameter: conditionParameterEnum;
+	declare parameter: conditionParameterEnum;
 
 	@Expose({ name: 'operator' })
 	@IsEnum(numericalOperators)
-	operator: conditionOperatorEnum;
+	declare operator: conditionOperatorEnum;
 
 	@Expose({ name: 'value' })
 	@IsNumber()
 	@Min(1)
-	value: number;
+	declare value: number;
 }
 
 export class ItemIdConditionDto extends BaseConditionDto {
 	@Expose({ name: 'parameter' })
 	@IsEnum([conditionParameterEnum.ITEM_ID])
-	parameter: conditionParameterEnum;
+	declare parameter: conditionParameterEnum;
 
 	@Expose({ name: 'operator' })
 	@IsEnum([conditionOperatorEnum.EQUALS, conditionOperatorEnum.CONTAINS])
-	operator: conditionOperatorEnum;
+	declare operator: conditionOperatorEnum;
 
 	@Expose({ name: 'value' })
 	@IsString()
-	value: string;
+	declare value: string;
 }
 
 export class ConditionDto {

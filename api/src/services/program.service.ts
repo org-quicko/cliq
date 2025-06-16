@@ -689,7 +689,7 @@ export class ProgramService {
 
 		const programSheetJsonWorkbook = this.programConverter.convertToReportWorkbook(programId, programResult, startDate, endDate);
 
-		const workbook = ProgramWorkbook.toXlsx();
+		const workbook = ProgramWorkbook.toXlsx(programSheetJsonWorkbook);
 
 		// get list and table
 		const programSummaryList = programSheetJsonWorkbook.getProgramSummarySheet().getProgramSummaryList();

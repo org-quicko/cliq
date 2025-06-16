@@ -11,7 +11,6 @@ import {
     Circle,
     Commission,
     Condition,
-    Contact,
     Function,
     Link,
     Member,

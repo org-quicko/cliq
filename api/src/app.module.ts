@@ -33,10 +33,6 @@ import { PermissionsGuard } from './guards/permissions.guard';
 
 @Module({
 	imports: [
-		ServeStaticModule.forRoot({
-			rootPath: join(__dirname, '..', '..', 'public'),
-			exclude: ['/api'],
-		}),
 		ConfigModule.forRoot({
 			isGlobal: true,
 			envFilePath: ['.env'],
@@ -77,6 +73,10 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,
+		ServeStaticModule.forRoot({
+			rootPath: join(__dirname, '..', '..', 'public'),
+			exclude: ['/api'],
+		}),
 	],
 	controllers: [AppController],
 	providers: [

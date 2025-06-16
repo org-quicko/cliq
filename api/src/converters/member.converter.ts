@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MemberDto } from '../dtos';
 import { Member, PromoterMember } from '../entities';
 import { formatDate } from 'src/utils';
-import { JSONObject } from '@org.quicko/core';
+import { JSONObject } from '@org-quicko/core';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
 import { MemberRow, MemberSheet, MemberTable, PromoterWorkbook } from 'generated/sources/Promoter';
@@ -44,11 +44,11 @@ export class MemberConverter {
 			memberTable.addRow(row);
 		});
 
-		memberTable.metadata = new JSONObject({
+		memberTable.setMetadata(new JSONObject({
 			promoterId,
 			...queryOptions,
 			count
-		});
+		}));
 
 		const membersSheet = new MemberSheet();
 		membersSheet.addMemberTable(memberTable);

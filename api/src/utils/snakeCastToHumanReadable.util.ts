@@ -1,4 +1,4 @@
-import { JSONArray } from "@org.quicko/core";
+import { JSONArray } from "@org-quicko/core";
 
 export function snakeCaseToHumanReadable(headers: JSONArray): string[];
 export function snakeCaseToHumanReadable(key: string): string;

@@ -16,7 +16,7 @@ import {
 	SignupTable,
 	SignupRow
 } from 'generated/sources/Commission';
-import { JSONObject } from '@org.quicko/core';
+import { JSONObject } from '@org-quicko/core';
 
 @Injectable()
 export class CommissionConverter {
@@ -57,7 +57,7 @@ export class CommissionConverter {
 			});
 		}
 
-		newCommissionTable.metadata = new JSONObject(metadata);
+		newCommissionTable.setMetadata(new JSONObject(metadata));
 
 		const commissionSheet = new CommissionSheet();
 		commissionSheet.addCommissionTable(newCommissionTable);

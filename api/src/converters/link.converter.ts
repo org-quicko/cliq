@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { LinkDto } from '../dtos';
 import { Link } from '../entities';
 import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
-import { JSONObject } from '@org.quicko/core';
+import { JSONObject } from '@org-quicko/core';
 import { conversionTypeEnum } from 'src/enums';
 import { formatDate } from 'src/utils';
 import { LinkAnalyticsTable, PromoterWorkbook, LinkAnalyticsRow, LinkAnalyticsSheet } from 'generated/sources/Promoter';
@@ -47,7 +47,7 @@ export class LinkConverter {
 			linkStatsTable.addRow(row);
 		});
 
-		linkStatsTable.metadata = new JSONObject(metadata);
+		linkStatsTable.setMetadata(new JSONObject(metadata));
 
 		const linkStatsSheet = new LinkAnalyticsSheet();
 		linkStatsSheet.addLinkAnalyticsTable(linkStatsTable);

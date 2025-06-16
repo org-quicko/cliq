@@ -1,10 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { JSONObject } from "@org.quicko/core";
+import { JSONObject } from "@org-quicko/core";
 import { PromoterWorkbook, ReferralRow, ReferralSheet, ReferralTable } from "generated/sources/Promoter";
 import { ReferralDto } from "src/dtos";
 import { ReferralView } from "src/entities";
 import { maskInfo } from "src/utils";
-import { formatDate } from "src/utils/formatDate.util";
 
 @Injectable()
 export class ReferralConverter {
@@ -26,7 +25,7 @@ export class ReferralConverter {
 
     convertReferralViewToSheet(referrals: ReferralView[], count: number): PromoterWorkbook {
         const referralTable = new ReferralTable();
-        referralTable.metadata = new JSONObject({ count });
+        referralTable.setMetadata(new JSONObject({ count }));
 
         referrals.forEach((referral) => {
             const row = new ReferralRow([]);

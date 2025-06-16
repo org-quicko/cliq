@@ -1,52 +1,48 @@
-import {
-	Injectable,
-	InternalServerErrorException,
-	OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConsoleLoggerProvider, LoggerFactory } from '@org-quicko/core';
 import * as winston from 'winston';
-import { ConsoleLoggerProvider } from '@org.quicko/core';
 
 @Injectable()
 export class LoggerService implements OnModuleInit {
-	private loggerProvider: ConsoleLoggerProvider = new ConsoleLoggerProvider();
 	private logger: winston.Logger;
 
-	constructor() {}
+	private loggerName = 'logger';
 
 	async onModuleInit() {
-		this.logger = await this.loggerProvider.createLogger();
+		this.logger = await this.getLogger();
 	}
 
-	private ensureLoggerInitialized() {
-		if (!this.logger) {
-			throw new InternalServerErrorException(
-				'Logger not initialized yet',
-			);
+	private async getLogger() {
+		const existingLogger = LoggerFactory.getLogger(this.loggerName);
+		if (existingLogger) {
+			return existingLogger;
 		}
+
+		const loggerProvider = new ConsoleLoggerProvider();
+
+		const newLogger = await loggerProvider.createLogger();
+		LoggerFactory.setLogger(this.loggerName, newLogger);
+
+		return newLogger;
 	}
 
-	info(message: string) {
-		this.ensureLoggerInitialized();
-		this.logger.info(message);
+	public info(message: string, meta?: any) {
+		this.logger.info(message, meta);
 	}
 
-	error(message: string, trace?: string) {
-		this.ensureLoggerInitialized();
-		this.logger.error(message, { trace });
+	public warn(message: string, meta?: any) {
+		this.logger.warn(message, meta);
 	}
 
-	warn(message: string) {
-		this.ensureLoggerInitialized();
-		this.logger.warn(message);
+	public error(message: string, meta?: any) {
+		this.logger.error(message, meta);
 	}
 
-	debug(message: string) {
-		this.ensureLoggerInitialized();
-		this.logger.debug(message);
+	public debug(message: string, meta?: any) {
+		this.logger.debug(message, meta);
 	}
 
-	verbose(message: string) {
-		this.ensureLoggerInitialized();
-		this.logger.verbose(message);
+	public verbose(message: string, meta?: any) {
+		this.logger.verbose(message, meta);
 	}
 }

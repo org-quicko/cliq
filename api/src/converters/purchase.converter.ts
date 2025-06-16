@@ -5,7 +5,7 @@ import { maskInfo } from 'src/utils';
 import { formatDate } from 'src/utils';
 import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
 import { defaultQueryOptions } from 'src/constants';
-import { JSONObject } from '@org.quicko/core';
+import { JSONObject } from '@org-quicko/core';
 import {
 	PromoterWorkbook,
 	PurchaseRow as PromoterPurchaseRow,

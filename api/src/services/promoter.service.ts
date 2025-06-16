@@ -56,6 +56,7 @@ import { PromoterAnalyticsConverter } from '../converters/promoterAnalytics.conv
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from '../constants';
 import { subjectsType } from '../types';
+import { PurchaseWorkbook } from 'generated/sources/Purchase';
 
 @Injectable()
 export class PromoterService {
@@ -900,7 +901,7 @@ export class PromoterService {
 		const signUpsTable = signUpSheetJsonWorkbook.getSignupSheet().getSignupTable();
 		const signUpSummaryList = signUpSheetJsonWorkbook.getSignupSummarySheet().getSignupSummaryList();
 
-		const workbook = SignUpWorkbook.toXlsx();
+		const workbook = SignUpWorkbook.toXlsx(signUpSheetJsonWorkbook);
 		const signUpsSheetData: any[] = [snakeCaseToHumanReadable(signUpsTable.getHeader())];
 		const signUpsSummarySheetData: any[] = [];
 
@@ -964,7 +965,7 @@ export class PromoterService {
 
 		const purchasesTable = purchaseSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
 		const purchaseSummaryList = purchaseSheetJsonWorkbook.getPurchaseSummarySheet().getPurchaseSummaryList();
-		const workbook = SignUpWorkbook.toXlsx();
+		const workbook = PurchaseWorkbook.toXlsx(purchaseSheetJsonWorkbook);
 		const purchasesSheetData: any[] = [snakeCaseToHumanReadable(purchasesTable.getHeader())];
 		const purchasesSummarySheetData: any[] = [];
 
@@ -1025,7 +1026,7 @@ export class PromoterService {
 
 		const referralTable = referralsResult.getReferralSheet().getReferralTable();
 
-		const workbook = PromoterWorkbook.toXlsx();
+		const workbook = PromoterWorkbook.toXlsx(referralsResult);
 		const sheetData: any[] = [snakeCaseToHumanReadable(referralTable.getHeader())];
 
 		referralTable.getRows().map(row => {
@@ -1092,7 +1093,7 @@ export class PromoterService {
 		const signUpsTable = commissionSheetJsonWorkbook.getSignupSheet().getSignupTable();
 		const commissionSummaryList = commissionSheetJsonWorkbook.getCommissionSummarySheet().getCommissionSummaryList();
 
-		const workbook = CommissionWorkbook.toXlsx();
+		const workbook = CommissionWorkbook.toXlsx(commissionSheetJsonWorkbook);
 
 		// all 3 sheets
 		const purchasesSheetData: any[] = [snakeCaseToHumanReadable(purchasesTable.getHeader())];
@@ -1213,7 +1214,7 @@ export class PromoterService {
 
 		const linkSheetJsonWorkbook = this.linkConverter.convertToReportWorkbook(linksResult, startDate, endDate);
 
-		const workbook = LinkWorkbook.toXlsx();
+		const workbook = LinkWorkbook.toXlsx(linkSheetJsonWorkbook);
 
 		// getting table and list
 		const linksTable = linkSheetJsonWorkbook.getLinkSheet().getLinkTable();
