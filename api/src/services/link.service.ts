@@ -10,12 +10,13 @@ import { FindOptionsRelations, Repository, FindOptionsWhere } from 'typeorm';
 import { ProgramService } from './program.service';
 import { PromoterService } from './promoter.service';
 import { CreateLinkDto } from '../dtos';
-import { LinkConverter } from '../converters/link.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
-import { defaultQueryOptions } from 'src/constants';
-import { linkStatusEnum } from 'src/enums';
-import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
+import { defaultQueryOptions } from '../constants';
+import { linkStatusEnum } from '../enums';
+import { LinkAnalyticsView } from '../entities/linkAnalytics.view';
+import { LinkConverter } from '../converters/link/link.dto.converter';
+import { PromoterWorkbookConverter } from 'src/converters/promoter/promoter.workbook.converter';
 
 @Injectable()
 export class LinkService {
@@ -80,10 +81,16 @@ export class LinkService {
 		linkStats.commission = 0;
 		linkStats.createdAt = savedLink.createdAt;
 
-		const linkSheetJson = this.linkConverter.convertLinkStatsToSheet([linkStats], {
-			website: program.website,
-			programId,
-			count: 1
+		const promoterWorkbookConverter = new PromoterWorkbookConverter();
+		const linkSheetJson = promoterWorkbookConverter.convertTo({
+			linkAnalyticsInput: {
+				linkAnalytics: [linkStats],
+				metadata: {
+					website: program.website,
+					programId,
+					count: 1
+				}
+			}
 		});
 
 		this.logger.info('END: createLink service');

@@ -15,7 +15,7 @@ import {
 } from '../entities';
 import { PromoterService } from '../services/promoter.service';
 import { PromoterMemberService } from '../services/promoterMember.service';
-import { PromoterConverter } from '../converters/promoter.converter';
+import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
 import { CommissionModule } from './commission.module';
 import { ProgramModule } from './program.module';
 import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
@@ -55,4 +55,4 @@ import { PromoterAnalyticsModule } from './promoterAnalytics.module';
 	providers: [PromoterService, PromoterMemberService, PromoterConverter],
 	exports: [PromoterService, PromoterConverter, PromoterMemberService],
 })
-export class PromoterModule {}
+export class PromoterModule { }

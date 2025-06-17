@@ -1,48 +1,38 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ConsoleLoggerProvider, LoggerFactory } from '@org-quicko/core';
+import { LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import * as winston from 'winston';
 
 @Injectable()
 export class LoggerService implements OnModuleInit {
-	private logger: winston.Logger;
+  private logger: winston.Logger;
 
-	private loggerName = 'logger';
+  private loggerName = 'logger';
 
-	async onModuleInit() {
-		this.logger = await this.getLogger();
-	}
+  onModuleInit() {
+    this.logger = this.getLogger();
+  }
 
-	private async getLogger() {
-		const existingLogger = LoggerFactory.getLogger(this.loggerName);
-		if (existingLogger) {
-			return existingLogger;
-		}
+  private getLogger() {
+    return LoggerFactory.createLogger(this.loggerName, LoggingLevel.info)
+  }
 
-		const loggerProvider = new ConsoleLoggerProvider();
+  public info(message: string, meta?: any) {
+    this.logger.info(message, meta);
+  }
 
-		const newLogger = await loggerProvider.createLogger();
-		LoggerFactory.setLogger(this.loggerName, newLogger);
+  public warn(message: string, meta?: any) {
+    this.logger.warn(message, meta);
+  }
 
-		return newLogger;
-	}
+  public error(message: string, meta?: any) {
+    this.logger.error(message, meta);
+  }
 
-	public info(message: string, meta?: any) {
-		this.logger.info(message, meta);
-	}
+  public debug(message: string, meta?: any) {
+    this.logger.debug(message, meta);
+  }
 
-	public warn(message: string, meta?: any) {
-		this.logger.warn(message, meta);
-	}
-
-	public error(message: string, meta?: any) {
-		this.logger.error(message, meta);
-	}
-
-	public debug(message: string, meta?: any) {
-		this.logger.debug(message, meta);
-	}
-
-	public verbose(message: string, meta?: any) {
-		this.logger.verbose(message, meta);
-	}
+  public verbose(message: string, meta?: any) {
+    this.logger.verbose(message, meta);
+  }
 }

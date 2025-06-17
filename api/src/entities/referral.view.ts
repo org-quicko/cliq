@@ -1,5 +1,6 @@
-import { referralMVName } from 'src/constants';
-import { contactStatusEnum } from 'src/enums';
+import { referralMVName } from '../constants';
+import { contactStatusEnum } from '../enums';
+import { NumericToNumber } from '../utils/numericToNumber.util';
 import {
 	ViewEntity,
 	DataSource,
@@ -10,11 +11,6 @@ import {
 	CreateDateColumn,
 	UpdateDateColumn,
 } from 'typeorm';
-
-const NumericToNumber = {
-	to: (value: number) => value,
-	from: (value: string | null) => value !== null ? parseFloat(value) : null
-};
 
 @ViewEntity({
 	name: referralMVName,

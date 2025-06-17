@@ -11,6 +11,7 @@ import { Contact } from './contact.entity';
 import { conversionTypeEnum } from '../enums';
 import { Promoter } from './promoter.entity';
 import { Link } from './link.entity';
+import { NumericToNumber } from 'src/utils/numericToNumber.util';
 
 @Entity()
 export class Commission {
@@ -18,15 +19,15 @@ export class Commission {
 	commissionId: string;
 
 	@Column('enum', { name: 'conversion_type', enum: conversionTypeEnum })
-	conversionType: conversionTypeEnum; // inquire about this
+	conversionType: conversionTypeEnum;
 
 	@Column('uuid', { name: 'external_id' })
 	externalId: string;
 
-	@Column('decimal')
+	@Column('decimal', { transformer: NumericToNumber })
 	amount: number;
 
-	@Column('decimal', { nullable: true })
+	@Column('decimal', { nullable: true, transformer: NumericToNumber })
 	revenue: number;
 
 	@CreateDateColumn({

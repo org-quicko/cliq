@@ -5,15 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MemberController } from '../controllers/member.controller';
 import { Member } from '../entities/member.entity';
 import { PromoterMember } from '../entities/promoterMember.entity';
-import { MemberConverter } from '../converters/member.converter';
 import { MemberAuthService } from '../services/memberAuth.service';
 import { PromoterModule } from './promoter.module';
+import { MemberConverter } from 'src/converters/member.converter';
 
 @Global()
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([
-			Member, 
+			Member,
 			PromoterMember
 		]),
 		// JwtModule.register({
@@ -26,4 +26,4 @@ import { PromoterModule } from './promoter.module';
 	providers: [MemberService, MemberAuthService, MemberConverter],
 	exports: [MemberService, MemberAuthService, MemberConverter],
 })
-export class MemberModule {}
+export class MemberModule { }

@@ -11,7 +11,7 @@ import { AddPromoterToCircleDto, CreateCircleDto, SwitchCircleDto } from '../dto
 import { Circle, CirclePromoter } from '../entities';
 import { ProgramService } from './program.service';
 import { CircleConverter } from '../converters/circle.converter';
-import { PromoterConverter } from '../converters/promoter.converter';
+import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from '../constants';
@@ -33,7 +33,7 @@ export class CircleService {
 		private datasource: DataSource,
 
 		private logger: LoggerService,
-	) {}
+	) { }
 
 	/**
 	 * Create circle
@@ -162,7 +162,7 @@ export class CircleService {
 		}
 
 		const promotersDto = circlePromoters.map((circlePromoter) => this.promoterConverter.convert(circlePromoter.promoter, true));
-		
+
 		this.logger.info('END: getAllPromoters service');
 		return promotersDto;
 	}
@@ -219,14 +219,14 @@ export class CircleService {
 	async circleExists(programId: string, circleId: string) {
 		this.logger.info('START: circleExists service');
 
-		const circleResult = await this.circleRepository.findOne({ 
-			where: { 
+		const circleResult = await this.circleRepository.findOne({
+			where: {
 				programId,
 				circleId,
-			} 
+			}
 		});
 		const exists = circleResult !== null;
-		
+
 		this.logger.info('END: circleExists service');
 		return exists;
 	}

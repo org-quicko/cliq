@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FunctionDto } from '../dtos';
-import { FixedCommission, Function, GenerateCommissionEffect, PercentageCommission, SwitchCircleEffect } from '../entities';
+import { Function } from '../entities';
+import { FixedCommission,  GenerateCommissionEffect, PercentageCommission, SwitchCircleEffect } from '../classes';
 import { ConditionConverter } from './condition.converter';
 import { commissionTypeEnum, effectEnum } from 'src/enums';
 import { plainToInstance } from 'class-transformer';

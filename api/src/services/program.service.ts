@@ -19,25 +19,25 @@ import {
 } from '../dtos';
 import { UserService } from './user.service';
 import { ProgramPromoter } from '../entities/programPromoter.entity';
-import { ProgramConverter } from '../converters/program.converter';
-import { PromoterConverter } from '../converters/promoter.converter';
+import { ProgramConverter } from '../converters/program/program.dto.converter';
+import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
 import { UserConverter } from '../converters/user.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { PurchaseConverter } from '../converters/purchase.converter';
-import { CommissionConverter } from '../converters/commission.converter';
+import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
+import { CommissionConverter } from '../converters/commission/commission.dto.converter';
 import { userRoleEnum, statusEnum, visibilityEnum } from '../enums';
 import { LoggerService } from './logger.service';
-import { SignUpConverter } from 'src/converters/signUp.converter';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 import * as XLSX from 'xlsx';
 import { defaultQueryOptions } from 'src/constants';
 import { snakeCaseToHumanReadable } from 'src/utils';
 import { CircleService } from './circle.service';
-import { ProgramWorkbook } from 'generated/sources/Program';
-import { ReferralConverter } from 'src/converters/referral.converter';
 import { subjectsType } from 'src/types';
+import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
+import { ProgramWorkbookConverter } from 'src/converters/program/program.workbook.converter';
+import { ProgramWorkbook } from '@org-quicko/cliq-sheet-core/Program/beans';
+import { ReferralConverter } from 'src/converters/referral.converter';
 
 @Injectable()
 export class ProgramService {
@@ -162,7 +162,7 @@ export class ProgramService {
 		this.logger.info('START: getProgramEntity service');
 
 		const programResult = await this.programRepository.findOne({
-			where: { 
+			where: {
 				programId,
 				...whereOptions
 			},
@@ -437,12 +437,12 @@ export class ProgramService {
 	async checkIfUserExistsInProgram(userId: string, programId: string, subject: subjectsType) {
 		this.logger.info('START: checkIfUserExistsInProgram service');
 		const programUserResult = await this.programUserRepository.findOne({
-			where: { 
-				programId, 
-				userId 
+			where: {
+				programId,
+				userId
 			},
 		});
-		
+
 		this.logger.info('START: checkIfUserExistsInProgram service');
 		return programUserResult === null ? programUserResult : subject;
 	}
@@ -492,7 +492,7 @@ export class ProgramService {
 		this.logger.info(`START: getSignUpsInProgram service`);
 
 		// will throw error if user isn't in the program
-		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId } }))) {
 			this.logger.error(
 				`User does not have permission to perform this action! Not part of this program!`,
 			);
@@ -538,7 +538,7 @@ export class ProgramService {
 	) {
 		this.logger.info(`START: getPurchasesInProgram service`);
 
-		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId } }))) {
 			this.logger.error(
 				`User does not have permission to perform this action! Not part of this program!`,
 			);
@@ -594,7 +594,7 @@ export class ProgramService {
 		this.logger.info(`START: getAllCommissions service`);
 
 		// will throw error if user isn't in the program
-		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId } }))) {
 			this.logger.error(
 				`User does not have permission to perform this action! Not part of this program!`,
 			);
@@ -638,7 +638,7 @@ export class ProgramService {
 		// will throw error in case program doesn't exist
 		await this.getProgramEntity(programId);
 
-		if (!(await this.programUserRepository.findOne({ where: { programId, userId }}))) {
+		if (!(await this.programUserRepository.findOne({ where: { programId, userId } }))) {
 			throw new UnauthorizedException();
 		}
 
@@ -647,7 +647,7 @@ export class ProgramService {
 		});
 
 		const referralsDto = referralsResult.map(referral => this.referralConverter.convertTo(referral));
-		
+
 		this.logger.info(`END: getAllProgramReferrals service`);
 		return referralsDto;
 	}
@@ -687,7 +687,8 @@ export class ProgramService {
 			this.logger.warn(`Warning. No data found for Program ${programId} for period: ${startDate} - ${endDate}`);
 		}
 
-		const programSheetJsonWorkbook = this.programConverter.convertToReportWorkbook(programId, programResult, startDate, endDate);
+		const programWorkbookConverter = new ProgramWorkbookConverter();
+		const programSheetJsonWorkbook = programWorkbookConverter.convertFrom(programId, programResult, startDate, endDate);
 
 		const workbook = ProgramWorkbook.toXlsx(programSheetJsonWorkbook);
 
@@ -710,10 +711,14 @@ export class ProgramService {
 			programSummarySheetData.push([snakeCaseToHumanReadable(item.getKey()), item.getValue()]);
 		});
 
-		// entering data to sheet
 		const summarySheet = XLSX.utils.aoa_to_sheet(programSummarySheetData);
 		const promotersSheet = XLSX.utils.aoa_to_sheet(promotersSheetData);
 
+		// Remove the snake_case sheets
+		workbook.SheetNames = workbook.SheetNames.filter(name => 
+			!name.includes('_sheet')
+		);
+		
 		// adding sheets to workbook
 		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
 		XLSX.utils.book_append_sheet(workbook, promotersSheet, 'Promoters');

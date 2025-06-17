@@ -12,7 +12,7 @@ import {
 	PromoterAnalyticsView,
 } from '../entities';
 import { PromoterModule } from './promoter.module';
-import { ProgramConverter } from 'src/converters/program.converter';
+import { ProgramConverter } from 'src/converters/program/program.dto.converter';
 import { ProgramPromoterService } from '../services/programPromoter.service';
 import { ContactModule } from './contact.module';
 import { PurchaseModule } from './purchase.module';
@@ -42,8 +42,8 @@ import { PromoterAnalyticsModule } from './promoterAnalytics.module';
 		forwardRef(() => PurchaseModule),
 		forwardRef(() => SignUpModule),
 	],
-	controllers: [ProgramController], 
+	controllers: [ProgramController],
 	providers: [ProgramService, ProgramConverter, ProgramPromoterService],
 	exports: [ProgramService, ProgramConverter, ProgramPromoterService],
 })
-export class ProgramModule {}
+export class ProgramModule { }

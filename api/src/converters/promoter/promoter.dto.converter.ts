@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PromoterDto } from '../dtos';
-import { Promoter } from '../entities';
+import { PromoterDto } from '../../dtos';
+import { Promoter } from '../../entities';
 
 @Injectable()
 export class PromoterConverter {

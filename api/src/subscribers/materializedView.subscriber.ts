@@ -1,5 +1,5 @@
 import { linkAnalyticsMVName, linkTableName, promoterAnalyticsMVName, referralMVName } from 'src/constants';
-import { Commission, Link, ProgramPromoter, Promoter, PromoterMember, Purchase, SignUp } from '../entities';
+import { Commission, Link, ProgramPromoter, Promoter, Purchase, SignUp } from '../entities';
 import {
     EventSubscriber,
     EntitySubscriberInterface,

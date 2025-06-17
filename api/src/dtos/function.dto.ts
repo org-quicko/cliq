@@ -15,7 +15,7 @@ import {
 	Effect,
 	GenerateCommissionEffect,
 	SwitchCircleEffect,
-} from '../entities';
+} from '../classes';
 import { ConditionDto } from './condition.dto';
 
 export class FunctionDto {

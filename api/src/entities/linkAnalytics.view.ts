@@ -1,5 +1,6 @@
 import { linkAnalyticsMVName } from 'src/constants';
 import { linkStatusEnum } from 'src/enums';
+import { NumericToNumber } from 'src/utils/numericToNumber.util';
 import { ViewEntity, DataSource, SelectQueryBuilder, ViewColumn, Index } from 'typeorm';
 
 @ViewEntity({
@@ -71,13 +72,13 @@ export class LinkAnalyticsView {
     @ViewColumn({ name: 'program_id' })
     programId: string;
 
-    @ViewColumn()
+    @ViewColumn({ transformer: NumericToNumber })
     signups: number;
 
-    @ViewColumn()
+    @ViewColumn({ transformer: NumericToNumber })
     purchases: number;
 
-    @ViewColumn()
+    @ViewColumn({ transformer: NumericToNumber })
     commission: number;
 
     @ViewColumn({ name: 'created_at' })

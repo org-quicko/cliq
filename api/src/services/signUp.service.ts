@@ -12,7 +12,6 @@ import { Contact, SignUp } from '../entities';
 import { CreateContactDto, CreateSignUpDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
-import { SignUpConverter } from '../converters/signUp.converter';
 import { SIGNUP_CREATED, SignUpCreatedEvent } from '../events';
 import { referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
 import { LoggerService } from './logger.service';
@@ -20,6 +19,7 @@ import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoterService } from './programPromoter.service';
 import { signUpEntityName } from '../constants';
+import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
 
 @Injectable()
 export class SignUpService {

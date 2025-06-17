@@ -5,13 +5,14 @@ import { PURCHASE_CREATED, PurchaseCreatedEvent, SIGNUP_CREATED, SignUpCreatedEv
 import { OnEvent } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Condition, Function, GenerateCommissionEffect, PromoterAnalyticsView, Purchase, SignUp, SwitchCircleEffect } from "../entities";
+import { Condition, Function, Purchase, SignUp } from "../entities";
 import { PromoterService } from "./promoter.service";
 import { CircleService } from "./circle.service";
 import { CommissionService } from "./commission.service";
 import { plainToInstance } from "class-transformer";
 import { CreateCommissionDto, SwitchCircleDto } from "../dtos";
 import { roundedNumber } from "../utils";
+import { GenerateCommissionEffect, SwitchCircleEffect } from "../classes";
 
 
 @Injectable()

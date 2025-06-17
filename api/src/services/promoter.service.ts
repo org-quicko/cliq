@@ -31,35 +31,50 @@ import {
 	Member,
 } from '../entities';
 import { MemberService } from './member.service';
-import { PromoterConverter } from '../converters/promoter.converter';
+import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
 import { PromoterMemberService } from './promoterMember.service';
-import { MemberConverter } from '../converters/member.converter';
-import { PurchaseConverter } from '../converters/purchase.converter';
+import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { commissionSortByEnum, conversionTypeEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, promoterStatusEnum, statusEnum } from '../enums';
 import { LoggerService } from './logger.service';
-import { SignUpConverter } from '../converters/signUp.converter';
-import { CommissionConverter } from '../converters/commission.converter';
+import { CommissionConverter } from '../converters/commission/commission.dto.converter';
 import { ProgramService } from './program.service';
 import { sortOrderEnum } from '../enums/sortOrder.enum';
 import { referralSortByEnum } from '../enums/referralSortBy.enum';
 import { LinkAnalyticsView } from '../entities/linkAnalytics.view';
-import { ReferralConverter } from '../converters/referral.converter';
-import { LinkConverter } from '../converters/link.converter';
 import { defaultQueryOptions } from '../constants';
 import { snakeCaseToHumanReadable } from '../utils';
-import { SignUpWorkbook } from 'generated/sources/SignUp';
-import { PromoterWorkbook } from 'generated/sources/Promoter';
-import { CommissionWorkbook } from 'generated/sources/Commission';
-import { LinkWorkbook } from 'generated/sources/Link';
-import { PromoterAnalyticsConverter } from '../converters/promoterAnalytics.converter';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from '../constants';
 import { subjectsType } from '../types';
-import { PurchaseWorkbook } from 'generated/sources/Purchase';
+import { LinkConverter } from 'src/converters/link/link.dto.converter';
+import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
+import { MemberConverter } from 'src/converters/member.converter';
+import { ReferralConverter } from 'src/converters/referral.converter';
+import { PromoterWorkbookConverter } from 'src/converters/promoter/promoter.workbook.converter';
+import { SignUpWorkbookConverter } from 'src/converters/signup/signup.workbook.converter';
+import { PurchaseWorkbookConverter } from 'src/converters/purchase/purchase.workbook.converter';
+import { LinkWorkbookConverter } from 'src/converters/link/link.workbook.converter';
+import { SignUpWorkbook } from '@org-quicko/cliq-sheet-core/SignUp/beans';
+import { PurchaseWorkbook } from '@org-quicko/cliq-sheet-core/Purchase/beans';
+import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
+import { CommissionWorkbookConverter } from 'src/converters/commission/commission.workbook.converter';
+import { CommissionWorkbook } from '@org-quicko/cliq-sheet-core/Commission/beans';
+import { LinkWorkbook } from '@org-quicko/cliq-sheet-core/Link/beans';
 
 @Injectable()
 export class PromoterService {
+
+	private promoterWorkbookConverter: PromoterWorkbookConverter;
+
+	private signUpWorkbookConverter: SignUpWorkbookConverter;
+
+	private purchaseWorkbookConverter: PurchaseWorkbookConverter;
+
+	private linkWorkbookConverter: LinkWorkbookConverter;
+
+	private commissionWorkbookConverter: CommissionWorkbookConverter;
+
 	constructor(
 		@InjectRepository(Promoter)
 		private promoterRepository: Repository<Promoter>,
@@ -102,12 +117,17 @@ export class PromoterService {
 		private signUpConverter: SignUpConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
-		private promoterStatsConverter: PromoterAnalyticsConverter,
 
 		private datasource: DataSource,
 
 		private logger: LoggerService,
-	) { }
+	) { 
+	 	this.promoterWorkbookConverter = new PromoterWorkbookConverter();
+		this.signUpWorkbookConverter = new SignUpWorkbookConverter();
+		this.purchaseWorkbookConverter = new PurchaseWorkbookConverter();
+		this.linkWorkbookConverter = new LinkWorkbookConverter();
+		this.commissionWorkbookConverter = new CommissionWorkbookConverter();
+	}
 
 	/**
 	 * Create promoter
@@ -119,7 +139,7 @@ export class PromoterService {
 	) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: createPromoter service');
-			
+
 			const promoterRepository = manager.getRepository(Promoter);
 
 			const promoterEntity = promoterRepository.create(body);
@@ -129,7 +149,7 @@ export class PromoterService {
 			// but if it's a user, simply the promoter will be created 
 			if (memberId) {
 				const memberResult = await this.memberService.getMemberEntity(memberId);
-	
+
 				if (await this.memberService.memberExistsInProgram(memberResult.email, programId)) {
 					this.logger.error(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
 					throw new UnauthorizedException(`Error. Member ${memberResult.email} already exists in Program ${programId} in a promoter`);
@@ -155,28 +175,28 @@ export class PromoterService {
 	async deletePromoter(memberId: string, programId: string, promoterId: string) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: deletePromoter service');
-	
+
 			const memberRepository = manager.getRepository(Member);
 			const promoterRepository = manager.getRepository(Promoter);
 
 			const promoter = await this.getPromoterEntity(promoterId, {
 				promoterMembers: true
 			});
-	
+
 			if (promoter.promoterMembers.length > 1) {
 				this.logger.error(`Error. Cannot delete promoter right now- there are more than one members in it.`);
 				throw new BadRequestException(`Error. Cannot delete promoter right now- there are more than one members in it.`);
-			
-			} 
 
-			const member = await memberRepository.findOne({ 
-				where: { 
+			}
+
+			const member = await memberRepository.findOne({
+				where: {
 					memberId,
 					promoterMembers: {
 						promoterId,
 						role: memberRoleEnum.ADMIN
 					}
-				} 
+				}
 			});
 
 			if (!member) {
@@ -185,10 +205,10 @@ export class PromoterService {
 			}
 
 			await memberRepository.remove(member);
-	
+
 			promoter.status = promoterStatusEnum.ARCHIVED;
 			await promoterRepository.save(promoter);
-	
+
 			this.logger.info('END: deletePromoter service');
 		});
 	}
@@ -215,18 +235,18 @@ export class PromoterService {
 		return this.datasource.transaction(async (manager) => {
 
 			this.logger.info(`START: registerForProgram service`);
-	
+
 			const isPublic = await this.programService.isProgramPublic(programId);
 
 			const promoterRepository = manager.getRepository(Promoter);
 			const programPromoterRepository = manager.getRepository(ProgramPromoter);
 			const circleRepository = manager.getRepository(Circle);
 			const circlePromoterRepository = manager.getRepository(CirclePromoter);
-	
+
 			if (!isPublic) {
 				this.logger.error(`Error. Cannot signup to a private program`);
 				throw new BadRequestException(`Error. Cannot signup to a private program`);
-	
+
 			} else {
 				const programPromoter = await programPromoterRepository.findOne({ where: { programId, promoterId } });
 				if (programPromoter && programPromoter.acceptedTermsAndConditions) {
@@ -234,7 +254,7 @@ export class PromoterService {
 					throw new ConflictException(`Error. Promoter is already part of program!`);
 				}
 			}
-	
+
 			if (!acceptedTermsAndConditions) {
 				this.logger.warn(`Warning. Promoter has not accepted terms and conditions.`);
 			} else {
@@ -256,14 +276,14 @@ export class PromoterService {
 						`Error. Default Circle not found for Program ${programId}`,
 					);
 				}
-				
+
 				const circlePromoter = circlePromoterRepository.create({
 					circleId: defaultCircle.circleId,
 					promoterId,
 				});
 				await circlePromoterRepository.save(circlePromoter);
 			}
-	
+
 			const programPromoter = programPromoterRepository.create({
 				programId,
 				promoterId,
@@ -352,10 +372,10 @@ export class PromoterService {
 	async memberExistsInPromoter(memberId: string, promoterId: string, subject: subjectsType) {
 		this.logger.info('START: memberExistsInPromoter service');
 
-		const memberResult = await this.promoterMemberRepository.findOne({ 
-			where: { 
-				promoterId, 
-				memberId 
+		const memberResult = await this.promoterMemberRepository.findOne({
+			where: {
+				promoterId,
+				memberId
 			},
 		});
 
@@ -421,7 +441,13 @@ export class PromoterService {
 							},
 						);
 
-						const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMember], promoterId, 1);
+						const memberSheetJson = this.promoterWorkbookConverter.convertTo({
+							memberSheetInput: {
+								promoterMembers: [promoterMember],
+								promoterId,
+								count: 1
+							}
+						});
 
 						this.logger.info('END: addMember service');
 						return memberSheetJson;
@@ -441,7 +467,13 @@ export class PromoterService {
 
 				const promoterMemberResult = await manager.save(newPromoterMember);
 
-				const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMemberResult], promoterId, 1);
+				const memberSheetJson = this.promoterWorkbookConverter.convertTo({
+					memberSheetInput: {
+						promoterMembers: [promoterMemberResult],
+						promoterId,
+						count: 1
+					}
+				});
 
 				this.logger.info('END: addMember service');
 				return memberSheetJson;
@@ -480,7 +512,13 @@ export class PromoterService {
 
 			const promoterMemberResult = await manager.save(promoterMember);
 
-			const memberSheetJson = this.memberConverter.convertToSheetJson([promoterMemberResult], promoterId, 1);
+			const memberSheetJson = this.promoterWorkbookConverter.convertTo({
+				memberSheetInput: {
+					promoterMembers: [promoterMemberResult],
+					promoterId,
+					count: 1
+				}
+			});
 
 			this.logger.info('END: addMember service');
 			return memberSheetJson;
@@ -530,7 +568,14 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const membersSheetJson = this.memberConverter.convertToSheetJson(promoterMembers, promoterId, count, queryOptions);
+			const membersSheetJson = this.promoterWorkbookConverter.convertTo({
+				memberSheetInput: {
+					promoterMembers: promoterMembers,
+					promoterId,
+					count,
+					queryOptions
+				}
+			});
 
 			this.logger.info('END: getAllMembers service');
 			return membersSheetJson;
@@ -566,7 +611,7 @@ export class PromoterService {
 			role: body.role,
 			updatedAt: () => `NOW()`,
 		});
-		
+
 		this.logger.info('END: updateRole service');
 	}
 
@@ -629,10 +674,14 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const signUpSheetJson = this.signUpConverter.convertToSheetJson(signUpsResult);
+			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+				signUpSheetInput: {
+					signUps: signUpsResult
+				}
+			});
 
 			this.logger.info('END: getSignUpsForPromoter service: Returning Workbook');
-			return signUpSheetJson;
+			return promoterWorkbook;
 		}
 
 		this.logger.info('END: getSignUpsForPromoter service');
@@ -686,7 +735,12 @@ export class PromoterService {
 
 
 		if (toUseSheetJsonFormat) {
-			const purchaseSheetJson = this.purchaseConverter.convertToSheetJson(purchases);
+			const purchaseSheetJson = this.promoterWorkbookConverter.convertTo({
+				purchaseSheetInput: {
+					purchases,
+
+				}
+			});
 
 			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
 
@@ -720,7 +774,7 @@ export class PromoterService {
 		} catch (error) {
 			if (error instanceof NotFoundException) {
 				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			} else {
 				throw error;
 			}
@@ -737,10 +791,17 @@ export class PromoterService {
 		});
 
 		if (toUseSheetJsonFormat) {
-			const commissionSheetJson = this.referralConverter.convertReferralViewToSheet(referralResult, count);
+			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+				referralSheetInput: {
+					referrals: referralResult,
+					metadata: {
+						count
+					}
+				}
+			});
 
 			this.logger.info(`END: getPromoterReferrals service: Returning Workbook`);
-			return commissionSheetJson;
+			return promoterWorkbook;
 		}
 
 
@@ -846,10 +907,18 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const commissionSheetJson = this.commissionConverter.convertToSheet(commissionResult, referralKeyType, { count });
+			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+				commissionSheetInput: {
+					commissions: commissionResult,
+					referralKeyType,
+					metadata: {
+						count,
+					}
+				}
+			});
 
 			this.logger.info(`END: getPromoterCommissions service: Returning Workbook`);
-			return commissionSheetJson;
+			return promoterWorkbook;
 		}
 
 		const commissionDtos = commissionResult.map((commission) =>
@@ -877,7 +946,7 @@ export class PromoterService {
 		} catch (error) {
 			if (error instanceof NotFoundException) {
 				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			} else {
 				throw error;
 			}
@@ -896,7 +965,8 @@ export class PromoterService {
 		const promoterResult = await this.getPromoterEntity(promoterId);
 		const signUpsCommissions = await this.getSignUpsCommissions(signUpsResult);
 
-		const signUpSheetJsonWorkbook = this.signUpConverter.convertToReportWorkbook(signUpsResult, signUpsCommissions, promoterResult, startDate, endDate);
+
+		const signUpSheetJsonWorkbook = this.signUpWorkbookConverter.convertFrom(signUpsResult, signUpsCommissions, promoterResult, startDate, endDate);
 
 		const signUpsTable = signUpSheetJsonWorkbook.getSignupSheet().getSignupTable();
 		const signUpSummaryList = signUpSheetJsonWorkbook.getSignupSummarySheet().getSignupSummaryList();
@@ -915,6 +985,11 @@ export class PromoterService {
 
 		const summarySheet = XLSX.utils.aoa_to_sheet(signUpsSummarySheetData);
 		const signUpsSheet = XLSX.utils.aoa_to_sheet(signUpsSheetData);
+
+		// Remove the snake_case sheets
+		workbook.SheetNames = workbook.SheetNames.filter(name => 
+			!name.includes('_sheet')
+		);
 
 		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
 		XLSX.utils.book_append_sheet(workbook, signUpsSheet, 'Signups');
@@ -936,13 +1011,13 @@ export class PromoterService {
 		endDate: Date,
 	) {
 		this.logger.info('START: getPurchasesReport service');
-		
+
 		try {
 			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
 		} catch (error) {
 			if (error instanceof NotFoundException) {
 				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			} else {
 				throw error;
 			}
@@ -960,8 +1035,8 @@ export class PromoterService {
 		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
 		const promoterResult = await this.getPromoterEntity(promoterId);
 		const purchasesCommissions = await this.getPurchasesCommissions(purchasesResult);
-		
-		const purchaseSheetJsonWorkbook = this.purchaseConverter.convertToReportWorkbook(purchasesResult, purchasesCommissions, promoterResult, startDate, endDate);
+
+		const purchaseSheetJsonWorkbook = this.purchaseWorkbookConverter.convertFrom(purchasesResult, purchasesCommissions, promoterResult, startDate, endDate);
 
 		const purchasesTable = purchaseSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
 		const purchaseSummaryList = purchaseSheetJsonWorkbook.getPurchaseSummarySheet().getPurchaseSummaryList();
@@ -975,10 +1050,15 @@ export class PromoterService {
 
 		purchaseSummaryList.getItems().forEach((item) => {
 			purchasesSummarySheetData.push([snakeCaseToHumanReadable(item.getKey()), item.getValue()]);
-		})
+		});
 
 		const summarySheet = XLSX.utils.aoa_to_sheet(purchasesSummarySheetData);
 		const purchasesSheet = XLSX.utils.aoa_to_sheet(purchasesSheetData);
+
+		// Remove the snake_case sheets
+		workbook.SheetNames = workbook.SheetNames.filter(name => 
+			!name.includes('_sheet')
+		);
 
 		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
 		XLSX.utils.book_append_sheet(workbook, purchasesSheet, 'Purchases');
@@ -1007,7 +1087,7 @@ export class PromoterService {
 		} catch (error) {
 			if (error instanceof NotFoundException) {
 				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			} else {
 				throw error;
 			}
@@ -1033,6 +1113,11 @@ export class PromoterService {
 			sheetData.push(row);
 		});
 
+		// Remove the snake_case sheets
+		workbook.SheetNames = workbook.SheetNames.filter(name => 
+			!name.includes('_sheet')
+		);
+
 		const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Referrals');
 
@@ -1056,7 +1141,7 @@ export class PromoterService {
 		} catch (error) {
 			if (error instanceof NotFoundException) {
 				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			} else {
 				throw error;
 			}
@@ -1078,13 +1163,13 @@ export class PromoterService {
 
 		const promoterResult = await this.getPromoterEntity(promoterId);
 
-		const commissionSheetJsonWorkbook = this.commissionConverter.convertToReportWorkbook(
-			signUpsResult, 
-			purchasesResult, 
+		const commissionSheetJsonWorkbook = this.commissionWorkbookConverter.convertFrom(
+			signUpsResult,
+			purchasesResult,
 			signUpsCommissions,
 			purchasesCommissions,
-			promoterResult, 
-			startDate, 
+			promoterResult,
+			startDate,
 			endDate,
 		);
 
@@ -1120,6 +1205,11 @@ export class PromoterService {
 		const purchasesSheet = XLSX.utils.aoa_to_sheet(purchasesSheetData);
 		const signUpsSheet = XLSX.utils.aoa_to_sheet(signUpsSheetData);
 
+		// Remove the snake_case sheets
+		workbook.SheetNames = workbook.SheetNames.filter(name => 
+			!name.includes('_sheet')
+		);
+
 		// adding sheet to workbook
 		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
 		XLSX.utils.book_append_sheet(workbook, purchasesSheet, 'Purchases');
@@ -1132,14 +1222,14 @@ export class PromoterService {
 	}
 
 	private async getSignUpsCommissions(signUps: SignUp[]): Promise<Map<string, Commission>> {
-		const signUpsCommissions:  Map<string, Commission> = new Map();
-		
+		const signUpsCommissions: Map<string, Commission> = new Map();
+
 		await Promise.all(
 			signUps.map(async (signUp) => {
 				const commission = (await this.commissionRepository.findOne({
 					where: {
 						conversionType: conversionTypeEnum.SIGNUP,
-						externalId: signUp.contactId,		
+						externalId: signUp.contactId,
 					}
 				}))!;
 
@@ -1151,14 +1241,14 @@ export class PromoterService {
 	}
 
 	private async getPurchasesCommissions(purchases: Purchase[]): Promise<Map<string, Commission[]>> {
-		const purchasesCommissions:  Map<string, Commission[]> = new Map();
-		
+		const purchasesCommissions: Map<string, Commission[]> = new Map();
+
 		await Promise.all(
 			purchases.map(async (purchase) => {
 				const commissions = await this.commissionRepository.find({
 					where: {
 						conversionType: conversionTypeEnum.PURCHASE,
-						externalId: purchase.purchaseId,		
+						externalId: purchase.purchaseId,
 					}
 				});
 
@@ -1183,7 +1273,7 @@ export class PromoterService {
 		} catch (error) {
 			if (error instanceof NotFoundException) {
 				this.logger.error(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
-				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);			
+				throw new ForbiddenException(`Error. Member ${memberId} is not part of Promoter ${promoterId}`);
 			} else {
 				throw error;
 			}
@@ -1212,7 +1302,7 @@ export class PromoterService {
 			}
 		});
 
-		const linkSheetJsonWorkbook = this.linkConverter.convertToReportWorkbook(linksResult, startDate, endDate);
+		const linkSheetJsonWorkbook = this.linkWorkbookConverter.convertFrom(linksResult, startDate, endDate);
 
 		const workbook = LinkWorkbook.toXlsx(linkSheetJsonWorkbook);
 
@@ -1233,6 +1323,11 @@ export class PromoterService {
 
 		const summarySheet = XLSX.utils.aoa_to_sheet(linksSummarySheetData);
 		const linksSheet = XLSX.utils.aoa_to_sheet(linksSheetData);
+
+		// Remove the snake_case sheets
+		workbook.SheetNames = workbook.SheetNames.filter(name => 
+			!name.includes('_sheet')
+		);
 
 		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
 		XLSX.utils.book_append_sheet(workbook, linksSheet, 'Links');
@@ -1280,16 +1375,21 @@ export class PromoterService {
 		}
 
 		if (toUseSheetJsonFormat) {
-			const promoterWorkbook = this.promoterStatsConverter.convertPromoterAnalyticsViewToSheet([
-				promoterStatsResult ?? {
-					programId,
-					promoterId,
-					totalCommission: 0,
-					totalRevenue: 0,
-					totalSignUps: 0,
-					totalPurchases: 0,
+			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+				promoterAnalyticsSheetInput: {
+					promoterAnalytics: [
+						promoterStatsResult ?? {
+							programId,
+							promoterId,
+							totalCommission: 0,
+							totalRevenue: 0,
+							totalSignUps: 0,
+							totalPurchases: 0,
+						}
+					]
 				}
-			]);
+			});
+
 			this.logger.info(`END: getPromoterAnalytics service: Returning Workbook`);
 
 			return promoterWorkbook;
@@ -1300,11 +1400,11 @@ export class PromoterService {
 	}
 
 	async getPromoterLinkAnalytics(
-		programId: string, 
-		promoterId: string, 
+		programId: string,
+		promoterId: string,
 		sortBy?: linkSortByEnum,
 		sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
-		toUseSheetJsonFormat: boolean = true, 
+		toUseSheetJsonFormat: boolean = true,
 		queryOptions: QueryOptionsInterface = defaultQueryOptions
 	) {
 		this.logger.info(`START: getPromoterLinkAnalytics service`);
@@ -1323,11 +1423,17 @@ export class PromoterService {
 		const programResult = await this.programService.getProgramEntity(programId);
 
 		if (toUseSheetJsonFormat) {
-			const promoterWorkbook = this.linkConverter.convertLinkStatsToSheet(linkStatsResult, {
-				programId,
-				website: programResult.website,
-				count
+			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+				linkAnalyticsInput: {
+					linkAnalytics: linkStatsResult,
+					metadata: {
+						programId,
+						website: programResult.website,
+						count
+					}
+				}
 			});
+
 			this.logger.info(`START: getPromoterLinkAnalytics service: Returning Workbook`);
 			return promoterWorkbook;
 		}

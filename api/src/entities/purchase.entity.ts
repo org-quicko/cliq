@@ -11,6 +11,7 @@ import { Link } from './link.entity';
 import { Promoter } from './promoter.entity';
 import { Contact } from './contact.entity';
 import { UtmParams } from 'src/classes';
+import { NumericToNumber } from '../utils';
 
 @Entity()
 export class Purchase {
@@ -23,7 +24,7 @@ export class Purchase {
 	@Column('varchar', { name: 'contact_id' })
 	contactId: string;
 
-	@Column('decimal')
+	@Column('decimal', { transformer: NumericToNumber })
 	amount: number;
 
 	@Column({ type: 'jsonb', nullable: true, name: 'utm_params' })

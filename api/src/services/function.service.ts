@@ -11,8 +11,8 @@ import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import {
 	Condition,
 	Function,
-	SwitchCircleEffect,
 } from '../entities';
+import { SwitchCircleEffect } from "../classes";
 import { ProgramService } from './program.service';
 import { FunctionConverter } from '../converters/function.converter';
 import { LoggerService } from './logger.service';

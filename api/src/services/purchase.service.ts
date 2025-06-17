@@ -11,7 +11,7 @@ import { Contact, Purchase } from '../entities';
 import { CreateContactDto, CreatePurchaseDto } from '../dtos';
 import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
-import { PurchaseConverter } from '../converters/purchase.converter';
+import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
 import { contactStatusEnum, referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import { PURCHASE_CREATED, PurchaseCreatedEvent } from '../events';
@@ -137,7 +137,7 @@ export class PurchaseService {
 				{ status: contactStatusEnum.ACTIVE, updatedAt: () => `NOW()` },
 			);
 
-			
+
 			const purchaseCreatedEvent = new PurchaseCreatedEvent(
 				associatedContact.programId,
 				'urn:POST:/purchases',
@@ -157,7 +157,7 @@ export class PurchaseService {
 				},
 				savedPurchase.purchaseId,
 			);
-			
+
 			this.eventEmitter.emit(PURCHASE_CREATED, purchaseCreatedEvent);
 
 			return this.purchaseConverter.convert(savedPurchase);

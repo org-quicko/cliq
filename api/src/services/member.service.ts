@@ -6,17 +6,17 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MemberConverter } from 'src/converters/member.converter';
 import { SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
 import { Member, Promoter, PromoterMember } from 'src/entities';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { memberRoleEnum, statusEnum } from 'src/enums';
-import { PromoterConverter } from 'src/converters/promoter.converter';
+import { PromoterConverter } from 'src/converters/promoter/promoter.dto.converter';
 import { MemberAuthService } from './memberAuth.service';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 import { promoterStatusEnum } from '../enums/promoterStatus.enum';
+import { MemberConverter } from 'src/converters/member.converter';
 
 @Injectable()
 export class MemberService {
@@ -225,7 +225,7 @@ export class MemberService {
 					}
 				}
 			});
-	
+
 			if (!member) {
 				this.logger.error(`Member ${memberId} does not exist`);
 				throw new Error(`Member ${memberId} does not exist.`);
@@ -240,7 +240,7 @@ export class MemberService {
 					promoter: true
 				}
 			});
-	
+
 			let canDelete = true;
 
 			// member isn't admin at all, can delete
@@ -260,7 +260,7 @@ export class MemberService {
 						promoterId: promoter.promoterId
 					}
 				});
-	
+
 				// at least 1 more admin is present, can delete
 				if (promoterAdmins.length > 1) {
 					canDelete = true;
@@ -281,9 +281,9 @@ export class MemberService {
 						canDelete = false;
 					}
 				}
-	
+
 			}
-	
+
 			if (canDelete) {
 				await memberRepository.remove(member);
 			}
@@ -313,7 +313,7 @@ export class MemberService {
 		if (member?.promoterMembers) {
 			for (const promoterMember of member.promoterMembers) {
 				if (
-					(promoterMember.promoter.status === promoterStatusEnum.ACTIVE) && 
+					(promoterMember.promoter.status === promoterStatusEnum.ACTIVE) &&
 					(promoterMember.status === statusEnum.ACTIVE)
 				) {
 					exists = true;
@@ -341,7 +341,7 @@ export class MemberService {
 		});
 
 		if (
-			!promoterMemberResult || 
+			!promoterMemberResult ||
 			(promoterMemberResult.promoter.status === promoterStatusEnum.ARCHIVED)
 		) {
 			this.logger.error(`Error. Member ${memberId} isn't part of any promoter!`);

@@ -4,7 +4,6 @@ export * from './circlePromoter.entity';
 export * from './commission.entity';
 export * from './condition.entity';
 export * from './contact.entity';
-export * from '../classes/effect';
 export * from './function.entity';
 export * from './link.entity';
 export * from './linkAnalytics.view';

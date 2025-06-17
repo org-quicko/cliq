@@ -5,8 +5,8 @@ import { ReferralView } from "src/entities";
 import { ReferralService } from "src/services/referral.service";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ReferralView])],
-    providers: [ReferralService, ReferralConverter],
-    exports: [ReferralService, ReferralConverter,]
+	imports: [TypeOrmModule.forFeature([ReferralView])],
+	providers: [ReferralService, ReferralConverter],
+	exports: [ReferralService, ReferralConverter,]
 })
 export class ReferralModule { }
