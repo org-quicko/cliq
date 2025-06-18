@@ -118,7 +118,7 @@ export class CircleController {
 	 */
 	@ApiResponse({ status: 200, description: 'Bad Request' })
 	@Permissions('read', Circle)
-	@Patch(':circle_id')
+	@Get(':circle_id')
 	async getCircle(@Param('circle_id') circleId: string) {
 		this.logger.info('START: getCircle controller');
 
@@ -133,7 +133,7 @@ export class CircleController {
 	 */
 	@ApiResponse({ status: 200, description: 'Bad Request' })
 	@Permissions('update', Circle)
-	@Get(':circle_id')
+	@Patch(':circle_id')
 	async updateCircle(@Param('circle_id') circleId: string, @Body() body: UpdateCircleDto) {
 		this.logger.info('START: updateCircle controller');
 
