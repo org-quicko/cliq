@@ -45,7 +45,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "@org-quicko/core": "^1.1.0",
     "@org-quicko/sheet": "^1.0.1",
-	"@org-quicko/cliq-sheet-core": "^1.0.0-alpha.0",
+	"@org-quicko/cliq-sheet-core": "^1.0.0",
     "@types/json2csv": "^5.0.7",
     "axios": "^1.9.0",
     "bcrypt": "^5.1.1",

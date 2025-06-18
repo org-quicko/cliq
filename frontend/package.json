@@ -11,7 +11,7 @@
 		"test": "ng test",
 		"clean": "npm cache clean --force",
 		"start:promoter-portal": "ng serve promoter-portal",
-		"build:core-lib": "ng build org-quicko-cliq-ngx-core",
+		"build:org-quicko-cliq-ngx-core": "ng build org-quicko-cliq-ngx-core",
 		"build:promoter": "ng build promoter-portal",
 		"generate": "npm run generateSchema && npm run generateObjects",
 		"generateSchema": "excel-to-schema --input ./resources/excel/ --output ./projects/org-quicko-cliq-ngx-core/generated/schemas",
