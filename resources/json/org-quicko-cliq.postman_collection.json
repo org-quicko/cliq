@@ -196,7 +196,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"referral_key_type\": \"\",\r\n    \"website\": \"www.quicko.com\",\r\n    \"theme_color\": \"#4D5C92\",\r\n    \"time_zone\": \"IST\",\r\n    \"date_format\": \"DD/MM/YYYY\"\r\n}",
+									"raw": "{\r\n    \"name\": \"The Sith\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"referral_key_type\": \"phone\",\r\n    \"website\": \"www.quicko.com\",\r\n    \"theme_color\": \"#4D5C92\",\r\n    \"time_zone\": \"IST\",\r\n    \"date_format\": \"DD/MM/YYYY\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1746,7 +1746,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/programs/:program_id/report?start_date=03/09/2024&end_date=04/20/2025&report_period=custom",
+									"raw": "{{base_url}}/programs/:program_id/report?report_period=last_90_days",
 									"host": [
 										"{{base_url}}"
 									],
@@ -1758,15 +1758,17 @@
 									"query": [
 										{
 											"key": "start_date",
-											"value": "03/09/2024"
+											"value": "03/09/2024",
+											"disabled": true
 										},
 										{
 											"key": "end_date",
-											"value": "04/20/2025"
+											"value": "04/20/2025",
+											"disabled": true
 										},
 										{
 											"key": "report_period",
-											"value": "custom"
+											"value": "last_90_days"
 										}
 									],
 									"variable": [
@@ -1944,7 +1946,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"test1234\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Doe\"\r\n}",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"nice\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Doe\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2042,7 +2044,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"1nfu$10n\"\r\n}",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"nice\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2336,7 +2338,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"first_name\": \"Try\",\r\n    \"last_name\": \"Me\"\r\n}",
+									"raw": "{\r\n    \"email\": \"in.org.quicko.cliq@quicko.com\",\r\n    \"current_password\": \"1nfu$10n\",\r\n    \"new_password\": \"K&/h]~]2Qc~:f$_w_~wTAf9C6]4a<#8^\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2552,7 +2554,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"nice cirlcle\"\r\n}",
+									"raw": "{\r\n    \"name\": \"silver\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3250,6 +3252,45 @@
 									"body": "{\r\n    \"message\": \"Successfully deleted circle.\"\r\n}"
 								}
 							]
+						},
+						{
+							"name": "Update circle",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"the default circle\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/circles/:circle_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"circles",
+										":circle_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "circle_id",
+											"value": "{{circle_id}}"
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"event": [
@@ -3325,7 +3366,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"PURCHASE_10\",\r\n    \"trigger\": \"purchase\",\r\n    \"effect_type\": \"generate_commission\",\r\n    \"effect\": {\r\n        \"commission\": {\r\n            \"commission_type\": \"percentage\",\r\n            \"commission_value\": 10\r\n        }\r\n    },\r\n    // \"conditions\": [\r\n    //     {\r\n    //         \"condition\": {\r\n    //             \"parameter\": \"no. of signups\",\r\n    //             \"operator\": \"less_than_or_equal_to\",\r\n    //             \"value\": 30\r\n    //         }\r\n    //     }\r\n    // ],\r\n    \"circle_id\": \"target-circle-id\"\r\n}",
+									"raw": "{\r\n    \"name\": \"SWITCHEROO\",\r\n    \"trigger\": \"purchase\",\r\n    \"effect_type\": \"switch_circle\",\r\n    \"effect\": {\r\n        \"target_circle_id\": \"b7897fd4-58a5-48fe-b411-7d4d35ec460d\"\r\n    },\r\n    \"conditions\": [\r\n        {\r\n            \"condition\": {\r\n                \"parameter\": \"revenue\",\r\n                \"operator\": \"greater_than\",\r\n                \"value\": 50\r\n            }\r\n        }\r\n    ],\r\n    \"circle_id\": \"10cad223-eaaa-4ca9-8a48-25e8c35b93e2\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3815,7 +3856,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"circle_id\": \"dad6c7d4-9810-48bb-b109-7718f0f4e591\"\r\n}",
+									"raw": "{\r\n    \"status\": \"active\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4857,7 +4898,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"test@mail.com\",\r\n    \"password\": \"test\",\r\n    \"first_name\": \"test\",\r\n    \"last_name\": \"test\"\r\n}",
+									"raw": "{\r\n    \"email\": \"anakin@mail.com\",\r\n    \"password\": \"starwars\",\r\n    \"first_name\": \"Anakin\",\r\n    \"last_name\": \"Skywalker\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4963,7 +5004,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"test@mail.com\",\r\n    \"password\": \"test\"\r\n}",
+									"raw": "{\r\n    \"email\": \"anakin@mail.com\",\r\n    \"password\": \"starwars\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -5675,7 +5716,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"Truly Easy Trading\",\r\n    \"logo_url\": \"\"\r\n}",
+									"raw": "{\r\n    \"name\": \"Vader's Empire\",\r\n    \"logo_url\": \"\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -5787,20 +5828,19 @@
 								"disabledSystemHeaders": {}
 							},
 							"request": {
-								"auth": {
-									"type": "noauth"
-								},
 								"method": "GET",
 								"header": [
 									{
 										"key": "x-api-key",
 										"value": "{{api_key}}",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									},
 									{
 										"key": "x-api-secret",
 										"value": "{{api_secret}}",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"url": {
@@ -6846,7 +6886,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/signups?report_period=last_30_days&start_date=2025-03-01T14:43:05.861Z&end_date=2025-03-31T14:43:05.862Z",
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/signups?report_period=last_30_days",
 									"host": [
 										"{{base_url}}"
 									],
@@ -6865,11 +6905,13 @@
 										},
 										{
 											"key": "start_date",
-											"value": "2025-03-01T14:43:05.861Z"
+											"value": "2025-03-01T14:43:05.861Z",
+											"disabled": true
 										},
 										{
 											"key": "end_date",
-											"value": "2025-03-31T14:43:05.862Z"
+											"value": "2025-03-31T14:43:05.862Z",
+											"disabled": true
 										}
 									],
 									"variable": [
@@ -6898,7 +6940,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/purchases?start_date=2025-03-11T09:23:42.473Z&end_date=2025-04-15T09:23:42.473Z",
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/purchases?report_period=last_90_days",
 									"host": [
 										"{{base_url}}"
 									],
@@ -6913,16 +6955,17 @@
 									"query": [
 										{
 											"key": "start_date",
-											"value": "2025-03-11T09:23:42.473Z"
+											"value": "2025-03-11T09:23:42.473Z",
+											"disabled": true
 										},
 										{
 											"key": "end_date",
-											"value": "2025-04-15T09:23:42.473Z"
+											"value": "2025-04-15T09:23:42.473Z",
+											"disabled": true
 										},
 										{
 											"key": "report_period",
-											"value": "last_90_days",
-											"disabled": true
+											"value": "last_90_days"
 										}
 									],
 									"variable": [
@@ -6951,7 +6994,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/commissions?report_period=last_7_days&start_date&end_date",
+									"raw": "{{base_url}}/programs/:program_id/promoters/:promoter_id/reports/commissions?report_period=last_7_days",
 									"host": [
 										"{{base_url}}"
 									],
@@ -6970,21 +7013,23 @@
 										},
 										{
 											"key": "start_date",
-											"value": null
+											"value": null,
+											"disabled": true
 										},
 										{
 											"key": "end_date",
-											"value": null
+											"value": null,
+											"disabled": true
 										}
 									],
 									"variable": [
 										{
 											"key": "program_id",
-											"value": "{{program_id}}"
+											"value": ""
 										},
 										{
 											"key": "promoter_id",
-											"value": "{{promoter_id}}"
+											"value": ""
 										}
 									]
 								}
@@ -7304,7 +7349,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"ref_val\": \"why-1aa42rk\",\r\n    \"name\": \"why\"\r\n}",
+									"raw": "{\r\n    \"ref_val\": \"padme\",\r\n    \"name\": \"Padme's Link\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7381,12 +7426,14 @@
 									{
 										"key": "x-api-key",
 										"value": "{{api_key}}",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									},
 									{
 										"key": "x-api-secret",
 										"value": "{{api_secret}}",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"url": {
@@ -7474,7 +7521,7 @@
 						"bearer": [
 							{
 								"key": "token",
-								"value": "{{user_access_token}}",
+								"value": "{{member_access_token}}",
 								"type": "string"
 							}
 						]
@@ -7550,7 +7597,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"ref_val\": \"anakin-syrppvm\",\r\n    \"amount\": {{$randomInt}},\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"phone\": \"1234567890\",\r\n    \"external_id\": \"nice_external_id\",\r\n    \"item_id\": \"1234nice\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+									"raw": "{\r\n    \"ref_val\": \"anakin\",\r\n    \"amount\": 40,\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"phone\": \"1234567890\",\r\n    \"external_id\": \"nice_external_id\",\r\n    \"item_id\": \"1234nice\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7614,7 +7661,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"ref_val\": \"anakin-syrppvm\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"first_name\": \"{{$randomFirstName}}\",\r\n    \"last_name\": \"{{$randomLastName}}\",\r\n    \"phone\": \"098765432101\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+									"raw": "{\r\n    \"ref_val\": \"anakin\",\r\n    \"email\": \"{{$randomEmail}}\",\r\n    \"first_name\": \"{{$randomFirstName}}\",\r\n    \"last_name\": \"{{$randomLastName}}\",\r\n    \"phone\": \"987654321010\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
