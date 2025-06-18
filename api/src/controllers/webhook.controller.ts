@@ -6,17 +6,13 @@ import {
     Delete,
     Param,
     Body,
-    UseGuards,
-    Headers
 } from "@nestjs/common";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Permissions } from "../decorators/permissions.decorator";
 import { Webhook } from "../entities";
-import { AuthGuard } from "../guards/auth.guard";
 import { WebhookService } from "../services/webhook.service";
 import { CreateWebhookDto, UpdateWebhookDto } from "../dtos";
 import { LoggerService } from "../services/logger.service";
-import { PermissionsGuard } from "../guards/permissions.guard";
 
 @ApiTags('Webhooks')
 @Controller('programs/:program_id/webhooks')

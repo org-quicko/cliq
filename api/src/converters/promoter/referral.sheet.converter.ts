@@ -1,6 +1,7 @@
-import { Purchase, ReferralView } from "src/entities";
+import { Purchase, ReferralView } from "../../entities";
 import { PurchaseSheet, ReferralSheet } from "@org-quicko/cliq-sheet-core/Promoter/beans";
 import { ReferralTableConverter } from "./referral.table.converter";
+import { ConverterException } from '@org-quicko/core';
 
 export interface IReferralSheetConverterInput {
 	referrals: ReferralView[];
@@ -17,16 +18,20 @@ export class ReferralSheetConverter {
 
 	/** For getting purchases data for the promoter */
 	convertFrom(
-		referralsSheet: ReferralSheet, 
+		referralsSheet: ReferralSheet,
 		{
-			referrals, 
+			referrals,
 			metadata
 		}: IReferralSheetConverterInput
 	) {
-		this.referralTableConverter.convertFrom(
-			referralsSheet.getReferralTable(),
-			referrals,
-			metadata
-		);
+		try {
+			this.referralTableConverter.convertFrom(
+				referralsSheet.getReferralTable(),
+				referrals,
+				metadata
+			);
+		} catch (error) {
+			throw new ConverterException('Failed to convert to Referral Sheet', error);
+		}
 	}
 }

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
-import { AddPromoterToCircleDto, CreateCircleDto, SwitchCircleDto } from '../dtos';
+import { AddPromoterToCircleDto, CreateCircleDto, SwitchCircleDto, UpdateCircleDto } from '../dtos';
 import { Circle, CirclePromoter } from '../entities';
 import { ProgramService } from './program.service';
 import { CircleConverter } from '../converters/circle.converter';
@@ -229,6 +229,24 @@ export class CircleService {
 
 		this.logger.info('END: circleExists service');
 		return exists;
+	}
+
+	async updateCircle(circleId: string, body: UpdateCircleDto) {
+		this.logger.info('START: updateCircle service');
+
+		const circle = await this.circleRepository.findOne({
+			where: {
+				circleId
+			}
+		});
+
+		if (!circle) {
+			throw new NotFoundException(`Error. Circle ${circleId} not found.`);
+		}
+
+		await this.circleRepository.update(circleId, body);
+
+		this.logger.info('END: updateCircle service');
 	}
 
 	/**

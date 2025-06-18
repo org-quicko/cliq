@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FunctionService } from '../services/function.service';
 import { CreateFunctionDto, UpdateFunctionDto } from '../dtos';
@@ -6,8 +6,6 @@ import { effectEnum, triggerEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Function } from '../entities';
-import { AuthGuard } from '../guards/auth.guard';
-import { PermissionsGuard } from '../guards/permissions.guard';
 
 @ApiTags('Function')
 @Controller('/programs/:program_id/functions')

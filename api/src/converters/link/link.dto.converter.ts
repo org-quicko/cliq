@@ -1,20 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { LinkDto } from '../../dtos';
 import { Link } from '../../entities';
+import { ConverterException } from '@org-quicko/core';
 
 @Injectable()
 export class LinkConverter {
 	convert(link: Link): LinkDto {
-		const linkDto = new LinkDto();
+		try {
+			const linkDto = new LinkDto();
 
-		linkDto.linkId = link.linkId;
+			linkDto.linkId = link.linkId;
 
-		linkDto.name = link.name;
-		linkDto.refVal = link.refVal;
+			linkDto.name = link.name;
+			linkDto.refVal = link.refVal;
 
-		linkDto.createdAt = new Date(link.createdAt);
-		linkDto.updatedAt = new Date(link.updatedAt);
+			linkDto.createdAt = new Date(link.createdAt);
+			linkDto.updatedAt = new Date(link.updatedAt);
 
-		return linkDto;
+			return linkDto;
+		} catch (error) {
+			throw new ConverterException('Error converting Link entity to LinkDto', error);
+		}
 	}
 }

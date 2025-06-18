@@ -1,9 +1,7 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiKeyService } from '../services/apiKey.service';
 import { LoggerService } from '../services/logger.service';
-import { AuthGuard } from '../guards/auth.guard';
-import { PermissionsGuard } from '../guards/permissions.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import { ApiKey } from '../entities';
 import { statusEnum } from 'src/enums';

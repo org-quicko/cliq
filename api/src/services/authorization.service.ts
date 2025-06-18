@@ -371,6 +371,7 @@ export class AuthorizationService {
         allow('manage', [Member]);
         allow('create', [Link, User]);
         allow(['read', 'read_all', 'delete'], Link, { programId });
+        allow(['manage'], Circle, { programId });
         allow<User>('create', Promoter, { programUsers: { $elemMatch: { programId } } });
         allow(['read', 'update', 'delete'], Promoter, { programPromoters: { $elemMatch: { programId } } });
         allow('register', Promoter);

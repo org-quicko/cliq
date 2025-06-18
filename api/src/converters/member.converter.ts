@@ -1,27 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { MemberDto } from '../dtos';
 import { Member, PromoterMember } from '../entities';
-import { formatDate } from 'src/utils';
-import { JSONObject } from '@org-quicko/core';
-import { QueryOptionsInterface } from 'src/interfaces/queryOptions.interface';
-import { defaultQueryOptions } from 'src/constants';
+import { ConverterException } from '@org-quicko/core';
 
 @Injectable()
 export class MemberConverter {
 	public convert(member: Member, promoterMember?: PromoterMember): MemberDto {
-		const memberDto = new MemberDto();
+		try {
+			const memberDto = new MemberDto();
 
-		memberDto.memberId = member.memberId;
+			memberDto.memberId = member.memberId;
 
-		memberDto.email = member.email;
-		memberDto.firstName = member.firstName;
-		memberDto.lastName = member.lastName;
-		memberDto.role = promoterMember?.role;
-		memberDto.status = promoterMember?.status;
+			memberDto.email = member.email;
+			memberDto.firstName = member.firstName;
+			memberDto.lastName = member.lastName;
+			memberDto.role = promoterMember?.role;
+			memberDto.status = promoterMember?.status;
 
-		memberDto.createdAt = member.createdAt;
-		memberDto.updatedAt = member.updatedAt;
+			memberDto.createdAt = member.createdAt;
+			memberDto.updatedAt = member.updatedAt;
 
-		return memberDto;
+			return memberDto;
+		} catch (error) {
+			throw new ConverterException('Error converting Member entity to MemberDto', error);
+		}
 	}
 }

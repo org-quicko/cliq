@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, UseGuards, Headers, Res, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Headers, Res, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ProgramService } from '../services/program.service';
 import { LoggerService } from '../services/logger.service';
@@ -24,8 +24,6 @@ import {
   ReferralView,
   SignUp,
 } from '../entities';
-import { AuthGuard } from '../guards/auth.guard';
-import { PermissionsGuard } from '../guards/permissions.guard';
 import { getReportFileName, getStartEndDate } from '../utils';
 import { reportPeriodEnum } from '../enums/reportPeriod.enum';
 import { Response } from 'express';

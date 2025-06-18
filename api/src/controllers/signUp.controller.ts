@@ -1,9 +1,8 @@
-import { Controller, Post, Body, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CreateSignUpDto } from '../dtos';
 import { SignUpService } from '../services/signUp.service';
 import { LoggerService } from '../services/logger.service';
-import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('SignUp')
 @Controller('/signups')

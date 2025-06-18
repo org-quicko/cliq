@@ -1,14 +1,15 @@
-import { Commission, Promoter, SignUp } from "src/entities";
+import { Commission, Promoter, SignUp } from "../../entities";
 import { SignUpWorkbook } from "@org-quicko/cliq-sheet-core/SignUp/beans";
 import { SignUpTableConverter } from "./signup.table.converter";
 import { SignUpSummaryListConverter } from "./signup_summary.list.converter";
+import { ConverterException } from '@org-quicko/core';
 
 export class SignUpWorkbookConverter {
 
 	private signUpTableConverter: SignUpTableConverter;
-	
+
 	private signUpSummaryListConverter: SignUpSummaryListConverter;
-	
+
 	constructor() {
 		this.signUpTableConverter = new SignUpTableConverter();
 		this.signUpSummaryListConverter = new SignUpSummaryListConverter();
@@ -22,35 +23,31 @@ export class SignUpWorkbookConverter {
 		startDate: Date,
 		endDate: Date,
 	): SignUpWorkbook {
-		const signUpWorkbook = new SignUpWorkbook();
+		try {
+			const signUpWorkbook = new SignUpWorkbook();
 
-		const signupsSheet = signUpWorkbook.getSignupSheet();
-		const signupsTable = signupsSheet.getSignupTable();
-		const totalSignUps = signUps.length;
-		
-		const totalCommission = signUps.reduce((acc, signUp) => {
-			const commission = signUpsCommissions.get(signUp.contactId);
-			return acc + (commission?.amount ?? 0);
-		}, 0);
+			const signupsSheet = signUpWorkbook.getSignupSheet();
+			const signupsTable = signupsSheet.getSignupTable();
 
+			this.signUpTableConverter.convertFrom(
+				signupsTable,
+				signUpsCommissions,
+				signUps
+			)
 
-		this.signUpTableConverter.convertFrom(
-			signupsTable,
-			signUpsCommissions,
-			signUps
-		)
+			this.signUpSummaryListConverter.convertFrom({
+				signUpsSummaryList: signUpWorkbook.getSignupSummarySheet().getSignupSummaryList(),
+				startDate,
+				endDate,
+				promoterId: promoter.promoterId,
+				promoterName: promoter.name,
+				signUps,
+				signUpsCommissions,
+			})
 
-		this.signUpSummaryListConverter.convertFrom({
-			signUpsSummaryList: signUpWorkbook.getSignupSummarySheet().getSignupSummaryList(),
-			startDate,
-			endDate,
-			promoterId: promoter.promoterId,
-			promoterName: promoter.name,
-			totalSignUps,
-			totalCommission,
-		})
-
-		return signUpWorkbook;
-
+			return signUpWorkbook;
+		} catch (error) {
+			throw new ConverterException('Failed to convert to Signup Workbook', error);
+		}
 	}
 }

@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, UseGuards, Req, Headers, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, Headers, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PromoterService } from '../services/promoter.service';
 import {
 	CreateMemberDto,
@@ -12,7 +12,6 @@ import {
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { statusEnum, conversionTypeEnum, memberSortByEnum, memberRoleEnum, commissionSortByEnum, linkSortByEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
-import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
 	Commission,
@@ -22,10 +21,8 @@ import {
 	ReferralView,
 	PromoterAnalyticsView,
 	SignUp,
-	Link,
 	LinkAnalyticsView,
 } from '../entities';
-import { PermissionsGuard } from '../guards/permissions.guard';
 import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';

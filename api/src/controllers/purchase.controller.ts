@@ -1,9 +1,8 @@
-import { Controller, Post, Body, UseGuards, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { PurchaseService } from '../services/purchase.service';
 import { CreatePurchaseDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
-import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('Purchase')
 @Controller('/purchases')

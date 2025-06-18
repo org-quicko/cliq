@@ -7,7 +7,8 @@ import {
 	RevenueConditionDto,
 } from '../dtos';
 import { Condition } from '../entities';
-import { conditionParameterEnum } from 'src/enums';
+import { conditionParameterEnum } from '../enums';
+import { ConverterException } from '@org-quicko/core';
 
 @Injectable()
 export class ConditionConverter {
@@ -53,7 +54,14 @@ export class ConditionConverter {
 			);
 		}
 
-		conditionDto.condition = factory(condition);
+		try {
+			conditionDto.condition = factory(condition);
+		} catch (error) {
+			throw new ConverterException(
+				'Error converting Condition entity to ConditionDto',
+				error,
+			);
+		}
 		return conditionDto;
 	}
 

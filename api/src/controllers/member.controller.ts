@@ -1,14 +1,12 @@
-import { Controller, Get, Post, Patch, Body, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { MemberService } from '../services/member.service';
-import { CreateMemberDto, MemberDto, MemberExistsInProgramDto, SignUpMemberDto, UpdateMemberDto } from '../dtos';
+import { CreateMemberDto, MemberExistsInProgramDto, SignUpMemberDto, UpdateMemberDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { MemberAuthService } from '../services/memberAuth.service';
-import { AuthGuard } from '../guards/auth.guard';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Member } from '../entities';
-import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('Member')

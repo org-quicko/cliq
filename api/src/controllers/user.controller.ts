@@ -1,14 +1,12 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
-import { CreateUserDto, SignUpUserDto, UpdateUserDto, UserDto } from '../dtos';
+import { CreateUserDto, SignUpUserDto, UpdateUserDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { Program, User } from '../entities';
 import { plainToInstance } from 'class-transformer';
 import { UserAuthService } from '../services/userAuth.service';
 import { Permissions } from '../decorators/permissions.decorator';
-import { AuthGuard } from '../guards/auth.guard';
-import { PermissionsGuard } from '../guards/permissions.guard';
 import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('User')

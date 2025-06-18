@@ -1,7 +1,8 @@
-import { Commission } from "src/entities";
-import { referralKeyTypeEnum } from "src/enums";
+import { Commission } from "../../entities";
+import { referralKeyTypeEnum } from "../../enums";
 import { CommissionSheet } from "@org-quicko/cliq-sheet-core/Promoter/beans";
 import { CommissionTableConverter } from "./commission.table.converter";
+import { ConverterException } from "@org-quicko/core";
 
 export interface ICommissionSheetConverterInput {
 	commissions: Commission[];
@@ -26,11 +27,15 @@ export class CommissionSheetConverter {
 			metadata
 		}: ICommissionSheetConverterInput
 	) {
-		this.commissionTableConverter.convertFrom(
-			commissionSheet.getCommissionTable(),
-			commissions,
-			referralKeyType,
-			metadata
-		);
+		try {
+			this.commissionTableConverter.convertFrom(
+				commissionSheet.getCommissionTable(),
+				commissions,
+				referralKeyType,
+				metadata
+			);
+		} catch (error) {
+			throw new ConverterException('Failed to convert to Commission Sheet', error);			
+		}
 	}
 }

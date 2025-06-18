@@ -1,12 +1,10 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, Patch } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CircleService } from '../services/circle.service';
-import { AddPromoterToCircleDto, CreateCircleDto } from '../dtos';
+import { AddPromoterToCircleDto, CreateCircleDto, UpdateCircleDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Circle } from '../entities';
-import { AuthGuard } from '../guards/auth.guard';
-import { PermissionsGuard } from '../guards/permissions.guard';
 
 @ApiTags('Circle')
 @Controller('/programs/:program_id/circles')
@@ -120,13 +118,28 @@ export class CircleController {
 	 */
 	@ApiResponse({ status: 200, description: 'Bad Request' })
 	@Permissions('read', Circle)
-	@Get(':circle_id')
+	@Patch(':circle_id')
 	async getCircle(@Param('circle_id') circleId: string) {
 		this.logger.info('START: getCircle controller');
 
 		const result = await this.circleService.getCircle(circleId);
 
 		this.logger.info('END: getCircle controller');
+		return { message: 'Successfully fetched circle.', result };
+	}
+
+	/**
+	 * Update circle
+	 */
+	@ApiResponse({ status: 200, description: 'Bad Request' })
+	@Permissions('update', Circle)
+	@Get(':circle_id')
+	async updateCircle(@Param('circle_id') circleId: string, @Body() body: UpdateCircleDto) {
+		this.logger.info('START: updateCircle controller');
+
+		const result = await this.circleService.updateCircle(circleId, body);
+
+		this.logger.info('END: updateCircle controller');
 		return { message: 'Successfully fetched circle.', result };
 	}
 
