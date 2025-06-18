@@ -137,10 +137,10 @@ export class CircleController {
 	async updateCircle(@Param('circle_id') circleId: string, @Body() body: UpdateCircleDto) {
 		this.logger.info('START: updateCircle controller');
 
-		const result = await this.circleService.updateCircle(circleId, body);
+		await this.circleService.updateCircle(circleId, body);
 
 		this.logger.info('END: updateCircle controller');
-		return { message: 'Successfully fetched circle.', result };
+		return { message: 'Successfully updated circle.'};
 	}
 
 	/**
