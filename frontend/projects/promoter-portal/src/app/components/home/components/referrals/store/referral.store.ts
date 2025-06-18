@@ -5,10 +5,9 @@ import { of, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { plainToInstance } from 'class-transformer';
 import { PromoterService } from '../../../../../services/promoter.service';
-import { referralSortByEnum, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
-import { ReferralTable, PromoterWorkbook, ReferralRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { referralSortByEnum, SnackbarService, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { SnackbarService } from '@org.quicko/ngx-core';
+import { PromoterWorkbook, ReferralRow, ReferralTable } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 export interface ReferralStoreState {
 	referrals: ReferralTable | null;

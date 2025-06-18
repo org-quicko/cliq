@@ -2,7 +2,7 @@ import { withDevtools } from "@angular-architects/ngrx-toolkit";
 import { EventEmitter, inject } from "@angular/core";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { CreateMemberDto, memberSortByEnum, sortOrderEnum, Status, UpdatePromoterMemberDto } from "@org.quicko.cliq/ngx-core";
-import { MemberRow, MemberTable, PromoterWorkbook } from "@org.quicko.cliq/ngx-core/generated/sources/Promoter";
+import { MemberRow, MemberTable, PromoterWorkbook } from "@org-quicko/cliq-sheet-core/Promoter/beans";
 import { PromoterService } from "../../../../../services/promoter.service";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { of, pipe, switchMap, tap } from "rxjs";
@@ -168,7 +168,6 @@ export const TeamStore = signalStore(
 									const metadata = currentMemberTable.getMetadata();
 
 									const updatedMemberTable = new MemberTable();
-									updatedMemberTable.rows = new JSONArray();
 									updatedMemberTable.setMetadata(metadata);
 
 									const rows = currentMemberTable.getRows();

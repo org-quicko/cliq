@@ -1,12 +1,11 @@
 import { withDevtools } from "@angular-architects/ngrx-toolkit";
 import { EventEmitter, inject } from "@angular/core";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
-import { RegisterForProgramDto, Status } from "@org.quicko.cliq/ngx-core";
+import { RegisterForProgramDto, SnackbarService, Status } from "@org.quicko.cliq/ngx-core";
 import { PromoterService } from "../../../services/promoter.service";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
-import { SnackbarService } from "@org.quicko/ngx-core";
 
 export interface TncState {
 	status: Status;

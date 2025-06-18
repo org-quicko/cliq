@@ -1,11 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import { catchError, firstValueFrom, map, Observable, of, tap } from 'rxjs';
-import { MemberDto as Member, MemberDto } from '../../../../org-quicko-cliq-core/src/lib/dtos/member.dto';
+import { Resolve } from '@angular/router';
+import { catchError, map, Observable, of, tap } from 'rxjs';
+import { MemberDto as Member, MemberDto, SnackbarService } from "@org.quicko.cliq/ngx-core";
 import { MemberStore } from '../store/member.store';
 import { MemberService } from '../services/member.service';
 import { plainToInstance } from 'class-transformer';
-import { SnackbarService } from '@org.quicko/ngx-core';
 import { PermissionsService } from '../services/permission.service';
 import { Status } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../store/program.store';

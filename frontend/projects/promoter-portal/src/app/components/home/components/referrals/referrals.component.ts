@@ -12,13 +12,13 @@ import { NgClass, TitleCasePipe } from '@angular/common';
 import { ProgramStore } from '../../../../store/program.store';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ReferralRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { SkeletonLoadTableComponent } from '../../../common/skeleton-load-table/skeleton-load-table.component';
 import { TableRowStyling } from '../../../../interfaces';
 import { LabelChipComponent } from "../../../common/label-chip/label-chip.component";
 import { PromoterStore } from '../../../../store/promoter.store';
+import { ReferralRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 @Component({
 	selector: 'app-referrals',

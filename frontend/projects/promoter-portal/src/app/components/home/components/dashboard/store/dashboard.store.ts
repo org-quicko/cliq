@@ -8,9 +8,9 @@ import { LinkService } from '../../../../../services/link.service';
 import { plainToInstance } from 'class-transformer';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { Status, CreateLinkDto, PaginationOptions, sortOrderEnum, linkSortByEnum, SnackbarService } from '@org.quicko.cliq/ngx-core';
-import {  } from '@org.quicko.cliq/generated/sources/Promoter';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PromoterService } from '../../../../../services/promoter.service';
+import { LinkAnalyticsRow, LinkAnalyticsTable, PromoterAnalyticsTable, PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 export interface DashboardStoreState {
 	links: Partial<{

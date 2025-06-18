@@ -3,11 +3,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 import { rxMethod } from "@ngrx/signals/rxjs-interop";
-import { PromoterDto as Promoter, PromoterDto, Status, UpdatePromoterDto } from "@org.quicko.cliq/ngx-core";
+import { PromoterDto as Promoter, PromoterDto, SnackbarService, Status, UpdatePromoterDto } from "@org.quicko.cliq/ngx-core";
 import { pipe, switchMap, tap } from "rxjs";
 import { PromoterService } from "../services/promoter.service";
 import { tapResponse } from "@ngrx/operators";
-import { SnackbarService } from "@org.quicko/ngx-core";
 import { plainToInstance } from "class-transformer";
 
 export interface PromoterStoreState {

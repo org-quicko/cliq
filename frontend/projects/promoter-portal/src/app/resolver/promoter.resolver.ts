@@ -5,8 +5,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { plainToInstance } from 'class-transformer';
 import { PromoterStore } from '../store/promoter.store';
 import { MemberService } from '../services/member.service';
-import { PromoterDto, Status } from '@org.quicko.cliq/ngx-core';
-import { SnackbarService } from '@org.quicko/ngx-core';
+import { PromoterDto, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../store/program.store';
 
 @Injectable({ providedIn: 'root' })

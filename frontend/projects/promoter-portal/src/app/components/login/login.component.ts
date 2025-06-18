@@ -10,11 +10,10 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LogInStore, onSignInError, onSignInSuccess } from './store/login.store';
-import { MemberDto } from '../../../../../org-quicko-cliq-core/src/lib/dtos';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
 import { ProgramStore } from '../../store/program.store';
-import { SnackbarService } from '@org.quicko/ngx-core';
 import { LogoComponent } from '../common/logo/logo.component';
+import { MemberDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-login',

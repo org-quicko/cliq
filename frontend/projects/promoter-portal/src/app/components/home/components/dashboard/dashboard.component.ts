@@ -8,8 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { LinkAnalyticsRow, PromoterAnalyticsRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { CreateLinkDto, FormatCurrencyPipe, LinkDto, linkSortByEnum, OrdinalDatePipe, PaginationOptions, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { CreateLinkDto, FormatCurrencyPipe, LinkDto, linkSortByEnum, OrdinalDatePipe, PaginationOptions, SnackbarService, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { CreateLinkDialogBoxComponent } from './components/create-link-dialog-box/create-link-dialog-box.component';
@@ -25,8 +24,8 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { PromoterStore } from '../../../../store/promoter.store';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { DashboardStore, onCreateLinkSuccess, onDeleteLinkSuccess } from './store/dashboard.store';
-import { SnackbarService } from '@org.quicko/ngx-core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { LinkAnalyticsRow, PromoterAnalyticsRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 @Component({
 	selector: 'app-dashboard',

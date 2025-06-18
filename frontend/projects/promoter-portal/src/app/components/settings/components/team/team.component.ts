@@ -6,7 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { onAddMemberSuccess, onRemoveMemberSuccess, TeamStore } from './store/team.store';
 import { CreateMemberDto, memberRoleEnum, memberSortByEnum, OrdinalDatePipe, PaginationOptions, PromoterMemberDto, sortOrderEnum, Status, UpdatePromoterMemberDto } from '@org.quicko.cliq/ngx-core';
-import { MemberRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
+import { MemberRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { CommonModule, TitleCasePipe } from '@angular/common';

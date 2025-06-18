@@ -10,8 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ProgramStore } from '../../../../../../store/program.store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LinkCommissionsStore } from './store/linkCommission.store';
-import { CommissionRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
-import { commissionSortByEnum, FormatCurrencyPipe, memberSortByEnum, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { commissionSortByEnum, FormatCurrencyPipe, memberSortByEnum, OrdinalDatePipe, PaginationOptions, referralSortByEnum, SnackbarService, sortOrderEnum, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -20,7 +19,7 @@ import { SkeletonLoadTableComponent } from '../../../../../common/skeleton-load-
 import { PromoterStore } from '../../../../../../store/promoter.store';
 import { LabelChipComponent } from '../../../../../common/label-chip/label-chip.component';
 import { NgxSkeletonLoaderComponent, NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { SnackbarService } from '@org.quicko/ngx-core';
+import { CommissionRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 @Component({
 	selector: 'app-link-commissions',

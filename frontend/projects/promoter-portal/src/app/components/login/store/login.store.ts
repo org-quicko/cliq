@@ -1,11 +1,10 @@
-import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
-import { MemberDto } from '../../../../../../org-quicko-cliq-core/src/lib/dtos/member.dto';
+import { signalStore, withMethods, withState } from '@ngrx/signals';
+import { MemberDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { MemberService } from '../../../services/member.service';
 import { EventEmitter, inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { firstValueFrom, pipe, switchMap, tap } from 'rxjs';
+import { pipe, switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { SnackbarService } from '@org.quicko/ngx-core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Status } from '@org.quicko.cliq/ngx-core';

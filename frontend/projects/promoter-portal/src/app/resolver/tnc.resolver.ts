@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Resolve, Router, ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router';
 import { PromoterStore } from '../store/promoter.store';
-import { SnackbarService } from '@org.quicko/ngx-core';
+import { SnackbarService } from '@org.quicko.cliq/ngx-core';
 
 @Injectable({ providedIn: 'root' })
 export class TncResolver implements Resolve<boolean> {

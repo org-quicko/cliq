@@ -64,6 +64,7 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 	selectedPeriod: reportPeriodEnum;
 
 	minDate = moment().subtract(1, 'year').startOf('day');
+	maxDate = moment();
 
 	readonly reportForm = new FormGroup({
 		start: new FormControl(moment().subtract(30, 'days'), { nonNullable: true }),

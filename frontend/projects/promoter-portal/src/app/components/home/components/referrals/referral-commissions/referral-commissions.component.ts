@@ -6,7 +6,6 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReferralCommissionsStore } from './store/referralCommissions.store';
-import { CommissionRow } from '@org.quicko.cliq/ngx-core/generated/sources/Promoter';
 import { commissionSortByEnum, FormatCurrencyPipe, OrdinalDatePipe, PaginationOptions, referralSortByEnum, sortOrderEnum, Status } from '@org.quicko.cliq/ngx-core';
 import { MatButtonModule } from '@angular/material/button';
 import { ProgramStore } from '../../../../../store/program.store';
@@ -16,6 +15,7 @@ import { TableRowStyling } from '../../../../../interfaces';
 import { LabelChipComponent } from "../../../../common/label-chip/label-chip.component";
 import { PromoterStore } from '../../../../../store/promoter.store';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { CommissionRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 @Component({
 	selector: 'app-referral-commissions',

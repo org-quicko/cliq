@@ -26,6 +26,7 @@
 			<mat-date-range-input
 				[rangePicker]="reportStartEndPicker"
 				[min]="minDate"
+				[max]="maxDate"
 				[comparisonStart]="reportForm.value.start"
 				[comparisonEnd]="reportForm.value.end"
 				(click)="reportStartEndPicker.open()"

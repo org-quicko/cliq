@@ -4,12 +4,11 @@ import { rxMethod } from "@ngrx/signals/rxjs-interop";
 import { of, pipe, switchMap, tap } from "rxjs";
 import { tapResponse } from "@ngrx/operators";
 import { plainToInstance } from "class-transformer";
-import { Status, ContactDto, ReferralDto, sortOrderEnum, referralSortByEnum, commissionSortByEnum } from "@org.quicko.cliq/ngx-core";
-import { CommissionRow, CommissionTable, PromoterWorkbook } from "@org.quicko.cliq/ngx-core/generated/sources/Promoter";
+import { Status, ContactDto, ReferralDto, sortOrderEnum, referralSortByEnum, commissionSortByEnum, SnackbarService } from "@org.quicko.cliq/ngx-core";
 import { PromoterService } from "../../../../../../services/promoter.service";
 import { withDevtools } from "@angular-architects/ngrx-toolkit";
 import { HttpErrorResponse } from "@angular/common/http";
-import { SnackbarService } from "@org.quicko/ngx-core";
+import { CommissionRow, CommissionTable, PromoterWorkbook } from "@org-quicko/cliq-sheet-core/Promoter/beans";
 
 export interface ReferralCommissionsStoreState {
 	commissions: CommissionTable | null;

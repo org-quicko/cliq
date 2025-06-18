@@ -4,8 +4,7 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { ProgramService } from '../services/program.service';
 import { ProgramStore } from '../store/program.store';
 import { plainToInstance } from 'class-transformer';
-import { SnackbarService } from '@org.quicko/ngx-core';
-import { ProgramDto, Status } from '@org.quicko.cliq/ngx-core';
+import { ProgramDto, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
 
 
 @Injectable({ providedIn: 'root' })
