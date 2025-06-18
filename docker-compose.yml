@@ -1,7 +1,7 @@
 
 services:
   cliq-app:
-    image: "891612547769.dkr.ecr.ap-south-1.amazonaws.com/org.quicko.cliq:latest"
+    image: labsatquicko/cliq:latest
     ports:
       - "3001:3001"
     env_file:
