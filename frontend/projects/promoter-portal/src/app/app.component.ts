@@ -4,6 +4,7 @@ import { ProgramStore } from './store/program.store';
 import { ThemeService, ColorUtil } from '@org.quicko.cliq/ngx-core';
 import * as moment from 'moment';
 import { filter } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 
 @Component({
 	selector: 'app-root',
@@ -19,14 +20,19 @@ export class AppComponent implements OnInit {
 
 	title = computed(() => this.programStore.program()?.name);
 
-	constructor(private router: Router) {
+	constructor(private router: Router, private titleService: Title) {
 		moment.updateLocale('en', {
 			week: { dow: 1 } // setting monday as the start of the week
 		});
 
 		effect(() => {
 			const themeColor =this.programStore.program()?.themeColor;
-			ColorUtil.setThemeFromSeed(themeColor ?? '#fff');
+			ColorUtil.setThemeFromSeed(themeColor ?? '#4D5C92');
+
+			const programName = this.programStore.program()?.name;
+			if (programName) {
+				this.titleService.setTitle(`${programName} | Affiliate Program`);
+			}
 		})
 	}
 
