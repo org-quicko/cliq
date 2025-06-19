@@ -33,6 +33,13 @@ export class AppComponent implements OnInit {
 			if (programName) {
 				this.titleService.setTitle(`${programName} | Affiliate Program`);
 			}
+
+			// After getting program.logoUrl (or whatever the favicon URL is)
+			const favicon: HTMLLinkElement | null = document.getElementById('appFavicon') as HTMLLinkElement;
+			const logoUrl = this.programStore.program()?.logoUrl;
+			if (favicon && logoUrl) {
+				favicon.href = logoUrl; // or the correct favicon URL from your backend
+			}
 		})
 	}
 

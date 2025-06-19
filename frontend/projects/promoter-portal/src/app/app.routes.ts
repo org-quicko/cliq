@@ -40,6 +40,11 @@ export const routes: Routes = [
 						component: LayoutComponent,
 						children: [
 							{
+								path: '',
+								pathMatch: 'full',
+								redirectTo: 'home/dashboard',
+							},
+							{
 								path: 'home',
 								component: HomeComponent,
 								children: [
