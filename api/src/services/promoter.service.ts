@@ -231,7 +231,7 @@ export class PromoterService {
 		return promoterDto;
 	}
 
-	async registerForProgram(acceptedTermsAndConditions: boolean, programId: string, promoterId: string) {
+	async registerForProgram(acceptedTermsAndConditions: boolean, programId: string, promoterId: string, circleId?: string) {
 		return this.datasource.transaction(async (manager) => {
 
 			this.logger.info(`START: registerForProgram service`);
@@ -258,27 +258,35 @@ export class PromoterService {
 			if (!acceptedTermsAndConditions) {
 				this.logger.warn(`Warning. Promoter has not accepted terms and conditions.`);
 			} else {
-				// add to program's default circle
-				const defaultCircle = await circleRepository.findOne({
-					where: {
-						program: {
-							programId,
+				let targetCircleId: string;
+				if (circleId) {
+					targetCircleId = circleId;
+					
+				} else {
+					// add to program's default circle
+					const defaultCircle = await circleRepository.findOne({
+						where: {
+							program: {
+								programId,
+							},
+							isDefaultCircle: true,
 						},
-						isDefaultCircle: true,
-					},
-				});
+					});
+	
+					if (!defaultCircle) {
+						this.logger.error(
+							`Error. Default Circle not found for Program ${programId}`,
+						);
+						throw new InternalServerErrorException(
+							`Error. Default Circle not found for Program ${programId}`,
+						);
+					}
 
-				if (!defaultCircle) {
-					this.logger.error(
-						`Error. Default Circle not found for Program ${programId}`,
-					);
-					throw new InternalServerErrorException(
-						`Error. Default Circle not found for Program ${programId}`,
-					);
+					targetCircleId = defaultCircle.circleId;
 				}
 
 				const circlePromoter = circlePromoterRepository.create({
-					circleId: defaultCircle.circleId,
+					circleId: targetCircleId,
 					promoterId,
 				});
 				await circlePromoterRepository.save(circlePromoter);

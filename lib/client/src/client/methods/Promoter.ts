@@ -19,7 +19,10 @@ export class Promoter extends RestClient {
             this.logger.info(`START Client : ${this.constructor.name},${this.getPromoter.name}`);
             this.logger.debug(`Request`, { program_id: programId, promoter_id: promoterId });
 
-            const response = await super.get({ url: APIURL.GET_PROMOTER, params: [programId, promoterId] });
+            const response = await super.get({ 
+				url: APIURL.GET_PROMOTER, 
+				params: [programId, promoterId] 
+			});
 
             this.logger.debug(`Response`, response);
             this.logger.info(`END Client : ${this.constructor.name},${this.getPromoter.name}`);
@@ -60,12 +63,22 @@ export class Promoter extends RestClient {
         }
     }
 
-    async registerPromoter(programId: string, promoterId: string, registerForProgram: RegisterForProgram): Promise<PromoterBean> {
+    async registerPromoter(programId: string, promoterId: string, registerForProgram: RegisterForProgram, circleId?: string): Promise<PromoterBean> {
         try {
             this.logger.info(`START Client : ${this.constructor.name},${this.registerPromoter.name}`);
             this.logger.debug(`Request`, { program_id: programId, promoter_id: promoterId });
 
-            const response = await super.post(APIURL.REGISTER_PROMOTER_IN_PROGRAM, registerForProgram, { params: [programId, promoterId] });
+			const options = {
+				params: [programId, promoterId],
+			};
+
+			if (circleId) options['queryParams'] = [circleId];
+
+            const response = await super.post(
+				APIURL.REGISTER_PROMOTER_IN_PROGRAM, 
+				registerForProgram, 
+				options
+			);
 
             this.logger.debug(`Response`, response);
             this.logger.info(`END Client : ${this.constructor.name},${this.registerPromoter.name}`);

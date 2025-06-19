@@ -653,11 +653,12 @@ export class PromoterController {
 	async registerForProgram(
 		@Param('program_id') programId: string, 
 		@Param('promoter_id') promoterId: string,
+		@Query('circle_id') circleId: string | undefined,
 		@Body() body: RegisterForProgramDto,
 	) {
 		this.logger.info('START: registerForProgram controller');
 
-		const result = await this.promoterService.registerForProgram(body.acceptedTermsAndConditions, programId, promoterId);
+		const result = await this.promoterService.registerForProgram(body.acceptedTermsAndConditions, programId, promoterId, circleId);
 
 		const message = body.acceptedTermsAndConditions 
 			? `Successfully registered for Program ${programId} => 'terms and conditions accepted'` 

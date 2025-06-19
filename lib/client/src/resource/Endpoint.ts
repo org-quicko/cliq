@@ -52,7 +52,7 @@ export class Endpoint {
 export enum APIURL {
   CREATE_PROMOTER = '/programs/{program_id}/promoters',
   GET_PROMOTER = '/programs/{program_id}/promoters/{promoter_id}',
-  REGISTER_PROMOTER_IN_PROGRAM = '/programs/{program_id}/promoters/{promoter_id}/register',
+  REGISTER_PROMOTER_IN_PROGRAM = '/programs/{program_id}/promoters/{promoter_id}/register?circle_id={circle_id}',
   CREATE_LINK = '/programs/{program_id}/promoters/{promoter_id}/links',
   GET_LINK_ANALYTICS = '/programs/{program_id}/promoters/{promoter_id}/link_analytics',
   CREATE_PURCHASE = '/purchases',
