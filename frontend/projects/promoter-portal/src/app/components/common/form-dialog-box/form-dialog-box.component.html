@@ -1,0 +1,44 @@
+<mat-dialog-content
+	class="rounded-[5px] p-6 bg-surface-container-lowest info-dialog-shadow"
+	[ngClass]="`${width ?? 'w-[516px]'} ${height ?? 'h-auto max-h-[468px]'}`"
+>
+	<form [formGroup]="formGroup" (ngSubmit)="onSubmit()" class="flex flex-col gap-8">
+		<div class="flex flex-col gap-8" [ngClass]="height?.includes('h-auto') ? 'h-auto' : 'h-auto max-h-[348px]'">
+			<!-- Header -->
+			<div class="flex justify-between">
+				<div class="flex flex-col gap-2">
+					<div class="size-6">
+						<mat-icon class="text-on-surface material-symbols-outlined">
+							{{ icon }}
+						</mat-icon>
+					</div>
+					<div class="text-on-surface mat-title-large">
+						<span>{{ headerText }}</span>
+					</div>
+				</div>
+				<button type="button" mat-icon-button class="cursor-pointer" (click)="closeDialog()">
+					<mat-icon>
+						close
+					</mat-icon>
+				</button>
+			</div>
+
+			<!-- Form fields -->
+			<ng-content />
+		</div>
+
+		<!-- Dialog control buttons -->
+
+		<!-- TODO: removed fixed height -->
+		<div class="h-10">
+			<mat-dialog-actions class="!p-0 flex justify-end gap-2">
+				<button matRipple mat-button mat-dialog-close type="button"
+					class="w-auto min-w-[70px] text-primary mat-label-large cursor-pointer">{{ cancelBtnText ?? 'Cancel' }}</button>
+				<button mat-flat-button type="submit"
+					class="w-auto min-w-[93px] rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
+					{{ submitBtnText ?? 'Submit' }}
+				</button>
+			</mat-dialog-actions>
+		</div>
+	</form>
+</mat-dialog-content>

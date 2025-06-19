@@ -1,0 +1,66 @@
+{
+  "name": "@org-quicko/cliq-client",
+  "version": "1.0.0",
+  "description": "Library to access Cliq APIs",
+  "author": "Quicko <developer@quicko.org.in>",
+  "type": "module",
+  "main": "dist/cjs/index.cjs",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/src/index.d.ts",
+  "scripts": {
+    "clean": "npm cache clean --force",
+    "lint": "eslint --fix .",
+    "prebuild": "rm -rf dist && npm run clean",
+    "build": "rollup -c",
+    "test-cliqClient": "jest ./tests/CliqClient.test.ts"
+  },
+  "license": "ISC",
+  "files": [
+    "dist/*"
+  ],
+  "directories": {
+    "lib": "./dist"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@org-quicko/cliq-core": "^1.0.0",
+    "@org-quicko/cliq-sheet-core": "^1.0.0",
+    "@org-quicko/core": "^1.1.0",
+    "axios": "^1.9.0",
+    "class-transformer": "^0.5.1",
+    "reflect-metadata": "^0.2.2",
+    "dotenv": "^16.4.5",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/jest": "^29.5.5",
+    "@types/jsdom": "^16.2.7",
+    "@types/node": "^22.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
+    "esbuild-plugin-eslint": "^0.3.7",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "glob": "^11.0.2",
+    "jest": "^29.7.0",
+    "rollup": "^4.41.1",
+    "rollup-plugin-dts": "^6.2.1",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.6.2"
+  }
+}

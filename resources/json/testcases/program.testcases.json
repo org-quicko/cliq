@@ -1,0 +1,172 @@
+[
+    {
+        "test_name": "Invalid website url",
+        "request_name": "Create program",
+        "name": "Test 1",
+        "currency": "USD",
+        "visibility": "public",
+        "referral_key_type": "email",
+        "theme_color": "#7f8c8d",
+        "website": "invalid?website.com",
+        "time_zone": "IST",
+        "date_format": "DD/MM/YYYY",
+        "terms_and_conditions": "some tnc",
+        "status_code": 400,
+        "message": "Validation errors: website url is invalid."
+    },
+    {
+        "test_name": "Invalid visibility value",
+        "request_name": "Create program",
+        "name": "Test 1",
+        "currency": "USD",
+        "visibility": "semi-public",
+        "referral_key_type": "email",
+        "theme_color": "#7f8c8d",
+        "website": "wwww.example.com",
+        "time_zone": "IST",
+        "date_format": "DD/MM/YYYY",
+        "terms_and_conditions": "some tnc",
+        "status_code": 400,
+        "message": "Validation errors: visibility must be one of public or private."
+    },
+    {
+        "test_name": "Invalid date format",
+        "request_name": "Create program",
+        "name": "Test 1",
+        "currency": "USD",
+        "visibility": "public",
+        "referral_key_type": "email",
+        "theme_color": "#7f8c8d",
+        "website": "wwww.example.com",
+        "time_zone": "IST",
+        "date_format": "DD/MM/YYY",
+        "terms_and_conditions": "some tnc",
+        "status_code": 400,
+        "message": "Validation errors: date format must be one of {{dateFormats}}."
+    },
+    {
+        "test_name": "Invalid referral key type",
+        "request_name": "Create program",
+        "name": "Test 1",
+        "currency": "USD",
+        "visibility": "public",
+        "referral_key_type": "aadhar no.",
+        "theme_color": "#7f8c8d",
+        "website": "wwww.example.com",
+        "time_zone": "IST",
+        "date_format": "DD/MM/YYYY",
+        "terms_and_conditions": "some tnc",
+        "status_code": 400,
+        "message": "Validation errors: referral key type must be one of {{referralKeyTypes}}."
+    },
+    {
+        "test_name": "Successful program creation",
+        "request_name": "Create program",
+        "name": "Test 1",
+        "currency": "USD",
+        "visibility": "public",
+        "referral_key_type": "email",
+        "theme_color": "#7f8c8d",
+        "website": "wwww.example.com",
+        "time_zone": "IST",
+        "date_format": "DD/MM/YYYY",
+        "terms_and_conditions": "some tnc",
+        "status_code": 201,
+        "message": "Successfully created program."
+    },
+    {
+        "test_name": "Successful program update",
+        "request_name": "Update program",
+        "name": "Test 1",
+        "status_code": 201,
+        "message": "Successfully updated program."
+    },
+    {
+        "test_name": "Invalid visibility update",
+        "request_name": "Update program",
+        "visibility": "invalid visibility",
+        "status_code": 400,
+        "message": "Validation errors: visibility must be one of public or private."
+    },
+    {
+        "test_name": "Trying to update referral key type",
+        "request_name": "Update program",
+        "referral_key_type": "invalid email",
+        "status_code": 400,
+        "message": "Validation errors: property referral_key_type should not exist."
+    },
+    {
+        "test_name": "Invalid role for adding user",
+        "request_name": "Add user",
+        "email": "joerogan@mail.com",
+        "password": "nice",
+        "first_name": "joe",
+        "last_name": "rogan",
+        "role": "guest",
+        "status_code": 400,
+        "message": "Validation errors: role must be one of {{userRoles}}."
+    },
+    {
+        "test_name": "Add user successfully",
+        "request_name": "Add user",
+        "email": "joerogan@mail.com",
+        "password": "nice",
+        "first_name": "joe",
+        "last_name": "rogan",
+        "role": "editor",
+        "status_code": 200,
+        "message": "Successfully added user to program."
+    },
+    {
+        "test_name": "Trying to add existing user",
+        "request_name": "Add user",
+        "email": "joerogan@mail.com",
+        "password": "nice",
+        "first_name": "joe",
+        "last_name": "rogan",
+        "role": "admin",
+        "status_code": 409,
+        "message": "Failed to add user. User is already part of the program."
+    },
+    {
+        "test_name": "Report start period is after the end period",
+        "request_name": "Get program report",
+        "start_date": "09/09/2025",
+        "end_date": "04/04/2025",
+        "report_period": "custom",
+        "status_code": 400,
+        "message": "Start date must be before End date."
+    },
+    {
+        "test_name": "Invalid start date format",
+        "start_date": "Today",
+        "end_date": "04/04/2025",
+        "report_period": "custom",
+        "request_name": "Get program report",
+        "status_code": 400,
+        "message": "Invalid start date format."
+    },
+    {
+        "test_name": "Invalid end date format",
+        "request_name": "Get program report",
+        "start_date": "03/03/2025",
+        "end_date": "Today",
+        "report_period": "custom",
+        "status_code": 400,
+        "message": "Invalid end date format."
+    },
+    {
+        "test_name": "Successful program report generation",
+        "request_name": "Get program report",
+        "start_date": "03/03/2025",
+        "end_date": "04/10/2025",
+        "report_period": "custom",
+        "status_code": 200
+    },
+    {
+        "test_name": "Delete program",
+        "request_name": "Delete program",
+        "status_code": 200,
+        "message": "Successfully deleted program."
+    }
+]

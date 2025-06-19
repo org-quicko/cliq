@@ -1,0 +1,49 @@
+<mat-dialog-content class="w-[448px] rounded-[5px] h-auto p-6 bg-surface-container-lowest">
+	<form [formGroup]="copyMemberDetails" (ngSubmit)="onSubmit()">
+		<div class="flex flex-col gap-6">
+			<div class="w-full flex flex-col gap-2">
+				<div class="w-full flex gap-4 justify-between items-center">
+
+					<div class="text-on-surface mat-title-medium">
+						<span>Member added successfully 🎉</span>
+					</div>
+					<button mat-icon-button class="cursor-pointer" (click)="closeDialog()">
+						<mat-icon>
+							close
+						</mat-icon>
+					</button>
+
+				</div>
+
+				<div class="mat-body-medium text-on-surface-variant"><span>They're all set to join you. Share the login
+						details below.</span></div>
+			</div>
+
+			<!-- Newly added member details -->
+			<div class="flex flex-col gap-4">
+				<mat-form-field appearance="fill" class="w-full !border-transparent">
+					<mat-label class="text-outline">Email</mat-label>
+					<input type="text" matInput formControlName="email" class="w-full max-w-[400px]" />
+				</mat-form-field>
+
+				<mat-form-field appearance="fill" class="w-full !border-transparent">
+					<mat-label class="text-outline">Password</mat-label>
+					<input [type]="hidePassword ? 'password' : 'text'" matInput formControlName="password"
+						class="w-full max-w-[400px]" />
+
+					<button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+						<mat-icon class="material-symbols-outlined">{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+					</button>
+				</mat-form-field>
+			</div>
+
+			<!-- Dialog control buttons -->
+			<mat-dialog-actions class="!p-0 flex justify-end gap-2">
+				<button mat-flat-button type="submit"
+					class="w-auto min-w-[130px] h-10 rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
+					Copy Details
+				</button>
+			</mat-dialog-actions>
+		</div>
+	</form>
+</mat-dialog-content>

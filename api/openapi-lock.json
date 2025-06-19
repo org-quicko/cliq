@@ -1,0 +1,3280 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "org-quicko-cliq",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://{{base_url}}"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "User"
+    },
+    {
+      "name": "Program"
+    },
+    {
+      "name": "Function"
+    },
+    {
+      "name": "Promoter"
+    },
+    {
+      "name": "Member"
+    },
+    {
+      "name": "Circle"
+    },
+    {
+      "name": "Link"
+    },
+    {
+      "name": "Contact"
+    },
+    {
+      "name": "Purchase"
+    }
+  ],
+  "paths": {
+    "/users/signup": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "User sign up",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "user"
+                  },
+                  "user_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "",
+                    "password": "",
+                    "first_name": "",
+                    "last_name": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully signed up user.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "201-Example-1": {
+                    "value": {
+                      "email": "john@mail.com",
+                      "password": "nice",
+                      "first_name": "John",
+                      "last_name": "Doe"
+                    },
+                    "summary": "Example 1 for status 201"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "User log in",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "user"
+                  },
+                  "user_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "",
+                    "password": ""
+                  }
+                },
+                "failure- incorrect credentials": {
+                  "value": {
+                    "email": "",
+                    "password": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully logged in user.\",\r\n    \"data\": {\r\n        \"token\": \"ehf23ghf2ndwhn%^82ewh\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "200-Example-1": {
+                    "value": {
+                      "email": "john@mail.com",
+                      "password": "nice"
+                    },
+                    "summary": "Example 1 for status 200"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"Incorrect credentials. Please try again.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "401-Example-1": {
+                    "value": {
+                      "email": "john@mail.com",
+                      "password": "nice"
+                    },
+                    "summary": "Example 1 for status 401"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{user_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got user information.\",\r\n    \"data\": {\r\n        \"user\": {\r\n            \"user_id\": \"123\",\r\n            \"email\": \"john@mail.com\",\r\n            \"first_name\": \"John\",\r\n            \"last_name\": \"Bennington\"\r\n        }\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Update User info",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "user"
+                  },
+                  "user_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "",
+                    "password": "",
+                    "first_name": "",
+                    "last_name": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{user_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete user",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{user_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully deleted user.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs": {
+      "post": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Create program",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "program"
+                  },
+                  "program_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "website": {
+                    "type": "string"
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "private"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "currency",
+                  "website",
+                  "visibility"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "name": "Influencer program",
+                    "currency": "USD",
+                    "visibility": "public",
+                    "website": "www.example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully created program.\",\r\n    \"data\": {\r\n        \"program_id\": \"ewvkj2n73c8-=3=-h91bjb*^#@678$2\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "201-Example-1": {
+                    "value": {
+                      "name": "Beginners",
+                      "currency": "USD",
+                      "visibility": "PUBLIC",
+                      "website": "www.example.com"
+                    },
+                    "summary": "Example 1 for status 201"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Get all programs",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all programs.\",\r\n    \"data\": {\r\n        \"programs\": [\r\n            {\r\n                \"name\": \"StockBroker program\",\r\n                \"currency\": \"INR\",\r\n                \"visibility\": \"public\",\r\n                \"website\": \"www.example.com\"\r\n            },\r\n            {\r\n                \"name\": \"Bankers program\",\r\n                \"currency\": \"EUR\",\r\n                \"visibility\": \"public\",\r\n                \"website\": \"www.mockXplain.com\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}": {
+      "get": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Get program",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got program data.\",\r\n    \"data\": {\r\n        \"program\": {\r\n            \"program_id\": \"ewvkj2n73c8-=3=-h91bjb*^#@678$2\",\r\n            \"name\": \"Influencer program\",\r\n            \"website\": \"www.example.com\",\r\n            \"visibility\": \"public\",\r\n            \"currency\": \"USD\"\r\n        }\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Update program",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "program"
+                  },
+                  "program_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "website": {
+                    "type": "string"
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "private"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "currency",
+                  "website",
+                  "visibility"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "name": "StockBroker program",
+                    "currency": "INR",
+                    "visibility": "public",
+                    "website": "www.example.com"
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "id": "",
+                    "name": "",
+                    "currency": "",
+                    "visibility": "",
+                    "website": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully updated program.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Delete program",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully deleted program.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/invite": {
+      "post": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Invite user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "user"
+                  },
+                  "user_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "john@mail.com",
+                    "password": "knw97890un",
+                    "first_name": "John",
+                    "last_name": "Bennington",
+                    "role": "MEMBER"
+                  }
+                },
+                "failure- user already part of program": {
+                  "value": {
+                    "email": "john@mail.com",
+                    "password": "knw97890un",
+                    "first_name": "John",
+                    "last_name": "Bennington",
+                    "role": "MEMBER"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully invited user to program\",\r\n    \"data\": {\r\n        \"user_id\": \"r3y10jij&78=-=-%^&%%\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"Invalid request. User is already part of the program.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/users": {
+      "get": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Get all users",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all program users.\",\r\n    \"data\": {\r\n        \"users\": [\r\n            {\r\n                \"user_id\": \"123\",\r\n                \"email\": \"john@mail.com\",\r\n                \"first_name\": \"John\",\r\n                \"last_name\": \"Bennington\"\r\n            },\r\n            {\r\n                \"user_id\": \"456\",\r\n                \"email\": \"jane@mail.com\",\r\n                \"first_name\": \"Jane\",\r\n                \"last_name\": \"Doe\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/users/{user_id}": {
+      "patch": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Update role",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "role": ""
+                }
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "role": "ADMIN"
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "role": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{user_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully changed user role.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Remove user",
+        "description": "Mark user status as inactive",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{user_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully removed user from program.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/contacts": {
+      "get": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Get contacts in workspace",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully listed all contacts of program.\",\r\n    \"data\": {\r\n        \"contacts\": [\r\n            {\r\n                \"contact_id\": \"wdhfueiwhortiewwyur8923y\",\r\n                \"email\": \"beethoven@mail.com\",\r\n                \"first_name\": \"Ludwig\",\r\n                \"last_name\": \"Van Beethoven\",\r\n                \"phone\": \"1234567899\"\r\n            },\r\n            {\r\n                \"contact_id\": \"wdhfueiwhortiewwyur8923y\",\r\n                \"email\": \"leonardo@mail.com\",\r\n                \"first_name\": \"Leonardo\",\r\n                \"last_name\": \"Da Vinci\",\r\n                \"phone\": \"1234567890\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/purchases": {
+      "get": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Get purchases in workspace",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all purchases of program.\",\r\n    \"data\": {\r\n        \"purchases\": [\r\n            {\r\n                \"purchase_id\": \"dunewcdf8927yr8ikh\",\r\n                \"email\": \"beethoven@mail.com\",\r\n                \"first_name\": \"Ludwig\",\r\n                \"last_name\": \"Van Beethoven\",\r\n                \"phone\": \"1234567899\"\r\n            },\r\n            {\r\n                \"purchase_id\": \"dunewcdf8927yr8ikh\",\r\n                \"email\": \"leonardo@mail.com\",\r\n                \"first_name\": \"Leonardo\",\r\n                \"last_name\": \"Da Vinci\",\r\n                \"phone\": \"1234567890\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/commissions": {
+      "get": {
+        "tags": [
+          "Program"
+        ],
+        "summary": "Get all commissions",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all commissions for program.\",\r\n    \"data\": [\r\n        \"commissions\": [\r\n            {\r\n                \"commission_id\": \"123\",\r\n                \"conversion_id\": \"233v4g23f\",\r\n                \"conversion_type\": \"CONTACT\",\r\n                \"amount\": 50\r\n            },\r\n            {\r\n                \"commission_id\": \"457\",\r\n                \"conversion_id\": \"23983hc9cn\",\r\n                \"conversion_type\": \"PURCHASE\",\r\n                \"amount\": 80\r\n            }\r\n        ]\r\n    ]\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/functions": {
+      "post": {
+        "tags": [
+          "Function"
+        ],
+        "summary": "Create function",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "function"
+                  },
+                  "function_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "type": "string",
+                    "enum": [
+                      "signup",
+                      "purchase"
+                    ]
+                  },
+                  "commission_type": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "percentage"
+                    ]
+                  },
+                  "commission_value": {
+                    "type": "number"
+                  },
+                  "effect": {
+                    "type": "string"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "parameter": {
+                          "type": "string"
+                        },
+                        "operator": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "parameter",
+                        "operator",
+                        "value"
+                      ]
+                    }
+                  },
+                  "circle": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "trigger",
+                  "commission_type",
+                  "commission_value"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "name": "Beginner function",
+                    "trigger": "PURCHASE",
+                    "commission_type": "FIXED",
+                    "commission_value": 50,
+                    "effect": "SWITCH_TO_DIFF_CIRCLE",
+                    "conditions": [
+                      {
+                        "parameter": "purchase amount",
+                        "operator": "greater than",
+                        "value": 3000
+                      }
+                    ],
+                    "circle": "DEFAULT"
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "name": "Beginner function",
+                    "trigger": "PURCHASE",
+                    "commission_type": "FIXED",
+                    "commission_value": 50,
+                    "effect": "SWITCH_TO_DIFF_CIRCLE",
+                    "conditions": [
+                      {
+                        "parameter": "purchase amount",
+                        "operator": "greater than",
+                        "value": 3000
+                      }
+                    ],
+                    "circle": "DEFAULT"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully created function.\",\r\n    \"data\": {\r\n        \"function_id\": \"23kjnf982n3cuibn1\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Function"
+        ],
+        "summary": "Get all functions",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all functions.\",\r\n    \"data\": {\r\n        \"functions\": [\r\n            {\r\n                \"function_id\": \"23kjnf982n3cuibn1\",\r\n                \"name\": \"Beginner function\",\r\n                \"trigger\": \"PURCHASE\",\r\n                \"commission_type\": \"FIXED\",\r\n                \"commission_value\": 50,\r\n                \"effect\": \"SWITCH_TO_DIFF_CIRCLE\",\r\n                \"conditions\": [\r\n                    {\r\n                        \"parameter\": \"purchase amount\",\r\n                        \"operator\": \"greater than\",\r\n                        \"value\": 3000\r\n                    }\r\n                ],\r\n                \"circle\": \"DEFAULT\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/functions/{function_id}": {
+      "get": {
+        "tags": [
+          "Function"
+        ],
+        "summary": "Get function",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "function_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{function_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\" : \"Successfully got function.\",\r\n    \"data\": {\r\n        \"function\": {\r\n            \"function_id\": \"23kjnf982n3cuibn1\",\r\n            \"name\": \"Beginner function\",\r\n            \"trigger\": \"PURCHASE\",\r\n            \"commission_type\": \"FIXED\",\r\n            \"commission_value\": 50,\r\n            \"effect\": \"SWITCH_TO_DIFF_CIRCLE\",\r\n            \"conditions\": [\r\n                {\r\n                    \"parameter\": \"purchase amount\",\r\n                    \"operator\": \"greater than\",\r\n                    \"value\": 3000\r\n                }\r\n            ],\r\n            \"circle\": \"DEFAULT\"\r\n        }\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Function"
+        ],
+        "summary": "Update function",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "function"
+                  },
+                  "function_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "type": "string",
+                    "enum": [
+                      "signup",
+                      "purchase"
+                    ]
+                  },
+                  "commission_type": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "percentage"
+                    ]
+                  },
+                  "commission_value": {
+                    "type": "number"
+                  },
+                  "effect": {
+                    "type": "string"
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "parameter": {
+                          "type": "string"
+                        },
+                        "operator": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "parameter",
+                        "operator",
+                        "value"
+                      ]
+                    }
+                  },
+                  "circle": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "trigger",
+                  "commission_type",
+                  "commission_value"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "name": "Pro function",
+                    "trigger": "CONTACT",
+                    "commission_type": "PERCENTAGE",
+                    "commission_value": 12,
+                    "effect": "GENERATE_COMMISSION",
+                    "conditions": [
+                      {
+                        "parameter": "No. of contacts",
+                        "operator": "eq",
+                        "value": 10
+                      }
+                    ],
+                    "circle": "DEFAULT"
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "name": "Pro function",
+                    "trigger": "CONTACT",
+                    "commission_type": "PERCENTAGE",
+                    "commission_value": 12,
+                    "effect": "GENERATE_COMMISSION",
+                    "conditions": [
+                      {
+                        "parameter": "No. of contacts",
+                        "operator": "eq",
+                        "value": 10
+                      }
+                    ],
+                    "circle": "DEFAULT"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "function_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{function_id}}"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully updated function.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Function"
+        ],
+        "summary": "Delete function",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "function_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{function_id}}"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully deleted function.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/promoters": {
+      "post": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Create promoter",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "promoter"
+                  },
+                  "promoter_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "logo_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "promoter_name": "The Affiliate Man"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully created promoter.\",\r\n    \"data\": {\r\n        \"promoter_id\": \"jwbveie982y938yf93\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Get promoter",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got promoter.\",\r\n    \"data\": {\r\n        \"promoter\": {\r\n            \"promoter_id\": \"jwbveie982y938yf93\",\r\n            \"promoter_name\": \"The Affiliate Man\"\r\n        }\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/promoters/{promoter_id}/members": {
+      "post": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Invite member",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "member"
+                  },
+                  "member_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "",
+                    "password": "",
+                    "first_name": "",
+                    "last_name": "",
+                    "role": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully sent an invitation.\",\r\n    \"data\": {\r\n        \"member_id\": \"wne908uj231nc23inc\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Get all members",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all members.\",\r\n    \"data\": {\r\n        \"members\": [\r\n            {\r\n                \"member_id\": \"wevn1i23yd13hcoiu3bnvkn\",\r\n                \"email\": \"leonardo@mail.com\",\r\n                \"password\": \"2j3n2o30j29j\",\r\n                \"first_name\": \"Leonardo\",\r\n                \"last_name\": \"Da Vinci\"\r\n            },\r\n            {\r\n                \"member_id\": \"ebnf23n89kj-vndkv\",\r\n                \"email\": \"dwight@mail.com\",\r\n                \"password\": \"2j3n2o30j29j\",\r\n                \"first_name\": \"Dwight\",\r\n                \"last_name\": \"Schrute\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/promoters/{promoter_id}/members/{member_id}": {
+      "patch": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Update role",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "role": ""
+                }
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "role": ""
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "role": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{member_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully changed user role.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Remove member",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{member_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully removed member.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/promoters/{promoter_id}/contacts": {
+      "get": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Get contacts for promoter",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all contacts referred by promoter.\",\r\n    \"data\": {\r\n        \"contacts\": [\r\n            {\r\n                \"link_id\": \"12dkj3ifb893uhcv\",\r\n                \"amount\": 100,\r\n                \"email\": \"caesar@mail.com\",\r\n                \"external_id\": \"nc9183hinwde3f\"\r\n                // optionally contact_id as well\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/promoters/{promoter_id}/purchases": {
+      "get": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Get purchases for promoter",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all purchases referred by promoter.\",\r\n    \"data\": {\r\n        \"purchases\": [\r\n            {\r\n                \"link_id\": \"2m3fj23uicbn\",\r\n                \"email\": \"caesar@mail.com\",\r\n                \"first_name\": \"Julius\",\r\n                \"last_name\": \"Caesar\",\r\n                \"phone\": \"1234567890\",\r\n                \"external_id\": \"qokicmoijv8qj\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/promoters/{promoter_id}/commissions": {
+      "get": {
+        "tags": [
+          "Promoter"
+        ],
+        "summary": "Get promoter commissions",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all commissions for promoter.\",\r\n    \"data\": [\r\n        \"commissions\": [\r\n            {\r\n                \"commission_id\": \"123\",\r\n                \"conversion_id\": \"233v4g23f\",\r\n                \"conversion_type\": \"CONTACT\",\r\n                \"amount\": 50\r\n            },\r\n            {\r\n                \"commission_id\": \"457\",\r\n                \"conversion_id\": \"23983hc9cn\",\r\n                \"conversion_type\": \"PURCHASE\",\r\n                \"amount\": 80\r\n            }\r\n        ]\r\n    ]\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/members/signup": {
+      "post": {
+        "tags": [
+          "Member"
+        ],
+        "summary": "Member sign up",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "member"
+                  },
+                  "member_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "leonardo@mail.com",
+                    "password": "2j3n2o30j29j",
+                    "first_name": "Leonardo",
+                    "last_name": "Da Vinci"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully signed up member.\",\r\n    \"data\": {\r\n        \"member_id\": \"wevn1i23yd13hcoiu3bnvkn\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "201-Example-1": {
+                    "value": {
+                      "email": "",
+                      "password": "",
+                      "first_name": "",
+                      "last_name": ""
+                    },
+                    "summary": "Example 1 for status 201"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/members/login": {
+      "post": {
+        "tags": [
+          "Member"
+        ],
+        "summary": "Member log in",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "member"
+                  },
+                  "member_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "",
+                    "password": ""
+                  }
+                },
+                "failure- incorrect credentials": {
+                  "value": {
+                    "email": "",
+                    "password": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"Incorrect credentials. Please try again.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "401-Example-1": {
+                    "value": {
+                      "email": "luke@mail.com",
+                      "password": "notnice"
+                    },
+                    "summary": "Example 1 for status 401"
+                  }
+                }
+              }
+            }
+          },
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"data\": {\r\n        \"token\": \"2kj3nkj3nco9h9%^82ewh\"\r\n    },\r\n    \"message\": \"Successfully logged in member.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "undefined-Example-1": {
+                    "value": {
+                      "email": "luke@mail.com",
+                      "password": "notnice"
+                    },
+                    "summary": "Example 1 for status undefined"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/members/{member_id}": {
+      "get": {
+        "tags": [
+          "Member"
+        ],
+        "summary": "Get member",
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{member_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got member.\",\r\n    \"data\": {\r\n        \"member\": {\r\n            \"email\": \"leonardo@mail.com\",\r\n            \"password\": \"2j3n2o30j29j\",\r\n            \"first_name\": \"Leonardo\",\r\n            \"last_name\": \"Da Vinci\"\r\n        }\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Member"
+        ],
+        "summary": "Update member info",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "member"
+                  },
+                  "member_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "member"
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "email": "",
+                    "password": "",
+                    "first_name": "",
+                    "last_name": ""
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "email": "",
+                    "password": "",
+                    "first_name": "",
+                    "last_name": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{member_id}}"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully updated member information.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Member"
+        ],
+        "summary": "Delete member",
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{member_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/circles": {
+      "post": {
+        "tags": [
+          "Circle"
+        ],
+        "summary": "Create circle",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "circle"
+                  },
+                  "circle_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "name": "Beginners"
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "name": "Beginners"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully created circle.\",\r\n    \"data\": {\r\n        \"circle_id\": \"kewmf2oi3nfnvoine\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Circle"
+        ],
+        "summary": "Get all circles",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          }
+        ],
+        "responses": {
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all circles.\",\r\n    \"data\": {\r\n        \"circles\": [\r\n            {\r\n                \"circle_id\": \"23kjcn2uvhn29\",\r\n                \"name\": \"Beginners\"\r\n            },\r\n            {\r\n                \"circle_id\": \"wev123r9qkweno-vndkv\",\r\n                \"name\": \"Intermediates\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/circles/{circle_id}/promoters": {
+      "post": {
+        "tags": [
+          "Circle"
+        ],
+        "summary": "Add promoter",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "promoter_ids": [
+                    "ids"
+                  ]
+                }
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "promoter_ids": [
+                      "ids"
+                    ]
+                  }
+                },
+                "failure- unauthorized": {
+                  "value": {
+                    "promoter_ids": [
+                      "ids"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "circle_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{circle_id}}"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully added promoter to circle.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Circle"
+        ],
+        "summary": "Get all Promoters",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "circle_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{circle_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all promoters.\",\r\n    \"data\": {\r\n        \"promoters\": [\r\n            {\r\n                \"promoter_id\": \"2kj3nf2o3ivnfeiwnv\",\r\n                \"name\": \"The Affiliate Man\"\r\n            },\r\n            {\r\n                \"promoter_id\": \"13jnfkj2nfewve\",\r\n                \"name\": \"Affiliate Warriors\"\r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/circles/{circle_id}": {
+      "get": {
+        "tags": [
+          "Circle"
+        ],
+        "summary": "Get circle",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "circle_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{circle_id}}"
+          }
+        ],
+        "responses": {
+          "undefined": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got circle.\",\r\n    \"data\": {\r\n        \"circle\": {\r\n            \"circle_id\": \"23kjcn2uvhn29\",\r\n            \"name\": \"Beginners\"\r\n        }\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Circle"
+        ],
+        "summary": "Delete circle",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "circle_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{circle_id}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully deleted circle.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/circles/{circle_id}/promoters/{promoter_id}": {
+      "delete": {
+        "tags": [
+          "Circle"
+        ],
+        "summary": "Remove promoter",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "circle_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully removed promoter from circle.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{program_id}/promoters/{promoter_id}/links": {
+      "post": {
+        "tags": [
+          "Link"
+        ],
+        "summary": "Create link",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "link"
+                  },
+                  "link_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "url"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "name": "",
+                    "url": "quicko.com/it/plans"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully created link\",\r\n    \"data\": {\r\n        \"link_id\": \"\",\r\n        \"name\": \"\",\r\n        \"created_at\": \"\",\r\n        \"updated_at\": \"\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Link"
+        ],
+        "summary": "Get all links",
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{program_id}}"
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{promoter_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully got all links\",\r\n    \"data\": {\r\n        \"links\": [\r\n            {\r\n                \"link_id\": \"\",\r\n                \"name\": \"\",\r\n                \"created_at\": \"\",\r\n                \"updated_at\": \"\"\r\n                \r\n            },\r\n             {\r\n                \"link_id\": \"\",\r\n                \"name\": \"\",\r\n                \"created_at\": \"\",\r\n                \"updated_at\": \"\"\r\n                \r\n            },\r\n             {\r\n                \"link_id\": \"\",\r\n                \"name\": \"\",\r\n                \"created_at\": \"\",\r\n                \"updated_at\": \"\"\r\n                \r\n            }\r\n        ]\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/links/{link_id}": {
+      "delete": {
+        "tags": [
+          "Link"
+        ],
+        "summary": "Delete a link",
+        "parameters": [
+          {
+            "name": "link_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "{{link_id}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully removed Link\",\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contacts": {
+      "post": {
+        "tags": [
+          "Contact"
+        ],
+        "summary": "Create contact",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "contact"
+                  },
+                  "contact_id": {
+                    "type": "string"
+                  },
+                  "link_id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "external_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "link_id",
+                  "email",
+                  "first_name",
+                  "last_name"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "link_id": "",
+                    "email": "",
+                    "first_name": "",
+                    "last_name": "",
+                    "phone": "",
+                    "external_id": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully created contact.\",\r\n    \"data\": {\r\n        \"contact_id\": \"287482hdi9037fih08\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "201-Example-1": {
+                    "value": {
+                      "link_id": "",
+                      "email": "",
+                      "first_name": "",
+                      "last_name": "",
+                      "phone": "",
+                      "external_id": ""
+                    },
+                    "summary": "Example 1 for status 201"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases": {
+      "post": {
+        "tags": [
+          "Purchase"
+        ],
+        "summary": "Create Purchase",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "@entity": {
+                    "default": "purchase"
+                  },
+                  "purchase_id": {
+                    "type": "string"
+                  },
+                  "link_id": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "external_id": {
+                    "type": "string"
+                  },
+                  "contact_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "link_id",
+                  "amount",
+                  "email"
+                ]
+              },
+              "examples": {
+                "success": {
+                  "value": {
+                    "link_id": "",
+                    "amount": 0,
+                    "email": "",
+                    "external_id": "",
+                    "contact_id": ""
+                  }
+                },
+                "failure- Invalid body": {
+                  "value": {
+                    "link_id": "",
+                    "amount": 0,
+                    "email": "",
+                    "external_id": "",
+                    "contact_id": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Successfully created purchase.\",\r\n    \"data\": {\r\n        \"purchase_id\": \"3268912347129074y8ydd89273\"\r\n    }\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "201-Example-1": {
+                    "value": {
+                      "link_id": "",
+                      "amount": 0,
+                      "email": "",
+                      "external_id": "",
+                      "contact_id": ""
+                    },
+                    "summary": "Example 1 for status 201"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "{\r\n    \"message\": \"Failed to create purchase\"\r\n    \"error\": Invalid body\r\n}"
+              },
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "400-Example-1": {
+                    "value": {
+                      "link_id": "",
+                      "amount": 0,
+                      "email": "",
+                      "external_id": "",
+                      "contact_id": ""
+                    },
+                    "summary": "Example 1 for status 400"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

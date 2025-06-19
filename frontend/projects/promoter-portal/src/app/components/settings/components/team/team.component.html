@@ -1,0 +1,119 @@
+<div class="w-full h-auto min-h-[604px] flex flex-col gap-4">
+	<!-- Header -->
+	<div class="h-auto min-h-10 flex flex-row justify-between">
+		<div>
+			<span class="text-on-surface mat-title-large">Team</span>
+		</div>
+		<div>
+			<app-stroked-btn [btnType]="'button'" [onClick]="onAddMember" minWidth="93px" text="Add" icon="add" />
+		</div>
+	</div>
+
+	<!-- Table -->
+	<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
+		@if (isLoading()) {
+		<app-skeleton-load-table
+			[maxHeight]="'548px'"
+			[rowCount]="5"
+			headerClass="flex px-4"
+			rowClass="flex px-4"
+			[headers]="headersStyling"
+			[rows]="rowsStyling"
+		/>
+		}
+
+		@else {
+		<table mat-table matSort [dataSource]="dataSource" class="w-full h-auto max-h-[548px] bg-transparent"
+			[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction" (matSortChange)="onSortChange($event)" [matSortDisableClear]="true">
+			<!-- Define columns dynamically -->
+			<ng-container matColumnDef="name">
+				<th
+					mat-header-cell
+					mat-sort-header
+					*matHeaderCellDef
+					class="mat-body-medium text-on-surface"
+				>
+					Name
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index"
+					class="mat-body-large text-on-surface-variant w-auto min-w-[328px] overflow-hidden text-ellipsis whitespace-nowrap">
+					{{ convertToMemberRow(row).getFirstName() + ' ' + convertToMemberRow(row).getLastName() }}
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="email">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+					Email
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant">
+					{{ convertToMemberRow(row).getEmail() }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="role">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+					Role
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large">
+					<app-label-chip [text]="convertToMemberRow(row).getRole()" />
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="added on">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+					Added on
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant">
+					{{ convertToMemberRow(row).getAddedOn() | ordinalDate }}
+				</td>
+			</ng-container>
+
+
+			<ng-container matColumnDef="menu" stickyEnd>
+				<th mat-header-cell *matHeaderCellDef aria-label="row actions" class="mat-body-medium text-outline">
+					&nbsp;</th>
+				<td mat-cell *matCellDef="let row;">
+					@if (convertToMemberRow(row).getMemberId() === member()?.memberId) {
+					<div class="w-12 h-12 p-3"></div>
+					} @else {
+					<button mat-icon-button
+						class="flex justify-center items-center w-12 h-12 p-3 rounded-full hover:bg-secondary-container"
+						[matMenuTriggerFor]="memberOptionsMenu" (click)="$event.stopPropagation()">
+						<mat-icon class="hover:cursor-pointer">more_vert</mat-icon>
+					</button>
+					<mat-menu #memberOptionsMenu="matMenu" class="bg-surface-container-lowest w-[256px]">
+						<!-- @if (convertToMemberRow(row).getRole() !== adminRole) { -->
+						<button
+							[matMenuTriggerFor]="memberRoleMenu"
+							mat-menu-item
+							class="gap-2"
+						>
+							<mat-icon class="material-symbols-outlined">change_circle</mat-icon>
+							<span>Change Role</span>
+						</button>
+						<!-- } -->
+						<button mat-menu-item (click)="onRemoveMember(row)" class="gap-2">
+							<mat-icon class="material-symbols-outlined">delete</mat-icon>
+							<span>Remove</span>
+						</button>
+					</mat-menu>
+
+					<mat-menu #memberRoleMenu="matMenu" class="bg-surface-container-lowest w-[256px]">
+						@for (role of memberRoles; track role) {
+						<button mat-menu-item (click)="onChangeRole(row, role)" class="gap-2">
+							<span>{{ role | titlecase }}</span>
+						</button>
+						}
+					</mat-menu>
+					}
+				</td>
+			</ng-container>
+
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
+				class="hover:bg-surface-container h-[76px] px-4 py-3">
+			</tr>
+		</table>
+		}
+	</div>
+	<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of members" />
+</div>

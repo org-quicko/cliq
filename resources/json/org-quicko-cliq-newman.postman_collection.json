@@ -1,0 +1,2467 @@
+{
+	"info": {
+		"_postman_id": "e4b30da8-513a-4ee3-b17f-7edc086ed193",
+		"name": "org-quicko-cliq-newman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27391447",
+		"_collection_link": "https://org-quicko.postman.co/workspace/org-quicko-cliq-newman~d38996f9-8c66-40d1-9006-dfa749af9cd8/collection/27391447-e4b30da8-513a-4ee3-b17f-7edc086ed193?action=share&source=collection_link&creator=27391447"
+	},
+	"item": [
+		{
+			"name": "Program",
+			"item": [
+				{
+					"name": "Create program",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"program\" },\r",
+									"        \"name\": { \"type\": \"string\" },\r",
+									"        \"currency\": { \"type\": \"string\" },\r",
+									"        \"website\": { \"type\": \"string\" },\r",
+									"        \"theme_color\": { \"type\": \"string\" },\r",
+									"        \"terms_and_conditions\": { \"type\": \"string\" },\r",
+									"        \"referral_key_type\": { \"type\": \"string\", \"enum\": [\"phone\", \"email\"] },\r",
+									"        \"time_zone\": { \"type\": \"string\" },\r",
+									"        \"visibility\": { \"type\": \"string\", \"enum\": [\"public\", \"private\"] },\r",
+									"        \"date_format\": { \"type\": \"string\", \"enum\": [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"] }\r",
+									"    },\r",
+									"    \"required\": [\"name\", \"currency\", \"website\", \"visibility\", \"referral_key_type\", \"terms_and_conditions\"]\r",
+									"}\r",
+									"//@endschema\r",
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"const fields = ['name', 'currency', 'visibility', 'referral_key_type', 'website', 'time_zone', 'date_format', 'terms_and_conditions'];\r",
+									"\r",
+									"let body = JSON.parse(pm.request.body.raw);\r",
+									"for (const field of fields) {\r",
+									"    if ([undefined, null].includes(pm.iterationData.get(field))) {\r",
+									"        delete body[field];\r",
+									"    }\r",
+									"}\r",
+									"pm.request.body.raw = JSON.stringify(body);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"            \"enum\": [201, 400]\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"program_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"name\": { \"type\": \"string\" },\r",
+									"                \"website\": { \"type\": \"string\" },\r",
+									"                \"theme_color\": { \"type\": \"string\" },\r",
+									"                \"visibility\": { \"type\": \"string\", \"enum\": [\"public\", \"private\"] },\r",
+									"                \"currency\": { \"type\": \"string\" },\r",
+									"                \"terms_and_conditions\": { \"type\": \"string\" },\r",
+									"                \"date_format\": { \"type\": \"string\", \"enum\": [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"] },\r",
+									"                \"time_zone\": { \"type\": \"string\" },\r",
+									"                \"referral_key_type\": { \"type\": \"string\", \"enum\": [\"phone\", \"email\"] },\r",
+									"                \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"            },\r",
+									"            \"required\": [\r",
+									"                \"program_id\", \r",
+									"                \"name\", \r",
+									"                \"currency\", \r",
+									"                \"terms_and_conditions\",\r",
+									"                \"website\", \r",
+									"                \"visibility\", \r",
+									"                \"referral_key_type\", \r",
+									"                \"created_at\", \r",
+									"                \"updated_at\"\r",
+									"            ]\r",
+									"        },\r",
+									"    },\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchemaAndValues(body, schema) {\r",
+									"    try {\r",
+									"        schema = addValuesToSchemaData(schema);\r",
+									"        validateJsonSchema(body, schema);\r",
+									"    } catch(error) {\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function addValuesToSchemaData(schema) {\r",
+									"    const augmentedSchema = { ...schema };\r",
+									"    const data = getDataFromIterationData();\r",
+									"    for (const [key, value] of Object.entries(data)) {\r",
+									"        if ([undefined, null].includes(value)) {\r",
+									"            delete augmentedSchema.properties.data.properties[key];\r",
+									"        } else {\r",
+									"            augmentedSchema.properties.data.properties[key].constant = value;\r",
+									"        }\r",
+									"    }\r",
+									"    \r",
+									"    return augmentedSchema;\r",
+									"}\r",
+									"\r",
+									"const fields = ['name', 'currency', 'visibility', 'referral_key_type', 'website', 'time_zone', 'date_format'];\r",
+									"function getDataFromIterationData() {\r",
+									"    const data = {};\r",
+									"\r",
+									"    for (const field of fields) {\r",
+									"        data[field] = pm.iterationData.get(field);\r",
+									"    }\r",
+									"\r",
+									"    return data;\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"const code = pm.response.code;\r",
+									"\r",
+									"if (code >= 500) {\r",
+									"    let maxRetries = 3;\r",
+									"    let retryCount = parseInt(pm.environment.get(\"retryCount\")) || 0;\r",
+									"\r",
+									"    if (retryCount < maxRetries) {\r",
+									"        retryCount++;\r",
+									"        pm.environment.set(\"retryCount\", retryCount);\r",
+									"\r",
+									"        console.log(`Retry ${retryCount}/${maxRetries} - Retrying request`);\r",
+									"        pm.execution.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        console.log(`Failed after ${maxRetries} retries.`);\r",
+									"        pm.environment.unset(\"retryCount\");\r",
+									"    }\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const auxiliaryDataForResponseMessage = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"    dateFormats: [\"DD/MM/YYYY\", \"YYYY/MM/DD\", \"MM/DD/YYYY\"].join(', '),\r",
+									"    referralKeyTypes: ['email', 'phone'].join(', '),\r",
+									"};\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {\r",
+									"    if (code == 201) {\r",
+									"        pm.test('Assert response body structure is correct', () => {\r",
+									"            validateJsonSchemaAndValues(body, responseSchema);\r",
+									"        });\r",
+									"\r",
+									"        pm.collectionVariables.set('program', JSON.stringify(body.data));\r",
+									"        pm.collectionVariables.set('referral_key_type', body.data.referral_key_type);\r",
+									"        pm.collectionVariables.set('program_id', body.data.program_id);\r",
+									"    }\r",
+									"    else  {\r",
+									"        let message = pm.iterationData.get('message');\r",
+									"        for (const [key, value] of Object.entries(auxiliaryDataForResponseMessage)) {\r",
+									"            message = message.replace(`{{${key}}}`, value);\r",
+									"        }\r",
+									"        assertEqual(body.message, message, 'message');\r",
+									"\r",
+									"        pm.execution.setNextRequest(null);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{name}}\",\r\n    \"currency\": \"{{currency}}\",\r\n    \"visibility\": \"{{visibility}}\",\r\n    \"referral_key_type\": \"{{referral_key_type}}\",\r\n    \"website\": \"{{website}}\",\r\n    \"time_zone\": \"{{time_zone}}\",\r\n    \"date_format\": \"{{date_format}}\",\r\n    \"terms_and_conditions\": \"{{terms_and_conditions}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Influencer program\",\r\n    \"currency\": \"USD\",\r\n    \"visibility\": \"public\",\r\n    \"website\": \"www.example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully created program.\",\r\n    \"data\": {\r\n        \"program_id\": \"ewvkj2n73c8-=3=-h91bjb*^#@678$2\"\r\n    }\r\n}"
+						},
+						{
+							"name": "403- Forbidden Resource- Not super admin",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Intermediates\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"referral_key_type\": \"email\",\r\n    \"website\": \"www.example987.com\",\r\n    \"time_zone\": \"IST\",\r\n    \"date_format\": \"DD/MM/YYYY\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs"
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "43"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2b-XgbPHEJX9BUgUZyEhTnrgY+t41M\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 03 Mar 2025 10:23:38 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 403,\n    \"message\": \"Forbidden resource\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get program",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"program_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"name\": { \"type\": \"string\" },\r",
+									"                \"website\": { \"type\": \"string\" },\r",
+									"                \"theme_color\": { \"type\": \"string\" },\r",
+									"                \"visibility\": { \"type\": \"string\", \"enum\": [\"public\", \"private\"] },\r",
+									"                \"currency\": { \"type\": \"string\" },\r",
+									"                \"terms_and_conditions\": { \"type\": \"string\" },\r",
+									"                \"date_format\": { \"type\": \"string\", \"enum\": [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"] },\r",
+									"                \"time_zone\": { \"type\": \"string\" },\r",
+									"                \"referral_key_type\": { \"type\": \"string\", \"enum\": [\"phone\", \"email\"] },\r",
+									"                \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"            },\r",
+									"            \"required\": [\r",
+									"                \"program_id\", \r",
+									"                \"name\", \r",
+									"                \"currency\", \r",
+									"                \"website\", \r",
+									"                \"visibility\", \r",
+									"                \"referral_key_type\", \r",
+									"                \"terms_and_conditions\",\r",
+									"                \"created_at\", \r",
+									"                \"updated_at\"\r",
+									"            ]\r",
+									"        },\r",
+									"    },\r",
+									"    \"required\": [\"code\", \"message\", \"data\"]\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchemaAndValues(body, schema) {\r",
+									"    try {\r",
+									"        schema = addValuesToSchemaData(schema);\r",
+									"        validateJsonSchema(body, schema);\r",
+									"    } catch(error) {\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function addValuesToSchemaData(schema) {\r",
+									"    const augmentedSchema = { ...schema };\r",
+									"    const data = JSON.parse(pm.collectionVariables.get('program'));\r",
+									"    for (const [key, value] of Object.entries(data)) {\r",
+									"        if ([undefined, null].includes(value)) {\r",
+									"            delete augmentedSchema.properties.data.properties[key];\r",
+									"        } else {\r",
+									"            augmentedSchema.properties.data.properties[key].constant = value;\r",
+									"        }        \r",
+									"    }\r",
+									"    \r",
+									"    return augmentedSchema;\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"const code = pm.response.code;\r",
+									"\r",
+									"if (code >= 500) {\r",
+									"    let maxRetries = 3;\r",
+									"    let retryCount = parseInt(pm.environment.get(\"retryCount\")) || 0;\r",
+									"\r",
+									"    if (retryCount < maxRetries) {\r",
+									"        retryCount++;\r",
+									"        pm.environment.set(\"retryCount\", retryCount);\r",
+									"\r",
+									"        console.log(`Retry ${retryCount}/${maxRetries} - Retrying request`);\r",
+									"        pm.execution.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        console.log(`Failed after ${maxRetries} retries.`);\r",
+									"        pm.environment.unset(\"retryCount\");\r",
+									"    }\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"pm.test('Assert response body structure is correct', () => {\r",
+									"    validateJsonSchemaAndValues(body, responseSchema);\r",
+									"});\r",
+									"\r",
+									"pm.test('Assert response message is correct', () => {\r",
+									"    assertEqual(body.message, 'Successfully fetched program.', 'message')\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update program",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"const fields = ['name', 'currency', 'visibility', 'website', 'time_zone', 'date_format', 'terms_and_conditions'];\r",
+									"\r",
+									"let program = JSON.parse(pm.collectionVariables.get('program'));\r",
+									"let body = {};\r",
+									"for (const field of fields) {\r",
+									"    const fieldNotExists = [undefined, null].includes(pm.iterationData.get(field));\r",
+									"    if (!fieldNotExists) {\r",
+									"        body[field] = pm.iterationData.get(field);\r",
+									"        program[field] = pm.iterationData.get(field);\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"pm.collectionVariables.set('updated_program', JSON.stringify(program));\r",
+									"pm.request.body.raw = JSON.stringify(body);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"            \"enum\": [200, 400, 404, 500]\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        }\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"const code = pm.response.code;\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"const auxiliaryDataForResponseMessage = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"    dateFormats: [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"],\r",
+									"    referralKeyTypes: ['email', 'phone'],\r",
+									"};\r",
+									"\r",
+									"let program = pm.collectionVariables.get('program');\r",
+									"const programId = pm.collectionVariables.get('program_id');\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {\r",
+									"    if (code == 200) {\r",
+									"        pm.test('Assert response body structure is correct', () => {\r",
+									"            validateJsonSchema(body, responseSchema);\r",
+									"        });\r",
+									"\r",
+									"        pm.collectionVariables.set('program', pm.collectionVariables.get('updated_program'));\r",
+									"    }\r",
+									"    else  {\r",
+									"        let message = pm.iterationData.get('message');\r",
+									"        for (const [key, value] of Object.entries(auxiliaryDataForResponseMessage)) {\r",
+									"            message = message.replace(`{{${key}}}`, value);\r",
+									"        }\r",
+									"        assertEqual(body.message, message, 'message');\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.unset('updated_program');"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"StockBroker program\",\r\n    \"currency\": \"INR\",\r\n    \"visibility\": \"public\",\r\n    \"website\": \"www.example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully updated program.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"\",\r\n    \"name\": \"\",\r\n    \"currency\": \"\",\r\n    \"visibility\": \"\",\r\n    \"website\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Add user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"@entity\": { \"default\": \"user\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"password\": { \"type\": \"string\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"role\": { \"type\": \"string\", \"enum\": [\"admin\", \"editor\", \"viewer\"] }\r",
+									"    },\r",
+									"    \"required\": [\"email\", \"password\"]\r",
+									"}\r",
+									"//@endschema\r",
+									"\r",
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const fields = ['email', 'password', 'first_name', 'last_name', 'role'];\r",
+									"\r",
+									"let body = JSON.parse(pm.request.body.raw);\r",
+									"for (const field of fields) {\r",
+									"    if ([undefined, null].includes(pm.iterationData.get(field))) {\r",
+									"        delete body[field];\r",
+									"    }\r",
+									"}\r",
+									"pm.request.body.raw = JSON.stringify(body);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"            \"enum\": [201, 400, 404, 409, 500]\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        }\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"const fields = ['name', 'currency', 'visibility', 'referral_key_type', 'website', 'time_zone', 'date_format'];\r",
+									"function getDataFromIterationData() {\r",
+									"    const data = {};\r",
+									"\r",
+									"    for (const field of fields) {\r",
+									"        data[field] = pm.iterationData.get(field);\r",
+									"    }\r",
+									"\r",
+									"    return data;\r",
+									"}\r",
+									"\r",
+									"const programId = pm.collectionVariables.get('program_id');\r",
+									"let body;\r",
+									"const code = pm.response.code;\r",
+									"\r",
+									"if (code >= 500) {\r",
+									"    let maxRetries = 3;\r",
+									"    let retryCount = parseInt(pm.environment.get(\"retryCount\")) || 0;\r",
+									"\r",
+									"    if (retryCount < maxRetries) {\r",
+									"        retryCount++;\r",
+									"        pm.environment.set(\"retryCount\", retryCount);\r",
+									"\r",
+									"        console.log(`Retry ${retryCount}/${maxRetries} - Retrying request`);\r",
+									"        pm.execution.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        console.log(`Failed after ${maxRetries} retries.`);\r",
+									"        pm.environment.unset(\"retryCount\");\r",
+									"    }\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"const auxiliaryDataForResponseMessage = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"    dateFormats: [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"].join(', '),\r",
+									"    referralKeyTypes: ['email', 'phone'].join(', '),\r",
+									"    userRoles: ['super_admin', 'admin', 'editor', 'viewer', 'regular'].join(', '),\r",
+									"};\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {\r",
+									"    if (code == 201) {\r",
+									"        pm.test('Assert response body structure is correct', () => {\r",
+									"            validateJsonSchema(body, responseSchema);\r",
+									"        });\r",
+									"    }\r",
+									"    else  {\r",
+									"        let message = pm.iterationData.get('message');\r",
+									"        for (const [key, value] of Object.entries(auxiliaryDataForResponseMessage)) {\r",
+									"            message = message.replace(`{{${key}}}`, value);\r",
+									"        }\r",
+									"        assertEqual(body.message, message, 'message');\r",
+									"\r",
+									"        pm.execution.setNextRequest(null);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\",\r\n    \"first_name\": \"{{first_name}}\",\r\n    \"last_name\": \"{{last_name}}\",\r\n    \"role\": \"{{role}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/invite",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"invite"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"knw97890un\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Bennington\",\r\n    \"role\": \"MEMBER\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/invite",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"invite"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully invited user to program\",\r\n    \"data\": {\r\n        \"user_id\": \"r3y10jij&78=-=-%^&%%\"\r\n    }\r\n}"
+						},
+						{
+							"name": "failure- user already part of program",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"john@mail.com\",\r\n    \"password\": \"knw97890un\",\r\n    \"first_name\": \"John\",\r\n    \"last_name\": \"Bennington\",\r\n    \"role\": \"MEMBER\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/invite",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"invite"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"Invalid request. User is already part of the program.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get all users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"title\": \"Get All Users Response Schema\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": { \"type\": \"number\", \"enum\": [200, 403, 500] },\r",
+									"        \"message\": { \"type\": \"string\" },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"user_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"                    \"first_name\": { \"type\": \"string\" },\r",
+									"                    \"last_name\": { \"type\": \"string\" },\r",
+									"                    \"status\": { \"type\": \"string\", \"enum\": [\"active\", \"inactive\"] },\r",
+									"                    \"role\": { \"type\": \"string\", \"enum\": [\"super_admin\", \"admin\", \"editor\", \"viewer\"] },\r",
+									"                    \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                    \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"                },\r",
+									"                \"required\": [\r",
+									"                    \"user_id\",\r",
+									"                    \"email\",\r",
+									"                    \"first_name\",\r",
+									"                    \"last_name\",\r",
+									"                    \"created_at\",\r",
+									"                    \"updated_at\"\r",
+									"                ]\r",
+									"            }\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"code\", \"message\", \"data\"]\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {\r",
+									"    pm.test('Assert response body structure is correct', () => {\r",
+									"        validateJsonSchema(body, responseSchema);\r",
+									"\r",
+									"        // set any random\r",
+									"        for (const user of body['data']) {\r",
+									"            if (\r",
+									"                user['user_id'] !== pm.collectionVariables.get('user_id') && \r",
+									"                !(['super_admin', 'admin'].includes(user['role']))\r",
+									"            ) {\r",
+									"                pm.collectionVariables.set('user_id_to_remove', user['user_id']);\r",
+									"                break;\r",
+									"            }\r",
+									"        }\r",
+									"\r",
+									"    });\r",
+									"\r",
+									"    pm.test('Assert response message is correct', () => {\r",
+									"        assertEqual(body.message, 'Successfully fetched all users of program.', 'message')\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-accept-type",
+								"value": "application/json;format=sheet-json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"users"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"            \"enum\": [200, 404, 500]\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        }\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"const code = pm.response.code;\r",
+									"const programId = pm.collectionVariables.get('program_id');\r",
+									"\r",
+									"if (code >= 500) {\r",
+									"    let maxRetries = 3;\r",
+									"    let retryCount = parseInt(pm.environment.get(\"retryCount\")) || 0;\r",
+									"\r",
+									"    if (retryCount < maxRetries) {\r",
+									"        retryCount++;\r",
+									"        pm.environment.set(\"retryCount\", retryCount);\r",
+									"\r",
+									"        console.log(`Retry ${retryCount}/${maxRetries} - Retrying request`);\r",
+									"        postman.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        console.log(`Failed after ${maxRetries} retries.`);\r",
+									"        pm.environment.unset(\"retryCount\");\r",
+									"    }\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"const auxiliaryDataForResponseMessage = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"    dateFormats: [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"].join(', '),\r",
+									"    referralKeyTypes: ['email', 'phone'].join(', '),\r",
+									"    userRoles: ['admin', 'editor', 'viewer'].join(', '),\r",
+									"};\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {\r",
+									"    pm.test('Assert response body structure is correct', () => {\r",
+									"        validateJsonSchema(body, responseSchema);\r",
+									"\r",
+									"        pm.collectionVariables.unset('user_id_to_remove');\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('user_id_to_remove')) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								},
+								{
+									"key": "user_id",
+									"value": "{{user_id_to_remove}}"
+								}
+							]
+						},
+						"description": "Mark user status as inactive"
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully removed user from program.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id/users/:user_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id",
+										"users",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										},
+										{
+											"key": "user_id",
+											"value": "{{user_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				},
+				{
+					"name": "Get program report",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const code = pm.response.code;\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"\r",
+									"const auxiliaryDataForResponseMessage = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"    dateFormats: [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"].join(', '),\r",
+									"    referralKeyTypes: ['email', 'phone'].join(', '),\r",
+									"};\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {\r",
+									"\r",
+									"    if (code == 200) {\r",
+									"        pm.test('Assert correct content type header', () => {\r",
+									"            pm.response.to.have.header('Content-Type');\r",
+									"            const contentType = pm.response.headers.get('Content-Type');\r",
+									"            pm.expect(contentType).to.include('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r",
+									"        });\r",
+									"\r",
+									"        const fileName = 'Program Report.xlsx';\r",
+									"\r",
+									"        pm.test('Assert correct content disposition header', () => {\r",
+									"            pm.response.to.have.header('Content-Disposition');\r",
+									"            const contentDisposition = pm.response.headers.get('Content-Disposition');\r",
+									"            console.log(contentDisposition);\r",
+									"            pm.expect(contentDisposition).to.include(`attachment; filename=\"${fileName}\"`);\r",
+									"        });\r",
+									"    } else {\r",
+									"        pm.test('Assert response body is json', () => {\r",
+									"            pm.response.to.be.json;\r",
+									"            body = pm.response.json();\r",
+									"        });\r",
+									"\r",
+									"        let message = pm.iterationData.get('message');\r",
+									"        for (const [key, value] of Object.entries(auxiliaryDataForResponseMessage)) {\r",
+									"            message = message.replace(`{{${key}}}`, value);\r",
+									"        }\r",
+									"        assertEqual(body.message, message, 'message');\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const reportPeriods = [\"this_week\", \"this_month\", \"last_7_days\", \"last_30_days\", \"last_90_days\", \"custom\"];\r",
+									"\r",
+									"const query_params = ['start_date', 'end_date', 'report_period'];\r",
+									"for (const param of query_params) {\r",
+									"    pm.request.url.query.upsert({\r",
+									"        key: param,\r",
+									"        value: pm.iterationData.get(param),\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"console.log(pm.request.url.query);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-accept-type",
+								"value": "application/json;format=sheet-json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/report?start_date=&end_date=&report_period=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"report"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": ""
+								},
+								{
+									"key": "end_date",
+									"value": ""
+								},
+								{
+									"key": "report_period",
+									"value": ""
+								}
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all program referrals",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const responseSchema = {\r",
+									"    \"type\": 'object',\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"array\",\r",
+									"            \"items\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"contact_id\": { \"type\": 'string', \"format\": 'uuid' },\r",
+									"                    \"program_id\": { \"type\": 'string', \"format\": 'uuid' },\r",
+									"                    \"promoter_id\": { \"type\": 'string', \"format\": 'uuid' },\r",
+									"                    \"contact_info\": { \"type\": 'string' },\r",
+									"                    \"status\": { \"type\": 'string', \"enum\": [\"active\", \"lead\"] },\r",
+									"                    \"currency\": { \"type\": 'string' },\r",
+									"                    \"total_commission\": { \"type\": 'number' },\r",
+									"                    \"total_revenue\": { \"type\": 'number' },\r",
+									"                    \"created_at\": { \"type\": 'string', \"format\": 'date-time' },\r",
+									"                    \"updated_at\": { \"type\": 'string', \"format\": 'date-time' }\r",
+									"                },\r",
+									"                \"required\": [\r",
+									"                    \"contact_id\", \r",
+									"                    \"program_id\", \r",
+									"                    \"promoter_id\", \r",
+									"                    \"contact_info\", \r",
+									"                    \"status\", \r",
+									"                    \"total_commission\", \r",
+									"                    \"total_revenue\", \r",
+									"                    \"updated_at\"\r",
+									"                ]\r",
+									"            }\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"code\", \"message\"]\r",
+									"};\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"const code = pm.response.code;\r",
+									"const programId = pm.collectionVariables.get('program_id');\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"pm.test('Assert response body structure is correct', () => {\r",
+									"    validateJsonSchema(body, responseSchema);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id/referrals",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id",
+								"referrals"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete program",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"            \"enum\": [200, 400, 404, 500]\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        }\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"let body;\r",
+									"const code = pm.response.code;\r",
+									"\r",
+									"pm.test('Assert response body is json', () => {\r",
+									"    pm.response.to.be.json;\r",
+									"    body = pm.response.json();\r",
+									"});\r",
+									"\r",
+									"if (code >= 500) {\r",
+									"    let maxRetries = 3;\r",
+									"    let retryCount = parseInt(pm.environment.get(\"retryCount\")) || 0;\r",
+									"\r",
+									"    if (retryCount < maxRetries) {\r",
+									"        retryCount++;\r",
+									"        pm.environment.set(\"retryCount\", retryCount);\r",
+									"\r",
+									"        console.log(`Retry ${retryCount}/${maxRetries} - Retrying request`);\r",
+									"        pm.execution.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        console.log(`Failed after ${maxRetries} retries.`);\r",
+									"        pm.environment.unset(\"retryCount\");\r",
+									"    }\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const auxiliaryDataForResponseMessage = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"    dateFormats: [\"DD/MM/YYYY\", \"MM/DD/YYYY\", \"YYYY/MM/DD\"].join(', '),\r",
+									"    referralKeyTypes: ['email', 'phone'].join(', '),\r",
+									"};\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {\r",
+									"    if (code == 200) {\r",
+									"        pm.test('Assert response body structure is correct', () => {\r",
+									"            validateJsonSchema(body, responseSchema);\r",
+									"        });\r",
+									"        \r",
+									"        pm.collectionVariables.unset('program');\r",
+									"        pm.collectionVariables.unset('program_id');\r",
+									"        pm.collectionVariables.unset('referral_key_type');\r",
+									"    }\r",
+									"    else  {\r",
+									"        let message = pm.iterationData.get('message');\r",
+									"        for (const [key, value] of Object.entries(auxiliaryDataForResponseMessage)) {\r",
+									"            message = message.replace(`{{${key}}}`, value);\r",
+									"        }\r",
+									"        assertEqual(body.message, message, 'message');\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (pm.iterationData.get('request_name') !== pm.info.requestName) {\r",
+									"    pm.execution.skipRequest();\r",
+									"    return;\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/programs/:program_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"programs",
+								":program_id"
+							],
+							"variable": [
+								{
+									"key": "program_id",
+									"value": "{{program_id}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"message\": \"Successfully deleted program.\"\r\n}"
+						},
+						{
+							"name": "failure- unauthorized",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/programs/:program_id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"programs",
+										":program_id"
+									],
+									"variable": [
+										{
+											"key": "program_id",
+											"value": "{{program_id}}"
+										}
+									]
+								}
+							},
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": null,
+							"header": null,
+							"cookie": [],
+							"body": "{\r\n    \"error\": \"You are unauthorized to perform this action.\"\r\n}"
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{user_access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Purchase",
+			"item": [
+				{
+					"name": "Create purchase",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"title\": \"Successful response validation schema\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"            \"enum\": [201, 400, 401, 403, 500]\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"purchase_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"promoter_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"link_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"email\": { \"type\": [\"string\", \"null\"], \"format\": \"email\" },\r",
+									"                \"amount\": { \"type\": \"number\" },\r",
+									"                \"phone\": { \"type\": [\"string\", \"null\"], \"pattern\": \"^\\\\d{8,13}$\" },\r",
+									"                \"item_id\": { \"type\": \"string\" },\r",
+									"                \"contact_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                \"utm_params\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"utm_id\": { \"type\": \"string\" },\r",
+									"                        \"utm_source\": { \"type\": \"string\" },\r",
+									"                        \"utm_medium\": { \"type\": \"string\" },\r",
+									"                        \"utm_campaign\": { \"type\": \"string\" },\r",
+									"                        \"utm_term\": { \"type\": \"string\" },\r",
+									"                        \"utm_content\": { \"type\": \"string\" }\r",
+									"                    }\r",
+									"                }\r",
+									"            },\r",
+									"            \"required\": [\r",
+									"                \"purchase_id\",\r",
+									"                \"promoter_id\",\r",
+									"                \"contact_id\",\r",
+									"                \"link_id\",\r",
+									"                \"amount\",\r",
+									"                \"created_at\",\r",
+									"                \"updated_at\"\r",
+									"            ]\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"code\", \"message\"]\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchemaAndValues(body, schema) {\r",
+									"    console\r",
+									"    try {\r",
+									"        schema = addValuesToSchemaData(schema);\r",
+									"        validateJsonSchema(body, schema);\r",
+									"    } catch(error) {\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function maskInfo(value) {\r",
+									"    if (!value) return value;\r",
+									"\r",
+									"    if (typeof value === 'string' && value.includes('@')) {\r",
+									"        const [user, domain] = value.split('@');\r",
+									"        return `${user[0]}*****@${domain}`;\r",
+									"    }\r",
+									"\r",
+									"    if (/^\\+?\\d{8,13}$/.test(value)) {\r",
+									"        return value.replace(/(\\d{2})\\d+(\\d{2})/, '$1****$2');\r",
+									"    }\r",
+									"\r",
+									"    return value;\r",
+									"}\r",
+									"\r",
+									"const fields = ['email', 'phone', 'first_name', 'last_name', 'amount', 'item_id'];\r",
+									"function getDataFromIterationData() {\r",
+									"    const data = {};\r",
+									"\r",
+									"    for (const field of fields) {\r",
+									"        data[field] = pm.iterationData.get(field);\r",
+									"    }\r",
+									"\r",
+									"    return data;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"function addValuesToSchemaData(schema) {\r",
+									"    const augmentedSchema = { ...schema };\r",
+									"    const data = getDataFromIterationData();\r",
+									"    for (const [key, value] of Object.entries(data)) {\r",
+									"        if ([undefined, null].includes(value)) {\r",
+									"            delete augmentedSchema.properties.data.properties[key];\r",
+									"        } else {\r",
+									"            augmentedSchema.properties.data.properties[key].constant = maskInfo(value);\r",
+									"        }\r",
+									"    }\r",
+									"    \r",
+									"    return augmentedSchema;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"const code = pm.response.code;\r",
+									"if (code >= 500) {\r",
+									"    let maxRetries = 3;\r",
+									"    let retryCount = parseInt(pm.environment.get(\"retryCount\")) || 0;\r",
+									"\r",
+									"    if (retryCount < maxRetries) {\r",
+									"        retryCount++;\r",
+									"        pm.environment.set(\"retryCount\", retryCount);\r",
+									"\r",
+									"        console.log(`Retry ${retryCount}/${maxRetries} - Retrying request`);\r",
+									"        postman.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        console.log(`Failed after ${maxRetries} retries.`);\r",
+									"        pm.environment.unset(\"retryCount\");\r",
+									"    }\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"const auxiliaryData = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    refVal: requestBody.ref_val,\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"};\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {    \r",
+									"    if (code == 201) {\r",
+									"        pm.test('Assert response body structure is correct', () => {\r",
+									"            validateJsonSchemaAndValues(body, responseSchema);\r",
+									"        });\r",
+									"    }\r",
+									"    else {\r",
+									"        let message = pm.iterationData.get('message');\r",
+									"        for (const [key, value] of Object.entries(auxiliaryData)) {\r",
+									"            message = message.replace(`{{${key}}}`, value);\r",
+									"        }\r",
+									"        assertEqual(body.message, message, 'message');\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"ref_val\": { \"type\": \"string\" },\r",
+									"        \"amount\": { \"type\": \"number\", \"minimum\": 0 },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"phone\": { \"type\": \"string\" },\r",
+									"        \"external_id\": { \"type\": \"string\" },\r",
+									"        \"item_id\": { \"type\": \"string\" },\r",
+									"        \"utm_params\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"utm_id\": { \"type\": \"string\" },\r",
+									"                \"utm_source\": { \"type\": \"string\" },\r",
+									"                \"utm_medium\": { \"type\": \"string\" },\r",
+									"                \"utm_campaign\": { \"type\": \"string\" },\r",
+									"                \"utm_term\": { \"type\": \"string\" },\r",
+									"                \"utm_content\": { \"type\": \"string\" }\r",
+									"            }\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"ref_val\", \"amount\"],\r",
+									"    \"anyOf\": [\r",
+									"        { \"required\": [\"email\"] },\r",
+									"        { \"required\": [\"phone\"] }\r",
+									"    ]\r",
+									"}\r",
+									"//@endschema\r",
+									"\r",
+									"const body = {\r",
+									"    ref_val: pm.iterationData.get(\"ref_val\"),\r",
+									"    email: pm.iterationData.get(\"email\"),\r",
+									"    phone: pm.iterationData.get(\"phone\"),\r",
+									"    external_id: pm.iterationData.get(\"external_id\"),\r",
+									"    item_id: pm.iterationData.get(\"item_id\"),\r",
+									"    amount: Number(pm.iterationData.get(\"amount\")),\r",
+									"    utm_params: {\r",
+									"    utm_id: \"2345\",\r",
+									"    utm_source: \"instagram\",\r",
+									"    utm_medium: \"social\",\r",
+									"    utm_campaign: \"fireship\",\r",
+									"    utm_term: \"ok\",\r",
+									"    utm_content: \"logolink\"\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const fields = ['ref_val', 'email', 'amount', 'external_id', 'item_id', 'phone'];\r",
+									"for (const field of fields) {\r",
+									"    if ([undefined, null].includes(pm.iterationData.get(field))) {\r",
+									"        delete body[field];\r",
+									"    }\r",
+									"}\r",
+									"pm.request.body.raw = JSON.stringify(body);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "x-api-secret",
+								"value": "{{api_secret}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ref_val\": \"anakin\",\r\n    \"amount\": {{amount}},\r\n    \"email\": \"{{email}}\",\r\n    \"phone\": \"{{phone}}\",\r\n    \"external_id\": \"{{external_id}}\",\r\n    \"item_id\": \"{{item_id}}\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/purchases",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchases"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Signup",
+			"item": [
+				{
+					"name": "Create signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//@schema\r",
+									"const requestSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"ref_val\": { \"type\": \"string\" },\r",
+									"        \"email\": { \"type\": \"string\", \"format\": \"email\" },\r",
+									"        \"first_name\": { \"type\": \"string\" },\r",
+									"        \"last_name\": { \"type\": \"string\" },\r",
+									"        \"phone\": { \"type\": \"string\" },\r",
+									"        \"utm_params\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"utm_id\": { \"type\": \"string\" },\r",
+									"                \"utm_source\": { \"type\": \"string\" },\r",
+									"                \"utm_medium\": { \"type\": \"string\" },\r",
+									"                \"utm_campaign\": { \"type\": \"string\" },\r",
+									"                \"utm_term\": { \"type\": \"string\" },\r",
+									"                \"utm_content\": { \"type\": \"string\" }\r",
+									"            }\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"ref_val\"],\r",
+									"    \"anyOf\": [\r",
+									"        { \"required\": [\"email\"] },\r",
+									"        { \"required\": [\"phone\"] }\r",
+									"    ]\r",
+									"}\r",
+									"//@endschema\r",
+									"\r",
+									"\r",
+									"const fields = ['ref_val', 'email', 'phone', 'first_name', 'last_name'];\r",
+									"let body = JSON.parse(pm.request.body.raw);\r",
+									"for (const field of fields) {\r",
+									"    if ([undefined, null].includes(pm.iterationData.get(field))) {\r",
+									"        delete body[field];\r",
+									"    }\r",
+									"}\r",
+									"pm.request.body.raw = JSON.stringify(body);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseSchema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"title\": \"Successful response validation schema\",\r",
+									"    \"properties\": {\r",
+									"        \"code\": {\r",
+									"            \"type\": \"number\",\r",
+									"            \"enum\": [201, 400, 401, 403, 404, 409, 500]\r",
+									"        },\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\",\r",
+									"        },\r",
+									"        \"data\": {\r",
+									"            \"type\": \"object\",\r",
+									"            \"properties\": {\r",
+									"                \"contact_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"promoter_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"link_id\": { \"type\": \"string\", \"format\": \"uuid\" },\r",
+									"                \"email\": { \"type\": [\"string\", \"null\"] },\r",
+									"                \"first_name\": { \"type\": [\"string\", \"null\"] },\r",
+									"                \"last_name\": { \"type\": [\"string\", \"null\"] },\r",
+									"                \"phone\": { \"type\": [\"string\", \"null\"] },\r",
+									"                \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                \"utm_params\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"utm_id\": { \"type\": \"string\" },\r",
+									"                        \"utm_source\": { \"type\": \"string\" },\r",
+									"                        \"utm_medium\": { \"type\": \"string\" },\r",
+									"                        \"utm_campaign\": { \"type\": \"string\" },\r",
+									"                        \"utm_term\": { \"type\": \"string\" },\r",
+									"                        \"utm_content\": { \"type\": \"string\" }\r",
+									"                    }\r",
+									"                }\r",
+									"            },\r",
+									"            \"required\": [\r",
+									"                \"contact_id\",\r",
+									"                \"promoter_id\",\r",
+									"                \"link_id\",\r",
+									"                \"created_at\",\r",
+									"                \"updated_at\"\r",
+									"            ]\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"code\", \"message\"]\r",
+									"};\r",
+									"\r",
+									"function assertEqual(actual, expected, field) {\r",
+									"    const message = `Response body field '${field}' is not equal to its test case field.`;\r",
+									"    try {\r",
+									"        pm.expect(actual).to.equal(expected, message);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Assertion Failed: Expected ${expected}, but got ${actual} | ${message}`);\r",
+									"        throw error; // Ensures test still fails\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchema(body, schema) {\r",
+									"    try {\r",
+									"        pm.expect(body).to.have.jsonSchema(schema);\r",
+									"    } catch (error) {\r",
+									"        console.log(`Validation Failed: body ${JSON.stringify(body)} does not match the given schema.`);\r",
+									"        console.error(error);\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function validateJsonSchemaAndValues(body, schema) {\r",
+									"    try {\r",
+									"        schema = addValuesToSchemaData(schema);\r",
+									"        validateJsonSchema(body, schema);\r",
+									"    } catch(error) {\r",
+									"        throw error;\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"function maskInfo(value) {\r",
+									"    if (!value) return value;\r",
+									"\r",
+									"    if (value.includes('@')) {\r",
+									"        const [user, domain] = value.split('@');\r",
+									"        return `${user[0]}*****@${domain}`;\r",
+									"    }\r",
+									"\r",
+									"    if (/^\\+?\\d{8,13}$/.test(value)) {\r",
+									"        return value.replace(/(\\d{2})\\d+(\\d{2})/, '$1****$2');\r",
+									"    }\r",
+									"\r",
+									"    return value;\r",
+									"}\r",
+									"\r",
+									"function addValuesToSchemaData(schema) {\r",
+									"    const augmentedSchema = { ...schema };\r",
+									"    const data = getDataFromIterationData();\r",
+									"    for (const [key, value] of Object.entries(data)) {\r",
+									"        if ([undefined, null].includes(value)) {\r",
+									"            delete augmentedSchema[properties][data][properties][key];\r",
+									"        } else {\r",
+									"            augmentedSchema.properties.data.properties[key].constant = maskInfo(value);\r",
+									"        }\r",
+									"    }\r",
+									"    \r",
+									"    return augmentedSchema;\r",
+									"}\r",
+									"\r",
+									"const fields = ['email', 'phone', 'first_name', 'last_name'];\r",
+									"function getDataFromIterationData() {\r",
+									"    const data = {};\r",
+									"\r",
+									"    for (const field of fields) {\r",
+									"        data[field] = pm.iterationData.get(field);\r",
+									"    }\r",
+									"\r",
+									"    return data;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"\r",
+									"const body = pm.response.json();\r",
+									"const code = pm.response.code;\r",
+									"if (code >= 500) {\r",
+									"    let maxRetries = 3;\r",
+									"    let retryCount = parseInt(pm.environment.get(\"retryCount\")) || 0;\r",
+									"\r",
+									"    if (retryCount < maxRetries) {\r",
+									"        retryCount++;\r",
+									"        pm.environment.set(\"retryCount\", retryCount);\r",
+									"\r",
+									"        console.log(`Retry ${retryCount}/${maxRetries} - Retrying request`);\r",
+									"        postman.setNextRequest(pm.info.requestName);\r",
+									"    } else {\r",
+									"        console.log(`Failed after ${maxRetries} retries.`);\r",
+									"        pm.environment.unset(\"retryCount\");\r",
+									"    }\r",
+									"    return;\r",
+									"}\r",
+									"\r",
+									"\r",
+									"const requestBody = JSON.parse(pm.request.body.raw);\r",
+									"const auxiliaryDataForResponseMessage = {\r",
+									"    programId: pm.collectionVariables.get('program_id'),\r",
+									"    refVal: requestBody.ref_val,\r",
+									"    referralKeyType: pm.collectionVariables.get('referral_key_type'),\r",
+									"};\r",
+									"\r",
+									"pm.test(pm.iterationData.get('test_name') || 'API Integration Test', () => {    \r",
+									"    if (code == 201) {\r",
+									"        pm.test('Assert response body structure is correct', () => {\r",
+									"            validateJsonSchemaAndValues(body, responseSchema);\r",
+									"        });\r",
+									"    }\r",
+									"    else {\r",
+									"        let message = pm.iterationData.get('message');\r",
+									"        for (const [key, value] of Object.entries(auxiliaryDataForResponseMessage)) {\r",
+									"            message = message.replace(`{{${key}}}`, value);\r",
+									"        }\r",
+									"        assertEqual(body.message, message, 'message');\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{api_key}}",
+								"type": "text"
+							},
+							{
+								"key": "x-api-secret",
+								"value": "{{api_secret}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ref_val\": \"{{ref_val}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"first_name\": \"{{first_name}}\",\r\n    \"last_name\": \"{{last_name}}\",\r\n    \"phone\": \"{{phone}}\",\r\n    \"utm_params\": {\r\n        \"utm_id\": \"2345\",\r\n        \"utm_source\": \"instagram\",\r\n        \"utm_medium\": \"social\",\r\n        \"utm_campaign\": \"fireship\",\r\n        \"utm_term\": \"ok\",\r\n        \"utm_content\": \"logolink\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/signups",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signups"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "program_id",
+			"value": "189bc46d-cd71-4515-90c3-06f587f1bc22",
+			"type": "string"
+		},
+		{
+			"key": "user_access_token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MmRiYzA1OC03NmUyLTQ5MTUtYTVmNy1iODMyYWE5NTUyNDciLCJlbWFpbCI6ImpvaG5AbWFpbC5jb20iLCJhdWQiOiJwcm9ncmFtX3VzZXIiLCJpYXQiOjE3NDU0MTYzMTksImV4cCI6MTc0ODAwODMxOX0.bnpVB9Kyabave7fFBxtnX1oVXSUsoCmNbBMD_26is04",
+			"type": "string"
+		},
+		{
+			"key": "webhook_url",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "webhook_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_role",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_status",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "promoter_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "member_id",
+			"value": "c57238c8-02d2-46c6-94ea-7d1290c2cadb",
+			"type": "string"
+		},
+		{
+			"key": "circle_id",
+			"value": "c57238c8-02d2-46c6-94ea-7d1290c2cadb",
+			"type": "string"
+		},
+		{
+			"key": "program",
+			"value": "null"
+		},
+		{
+			"key": "user_id",
+			"value": "52dbc058-76e2-4915-a5f7-b832aa955247",
+			"type": "string"
+		},
+		{
+			"key": "invited_user_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

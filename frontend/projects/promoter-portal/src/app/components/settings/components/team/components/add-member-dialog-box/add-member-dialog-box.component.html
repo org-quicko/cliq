@@ -1,0 +1,53 @@
+<app-form-dialog-box
+	[formGroup]="addMemberForm"
+	[onSubmit]="onSubmit"
+	height="h-auto"
+	icon="group_add"
+	headerText="Add Member"
+	submitBtnText="Create"
+>
+	<!-- Form Fields -->
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col">
+			<mat-form-field [appearance]="'outline'" class="w-full">
+				<mat-label>Role</mat-label>
+				<mat-select formControlName="role" class="bg-surface-container-lowest" required>
+					@for (role of roles; track role) {
+					<mat-option [value]="role" class="h-auto bg-surface-container-lowest hover:bg-surface-container">{{ role | titlecase }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field [appearance]="'outline'" class="w-full">
+				<mat-label>Email</mat-label>
+				<input type="text" matInput formControlName="email" class="w-full max-w-[468px]" required/>
+			</mat-form-field>
+
+			<div class="flex gap-4">
+				<mat-form-field [appearance]="'outline'" class="w-1/2">
+					<mat-label>First Name</mat-label>
+					<input type="text" matInput formControlName="firstName" class="w-full max-w-[468px]" required />
+				</mat-form-field>
+
+				<mat-form-field [appearance]="'outline'" class="w-1/2">
+					<mat-label>Last Name</mat-label>
+					<input type="text" matInput formControlName="lastName" class="w-full max-w-[468px]" required />
+				</mat-form-field>
+			</div>
+
+			<div class="flex flex-col gap-0">
+				<mat-form-field [appearance]="'outline'" class="w-full !m-0">
+					<mat-label>Password</mat-label>
+					<input [type]="hidePassword ? 'password': 'text'" matInput formControlName="password" required/>
+
+					<button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+						<mat-icon class="material-symbols-outlined">{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+					</button>
+				</mat-form-field>
+				<div class="mat-body-small text-on-surface-variant select-none">
+					<span>Share this email and password to login</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</app-form-dialog-box>

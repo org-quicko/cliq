@@ -1,0 +1,354 @@
+<div class="w-full h-auto gap-[26px]">
+
+	<div class="w-full  flex flex-col gap-8">
+
+		<!-- Header -->
+		<header class="w-full h-auto min-h-[312px] flex flex-col gap-5">
+
+			<!-- Dashboard welcome header -->
+			<div class="w-full justify-between">
+				<span class="text-on-surface mat-title-large">
+					Welcome to your dashboard,
+					@if (isMemberLoading()) {
+					<ngx-skeleton-loader
+						class="inline-block"
+						[theme]="{
+							width: '200px',
+							height: '22px',
+							'margin-bottom': '-2px',
+							'margin-left': '10px',
+						}"
+					/>
+					}
+					@else {
+					{{ memberStore.member()?.firstName }}
+					}
+				</span>
+			</div>
+
+			<!-- Statistics info -->
+			<div class="w-full flex flex-row gap-5">
+
+				<!-- Commission and Revenue stats -->
+				<div class="w-full h-[260px] flex flex-col border-[1px] border-outline-variant rounded-[4px] px-4">
+
+					<!-- Commission stats -->
+					<div class="w-[502px] flex flex-col h-[136px] px-2 py-6 gap-6">
+						<div
+							class="w-[135px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+								width: '135px',
+								height: '24px',
+							}" />
+							}
+							@else {
+							<span
+								[matTooltip]="tooltips.get('commissions')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Total Commission
+							</span>
+							}
+						</div>
+						<div class="w-[109px] h-10 mat-headline-large text-secondary">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+									width: '200px',
+									height: '40px',
+								}" />
+							}
+							@else {
+							<span>{{ statistics()?.getTotalCommission() | formatCurrency:program()?.currency }}</span>
+							}
+						</div>
+					</div>
+					<mat-divider class="border-outline-variant"></mat-divider>
+
+					<!-- Revenue stats -->
+					<div class="w-[502px] flex flex-col h-[136px] px-2 py-6 gap-6">
+						<div
+							class="w-[135px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+										width: '104px',
+										height: '24px',
+									}" />
+							}
+							@else {
+							<span
+								[matTooltip]="tooltips.get('revenue')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Total Revenue
+							</span>
+							}
+						</div>
+						<div class="w-[109px] h-10 mat-title-large text-on-surface">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+									width: '200px',
+									height: '28px',
+								}" />
+							}
+							@else {
+							<span>{{ statistics()?.getTotalRevenue() | formatCurrency:program()?.currency }}</span>
+							}
+						</div>
+					</div>
+				</div>
+
+				<!-- Signups and Purchases Stats -->
+				<div class="w-full h-[260px] flex flex-col gap-4">
+					<div
+						class="w-full flex flex-col h-[124px] border-[1px] border-outline-variant rounded-[4px] p-6 gap-6">
+						<div
+							class="w-[61px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+									width: '61px',
+									height: '24px',
+								}" />
+							}
+							@else {
+							<span
+								[matTooltip]="tooltips.get('signups')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Signups
+							</span>
+							}
+						</div>
+						<div class="w-[78px] h-6 mat-title-large text-on-surface">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+									width: '200px',
+									height: '28px',
+								}" />
+							}
+							@else {
+							<span>{{ statistics()?.getTotalSignups() | zeroToDash}}</span>
+							}
+						</div>
+					</div>
+					<div
+						class="w-full flex flex-col h-[124px] border-[1px] border-outline-variant rounded-[4px] p-6 gap-6">
+						<div
+							class="w-[61px] h-6 mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] [text-decoration-skip-ink:auto]">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+									width: '78px',
+									height: '24px',
+								}" />
+							}
+							@else {
+							<span
+								[matTooltip]="tooltips.get('purchases')"
+								matTooltipClass="example-tooltip-uppercase"
+								matTooltipPosition="above"
+							>
+								Purchase
+							</span>
+							}
+						</div>
+						<div class="w-[78px] h-6 mat-title-large text-on-surface">
+							@if (isStatisticsLoading()) {
+							<ngx-skeleton-loader [theme]="{
+									width: '200px',
+									height: '28px',
+								}" />
+							}
+							@else {
+							<span>{{ statistics()?.getTotalPurchases() | zeroToDash}}</span>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<!-- Links -->
+		<div class="w-full h-auto min-h-[412px] flex flex-col gap-5">
+
+			<!-- Header -->
+			<div class="h-auto min-h-10 flex flex-row justify-between">
+				<div>
+					<span class="text-on-surface mat-title-large">My Links</span>
+				</div>
+				<div>
+					<app-stroked-btn [btnType]="'button'" minWidth="137px" icon="add" [onClick]="onClickCreateLinkBtn"
+						text="Create Link" />
+				</div>
+			</div>
+			<div class="mat-elevation-z8 border border-outline-variant rounded-[5px] overflow-hidden">
+				@if (isLinksLoading()) {
+				<app-skeleton-load-table [maxHeight]="'548px'" [rowCount]="5" headerClass="flex px-4"
+					rowClass="flex px-4" [headers]="headersStyling" [rows]="rowsStyling" />
+				}
+				@else {
+				<table mat-table matSort class="w-full h-auto max-h-[548px] bg-transparent" [dataSource]="dataSource"
+					[matSortActive]="sortOptions().active" [matSortDirection]="sortOptions().direction"
+					(matSortChange)="onSortChange($event)" [matSortDisableClear]="true">
+					<ng-container matColumnDef="link">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-[328px]">
+							Link
+						</th>
+						<td mat-cell *matCellDef="let row; let i = index"
+							class="mat-body-large text-on-surface-variant w-fit max-w-[328px] overflow-hidden text-ellipsis whitespace-nowrap">
+							<div class="text-outline flex items-center group relative max-w-full">
+								<div class="relative group max-w-full">
+									<div class="text-on-surface-variant">{{ convertToLinkStatsRow(row).getLinkName() }}
+									</div>
+									<div class="flex items-center text-on-surface whitespace-nowrap">
+										<div
+											class="overflow-hidden text-ellipsis hover:underline hover:underline-offset-2 hover:decoration-dotted"
+											(click)="onCopyLink($event, row)"
+										>
+											<span
+												class="text-outline leading-none"
+												style="max-width: calc(100% - 24px);"
+												(click)="onCopyLink($event, row)"
+											>
+												{{ program()?.website + '?ref=' }}
+											</span>
+											<span class="text-on-surface leading-none ml-[-4px]">
+												{{ convertToLinkStatsRow(row).getRefVal() }}
+											</span>
+										</div>
+										<mat-icon
+											class="ml-1 text-on-surface text-base opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-pointer"
+											(click)="onCopyLink($event, row)"
+										>
+											{{ copiedLinkId === convertToLinkStatsRow(row).getLinkId() ? 'check' : 'content_copy' }}
+										</mat-icon>
+									</div>
+								</div>
+							</div>
+						</td>
+					</ng-container>
+					<ng-container matColumnDef="commission">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">
+							Commission
+						</th>
+						<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface w-40">
+							{{ convertToLinkStatsRow(row).getCommission() | formatCurrency:program()?.currency }}
+						</td>
+					</ng-container>
+					<ng-container matColumnDef="signups">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">
+							Signups
+						</th>
+						<td mat-cell *matCellDef="let row; let i = index"
+							class="mat-body-large text-on-surface-variant w-40">
+							{{ convertToLinkStatsRow(row).getSignups() | zeroToDash }}
+						</td>
+					</ng-container>
+					<ng-container matColumnDef="purchases">
+						<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline w-40">
+							Purchases
+						</th>
+						<td mat-cell *matCellDef="let row; let i = index"
+							class="mat-body-large text-on-surface-variant w-40">
+							{{ convertToLinkStatsRow(row).getPurchases() | zeroToDash }}
+						</td>
+					</ng-container>
+					<ng-container matColumnDef="created on">
+						@if (totalLinkDataLength()) {
+						<th
+							mat-header-cell
+							mat-sort-header
+							[class.hide-sort-arrow]="!totalLinkDataLength()"
+							*matHeaderCellDef
+							class="mat-body-medium text-outline w-[200px]"
+						>
+							Created on
+						</th>
+						}
+						@else {
+						<th
+							mat-header-cell
+							[class.hide-sort-arrow]="!totalLinkDataLength()"
+							*matHeaderCellDef
+							class="mat-body-medium text-outline w-[200px]"
+						>
+							Created on
+						</th>
+						}
+						<td mat-cell *matCellDef="let row; let i = index"
+							class="mat-body-large text-on-surface-variant w-[200px]">
+							{{ convertToLinkStatsRow(row).getCreatedAt() | ordinalDate }}
+						</td>
+					</ng-container>
+					<ng-container matColumnDef="menu" stickyEnd>
+						<th mat-header-cell *matHeaderCellDef aria-label="row actions"
+							class="mat-body-medium text-outline w-12">&nbsp;</th>
+						<td mat-cell *matCellDef="let row;" class="w-12">
+							<button mat-icon-button
+								class="flex justify-center items-center w-12 h-12 p-3 rounded-full hover:bg-secondary-container"
+								[matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+								<mat-icon class="hover:cursor-pointer">more_vert</mat-icon>
+							</button>
+							<mat-menu #menu="matMenu" class="bg-surface-container-lowest">
+								<button mat-menu-item (click)="onCopyLink($event, row)" class="gap-2">
+									<mat-icon>content_copy</mat-icon>
+									<span>Copy</span>
+								</button>
+								<button mat-menu-item (click)="onDeleteLink(row)" class="gap-2">
+									<mat-icon class="material-symbols-outlined">delete</mat-icon>
+									<span>Delete</span>
+								</button>
+							</mat-menu>
+						</td>
+					</ng-container>
+
+
+					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+					<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
+						class="hover:bg-surface-container hover:cursor-pointer h-[76px] px-4 py-3"
+						(click)="onClickLink(row)">
+					</tr>
+
+					@if (!totalLinkDataLength()) {
+					<tr class="empty-row" *matNoDataRow>
+						<td [attr.colspan]="displayedColumns.length">
+							<div class="flex flex-col justify-center items-center h-[300px]">
+								<div class="p-6 text-center flex flex-col gap-4">
+
+									<div class="text-on-surface-variant flex flex-col items-center gap-5">
+
+										<div
+											class="scale-133 rounded-full inline-flex justify-start items-center gap-2.5 overflow-hidden bg-surface-container p-3">
+											<mat-icon class="material-symbols-outlined text-primary">link</mat-icon>
+										</div>
+										<div class="flex flex-col gap-1 h-auto max-h-12">
+											<p class="text-on-surface mat-body-large !m-0">
+												No links yet
+											</p>
+											<p class="mat-body-medium">
+												Create a referral link to start tracking your signups and commissions
+											</p>
+										</div>
+										<div>
+											<app-stroked-btn icon="add" text="Create Link"
+												[onClick]="onClickCreateLinkBtn" minWidth="137px" />
+										</div>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+					}
+				</table>
+				}
+			</div>
+			@if (totalLinkDataLength()) {
+			<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex"
+				[pageSize]="paginationOptions().pageSize" [length]="totalLinkDataLength()"
+				aria-label="Select page of links"></mat-paginator>
+			}
+		</div>
+	</div>
+</div>

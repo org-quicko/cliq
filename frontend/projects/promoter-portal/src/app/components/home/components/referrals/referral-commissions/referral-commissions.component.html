@@ -1,0 +1,146 @@
+<div class="w-full flex flex-col gap-[26px]">
+	<!-- Header -->
+	<div class="flex flex-col gap-3">
+		<div class="flex align-middle gap-2 hover:cursor-pointer text-on-surface-variant" (click)="onGoBack()">
+			<button mat-button>
+				<mat-icon>
+					chevron_left
+				</mat-icon>
+				<span>Back</span>
+			</button>
+		</div>
+		<div>
+			<h3 class="text-on-surface mat-headline-medium">
+				Commissions from
+				@if (isLoading()) {
+				<ngx-skeleton-loader
+					class="inline-block"
+					[theme]="{
+						width: '200px',
+						height: '30px',
+						'margin-bottom': '-5px',
+						'margin-left': '10px',
+					}"
+				/>
+				}
+				@else {
+				{{ contact()?.contactInfo }}
+				}
+			</h3>
+		</div>
+	</div>
+
+
+	<div class="mat-elevation-z8 border-outline-variant border rounded-[5px] overflow-hidden">
+		@if (isLoading()) {
+		<app-skeleton-load-table
+			[maxHeight]="'548px'"
+			[rowCount]="5"
+			headerClass="flex gap-5 px-4"
+			rowClass="flex gap-5 px-4"
+			[headers]="headersStyling"
+			[rows]="rowsStyling"
+		/>
+		}
+		@else {
+		<table
+			mat-table
+			matSort
+			class="w-full h-auto max-h-[548px] bg-transparent"
+			[dataSource]="dataSource"
+			[matSortActive]="sortOptions().active"
+			[matSortDirection]="sortOptions().direction"
+			(matSortChange)="onSortChange($event)"
+			[matSortDisableClear]="true"
+		>
+			<!-- Define columns dynamically -->
+			<ng-container matColumnDef="updated at">
+				@if (totalDataLength()) {
+				<th
+					mat-header-cell
+					mat-sort-header
+					[class.hide-sort-arrow]="!totalDataLength()"
+					*matHeaderCellDef
+					class="mat-body-medium text-on-surface"
+				>
+					Updated At
+				</th>
+				}
+				@else {
+				<th
+					mat-header-cell
+					[class.hide-sort-arrow]="!totalDataLength()"
+					*matHeaderCellDef
+					class="mat-body-medium text-on-surface"
+				>
+					Updated At
+				</th>
+				}
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-on-surface-variant">
+					{{ convertToCommissionRow(row).getUpdatedAt() | ordinalDate }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="type">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+					Type
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" class="mat-body-large text-outline">
+					<app-label-chip [text]="convertToCommissionRow(row).getConversionType()" />
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="commission">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+					Commission
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" [class]="`mat-body-large text-on-surface-variant`">
+					{{ convertToCommissionRow(row).getCommission() | formatCurrency:currency() }}
+				</td>
+			</ng-container>
+			<ng-container matColumnDef="revenue">
+				<th mat-header-cell *matHeaderCellDef class="mat-body-medium text-outline">
+					Revenue
+				</th>
+				<td mat-cell *matCellDef="let row; let i = index" [class]="`mat-body-large text-on-surface`">
+					{{ convertToCommissionRow(row).getRevenue() | formatCurrency:currency() }}
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;"
+				class="hover:bg-surface-container h-[76px]"></tr>
+
+
+			<!-- Empty State -->
+			@if (!totalDataLength()) {
+				<tr class="empty-row h-[548px]" *matNoDataRow>
+					<td [attr.colspan]="displayedColumns.length">
+						<div class="flex flex-col justify-center items-center h-[504px]">
+							<div class="p-6 text-center flex flex-col gap-4">
+								<div class="text-on-surface-variant flex flex-col items-center gap-4">
+
+									<div
+										class="scale-133 rounded-full inline-flex justify-start items-center gap-2.5 overflow-hidden bg-surface-container p-3">
+										<mat-icon class="material-symbols-outlined text-primary">money_bag</mat-icon>
+									</div>
+									<div class="flex flex-col gap-1 h-auto max-h-12">
+										<p class="text-on-surface mat-body-large !m-0">
+											No commissions yet
+										</p>
+										<p class="mat-body-medium">
+											Please contact program owner, there might be a limit on the number of purchases or signups.
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+			}
+		</table>
+		}
+	</div>
+	@if (totalDataLength()) {
+		<mat-paginator (page)="onPageChange($event)" [pageIndex]="paginationOptions().pageIndex" [pageSize]="paginationOptions().pageSize" [length]="totalDataLength()" aria-label="Select page of referral's commissions" />
+	}
+
+</div>

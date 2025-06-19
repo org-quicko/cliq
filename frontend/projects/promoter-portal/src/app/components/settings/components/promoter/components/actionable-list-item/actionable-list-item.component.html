@@ -1,0 +1,20 @@
+<mat-card matRipple (click)="onClick()" [class]="`w-full border border-outline-variant flex justify-center h-20 rounded-[5px] px-4 py-2 hover:cursor-pointer hover:bg-surface-container ${class ?? ''}`">
+	<mat-card-content class="w-full max-w-[608px] flex justify-between items-center">
+		<div class="flex gap-12 text-on-surface items-center">
+
+			<div class="w-auto max-w-[182px] h-auto max-h-6 flex gap-2">
+				<mat-icon class="material-symbols-outlined">{{ icon }}</mat-icon>
+				<div><span>{{ title }}</span></div>
+			</div>
+
+			<div class="w-auto max-w-[322px] mat-body-medium text-on-surface-variant flex text-left">
+				<span>{{ description }}</span>
+			</div>
+
+		</div>
+
+		<div class="w-5 h-5 items-center">
+			<mat-icon class="text-on-surface-variant">arrow_forward_ios</mat-icon>
+		</div>
+	</mat-card-content>
+</mat-card>

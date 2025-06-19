@@ -1,0 +1,76 @@
+<div class="hover:cursor-pointer">
+	<ngx-avatars size="40" [round]="true" [name]="displayName()" bgColor="var(--sys-primary-fixed)"
+		fgColor="var(--sys-on-primary-fixed-variant)" [mat-menu-trigger-for]="options">
+	</ngx-avatars>
+</div>
+<mat-menu class="w-[300px] h-auto min-w-[264px] mt-[15px] rounded-[5px]" #options="matMenu" yPosition="below" xPosition="before">
+	<ng-template matMenuContent>
+		<ng-container>
+			<div class="flex flex-col">
+
+				<!-- Member info and theming -->
+				<div
+					class="w-full max-w-[300px] h-auto min-h-[144px] border-b flex flex-col p-4 gap-4 border-b-outline-variant">
+
+					<!-- Member name, role and email -->
+					<div class="w-[175px] h-auto min-w-12 flex flex-col gap-1">
+
+						<!-- name and role -->
+						<div class="w-[150px] h-auto min-h-6 flex gap-2 justify-between text-on-surface">
+
+							<p class="h-6 mat-body-large">{{ displayName() | titlecase | ellipsis:10 }}</p>
+
+							<p class="w-auto min-w-[50px] h-auto min-h-6 flex bg-surface-container justify-center items-center mat-label-small px-2 py-1 rounded-[4px]">
+								{{ member()?.role | titlecase }}
+							</p>
+
+						</div>
+
+						<!-- email -->
+						<div>
+							<span class="mat-body-medium text-outline">{{ member()?.email }}</span>
+						</div>
+					</div>
+
+					<!-- theming tab -->
+					<div class="flex flex-col py-[4px] mat-body-large text-on-surface-variant">
+						<mat-button-toggle-group (change)="changeTheme($event)" (click)="$event.stopPropagation()"
+							[hideSingleSelectionIndicator]="true" class="flex items-center rounded-full"
+							appearance="standard" [value]="selectedThemePreference">
+							<!-- system preference toggle button -->
+
+							@for (theme of themeIconMap; track theme[0]) {
+							<mat-button-toggle [value]="theme[0]" class="w-full items-center justify-center">
+								<mat-icon class="material-symbols-outlined text-[20px] items-center justify-center">
+									{{ theme[1] }}
+								</mat-icon>
+							</mat-button-toggle>
+							}
+						</mat-button-toggle-group>
+					</div>
+				</div>
+
+				<!-- Settings and Logout buttons -->
+				<div class="w-full h-auto">
+					<!-- settings tab -->
+					<a [routerLink]="`/${programId()}/settings`" class="flex gap-3 px-4 py-2 hover:bg-neutral-10 hover:bg-opacity-[8%]" mat-menu-item
+						>
+						<mat-icon class="material-symbols-outlined mr-0">settings</mat-icon>
+						<div class="block cursor-pointer">
+							Settings
+						</div>
+					</a>
+
+					<!-- logout tab -->
+					<div class="flex gap-3 px-4 py-2 hover:bg-neutral-10 hover:bg-opacity-[8%]" mat-menu-item
+						(click)="logout()">
+						<mat-icon class="material-symbols-outlined mr-0">logout</mat-icon>
+						<div class="cursor-pointer">
+							Sign out
+						</div>
+					</div>
+				</div>
+			</div>
+		</ng-container>
+	</ng-template>
+</mat-menu>

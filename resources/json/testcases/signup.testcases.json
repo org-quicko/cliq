@@ -1,0 +1,77 @@
+[
+    {
+        "test_name": "Link ref value does not exist",
+        "request_name": "Create signup",
+        "ref_val": "Hawk",
+        "first_name": "Cordelie",
+        "last_name": "Sutton",
+        "email": "csutton0@t.co",
+        "phone": "3213439066",
+        "status_code": 404,
+        "message": "Failed to get link with ref val {{refVal}}."
+    },
+    {
+        "test_name": "Invalid email",
+        "request_name": "Create signup",
+        "ref_val": "Capuchin",
+        "first_name": "Ellissa",
+        "last_name": "Cheshire",
+        "email": "echeshire1",
+        "phone": "5733763816",
+        "status_code": 400,
+        "message": "Validation errors: invalid email passed."
+    },
+    {
+        "test_name": "Invalid phone number- length out of range",
+        "request_name": "Create signup",
+        "ref_val": "Toucan",
+        "first_name": "Louisa",
+        "last_name": "Mape",
+        "email": "lrape2@cloudflare.com",
+        "phone": "8315611473293057207577",
+        "status_code": 400,
+        "message": "Validation errors: phone number must be between 8 and 13 digits long."
+    },
+    {
+        "test_name": "Invalid phone number- invalid characters",
+        "request_name": "Create signup",
+        "ref_val": "Hawk",
+        "first_name": "Cordelie",
+        "last_name": "Sutton",
+        "email": "csutton0@t.co",
+        "phone": "abcdefghi",
+        "status_code": 400,
+        "message": "Validation errors: phone number must contain only digits."
+    },
+    {
+        "test_name": "Referral Key not passed",
+        "request_name": "Create signup",
+        "ref_val": "fas",
+        "first_name": "Cordelie",
+        "last_name": "Sutton",
+        "status_code": 400,
+        "message": "Error. Program {{programId}} referral key \"{{referralKeyType}}\" absent from request."
+    },
+    {
+        "test_name": "Successful signup creation",
+        "request_name": "Create signup",
+        "ref_val": "fas",
+        "first_name": "Jermayne",
+        "last_name": "Rogez",
+        "email": "jrogez4@yellowpages.com",
+        "phone": "1046747006",
+        "status_code": 201,
+        "message": "Successfully created signup."
+    },
+    {
+        "test_name": "Duplicate signup",
+        "request_name": "Create signup",
+        "ref_val": "fas",
+        "first_name": "Jermayne",
+        "last_name": "Rogez",
+        "email": "jrogez4@yellowpages.com",
+        "phone": "1046747006",
+        "status_code": 409,
+        "message": "Error. Failed to create contact - contact already exists."
+    }
+]

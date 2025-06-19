@@ -1,0 +1,37 @@
+<div class="w-full max-w-[640px] flex flex-col gap-8">
+
+	<!-- Promoter Details -->
+	<mat-card class="w-full h-auto min-h-40 rounded-[5px] border border-outline-variant flex flex-col gap-0">
+
+		<!-- Details -->
+		<div class="p-6 flex flex-col gap-6">
+
+			<!-- Promoter Name -->
+			<div class="flex flex-col gap-2 mat-body-large">
+				<div class="text-on-surface-variant"><span>Promoter name</span></div>
+				<div class="text-on-surface"><span>{{ promoter()?.name }}</span></div>
+			</div>
+
+			<!-- Promoter Logo -->
+			<div class="flex flex-col gap-2 mat-body-large">
+				<div class="text-on-surface-variant"><span>Logo URL</span></div>
+				<div class="text-on-surface truncate"><span>{{ promoter()?.logoUrl ?? '-' }}</span></div>
+			</div>
+
+		</div>
+
+		<mat-divider class="border-outline-variant" />
+
+		<!-- Edit button -->
+		<button mat-button class="w-full h-auto min-h-14 rounded-none overflow-hidden flex justify-start gap-2 px-6 py-3 grow" (click)="onEdit()">
+			<span>Edit details</span>
+		</button>
+	</mat-card>
+
+	<!-- Danger Zone -->
+	<div class="w-full h-auto min-h-[220px] flex flex-col gap-5 select-none">
+		<div class="mat-title-medium text-on-surface"><span>Danger zone</span></div>
+
+		<app-actionable-list-item [title]="actionableItem.title" [description]="actionableItem.description" [icon]="actionableItem.icon" [onClick]="actionableItem.onClick" />
+	</div>
+</div>
