@@ -1,7 +1,6 @@
 import { ClientException, LoggerFactory, LoggingLevel } from '@org-quicko/core';
 import winston from 'winston';
 import { CreateLink, Link as LinkBean } from '@org-quicko/cliq-core';
-import { ConflictException } from '@org-quicko/cliq-core';
 import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { plainToInstance } from 'class-transformer';
 import { APIURL } from '../../resource';
@@ -27,19 +26,19 @@ export class Link extends RestClient {
             this.logger.info(`END Client : ${this.constructor.name},${this.createLink.name}`);
 
             return plainToInstance(LinkBean, response.data);
-        } catch (error) {
+        } catch (error: any) {
             if (error instanceof Error) {
                 this.logger.error("Client Error occurred", {
                     error: error.message,
                     error_type: error.name,
                     scope: "request",
                 });
-
-                // eslint-disable-next-line eqeqeq
-                if (error.cause == 409) {
-                    throw new ConflictException('Error: Link already exists');
-                }
             }
+			
+			// eslint-disable-next-line eqeqeq
+			if (error.code == 409) {
+				throw new ClientException('Error: Link already exists', null, 409);
+			}
             throw new ClientException('Failed to create Link', error);
         }
     }
