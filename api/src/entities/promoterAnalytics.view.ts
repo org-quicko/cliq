@@ -1,5 +1,5 @@
 import { promoterAnalyticsMVName, referralMVName } from "src/constants";
-import { Column, DataSource, Index, PrimaryColumn, ViewEntity } from "typeorm";
+import { Column, DataSource, Index, PrimaryColumn, ViewColumn, ViewEntity } from "typeorm";
 import { ReferralView } from "./referral.view";
 import { promoterStatusEnum } from "src/enums";
 import { NumericToNumber } from "src/utils/numericToNumber.util";
@@ -55,22 +55,22 @@ import { NumericToNumber } from "src/utils/numericToNumber.util";
 })
 export class PromoterAnalyticsView {
 	@Index()
-	@PrimaryColumn('uuid', { name: 'program_id' })
+	@ViewColumn({ name: 'program_id' })
 	programId: string;
 
 	@Index()
-	@PrimaryColumn('uuid', { name: 'promoter_id' })
+	@ViewColumn({ name: 'promoter_id' })
 	promoterId: string;
 
-	@Column('decimal', { name: 'total_revenue', transformer: NumericToNumber })
+	@ViewColumn({ name: 'total_revenue', transformer: NumericToNumber })
 	totalRevenue: number;
 
-	@Column('decimal', { name: 'total_commission', transformer: NumericToNumber })
+	@ViewColumn({ name: 'total_commission', transformer: NumericToNumber })
 	totalCommission: number;
 
-	@Column('int', { name: 'total_signups', transformer: NumericToNumber })
+	@ViewColumn({ name: 'total_signups', transformer: NumericToNumber })
 	totalSignUps: number;
 
-	@Column('int', { name: 'total_purchases', transformer: NumericToNumber })
+	@ViewColumn({ name: 'total_purchases', transformer: NumericToNumber })
 	totalPurchases: number;
 }

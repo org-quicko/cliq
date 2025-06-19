@@ -1,24 +1,19 @@
 import { BadRequestException } from '@nestjs/common';
-import { subMonths, subWeeks, startOfWeek, startOfMonth, subDays } from 'date-fns';
-import { reportPeriodEnum } from '../enums/reportPeriod.enum';
+import { subMonths, subDays } from 'date-fns';
 import { StartEndDateInterface } from '../interfaces';
 
-export function getStartEndDate(startDate: (string | undefined), endDate: (string | undefined), reportPeriod?: reportPeriodEnum): StartEndDateInterface {
+export function getStartEndDate(startDate: (string | undefined), endDate: (string | undefined)): StartEndDateInterface {
     
     // by default, a 1 month report shall be generated
-    if (!reportPeriod && !(startDate && endDate)) {
+    if (!(startDate && endDate)) {
         return {
             parsedStartDate: subMonths(new Date(), 1),
             parsedEndDate: new Date(),
         };
     }
 
-    if (reportPeriod && reportPeriod !== reportPeriodEnum.CUSTOM) {
-        return getPeriodStartEndDate(reportPeriod);
-    }
-
-    else if (reportPeriod && reportPeriod === reportPeriodEnum.CUSTOM && (!startDate || !endDate)) {
-        throw new BadRequestException(`Error. start and end date must be provided for a custom report period`);
+    else if ((!startDate || !endDate)) {
+        throw new BadRequestException(`Error. Both start and end date must be provided for a custom report period`);
     }
 
     const defaultStartDate = subDays(new Date(), 30); // last 30 days
@@ -32,38 +27,6 @@ export function getStartEndDate(startDate: (string | undefined), endDate: (strin
         parsedStartDate,
         parsedEndDate,
     };
-}
-
-function getPeriodStartEndDate(reportPeriod: reportPeriodEnum): StartEndDateInterface {
-
-    let parsedStartDate: Date;
-    const parsedEndDate = new Date();
-
-    switch (reportPeriod) {
-        case reportPeriodEnum.THIS_WEEK:
-            parsedStartDate = startOfWeek(parsedEndDate);
-            break;
-        case reportPeriodEnum.THIS_MONTH:
-            parsedStartDate = startOfMonth(parsedEndDate);
-            break;
-        case reportPeriodEnum.LAST_7_DAYS:
-            parsedStartDate = subWeeks(parsedEndDate, 1);
-            break;
-            case reportPeriodEnum.LAST_30_DAYS:
-            parsedStartDate = subDays(parsedEndDate, 30);
-            break;
-            case reportPeriodEnum.LAST_90_DAYS:
-            parsedStartDate = subDays(parsedEndDate, 90);
-            break;
-        default:
-            throw new BadRequestException('Incorrect report period passed.');
-    }
-
-    return {
-        parsedStartDate,
-        parsedEndDate,
-    };
-
 }
 
 function getEndDate(parsedStartDate: Date, endDate: (string | undefined)) {

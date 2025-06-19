@@ -5,11 +5,10 @@ import {
 	ViewEntity,
 	DataSource,
 	SelectQueryBuilder,
-	Column,
-	PrimaryColumn,
 	Index,
 	CreateDateColumn,
 	UpdateDateColumn,
+	ViewColumn,
 } from 'typeorm';
 
 @ViewEntity({
@@ -105,27 +104,27 @@ import {
 })
 export class ReferralView {
 	@Index()
-	@PrimaryColumn('uuid', { name: 'program_id' })
+	@ViewColumn({ name: 'program_id' })
 	programId: string;
 
 	@Index()
-	@PrimaryColumn('uuid', { name: 'promoter_id' })
+	@ViewColumn({ name: 'promoter_id' })
 	promoterId: string;
 
-	@Column('enum', { enum: contactStatusEnum, name: 'status' })
+	@ViewColumn({ name: 'status' })
 	status: contactStatusEnum;
 
 	@Index()
-	@Column('uuid', { name: 'contact_id' })
+	@ViewColumn({ name: 'contact_id' })
 	contactId: string;
 
-	@Column('varchar', { name: 'contact_info' })
+	@ViewColumn({ name: 'contact_info' })
 	contactInfo: string;
 
-	@Column('numeric', { name: 'total_revenue', transformer: NumericToNumber })
+	@ViewColumn({ name: 'total_revenue', transformer: NumericToNumber })
 	totalRevenue: number;
 
-	@Column('numeric', { name: 'total_commission', transformer: NumericToNumber })
+	@ViewColumn({ name: 'total_commission', transformer: NumericToNumber })
 	totalCommission: number;
 
 	@CreateDateColumn({ type: 'timestamp with time zone', name: 'created_at' })

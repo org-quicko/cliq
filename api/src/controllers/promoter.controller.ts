@@ -25,7 +25,6 @@ import {
 } from '../entities';
 import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
-import { reportPeriodEnum } from 'src/enums/reportPeriod.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
 
 @ApiTags('Promoter')
@@ -399,7 +398,6 @@ export class PromoterController {
 		@Param('promoter_id') promoterId: string,
 		@Headers('member_id') memberId: string,
 		@Res() res: Response,
-		@Query('report_period') reportPeriod?: reportPeriodEnum,
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
 	) {
@@ -411,7 +409,7 @@ export class PromoterController {
 		}
 
 
-		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
 		const workbookBuffer = await this.promoterService.getSignUpsReport(
 			programId,
@@ -437,7 +435,6 @@ export class PromoterController {
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
-		@Query('report_period') reportPeriod?: reportPeriodEnum,
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
 	) {
@@ -449,7 +446,7 @@ export class PromoterController {
 		}
 
 
-		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
 		const workbookBuffer = await this.promoterService.getPurchasesReport(
 			programId,
@@ -475,7 +472,6 @@ export class PromoterController {
 		@Param('promoter_id') promoterId: string,
 		@Headers('member_id') memberId: string,
 		@Res() res: Response,
-		@Query('report_period') reportPeriod?: reportPeriodEnum,
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
 	) {
@@ -487,7 +483,7 @@ export class PromoterController {
 		}
 
 
-		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
 		const workbookBuffer = await this.promoterService.getCommissionsReport(
 			programId,
@@ -516,7 +512,6 @@ export class PromoterController {
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
-		@Query('report_period') reportPeriod?: reportPeriodEnum,
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
 	) {
@@ -528,7 +523,7 @@ export class PromoterController {
 		}
 
 
-		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
 		const workbookBuffer = await this.promoterService.getLinksReport(
 			programId,
@@ -557,7 +552,6 @@ export class PromoterController {
 		@Param('program_id') programId: string,
 		@Param('promoter_id') promoterId: string,
 		@Res() res: Response,
-		@Query('report_period') reportPeriod?: reportPeriodEnum,
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
 	) {
@@ -569,7 +563,7 @@ export class PromoterController {
 		}
 
 
-		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
 		const workbookBuffer = await this.promoterService.getReferralsReport(
 			memberId,

@@ -25,7 +25,6 @@ import {
   SignUp,
 } from '../entities';
 import { getReportFileName, getStartEndDate } from '../utils';
-import { reportPeriodEnum } from '../enums/reportPeriod.enum';
 import { Response } from 'express';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { isUUID } from 'class-validator';
@@ -374,7 +373,6 @@ export class ProgramController {
     @Headers('x-accept-type') acceptType: string,
     @Param('program_id') programId: string,
     @Res() res: Response,
-    @Query('report_period') reportPeriod?: reportPeriodEnum,
     @Query('start_date') startDate?: string,
     @Query('end_date') endDate?: string,
   ) {
@@ -385,7 +383,7 @@ export class ProgramController {
       throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
     }
 
-    const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate, reportPeriod);
+    const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
     const workbookBuffer = await this.programService.getProgramReport(programId, parsedStartDate, parsedEndDate);
 
