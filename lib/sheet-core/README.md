@@ -13,7 +13,7 @@ npm install @org-quicko/cliq-sheet-core
 Import the required beans or types for your sheet:
 
 ```typescript
-import { CampaignSummaryWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
+import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 // ...use in your code
 ```
 
