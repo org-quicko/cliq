@@ -17,16 +17,18 @@ export class SignUpSheetConverter {
 
 	/** For getting purchases data for the promoter */
 	convertFrom(
-		signUpSheet: SignupSheet,
 		{
 			signUps
 		}: ISignUpSheetConverterInput
 	) {
 		try {
-			this.signUpTableConverter.convertFrom(
-				signUpSheet.getSignupTable(),
-				signUps
-			);
+			const signUpSheet = new SignupSheet();
+
+			const signUpTable = this.signUpTableConverter.convertFrom(signUps);
+			signUpSheet.replaceBlock(signUpTable);
+
+			return signUpSheet;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Signup Sheet', error);
 		}

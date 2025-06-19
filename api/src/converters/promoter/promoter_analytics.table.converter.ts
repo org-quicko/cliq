@@ -4,10 +4,11 @@ import { ConverterException } from '@org-quicko/core';
 
 export class PromoterAnalyticsTableConverter {
 	convertFrom(
-		promoterAnalyticsTable: PromoterAnalyticsTable,
 		promoterAnalytics: PromoterAnalyticsView[]
 	) {
 		try {
+			const promoterAnalyticsTable = new PromoterAnalyticsTable();
+
 			promoterAnalytics.forEach((referralAgg) => {
 				const row = new PromoterAnalyticsRow([]);
 
@@ -20,6 +21,9 @@ export class PromoterAnalyticsTableConverter {
 
 				promoterAnalyticsTable.addRow(row);
 			});
+
+			return promoterAnalyticsTable;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Promoter Analytics Table', error);
 		}

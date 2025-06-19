@@ -1,17 +1,17 @@
 import { Commission, Promoter, Purchase, SignUp } from '../../entities';
-import { CommissionWorkbook } from "@org-quicko/cliq-sheet-core/Commission/beans";
+import { CommissionSummarySheet, CommissionWorkbook, PurchaseSheet, SignupSheet } from "@org-quicko/cliq-sheet-core/Commission/beans";
 import { PurchaseTableConverter } from './purchase.table.converter';
 import { SignUpTableConverter } from './signup.table.converter';
 import { CommissionSummaryListConverter } from './commission_summary.list.converter';
 import { ConverterException } from '@org-quicko/core';
 
-export class CommissionWorkbookConverter {	
+export class CommissionWorkbookConverter {
 	private purchaseTableConverter: PurchaseTableConverter;
 
 	private signUpTableConverter: SignUpTableConverter;
 
 	private commissionsSummaryListConverter: CommissionSummaryListConverter;
-	
+
 	constructor() {
 		this.purchaseTableConverter = new PurchaseTableConverter();
 		this.signUpTableConverter = new SignUpTableConverter();
@@ -30,28 +30,10 @@ export class CommissionWorkbookConverter {
 	): CommissionWorkbook {
 		try {
 			const commissionWorkbook = new CommissionWorkbook();
-	
-			// PURCHASES SHEET
-			const purchasesSheet = commissionWorkbook.getPurchaseSheet();
-	
-			this.purchaseTableConverter.convertFrom(
-				purchasesSheet.getPurchaseTable(),
-				purchasesCommissions,
-				purchases
-			);
-	
-			// SIGNUPS SHEET
-			const signUpsSheet = commissionWorkbook.getSignupSheet();
-	
-			this.signUpTableConverter.convertTo(
-				signUpsSheet.getSignupTable(),
-				signUpsCommissions,
-				signUps,
-			);
-	
+
 			// COMMISSION SUMMARY SHEET
-			this.commissionsSummaryListConverter.convertFrom({
-				commissionsSummaryList: commissionWorkbook.getCommissionSummarySheet().getCommissionSummaryList(),
+			const commissionSummarySheet = new CommissionSummarySheet();
+			const commissionsSummaryList = this.commissionsSummaryListConverter.convertFrom({
 				startDate,
 				endDate,
 				promoterId: promoter.promoterId,
@@ -61,7 +43,30 @@ export class CommissionWorkbookConverter {
 				signUps,
 				purchases
 			});
-	
+			commissionSummarySheet.replaceBlock(commissionsSummaryList);
+
+			// SIGNUPS SHEET
+			const signUpsSheet = new SignupSheet();
+			const signUpsTable = this.signUpTableConverter.convertTo(
+				signUpsCommissions,
+				signUps,
+			);
+			signUpsSheet.replaceBlock(signUpsTable);
+
+			// PURCHASES SHEET
+			const purchasesSheet = new PurchaseSheet();
+			const purchasesTable = this.purchaseTableConverter.convertFrom(
+				purchasesCommissions,
+				purchases
+			);
+			purchasesSheet.replaceBlock(purchasesTable);
+
+
+			// Replace existing blank sheets 
+			commissionWorkbook.replaceSheet(commissionSummarySheet);
+			commissionWorkbook.replaceSheet(signUpsSheet);
+			commissionWorkbook.replaceSheet(purchasesSheet);
+
 			return commissionWorkbook;
 		} catch (error) {
 			throw new ConverterException('Failed to convert to CommissionWorkbook', error);

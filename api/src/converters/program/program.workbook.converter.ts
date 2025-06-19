@@ -1,5 +1,5 @@
 import { Program } from "../../entities";
-import { ProgramWorkbook } from "@org-quicko/cliq-sheet-core/Program/beans";
+import { ProgramSummarySheet, ProgramWorkbook, PromoterSheet } from "@org-quicko/cliq-sheet-core/Program/beans";
 import { PromoterTableConverter } from "./promoter.table.converter";
 import { dateFormatEnum } from "../../enums";
 import { ProgramSummaryListConverter } from "./program_summary.list.converter";
@@ -26,25 +26,29 @@ export class ProgramWorkbookConverter {
 		try {
 			const programWorkbook = new ProgramWorkbook();
 	
-			const promotersSheet = programWorkbook.getPromoterSheet();
-			const promotersTable = promotersSheet.getPromoterTable();
-	
-			this.promoterTableConverter.convertFrom(
-				promotersTable,
-				program,
-			);
-	
+			//  PROGRAM SUMMARY SHEET
 			const dateFormat = program?.dateFormat ?? dateFormatEnum.DD_MM_YYYY;
-	
-			this.programSummaryListConverter.convertFrom({
-				programSummaryList: programWorkbook.getProgramSummarySheet().getProgramSummaryList(),
+			const programSummarySheet = new ProgramSummarySheet();
+			const programSummaryList = this.programSummaryListConverter.convertFrom({
 				startDate,
 				endDate,
 				programId,
 				program,
 				dateFormat,
 			});
+			programSummarySheet.replaceBlock(programSummaryList);
+
+			// PROMOTER SHEET
+			const promoterSheet = new PromoterSheet();
+			const promoterTable = this.promoterTableConverter.convertFrom(
+				program,
+			);
+			promoterSheet.replaceBlock(promoterTable);
 	
+	   		// Replace existing blank sheets 
+			   programWorkbook.replaceSheet(programSummarySheet);
+			programWorkbook.replaceSheet(promoterSheet);
+
 			return programWorkbook;
 			
 		} catch (error) {

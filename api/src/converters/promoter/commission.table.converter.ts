@@ -6,12 +6,13 @@ import { maskInfo } from "../../utils";
 
 export class CommissionTableConverter {
 	convertFrom(
-		commissionTable: CommissionTable,
 		commissions: Commission[], 
 		referralKeyType: referralKeyTypeEnum, 
 		metadata: { count: number }
 	) {
 		try {
+			const commissionTable = new CommissionTable();
+
 			if (commissions && commissions.length > 0) {
 				commissions.forEach((commission) => {
 					const row = new CommissionRow([]);
@@ -20,19 +21,21 @@ export class CommissionTableConverter {
 	
 					row.setCommissionId(commission.commissionId);
 					row.setContactId(commission.contact.contactId);
+					row.setLinkId(commission.linkId);
+					row.setReferral(maskInfo(referral));
 					row.setCommission(Number(commission.amount));
 					row.setConversionType(commission.conversionType);
 					row.setRevenue(Number(commission.revenue ?? 0));
 					row.setCreatedAt(commission.createdAt.toISOString());
 					row.setUpdatedAt(commission.updatedAt.toISOString());
-					row.setLinkId(commission.linkId);
-					row.setReferral(maskInfo(referral));
 		
 					commissionTable.addRow(row);
 				});
 			}
 	
 			commissionTable.setMetadata(new JSONObject(metadata));
+			
+			return commissionTable;
 			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Commission Table', error);

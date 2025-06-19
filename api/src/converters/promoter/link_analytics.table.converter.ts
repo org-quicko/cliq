@@ -4,7 +4,6 @@ import { LinkAnalyticsView } from "../../entities";
 
 export class LinkAnalyticsTableConverter {
 	convertFrom(
-		linkAnalyticsTable: LinkAnalyticsTable,
 		linkAnalytics: LinkAnalyticsView[], 
 		metadata: {
 			website: string,
@@ -13,6 +12,8 @@ export class LinkAnalyticsTableConverter {
 		}
 	) {
 		try {
+			const linkAnalyticsTable = new LinkAnalyticsTable();
+
 			linkAnalytics.forEach((linkStat) => {
 				const row = new LinkAnalyticsRow([]);
 	
@@ -29,6 +30,8 @@ export class LinkAnalyticsTableConverter {
 			});
 	
 			linkAnalyticsTable.setMetadata(new JSONObject(metadata));
+			
+			return linkAnalyticsTable;
 			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to LinkAnalyticsTable', error);

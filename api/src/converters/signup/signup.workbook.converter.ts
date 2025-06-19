@@ -1,5 +1,5 @@
 import { Commission, Promoter, SignUp } from "../../entities";
-import { SignUpWorkbook } from "@org-quicko/cliq-sheet-core/SignUp/beans";
+import { SignupSheet, SignupSummarySheet, SignUpWorkbook } from "@org-quicko/cliq-sheet-core/SignUp/beans";
 import { SignUpTableConverter } from "./signup.table.converter";
 import { SignUpSummaryListConverter } from "./signup_summary.list.converter";
 import { ConverterException } from '@org-quicko/core';
@@ -25,25 +25,30 @@ export class SignUpWorkbookConverter {
 	): SignUpWorkbook {
 		try {
 			const signUpWorkbook = new SignUpWorkbook();
-
-			const signupsSheet = signUpWorkbook.getSignupSheet();
-			const signupsTable = signupsSheet.getSignupTable();
-
-			this.signUpTableConverter.convertFrom(
-				signupsTable,
-				signUpsCommissions,
-				signUps
-			)
-
-			this.signUpSummaryListConverter.convertFrom({
-				signUpsSummaryList: signUpWorkbook.getSignupSummarySheet().getSignupSummaryList(),
+			
+			// SIGNUPS SUMMARY SHEET
+			const signUpSummarySheet = new SignupSummarySheet();
+			const signUpsSummaryList = this.signUpSummaryListConverter.convertFrom({
 				startDate,
 				endDate,
 				promoterId: promoter.promoterId,
 				promoterName: promoter.name,
 				signUps,
 				signUpsCommissions,
-			})
+			});
+			signUpSummarySheet.replaceBlock(signUpsSummaryList);
+
+			// SIGNUPS SHEET
+			const signupsSheet = new SignupSheet();
+			const signupsTable = this.signUpTableConverter.convertFrom(
+				signUpsCommissions,
+				signUps
+			);
+			signupsSheet.replaceBlock(signupsTable);
+
+			// Replace existing blank sheets 
+			signUpWorkbook.replaceSheet(signUpSummarySheet);
+			signUpWorkbook.replaceSheet(signupsSheet);
 
 			return signUpWorkbook;
 		} catch (error) {

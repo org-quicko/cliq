@@ -5,11 +5,11 @@ import { ConverterException } from "@org-quicko/core";
 
 export class SignUpTableConverter {
 	convertTo(
-		signUpsTable: SignupTable, 
 		signUpsCommissions: Map<string, Commission>,
 		signUps: SignUp[]
 	) {
 		try {
+			const signUpsTable = new SignupTable();
 			signUps.forEach((signUp) => {
 				const row = new SignupRow([]);
 	
@@ -17,10 +17,10 @@ export class SignUpTableConverter {
 				const commissionAmount = commission?.amount ?? 0;
 	
 				row.setContactId(signUp.contact.contactId);
-				row.setCommission(commissionAmount);
+				row.setSignUpDate(formatDate(signUp.createdAt));
 				row.setEmail(maskInfo(signUp.contact.email));
 				row.setPhone(maskInfo(signUp.contact.phone));
-				row.setSignUpDate(formatDate(signUp.createdAt));
+				row.setCommission(commissionAmount);
 				row.setExternalId(signUp.contact.externalId);
 				row.setUtmId(signUp?.utmParams?.utmId);
 				row.setUtmSource(signUp?.utmParams?.utmSource);
@@ -31,6 +31,8 @@ export class SignUpTableConverter {
 	
 				signUpsTable.addRow(row);
 			});
+			
+			return signUpsTable;
 			
 		} catch (error) {
 			throw new ConverterException('Error converting sign-ups to table', error);

@@ -6,10 +6,11 @@ import { ConverterException } from '@org-quicko/core';
 export class PurchaseTableConverter {
 	/** For getting purchases data for the promoter */
 	convertFrom(
-		purchaseTable: PurchaseTable,
 		purchases: Purchase[]
 	) {
 		try {
+			const purchaseTable = new PurchaseTable();	
+
 			purchases.forEach((purchase) => {
 				const newPurchaseRow = new PurchaseRow([]);
 
@@ -25,6 +26,9 @@ export class PurchaseTableConverter {
 
 				purchaseTable.addRow(newPurchaseRow);
 			});
+
+			return purchaseTable;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Purchase Table', error);
 		}

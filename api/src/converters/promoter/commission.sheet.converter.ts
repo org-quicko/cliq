@@ -20,7 +20,6 @@ export class CommissionSheetConverter {
 
 	/** For getting commissions data for the promoter */
 	convertFrom(
-		commissionSheet: CommissionSheet,
 		{
 			commissions, 
 			referralKeyType, 
@@ -28,12 +27,17 @@ export class CommissionSheetConverter {
 		}: ICommissionSheetConverterInput
 	) {
 		try {
-			this.commissionTableConverter.convertFrom(
-				commissionSheet.getCommissionTable(),
+			const commissionSheet = new CommissionSheet();
+
+			const commissionTable = this.commissionTableConverter.convertFrom(
 				commissions,
 				referralKeyType,
 				metadata
 			);
+			commissionSheet.replaceBlock(commissionTable);
+
+			return commissionSheet;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Commission Sheet', error);			
 		}

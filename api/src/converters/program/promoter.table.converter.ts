@@ -5,10 +5,10 @@ import { ConverterException } from "@org-quicko/core";
 
 export class PromoterTableConverter {
 	convertFrom(
-		promotersTable: PromoterTable,
 		program: Program | null,
 	) {
 		try {
+			const promoterTable = new PromoterTable();
 			if (program) {
 				program.programPromoters.forEach((programPromoter) => {
 					const promoter = programPromoter.promoter;
@@ -42,9 +42,11 @@ export class PromoterTableConverter {
 					row.setRevenue(revenue);
 					row.setTotalCommission(signUpsCommission + purchasesCommission);
 
-					promotersTable.addRow(row);
+					promoterTable.addRow(row);
 				});
+
 			}
+			return promoterTable;
 		} catch (error) {
 			throw new ConverterException('Error in PromoterTableConverter.convertFrom', error);
 		}

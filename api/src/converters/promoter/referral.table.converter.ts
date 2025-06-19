@@ -6,11 +6,12 @@ import { ConverterException } from '@org-quicko/core';
 
 export class ReferralTableConverter {
 	convertFrom(
-		referralTable: ReferralTable,
 		referrals: ReferralView[],
 		metadata: { count: number }
 	) {
 		try {
+			const referralTable = new ReferralTable();
+
 			referralTable.setMetadata(new JSONObject(metadata));
 
 			referrals.forEach((referral) => {
@@ -26,6 +27,9 @@ export class ReferralTableConverter {
 
 				referralTable.addRow(row);
 			});
+
+			return referralTable;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Referral Table', error);
 		}

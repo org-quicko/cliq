@@ -18,18 +18,22 @@ export class ReferralSheetConverter {
 
 	/** For getting purchases data for the promoter */
 	convertFrom(
-		referralsSheet: ReferralSheet,
 		{
 			referrals,
 			metadata
 		}: IReferralSheetConverterInput
 	) {
 		try {
-			this.referralTableConverter.convertFrom(
-				referralsSheet.getReferralTable(),
+			const referralsSheet = new ReferralSheet();
+
+			const referralTable = this.referralTableConverter.convertFrom(
 				referrals,
 				metadata
 			);
+			referralsSheet.replaceBlock(referralTable);
+			
+			return referralsSheet;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Referral Sheet', error);
 		}

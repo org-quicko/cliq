@@ -4,7 +4,6 @@ import { Commission, Purchase } from "../../entities";
 import { ConverterException } from '@org-quicko/core';
 
 export interface IPurchaseSummaryListConverterInput {
-	purchasesSummaryList: PurchaseSummaryList,
 	startDate: Date,
 	endDate: Date,
 	promoterId: string,
@@ -15,7 +14,6 @@ export interface IPurchaseSummaryListConverterInput {
 
 export class PurchaseSummaryListConverter {
 	convertFrom({
-		purchasesSummaryList,
 		startDate,
 		endDate,
 		promoterId,
@@ -24,6 +22,8 @@ export class PurchaseSummaryListConverter {
 		purchasesCommissions
 	}: IPurchaseSummaryListConverterInput) {
 		try {
+			const purchasesSummaryList = new PurchaseSummaryList();
+
 			const totalPurchases = purchases.length;
 			let totalRevenue = 0;
 			const totalCommission = purchases.reduce((acc, purchase) => {
@@ -44,9 +44,10 @@ export class PurchaseSummaryListConverter {
 			purchasesSummaryList.addPromoterId(promoterId);
 			purchasesSummaryList.addPromoterName(promoterName);
 			purchasesSummaryList.addPurchases(totalPurchases);
-
 			purchasesSummaryList.addRevenue(totalRevenue);
 			purchasesSummaryList.addTotalCommission(totalCommission);
+
+			return purchasesSummaryList;
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Purchase Summary List', error);
 		}

@@ -5,7 +5,6 @@ import { conversionTypeEnum } from "../../enums";
 import { ConverterException } from "@org-quicko/core";
 
 export interface ILinkSummaryListConverterInput {
-	linksSummaryList: LinkSummaryList,
 	links: Link[],
 	startDate: Date;
 	endDate: Date;
@@ -13,13 +12,14 @@ export interface ILinkSummaryListConverterInput {
 
 export class LinkSummaryListConverter {
 	convertFrom({
-		linksSummaryList,
 		links,
 		startDate,
 		endDate,
 	}: ILinkSummaryListConverterInput) {
 
 		try {
+			const linksSummaryList = new LinkSummaryList();
+
 			const totalLinks = links.length;
 			let totalSignUpsCommission = 0;
 			let totalPurchasesCommission = 0;
@@ -36,22 +36,23 @@ export class LinkSummaryListConverter {
 	
 				link.commissions.forEach((commission) => {
 					if (commission.conversionType === conversionTypeEnum.SIGNUP) {
-						signUpsCommission += Number(commission.amount);
+						signUpsCommission += commission.amount;
 						signUps++;
 	
 					} else if (commission.conversionType === conversionTypeEnum.PURCHASE) {
-						purchasesCommission += Number(commission.amount);
+						purchasesCommission += commission.amount;
 						purchases++;
-						revenue += Number(commission.revenue);
+						revenue += commission.revenue;
 					}
 				});
 	
-				totalSignUps += Number(signUps);
-				totalPurchases += Number(purchases);
-				totalSignUpsCommission += Number(signUpsCommission);
-				totalPurchasesCommission += Number(purchasesCommission);
-				totalRevenue += Number(revenue);
+				totalSignUps += signUps;
+				totalPurchases += purchases;
+				totalSignUpsCommission += signUpsCommission;
+				totalPurchasesCommission += purchasesCommission;
+				totalRevenue += revenue;
 			});
+
 	
 			linksSummaryList.addFrom(formatDate(startDate));
 			linksSummaryList.addTo(formatDate(endDate));

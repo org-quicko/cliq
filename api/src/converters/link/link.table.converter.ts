@@ -5,10 +5,11 @@ import { ConverterException } from "@org-quicko/core";
 
 export class LinkTableConverter {
 	convertFrom(
-		linksTable: LinkTable,
 		links: Link[],
 	) {
 		try {
+			const linksTable = new LinkTable();
+
 			links.forEach((link) => {
 				const row = new LinkRow([]);
 
@@ -20,28 +21,29 @@ export class LinkTableConverter {
 
 				link.commissions.forEach((commission) => {
 					if (commission.conversionType === conversionTypeEnum.SIGNUP) {
-						signUpsCommission += Number(commission.amount);
+						signUpsCommission += commission.amount;
 						signUps++;
 
 					} else if (commission.conversionType === conversionTypeEnum.PURCHASE) {
-						purchasesCommission += Number(commission.amount);
+						purchasesCommission += commission.amount;
 						purchases++;
-						revenue += Number(commission.revenue);
+						revenue += commission.revenue;
 					}
 				});
 
 				row.setLinkName(link.name);
 				row.setLink(link.program.website + '?ref=' + link.refVal);
-				row.setSignups(Number(signUps));
-				row.setSignups(Number(signUps));
-				row.setPurchases(Number(purchases));
-				row.setCommissionOnSignups(Number(signUpsCommission));
-				row.setCommissionOnPurchases(Number(purchasesCommission));
-				row.setRevenue(Number(revenue));
-				row.setTotalCommission(Number(signUpsCommission) + Number(purchasesCommission));
+				row.setSignups(signUps);
+				row.setCommissionOnSignups(signUpsCommission);
+				row.setPurchases(purchases);
+				row.setCommissionOnPurchases(purchasesCommission);
+				row.setRevenue(revenue);
+				row.setTotalCommission(signUpsCommission + purchasesCommission);
 
 				linksTable.addRow(row);
 			});
+
+			return linksTable;
 		} catch (error) {
 			throw new ConverterException('Error in LinkTableConverter.convertFrom: ', error);
 		}

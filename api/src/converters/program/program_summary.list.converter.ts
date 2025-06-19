@@ -5,7 +5,6 @@ import { Program } from "../../entities";
 import { ConverterException } from "@org-quicko/core";
 
 export interface IProgramSummaryListConverterInput {
-	programSummaryList: ProgramSummaryList;
 	startDate: Date;
 	endDate: Date;
 	programId: string;
@@ -15,7 +14,6 @@ export interface IProgramSummaryListConverterInput {
 
 export class ProgramSummaryListConverter {
 	convertFrom({
-		programSummaryList,
 		startDate,
 		endDate,
 		programId,
@@ -23,6 +21,8 @@ export class ProgramSummaryListConverter {
 		dateFormat,
 	}: IProgramSummaryListConverterInput) {
 		try {
+			const programSummaryList = new ProgramSummaryList();
+
 			let totalPurchases = 0;
 			let totalRevenue = 0;
 			let totalSignUps = 0;
@@ -69,6 +69,8 @@ export class ProgramSummaryListConverter {
 			programSummaryList.addCommissionOnPurchases(totalPurchasesCommission);
 			programSummaryList.addRevenue(totalRevenue);
 			programSummaryList.addTotalCommission(totalSignUpsCommission + totalPurchasesCommission);
+
+			return programSummaryList;
 
 		} catch (error) {
 			throw new ConverterException('Failed to convert to ProgramSummaryList', error);

@@ -2,6 +2,7 @@ import { LinkAnalyticsView } from "../../entities";
 import { LinkAnalyticsSheet } from "@org-quicko/cliq-sheet-core/Promoter/beans";
 import { LinkAnalyticsTableConverter } from "./link_analytics.table.converter";
 import { ConverterException } from "@org-quicko/core";
+import { link } from "fs";
 
 // make an interface for input to the convertFrom method
 export interface ILinkAnalyticsSheetConverterInput {
@@ -23,7 +24,6 @@ export class LinkAnalyticsSheetConverter {
 
 	/** For getting link statistics sheet inside a Promoter Workbook */
 	convertFrom(
-		linkAnalyticsSheet: LinkAnalyticsSheet,
 		{
 			linkAnalytics, 
 			metadata
@@ -31,11 +31,15 @@ export class LinkAnalyticsSheetConverter {
 	) {
 
 		try {
-			this.linkAnalyticsTableConverter.convertFrom(
-				linkAnalyticsSheet.getLinkAnalyticsTable(),
+			const linkAnalyticsSheet = new LinkAnalyticsSheet();
+
+			const linkAnalyticsTable = this.linkAnalyticsTableConverter.convertFrom(
 				linkAnalytics,
 				metadata
-			)
+			);
+			linkAnalyticsSheet.replaceBlock(linkAnalyticsTable);
+			
+			return linkAnalyticsSheet;
 			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to LinkAnalyticsSheet', error);

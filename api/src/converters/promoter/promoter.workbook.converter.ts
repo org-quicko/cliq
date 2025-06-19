@@ -39,35 +39,45 @@ export class PromoterWorkbookConverter {
 	}: IPromoterWorkbookConverterInput) {
 		try {
 			const promoterWorkbook = new PromoterWorkbook();
+			
 			if (commissionSheetInput) {
 				this.commissionSheetConverter = new CommissionSheetConverter();
-				this.commissionSheetConverter.convertFrom(promoterWorkbook.getCommissionSheet(), commissionSheetInput);
+				const commissionSheet = this.commissionSheetConverter.convertFrom(commissionSheetInput);
+				promoterWorkbook.replaceSheet(commissionSheet);
 			}
 			if (linkAnalyticsInput) {
 				this.linkAnalyticsSheetConverter = new LinkAnalyticsSheetConverter();
-				this.linkAnalyticsSheetConverter.convertFrom(promoterWorkbook.getLinkAnalyticsSheet(), linkAnalyticsInput);
+				const linkAnalyticsSheet = this.linkAnalyticsSheetConverter.convertFrom(linkAnalyticsInput);
+				promoterWorkbook.replaceSheet(linkAnalyticsSheet);
 			}
 			if (memberSheetInput) {
 				this.memberSheetConverter = new MemberSheetConverter();
-				this.memberSheetConverter.convertFrom(promoterWorkbook.getMemberSheet(), memberSheetInput);
+				const memberSheet = this.memberSheetConverter.convertFrom(memberSheetInput);
+				promoterWorkbook.replaceSheet(memberSheet);
 			}
 			if (signUpSheetInput) {
 				this.signUpSheetConverter = new SignUpSheetConverter();
-				this.signUpSheetConverter.convertFrom(promoterWorkbook.getSignupSheet(), signUpSheetInput);
+				const signUpSheet = this.signUpSheetConverter.convertFrom(signUpSheetInput);
+				promoterWorkbook.replaceSheet(signUpSheet);
 			}
 			if (promoterAnalyticsSheetInput) {
 				this.promoterAnalyticsSheetConverter = new PromoterAnalyticsSheetConverter();
-				this.promoterAnalyticsSheetConverter.convertFrom(promoterWorkbook.getPromoterAnalyticsSheet(), promoterAnalyticsSheetInput);
+				const promoterAnalyticsSheet = this.promoterAnalyticsSheetConverter.convertFrom(promoterAnalyticsSheetInput);
+				promoterWorkbook.replaceSheet(promoterAnalyticsSheet);
 			}
 			if (purchaseSheetInput) {
 				this.purchaseSheetConverter = new PurchaseSheetConverter();
-				this.purchaseSheetConverter.convertFrom(promoterWorkbook.getPurchaseSheet(), purchaseSheetInput);
+				const purchaseSheet = this.purchaseSheetConverter.convertFrom(purchaseSheetInput);
+				promoterWorkbook.replaceSheet(purchaseSheet);
 			}
 			if (referralSheetInput) {
 				this.referralSheetConverter = new ReferralSheetConverter();
-				this.referralSheetConverter.convertFrom(promoterWorkbook.getReferralSheet(), referralSheetInput);
+				const referralSheet = this.referralSheetConverter.convertFrom(referralSheetInput);
+				promoterWorkbook.replaceSheet(referralSheet);
 			}
+			
 			return promoterWorkbook;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Promoter Workbook', error);
 		}

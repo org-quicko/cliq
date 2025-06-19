@@ -16,16 +16,18 @@ export class PromoterAnalyticsSheetConverter {
 	}
 
 	convertFrom(
-		promoterAnalyticsSheet: PromoterAnalyticsSheet,
 		{
 			promoterAnalytics
 		}: IPromoterAnalyticsSheetConverterInput
 	) {
 		try {
-			this.promoterAnalyticsTableConverter.convertFrom(
-				promoterAnalyticsSheet.getPromoterAnalyticsTable(),
-				promoterAnalytics
-			);
+			const promoterAnalyticsSheet = new PromoterAnalyticsSheet();
+
+			const promoterAnalyticsTable = this.promoterAnalyticsTableConverter.convertFrom(promoterAnalytics);
+			promoterAnalyticsSheet.replaceBlock(promoterAnalyticsTable);
+
+			return promoterAnalyticsSheet;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Promoter Analytics Sheet', error);
 		}

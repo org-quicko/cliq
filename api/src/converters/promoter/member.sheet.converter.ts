@@ -22,7 +22,6 @@ export class MemberSheetConverter {
 	}
 
 	convertFrom(
-		memberSheet: MemberSheet,
 		{
 			promoterMembers,
 			promoterId,
@@ -31,14 +30,20 @@ export class MemberSheetConverter {
 		}: IMemberSheetConverterInput
 	) {
 		try {
+			const memberSheet = new MemberSheet();
+
 			if (!queryOptions) queryOptions = defaultQueryOptions;
-			this.memberTableConverter.convertFrom(
-				memberSheet.getMemberTable(),
+
+			const memberTable = this.memberTableConverter.convertFrom(
 				promoterMembers,
 				promoterId,
 				count,
 				queryOptions
 			);
+			memberSheet.replaceBlock(memberTable);
+
+			return memberSheet;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Member Sheet', error);
 		}

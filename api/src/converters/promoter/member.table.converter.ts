@@ -7,13 +7,14 @@ import { ConverterException } from '@org-quicko/core';
 
 export class MemberTableConverter {
 	convertFrom(
-		memberTable: MemberTable,
 		promoterMembers: PromoterMember[],
 		promoterId: string,
 		count: number,
 		queryOptions: QueryOptionsInterface = defaultQueryOptions
 	) {
 		try {
+			const memberTable = new MemberTable();
+
 			promoterMembers.forEach((promoterMember) => {
 				const member = promoterMember.member;
 
@@ -34,6 +35,9 @@ export class MemberTableConverter {
 				...queryOptions,
 				count
 			}));
+
+			return memberTable;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Member Table', error);
 		}

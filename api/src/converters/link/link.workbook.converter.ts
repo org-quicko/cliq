@@ -1,4 +1,4 @@
-import { LinkSheet, LinkWorkbook } from "@org-quicko/cliq-sheet-core/Link/beans";
+import { LinkSheet, LinkSummarySheet, LinkWorkbook } from "@org-quicko/cliq-sheet-core/Link/beans";
 import { Link } from "../../entities";
 import { LinkTableConverter } from "./link.table.converter";
 import { LinkSummaryListConverter } from "./link_summary.list.converter";
@@ -12,6 +12,7 @@ export class LinkWorkbookConverter {
 	
 	constructor() {
 		this.linkTableConverter = new LinkTableConverter();
+		this.linkSummaryListConverter = new LinkSummaryListConverter();
 	}
 
 	/** For getting link report inside Link Workbook */
@@ -22,22 +23,27 @@ export class LinkWorkbookConverter {
 	): LinkWorkbook {
 		try {
 			const linkWorkbook = new LinkWorkbook();
-			const linksSheet = linkWorkbook.getLinkSheet();
-			const linksTable = linksSheet.getLinkTable();
-			linkWorkbook.replaceSheet(linksSheet);
-
-			this.linkTableConverter.convertFrom(
-				linksTable,
-				links,
-			);
-
-			this.linkSummaryListConverter.convertFrom({
-				linksSummaryList: linkWorkbook.getLinkSummarySheet().getLinkSummaryList(),
+			
+			// LINK SUMMARY SHEET
+			const linksSummarySheet = new LinkSummarySheet();
+			const linkSummaryList = this.linkSummaryListConverter.convertFrom({
 				links,
 				startDate,
 				endDate,
 			});
+			linksSummarySheet.replaceBlock(linkSummaryList);
+
+			// LINK SHEET
+			const linksSheet = new LinkSheet();
+			const linkTable = this.linkTableConverter.convertFrom(
+				links,
+			);
+			linksSheet.replaceBlock(linkTable);
+
 			
+	   		// Replace existing blank sheets 
+			   linkWorkbook.replaceSheet(linksSummarySheet);
+			linkWorkbook.replaceSheet(linksSheet);
 
 			return linkWorkbook;
 		} catch (error) {

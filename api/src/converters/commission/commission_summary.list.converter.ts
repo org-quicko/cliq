@@ -4,7 +4,6 @@ import { Commission, Purchase, SignUp } from "../../entities";
 import { ConverterException } from "@org-quicko/core";
 
 export interface ICommissionSummaryListConverterInput {
-	commissionsSummaryList: CommissionSummaryList, 
 	startDate: Date,
 	endDate: Date,
 	promoterId: string,
@@ -17,7 +16,6 @@ export interface ICommissionSummaryListConverterInput {
 
 export class CommissionSummaryListConverter {
 	convertFrom({
-		commissionsSummaryList,
 		startDate,
 		endDate,
 		promoterId,
@@ -29,13 +27,15 @@ export class CommissionSummaryListConverter {
 	}: ICommissionSummaryListConverterInput) {
 
 		try {
+			const commissionsSummaryList = new CommissionSummaryList();
+
 			const totalPurchases = purchases.length;
 			let totalRevenue = 0;
 			const totalPurchaseCommission = purchases.reduce((acc, purchase) => {
 				let commissionAmount = 0;
 	
 				purchasesCommissions.get(purchase.purchaseId)!.forEach((commission) => {
-					commissionAmount += Number(commission.amount);
+					commissionAmount += commission.amount;
 				});
 	
 				totalRevenue += purchase.amount;
@@ -55,14 +55,14 @@ export class CommissionSummaryListConverter {
 			commissionsSummaryList.addTo(formatDate(endDate));
 			commissionsSummaryList.addPromoterId(promoterId);
 			commissionsSummaryList.addPromoterName(promoterName);
-			commissionsSummaryList.addPurchases(totalPurchases);
 			commissionsSummaryList.addSignups(totalSignUps);
-			commissionsSummaryList.addPurchases(totalPurchases);
 			commissionsSummaryList.addCommissionOnSignups(totalSignUpCommission);
-			commissionsSummaryList.addCommissionOnPurchases(totalPurchaseCommission);
-	
+			commissionsSummaryList.addPurchases(totalPurchases);
 			commissionsSummaryList.addRevenue(totalRevenue);
+			commissionsSummaryList.addCommissionOnPurchases(totalPurchaseCommission);
 			commissionsSummaryList.addTotalCommission(totalSignUpCommission + totalPurchaseCommission);
+
+			return commissionsSummaryList;
 		
 		} catch (error) {
 			throw new ConverterException('Failed to convert to CommissionSummaryList', error);	

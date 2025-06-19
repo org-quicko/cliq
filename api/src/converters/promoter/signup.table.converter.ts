@@ -5,10 +5,11 @@ import { ConverterException } from '@org-quicko/core';
 
 export class SignUpTableConverter {
 	convertFrom(
-		signUpTable: SignupTable,
 		signUps: SignUp[]
 	) {
 		try {
+			const signUpTable = new SignupTable();
+
 			signUps.forEach((signUp) => {
 				const row = new SignupRow([]);
 
@@ -22,6 +23,9 @@ export class SignUpTableConverter {
 
 				signUpTable.addRow(row);
 			});
+
+			return signUpTable;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Signup Table', error);
 		}

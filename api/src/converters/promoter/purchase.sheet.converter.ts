@@ -17,16 +17,18 @@ export class PurchaseSheetConverter {
 
 	/** For getting purchases data for the promoter */
 	convertFrom(
-		purchaseSheet: PurchaseSheet,
 		{
 			purchases
 		}: IPurchaseSheetConverterInput
 	) {
 		try {
-			this.purchaseTableConverter.convertFrom(
-				purchaseSheet.getPurchaseTable(),
-				purchases
-			);
+			const purchaseSheet = new PurchaseSheet();
+
+			const purchaseTable = this.purchaseTableConverter.convertFrom(purchases);
+			purchaseSheet.replaceBlock(purchaseTable);
+
+			return purchaseSheet;
+			
 		} catch (error) {
 			throw new ConverterException('Failed to convert to Purchase Sheet', error);
 		}
