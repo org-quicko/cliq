@@ -30,7 +30,7 @@ import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/fo
 		FormDialogBoxComponent,
 	],
 	templateUrl: './add-member-dialog-box.component.html',
-	styleUrl: './add-member-dialog-box.component.scss'
+	styleUrl: './add-member-dialog-box.component.css'
 })
 export class AddMemberDialogBoxComponent implements OnDestroy {
 

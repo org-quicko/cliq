@@ -6,7 +6,7 @@ import { NgClass } from '@angular/common';
 	selector: 'app-logo',
 	imports: [NgClass],
 	templateUrl: './logo.component.html',
-	styleUrl: './logo.component.scss'
+	styleUrl: './logo.component.css'
 })
 export class LogoComponent {
 	@Input({ required: false }) imgClass?: string;

@@ -52,7 +52,7 @@ import { LinkAnalyticsRow, PromoterAnalyticsRow } from '@org-quicko/cliq-sheet-c
 	],
 	providers: [DashboardStore],
 	templateUrl: './dashboard.component.html',
-	styleUrl: './dashboard.component.scss'
+	styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
 

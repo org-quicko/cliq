@@ -27,7 +27,7 @@ import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/fo
 		FormDialogBoxComponent
 	],
 	templateUrl: './edit-promoter-dialog-box.component.html',
-	styleUrl: './edit-promoter-dialog-box.component.scss'
+	styleUrl: './edit-promoter-dialog-box.component.css'
 })
 export class EditPromoterDialogBoxComponent implements OnInit, OnDestroy {
 	destroy$ = new Subject<boolean>();

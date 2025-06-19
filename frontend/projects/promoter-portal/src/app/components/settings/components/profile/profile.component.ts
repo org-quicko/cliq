@@ -21,7 +21,7 @@ import { ProgramStore } from '../../../../store/program.store';
 		InfoDialogBoxComponent,
 	],
 	templateUrl: './profile.component.html',
-	styleUrl: './profile.component.scss'
+	styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
 

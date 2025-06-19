@@ -42,7 +42,7 @@ import { ReferralRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 ],
 	providers: [ReferralStore],
 	templateUrl: './referrals.component.html',
-	styleUrl: './referrals.component.scss'
+	styleUrl: './referrals.component.css'
 })
 export class ReferralsComponent implements OnInit {
 

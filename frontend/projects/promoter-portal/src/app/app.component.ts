@@ -5,12 +5,13 @@ import { ThemeService, ColorUtil } from '@org.quicko.cliq/ngx-core';
 import * as moment from 'moment';
 import { filter } from 'rxjs';
 import { Title } from '@angular/platform-browser';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 @Component({
 	selector: 'app-root',
-	imports: [RouterOutlet,],
+	imports: [RouterOutlet],
 	templateUrl: './app.component.html',
-	styleUrl: './app.component.scss'
+	styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
 
@@ -26,7 +27,7 @@ export class AppComponent implements OnInit {
 		});
 
 		effect(() => {
-			const themeColor =this.programStore.program()?.themeColor;
+			const themeColor = this.programStore.program()?.themeColor;
 			ColorUtil.setThemeFromSeed(themeColor ?? '#4D5C92');
 
 			const programName = this.programStore.program()?.name;

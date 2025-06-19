@@ -28,7 +28,7 @@ import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-
 		FormDialogBoxComponent
 	],
 	templateUrl: './edit-profile-dialog-box.component.html',
-	styleUrl: './edit-profile-dialog-box.component.scss'
+	styleUrl: './edit-profile-dialog-box.component.css'
 })
 export class EditProfileDialogBoxComponent implements OnInit, OnDestroy {
 

@@ -22,7 +22,7 @@ import { onCreatePromoterSuccess } from '../../store/signup.store';
 		CommonModule,
 	],
 	templateUrl: './enter-personal-and-promoter-details.component.html',
-	styleUrl: './enter-personal-and-promoter-details.component.scss'
+	styleUrl: './enter-personal-and-promoter-details.component.css'
 })
 export class EnterPersonalAndPromoterDetailsComponent implements OnInit {
 	@Input({ required: true }) signUpForm: FormGroup;

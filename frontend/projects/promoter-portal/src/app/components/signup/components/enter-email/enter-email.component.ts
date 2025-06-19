@@ -26,7 +26,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 		RouterLink,
 	],
 	templateUrl: './enter-email.component.html',
-	styleUrl: './enter-email.component.scss'
+	styleUrl: './enter-email.component.css'
 })
 export class EnterEmailComponent implements OnInit {
 	@Input({ required: true }) signUpForm: FormGroup;

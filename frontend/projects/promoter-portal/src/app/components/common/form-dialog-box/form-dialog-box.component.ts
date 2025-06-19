@@ -21,7 +21,7 @@ import { Subject } from 'rxjs';
 		NgClass
 	],
 	templateUrl: './form-dialog-box.component.html',
-	styleUrl: './form-dialog-box.component.scss'
+	styleUrl: './form-dialog-box.component.css'
 })
 export class FormDialogBoxComponent implements OnDestroy {
 	@Input({ required: true }) formGroup: FormGroup;

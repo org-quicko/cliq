@@ -7,7 +7,7 @@ import { Component, Input } from '@angular/core';
 		TitleCasePipe
 	],
 	templateUrl: './label-chip.component.html',
-	styleUrl: './label-chip.component.scss'
+	styleUrl: './label-chip.component.css'
 })
 export class LabelChipComponent {
 	@Input({ required: true }) text: string;

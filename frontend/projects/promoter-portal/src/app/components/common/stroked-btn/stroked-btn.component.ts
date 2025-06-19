@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 		MatIconModule,
 	],
 	templateUrl: './stroked-btn.component.html',
-	styleUrl: './stroked-btn.component.scss'
+	styleUrl: './stroked-btn.component.css'
 })
 export class StrokedBtnComponent {
 	@Input({ required: true }) onClick: Function;

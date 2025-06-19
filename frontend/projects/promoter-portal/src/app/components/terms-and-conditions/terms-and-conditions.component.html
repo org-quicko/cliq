@@ -1,8 +1,8 @@
 <app-accounts-container>
 	@if (isLoading()) {
-		<div class="lg:w-1/2 bg-surface h-full space-y-4 flex justify-center items-center">
-			<mat-spinner></mat-spinner>
-		</div>
+	<div class="lg:w-1/2 bg-surface h-full space-y-4 flex justify-center items-center">
+		<mat-spinner></mat-spinner>
+	</div>
 	}
 	@else {
 	<div class="lg:w-1/2 flex flex-col justify-center items-center bg-surface px-20 py-16">
@@ -14,32 +14,19 @@
 			</div>
 
 			<mat-card class="bg-surface-container text-on-surface mat-corner-small flex flex-col gap-5 p-6">
-				<mat-card-header class="mat-title-large flex justify-start">
-					<span>Terms & Conditions</span>
-				</mat-card-header>
-
 				<mat-card-content class="h-auto max-h-[500px] w-full max-w-[560px] overflow-auto">
-					{{ programTnc() }}
+					<app-markdown-content [content]="programTnc()"></app-markdown-content>
 				</mat-card-content>
 			</mat-card>
 
 			<div class="flex flex-col gap-4 items-center">
-				<button
-					mat-flat-button
-					color="primary"
-					class="w-[182px] h-10 mat-label-large rounded-full"
-					type="submit"
-					(click)="onSubmit()"
-				>
+				<button mat-flat-button color="primary" class="w-[182px] h-10 mat-label-large rounded-full"
+					type="submit" (click)="onSubmit()">
 					Accept and continue
 				</button>
 
-				<button
-					mat-button
-					type="button"
-					class="w-[70px] h-10 mat-label-large cursor-pointer"
-					(click)="onCancel()"
-				>
+				<button mat-button type="button" class="w-[70px] h-10 mat-label-large cursor-pointer"
+					(click)="onCancel()">
 					Cancel
 				</button>
 			</div>

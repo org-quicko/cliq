@@ -16,7 +16,7 @@ import { PromoterStore } from '../../../../store/promoter.store';
 	imports: [MatCardModule, MatIconModule, TitleCasePipe, MatRippleModule, MatDialogModule],
 	providers: [ReportsStore],
 	templateUrl: './reports.component.html',
-	styleUrl: './reports.component.scss'
+	styleUrl: './reports.component.css'
 })
 export class ReportsComponent {
 

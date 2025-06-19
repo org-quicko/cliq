@@ -39,7 +39,7 @@ export enum signUpScreens {
 	],
 	providers: [SignUpStore],
 	templateUrl: './signup.component.html',
-	styleUrl: './signup.component.scss'
+	styleUrl: './signup.component.css'
 })
 export class SignUpComponent {
 

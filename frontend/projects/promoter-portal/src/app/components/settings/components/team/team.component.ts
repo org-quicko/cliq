@@ -50,7 +50,7 @@ import { PromoterStore } from '../../../../store/promoter.store';
 	],
 	providers: [TeamStore],
 	templateUrl: './team.component.html',
-	styleUrl: './team.component.scss'
+	styleUrl: './team.component.css'
 })
 export class TeamComponent implements OnInit {
 	displayedColumns: string[] = ['name', 'email', 'role', 'added on', 'menu'];

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { AccountsContainerComponent } from '../accounts-container/accounts-container.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,7 @@ import { onRegisterForProgramSuccess, TncStore } from './store/tnc.store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RegisterForProgramDto, Status } from '@org.quicko.cliq/ngx-core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MarkdownContentComponent } from '../common/markdown-content/markdown-content.component';
 
 @Component({
 	selector: 'app-terms-and-conditions',
@@ -15,11 +16,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 		AccountsContainerComponent,
 		MatButtonModule,
 		MatCardModule,
-		MatProgressSpinnerModule
+		MatProgressSpinnerModule,
+		MarkdownContentComponent
 	],
 	providers: [TncStore],
 	templateUrl: './terms-and-conditions.component.html',
-	styleUrl: './terms-and-conditions.component.scss'
+	styleUrl: './terms-and-conditions.component.css'
 })
 export class TermsAndConditionsComponent implements OnInit {
 

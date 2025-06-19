@@ -11,7 +11,7 @@ import { Subject } from 'rxjs';
 	selector: 'app-member-added-success-dialog-box',
 	imports: [ReactiveFormsModule, MatDialogModule, MatIconModule, MatButtonModule, MatFormFieldModule, FormsModule, MatInputModule],
 	templateUrl: './member-added-success-dialog-box.component.html',
-	styleUrl: './member-added-success-dialog-box.component.scss'
+	styleUrl: './member-added-success-dialog-box.component.css'
 })
 export class MemberAddedSuccessDialogBoxComponent implements OnDestroy {
 

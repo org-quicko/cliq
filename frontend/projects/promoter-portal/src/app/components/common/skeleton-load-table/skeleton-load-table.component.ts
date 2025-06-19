@@ -12,7 +12,7 @@ import { TableRowStyling } from '../../../interfaces';
 		CommonModule
 	],
 	templateUrl: './skeleton-load-table.component.html',
-	styleUrl: './skeleton-load-table.component.scss'
+	styleUrl: './skeleton-load-table.component.css'
 })
 export class SkeletonLoadTableComponent implements OnInit {
 	@Input({ required: true }) maxHeight: string;

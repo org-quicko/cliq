@@ -7,7 +7,7 @@ import { LogoComponent } from '../logo/logo.component';
 	selector: 'app-header',
 	imports: [ProfileComponent, LogoComponent],
 	templateUrl: './header.component.html',
-	styleUrl: './header.component.scss'
+	styleUrl: './header.component.css'
 })
 export class HeaderComponent {
 

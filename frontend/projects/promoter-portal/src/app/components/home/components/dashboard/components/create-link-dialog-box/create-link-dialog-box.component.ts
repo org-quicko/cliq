@@ -26,7 +26,7 @@ import { CommonModule } from '@angular/common';
 		FormDialogBoxComponent
 	],
 	templateUrl: './create-link-dialog-box.component.html',
-	styleUrl: './create-link-dialog-box.component.scss'
+	styleUrl: './create-link-dialog-box.component.css'
 })
 export class CreateLinkDialogBoxComponent implements OnInit, OnDestroy {
 

@@ -9,7 +9,7 @@ import { filter, Subject, takeUntil } from 'rxjs';
 	selector: 'app-settings',
 	imports: [MatTabsModule, MatDividerModule, RouterOutlet, RouterLink, RouterLinkActive, TitleCasePipe],
 	templateUrl: './settings.component.html',
-	styleUrl: './settings.component.scss',
+	styleUrl: './settings.component.css',
 
 })
 export class SettingsComponent implements OnInit, OnDestroy {

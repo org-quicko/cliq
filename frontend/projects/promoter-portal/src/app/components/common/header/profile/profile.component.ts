@@ -27,7 +27,7 @@ import { Observable, Subject, takeUntil } from 'rxjs';
 		EllipsisPipe,
 	],
 	templateUrl: './profile.component.html',
-	styleUrl: './profile.component.scss'
+	styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit {
 

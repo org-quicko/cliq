@@ -38,11 +38,13 @@ export const routes: Routes = [
 						path: '',
 						resolve: { tnc: TncResolver },
 						component: LayoutComponent,
+
 						children: [
 							{
 								path: '',
 								pathMatch: 'full',
 								redirectTo: 'home/dashboard',
+
 							},
 							{
 								path: 'home',

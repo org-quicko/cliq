@@ -42,7 +42,7 @@ import { CommissionRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 	],
 	providers: [LinkCommissionsStore],
 	templateUrl: './link-commissions.component.html',
-	styleUrl: './link-commissions.component.scss'
+	styleUrl: './link-commissions.component.css'
 })
 export class LinkCommissionsComponent implements OnInit {
 

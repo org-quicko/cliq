@@ -35,7 +35,7 @@ import { CommissionRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 ],
 	providers: [ReferralCommissionsStore],
 	templateUrl: './referral-commissions.component.html',
-	styleUrl: './referral-commissions.component.scss'
+	styleUrl: './referral-commissions.component.css'
 })
 export class ReferralCommissionsComponent implements OnInit {
 	@ViewChild(MatSort) sort: MatSort;

@@ -35,7 +35,7 @@ import { ActionableListItemInterface } from '../../../../interfaces/actionableLi
 		InfoDialogBoxComponent,
 	],
 	templateUrl: './promoter.component.html',
-	styleUrl: './promoter.component.scss'
+	styleUrl: './promoter.component.css'
 })
 export class PromoterComponent {
 	readonly dialog = inject(MatDialog);

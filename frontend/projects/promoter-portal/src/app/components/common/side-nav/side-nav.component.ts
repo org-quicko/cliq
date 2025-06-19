@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 	standalone: true,
 	imports: [MatSidenavModule, MatIconModule, MatListModule, RouterLinkActive, RouterLink, CommonModule],
 	templateUrl: './side-nav.component.html',
-	styleUrl: './side-nav.component.scss',
+	styleUrl: './side-nav.component.css',
 })
 export class SideNavComponent {
 	constructor(private router: Router, private route: ActivatedRoute) { }

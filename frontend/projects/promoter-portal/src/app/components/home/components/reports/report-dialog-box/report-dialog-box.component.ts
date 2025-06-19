@@ -53,7 +53,7 @@ export const MY_FORMATS = {
 	],
 	providers: [provideMomentDateAdapter(MY_FORMATS)],
 	templateUrl: './report-dialog-box.component.html',
-	styleUrl: './report-dialog-box.component.scss'
+	styleUrl: './report-dialog-box.component.css'
 })
 export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 

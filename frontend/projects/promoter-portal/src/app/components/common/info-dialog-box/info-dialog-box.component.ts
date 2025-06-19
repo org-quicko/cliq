@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
 	selector: 'app-info-dialog-box',
 	imports: [MatButtonModule, MatIconModule, MatFormFieldModule, FormsModule, MatDialogModule],
 	templateUrl: './info-dialog-box.component.html',
-	styleUrl: './info-dialog-box.component.scss'
+	styleUrl: './info-dialog-box.component.css'
 })
 export class InfoDialogBoxComponent implements OnDestroy {
 

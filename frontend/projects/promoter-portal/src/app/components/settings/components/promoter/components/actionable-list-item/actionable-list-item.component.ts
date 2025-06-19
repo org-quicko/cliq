@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 		MatDivider,
 	],
 	templateUrl: './actionable-list-item.component.html',
-	styleUrl: './actionable-list-item.component.scss'
+	styleUrl: './actionable-list-item.component.css'
 })
 export class ActionableListItemComponent {
 	@Input({ required: true }) title: string;

@@ -169,3 +169,88 @@
   overflow-y: scroll; /* Needed to ensure scrolling works in Safari */
 }
 
+
+.tnc-content h1 {
+  font-size: 22px !important;
+}
+
+.tnc-content h2 {
+  font-size: 18px !important;
+}
+
+.tnc-content h3,
+.tnc-content p {
+  font-size: 16px !important;
+}
+
+
+.tnc-content a {
+	text-decoration: underline !important;
+	color: var(--sys-primary) !important;
+}
+
+.tnc-content ul {
+	list-style-type: disc !important;
+	padding-left: 16px !important;
+}
+
+.tnc-content ol {
+	list-style: decimal !important;
+	padding-left: 16px !important;
+}
+
+.tnc-content table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 1px !important;
+  border-radius: 4px !important;
+  background-color: var(--sys-outline-variant) !important; /* border color */
+  overflow: hidden !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.tnc-content th,
+.tnc-content td {
+  background-color: var(--sys-surface) !important; /* cell background */
+  padding: 12px !important;
+  text-align: left !important;
+  border: none !important; /* remove cell borders */
+  font-weight: 500 !important;
+}
+
+
+/* Optional: maintain color scheme */
+.tnc-content thead,
+.tnc-content tbody {
+  background-color: var(--sys-surface) !important;
+  color: var(--sys-outline) !important;
+  font-weight: 500 !important;
+}
+
+/* 🟢 Rounded corners on specific cells */
+.tnc-content thead tr:first-child th:first-child {
+  border-top-left-radius: 4px !important;
+}
+.tnc-content thead tr:first-child th:last-child {
+  border-top-right-radius: 4px !important;
+}
+.tnc-content tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 4px !important;
+}
+.tnc-content tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 4px !important;
+}
+
+
+.tnc-content th {
+	font-weight: 500 !important;
+}
+
+.tnc-content tr :first-child {
+	color: var(--sys-outline) !important;
+}
+
+.tnc-content tbody tr {
+	color: var(--sys-on-surface) !important;
+}
