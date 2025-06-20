@@ -1,15 +1,13 @@
 import {
 	ConflictException,
 	ForbiddenException,
-	forwardRef,
-	Inject,
 	Injectable,
 	NotFoundException,
 	UnauthorizedException,
 } from '@nestjs/common';
-import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere } from 'typeorm';
+import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, Between } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Circle, Commission, Program, Promoter, Purchase, ReferralView, User } from '../entities';
+import { Circle, Commission, Program, Promoter, Purchase, ReferralView, SignUp, User } from '../entities';
 import { CreateUserDto } from '../dtos';
 import { ProgramUser } from '../entities/programUser.entity';
 import {
@@ -32,7 +30,6 @@ import { SALT_ROUNDS } from 'src/constants';
 import * as XLSX from 'xlsx';
 import { defaultQueryOptions } from 'src/constants';
 import { snakeCaseToHumanReadable } from 'src/utils';
-import { CircleService } from './circle.service';
 import { subjectsType } from 'src/types';
 import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
 import { ProgramWorkbookConverter } from 'src/converters/program/program.workbook.converter';
@@ -51,16 +48,19 @@ export class ProgramService {
 		@InjectRepository(ProgramPromoter)
 		private readonly programPromoterRepository: Repository<ProgramPromoter>,
 
+		@InjectRepository(SignUp)
+		private readonly signUpRepository: Repository<SignUp>,
+
 		@InjectRepository(Purchase)
 		private readonly purchaseRepository: Repository<Purchase>,
+
+		@InjectRepository(Commission)
+		private readonly commissionRepository: Repository<Commission>,
 
 		@InjectRepository(ReferralView)
 		private readonly referralViewRepository: Repository<ReferralView>,
 
 		private userService: UserService,
-
-		@Inject(forwardRef(() => CircleService))
-		private circleService: CircleService,
 
 		private programConverter: ProgramConverter,
 		private promoterConverter: PromoterConverter,
@@ -659,36 +659,108 @@ export class ProgramService {
 	) {
 		this.logger.info(`START: getProgramReport service`);
 
-		const query = this.programRepository
+		// const query = this.programRepository
+		// 	.createQueryBuilder("program")
+		// 	.leftJoinAndSelect("program.programPromoters", "programPromoters")
+		// 	.leftJoinAndSelect("programPromoters.promoter", "promoter")
+		// 	.leftJoinAndSelect(
+		// 		"promoter.signUps",
+		// 		"signUps",
+		// 		"signUps.createdAt >= :start AND signUps.createdAt <= :end"
+		// 	)
+		// 	.leftJoinAndSelect(
+		// 		"promoter.purchases",
+		// 		"purchases",
+		// 		"purchases.createdAt >= :start AND purchases.createdAt <= :end"
+		// 	)
+		// 	.leftJoinAndSelect(
+		// 		"promoter.commissions",
+		// 		"commissions",
+		// 		"commissions.createdAt >= :start AND commissions.createdAt <= :end"
+		// 	)
+		// 	.where("program.programId = :programId AND promoter.createdAt <= :end", { programId })
+		// 	.setParameters({ start: startDate.toISOString(), end: endDate.toISOString() });
+
+		// const programResult = await query.getOne();
+
+		const programResult = await this.programRepository
 			.createQueryBuilder("program")
 			.leftJoinAndSelect("program.programPromoters", "programPromoters")
 			.leftJoinAndSelect("programPromoters.promoter", "promoter")
-			.leftJoinAndSelect(
-				"promoter.signUps",
-				"signUps",
-				"signUps.createdAt >= :start AND signUps.createdAt <= :end"
-			)
-			.leftJoinAndSelect(
-				"promoter.purchases",
-				"purchases",
-				"purchases.createdAt >= :start AND purchases.createdAt <= :end"
-			)
-			.leftJoinAndSelect(
-				"promoter.commissions",
-				"commissions",
-				"commissions.createdAt >= :start AND commissions.createdAt <= :end"
-			)
-			.where("program.programId = :programId AND promoter.createdAt <= :end", { programId })
-			.setParameters({ start: startDate.toISOString(), end: endDate.toISOString() });
-
-		const programResult = await query.getOne();
-
+			.where("program.programId = :programId", { programId })
+			.andWhere("promoter.createdAt <= :end", { end: endDate.toISOString() })
+			.getOne();
+			
 		if (!programResult) {
 			this.logger.warn(`Warning. No data found for Program ${programId} for period: ${startDate} - ${endDate}`);
 		}
 
+		const programPromoters = programResult?.programPromoters ?? [];
+		const promoterIds = programPromoters.map(pp => pp.promoter.promoterId);
+		const numPromoters = promoterIds.length;
+
+		const signUps = await this.signUpRepository.find({
+			where: {
+				promoterId: In(promoterIds),
+				createdAt: Between(startDate, endDate),
+			},
+		});
+		// tracks no. of signups for each promoter
+		const promoterSignUpsMap: Map<string, SignUp[]> = new Map();
+		signUps.forEach(signUp => {
+			if (!promoterSignUpsMap.has(signUp.promoterId)) {
+				promoterSignUpsMap.set(signUp.promoterId, []);
+			}
+
+			promoterSignUpsMap.get(signUp.promoterId)!.push(signUp);
+		});
+		
+		// tracks no. of purchases for each promoter
+		const purchases = await this.purchaseRepository.find({
+			where: {
+				promoterId: In(promoterIds),
+				createdAt: Between(startDate, endDate),
+			},
+		});
+		const promoterPurchasesMap: Map<string, Purchase[]> = new Map();
+		purchases.forEach(purchase => {
+			if (!promoterPurchasesMap.has(purchase.promoterId)) {
+				promoterPurchasesMap.set(purchase.promoterId, []);
+			}
+
+			promoterPurchasesMap.get(purchase.promoterId)!.push(purchase);
+		});
+		
+		// tracks commission for each promoter
+		const promoterCommissionsMap: Map<string, Commission[]> = new Map();
+		const commissions = await this.commissionRepository.find({
+			where: {
+				promoterId: In(promoterIds),
+				createdAt: Between(startDate, endDate),
+			},
+		});
+		commissions.forEach(commission => {
+			if (!promoterCommissionsMap.has(commission.promoterId)) {
+				promoterCommissionsMap.set(commission.promoterId, []);
+			}
+
+			promoterCommissionsMap.get(commission.promoterId)!.push(commission);
+		});
+
 		const programWorkbookConverter = new ProgramWorkbookConverter();
-		const programSheetJsonWorkbook = programWorkbookConverter.convertFrom(programId, programResult, startDate, endDate);
+		const programSheetJsonWorkbook = programWorkbookConverter.convertFrom(
+			programId,
+			numPromoters, 
+			programResult, 
+			signUps, 
+			purchases, 
+			commissions, 
+			promoterSignUpsMap,
+			promoterPurchasesMap,
+			promoterCommissionsMap,
+			startDate, 
+			endDate
+		);
 
 		const workbook = ProgramWorkbook.toXlsx(programSheetJsonWorkbook);
 

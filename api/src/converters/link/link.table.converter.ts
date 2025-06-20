@@ -6,6 +6,8 @@ import { ConverterException } from "@org-quicko/core";
 export class LinkTableConverter {
 	convertFrom(
 		links: Link[],
+		linkSignUpsMap: Map<string, number>,
+		linkPurchasesMap: Map<string, number>,
 	) {
 		try {
 			const linksTable = new LinkTable();
@@ -15,21 +17,21 @@ export class LinkTableConverter {
 
 				let signUpsCommission = 0;
 				let purchasesCommission = 0;
-				let signUps = 0;
-				let purchases = 0;
 				let revenue = 0;
 
 				link.commissions.forEach((commission) => {
 					if (commission.conversionType === conversionTypeEnum.SIGNUP) {
 						signUpsCommission += commission.amount;
-						signUps++;
 
 					} else if (commission.conversionType === conversionTypeEnum.PURCHASE) {
 						purchasesCommission += commission.amount;
-						purchases++;
 						revenue += commission.revenue;
 					}
 				});
+
+				const signUps = linkSignUpsMap.get(link.linkId) || 0;
+				const purchases = linkPurchasesMap.get(link.linkId) || 0;
+
 
 				row.setLinkName(link.name);
 				row.setLink(link.program.website + '?ref=' + link.refVal);

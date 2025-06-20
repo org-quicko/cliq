@@ -50,6 +50,9 @@ export class Purchase {
 		referencedColumnName: 'linkId',
 	})
 	link: Link;
+	
+	@Column('uuid', { name: 'link_id' })
+	linkId: string;
 
 	@ManyToOne(() => Promoter, (promoter) => promoter.purchases, { onDelete: 'SET NULL' })
 	@JoinColumn({
@@ -69,4 +72,5 @@ export class Purchase {
 		referencedColumnName: 'contactId',
 	})
 	contact: Contact;
+
 }

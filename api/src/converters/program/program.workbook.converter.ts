@@ -1,4 +1,4 @@
-import { Program } from "../../entities";
+import { Commission, Program, Purchase, SignUp } from "../../entities";
 import { ProgramSummarySheet, ProgramWorkbook, PromoterSheet } from "@org-quicko/cliq-sheet-core/Program/beans";
 import { PromoterTableConverter } from "./promoter.table.converter";
 import { dateFormatEnum } from "../../enums";
@@ -19,7 +19,14 @@ export class ProgramWorkbookConverter {
 	/** For getting promoters report for a program */
 	convertFrom(
 		programId: string,
+		numPromoters: number,
 		program: Program | null,
+		signUps: SignUp[],
+		purchases: Purchase[],
+		commissions: Commission[],
+		promoterSignUpsMap: Map<string, SignUp[]>,
+		promoterPurchasesMap: Map<string, Purchase[]>,
+		promoterCommissionsMap: Map<string, Commission[]>,
 		startDate: Date,
 		endDate: Date,
 	): ProgramWorkbook {
@@ -33,7 +40,11 @@ export class ProgramWorkbookConverter {
 				startDate,
 				endDate,
 				programId,
+				numPromoters,
 				program,
+				signUps,
+				purchases,
+				commissions,
 				dateFormat,
 			});
 			programSummarySheet.replaceBlock(programSummaryList);
@@ -42,6 +53,9 @@ export class ProgramWorkbookConverter {
 			const promoterSheet = new PromoterSheet();
 			const promoterTable = this.promoterTableConverter.convertFrom(
 				program,
+				promoterSignUpsMap,
+				promoterPurchasesMap,
+				promoterCommissionsMap,
 			);
 			promoterSheet.replaceBlock(promoterTable);
 	

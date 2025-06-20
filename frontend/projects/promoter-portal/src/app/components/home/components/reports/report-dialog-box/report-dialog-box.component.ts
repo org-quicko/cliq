@@ -66,6 +66,8 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 	minDate = moment().subtract(1, 'year').startOf('day');
 	maxDate = moment();
 
+	isLoading: boolean;
+
 	readonly reportForm = new FormGroup({
 		start: new FormControl(moment().subtract(30, 'days'), { nonNullable: true }),
 		end: new FormControl(moment(), { nonNullable: true }),
@@ -78,6 +80,7 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 		private dialogRef: MatDialogRef<ReportDialogBoxComponent>,
 		@Inject(MAT_DIALOG_DATA) public data: { reportName: reportEnum, getReport: Function, status: Signal<Status> },
 	) {
+		this.isLoading = false;
 		this.reportForm.controls.start.disable();
 		this.reportForm.controls.end.disable();
 
@@ -127,6 +130,7 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 				endDate: end
 			});
 
+			this.isLoading = true;
 		}
 	}
 }

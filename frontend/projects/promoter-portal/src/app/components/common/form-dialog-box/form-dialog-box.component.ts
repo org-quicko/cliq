@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject } from 'rxjs';
 
 @Component({
@@ -18,6 +19,7 @@ import { Subject } from 'rxjs';
 		MatDialogModule,
 		MatIconModule,
 		MatInputModule,
+		MatProgressSpinnerModule,
 		NgClass
 	],
 	templateUrl: './form-dialog-box.component.html',
@@ -35,7 +37,7 @@ export class FormDialogBoxComponent implements OnDestroy {
 	@Input({ required: false }) cancelBtnText?: string;
 	@Input({ required: false }) submitBtnText?: string;
 
-
+	@Input({ required: false }) isLoading: boolean = false;
 
 	destroy$ = new Subject<boolean>();
 

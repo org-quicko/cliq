@@ -18,6 +18,8 @@ export class LinkWorkbookConverter {
 	/** For getting link report inside Link Workbook */
 	convertFrom(
 		links: Link[],
+		linkSignUpsMap: Map<string, number>,
+		linkPurchasesMap: Map<string, number>,
 		startDate: Date,
 		endDate: Date,
 	): LinkWorkbook {
@@ -28,6 +30,8 @@ export class LinkWorkbookConverter {
 			const linksSummarySheet = new LinkSummarySheet();
 			const linkSummaryList = this.linkSummaryListConverter.convertFrom({
 				links,
+				linkSignUpsMap,
+				linkPurchasesMap,
 				startDate,
 				endDate,
 			});
@@ -37,6 +41,8 @@ export class LinkWorkbookConverter {
 			const linksSheet = new LinkSheet();
 			const linkTable = this.linkTableConverter.convertFrom(
 				links,
+				linkSignUpsMap,
+				linkPurchasesMap,
 			);
 			linksSheet.replaceBlock(linkTable);
 
