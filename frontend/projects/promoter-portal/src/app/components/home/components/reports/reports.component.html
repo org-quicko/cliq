@@ -13,11 +13,11 @@
 				</mat-icon>
 			</div>
 			<mat-card-header class="!py-0 flex flex-col gap-2 justify-center h-full">
-				<mat-card-title class="!m-0 text-on-surface mat-body-large">
+				<mat-card-title class="text-on-surface mat-body-large">
 					{{ report[0] | titlecase }}
 				</mat-card-title>
-				<mat-card-subtitle class="!m-0 text-on-surface-variant mat-body-medium">
-					Get detailed order reports with plan details, member info, customer data, and pricing breakdowns
+				<mat-card-subtitle class="mt-2 text-on-surface-variant mat-body-medium">
+					{{ reportsDesc.get(report[0]) }}
 				</mat-card-subtitle>
 			</mat-card-header>
 		</mat-card>
