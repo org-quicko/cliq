@@ -18,10 +18,6 @@ import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-
 
 const moment = _rollupMoment || _moment;
 
-const today = new Date();
-const month = today.getMonth();
-const year = today.getFullYear();
-
 export const MY_FORMATS = {
 	parse: {
 		dateInput: 'LL', // Standard parsing
@@ -78,7 +74,11 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private dialogRef: MatDialogRef<ReportDialogBoxComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: { reportName: reportEnum, getReport: Function, status: Signal<Status> },
+		@Inject(MAT_DIALOG_DATA) public data: {
+			reportName: reportEnum,
+			getReport: Function,
+			status: Signal<Status>
+		},
 	) {
 		this.isLoading = false;
 		this.reportForm.controls.start.disable();

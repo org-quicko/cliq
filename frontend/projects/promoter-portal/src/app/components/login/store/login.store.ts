@@ -48,7 +48,7 @@ export const LogInStore = signalStore(
 								},
 								error: (error: HttpErrorResponse) => {
 									console.error(error.error.message);
-									snackBarService.openSnackBar(error.error.message, '');
+									onSignInError.emit(error.error.message);
 								}
 							})
 						);
