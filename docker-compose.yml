@@ -16,7 +16,7 @@ services:
       - REDIS_HOST=cliq-redis
       - REDIS_PORT=6379
       - SALT_ROUNDS=10
-      - NODE_ENV=development
+      - NODE_ENV=production
       - JWT_SECRET
       - JWT_EXPIRES_IN
     depends_on:
@@ -26,7 +26,7 @@ services:
       - nginxproxymanager_default
 
   cliq-db:
-    image: postgres:latest
+    image: postgres:17
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=admin
