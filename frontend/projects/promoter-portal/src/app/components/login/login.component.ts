@@ -63,6 +63,7 @@ export class LoginComponent implements OnInit {
 	ngOnInit() {
 		onSignInSuccess.subscribe(() => {
 			this.router.navigate(['../home/dashboard'], { relativeTo: this.route });
+			this.isLoading.set(false);
 		});
 
 		onSignInError.subscribe((message) => {
