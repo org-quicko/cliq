@@ -7,8 +7,7 @@ COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY frontend .
-RUN npm run generate
-RUN npm run build:core-lib
+RUN npm run build:org-quicko-cliq-ngx-core
 RUN npm run build -- --project=promoter-portal
 
 # building the backend
@@ -20,7 +19,6 @@ COPY api/package*.json ./
 RUN npm install
 
 COPY api .
-RUN npm run generate
 RUN npm run build
 
 # Final image
