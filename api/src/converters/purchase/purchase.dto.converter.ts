@@ -11,7 +11,7 @@ export class PurchaseConverter {
 
 			purchaseDto.purchaseId = purchase.purchaseId;
 
-			purchaseDto.linkId = purchase.link.linkId;
+			purchaseDto.linkId = purchase.linkId;
 			purchaseDto.email = purchase.contact.email;
 			purchaseDto.amount = purchase.amount;
 			purchaseDto.firstName = purchase.contact.firstName;

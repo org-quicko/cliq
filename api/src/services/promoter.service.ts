@@ -8,7 +8,7 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, FindOptionsWhere, Raw, FindOptionsRelations } from 'typeorm';
+import { Repository, DataSource, FindOptionsWhere, Raw, FindOptionsRelations, In } from 'typeorm';
 import * as XLSX from 'xlsx';
 import {
 	CreatePromoterDto,
@@ -111,10 +111,7 @@ export class PromoterService {
 		private promoterMemberService: PromoterMemberService,
 
 		private promoterConverter: PromoterConverter,
-		private linkConverter: LinkConverter,
 		private memberConverter: MemberConverter,
-		private purchaseConverter: PurchaseConverter,
-		private signUpConverter: SignUpConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
 
@@ -657,23 +654,17 @@ export class PromoterService {
 		const signUpsResult = await this.signUpRepository.find({
 			where: {
 				promoterId,
-				promoter: {
-					programPromoters: {
-						programId,
-					},
-				},
 				contact: {
 					programId
 				},
 				...whereOptions
 			},
 			relations: {
-				contact: {
-					commissions: true,
-				},
-				link: true
+				contact: true
 			},
 		});
+
+		
 
 		if (!signUpsResult || signUpsResult.length === 0) {
 			this.logger.warn(
@@ -712,11 +703,6 @@ export class PromoterService {
 		const purchases = await this.purchaseRepository.find({
 			where: {
 				promoterId,
-				promoter: {
-					programPromoters: {
-						programId,
-					},
-				},
 				contact: {
 					programId,
 					commissions: {
@@ -726,13 +712,7 @@ export class PromoterService {
 				...whereOptions
 			},
 			relations: {
-				promoter: {
-					commissions: true
-				},
-				contact: {
-					commissions: true
-				},
-				link: true
+				contact: true
 			},
 		});
 
@@ -938,7 +918,7 @@ export class PromoterService {
 	}
 
 	/**
-	 * Get contacts report
+	 * Get signups report
 	 */
 	async getSignUpsReport(
 		programId: string,
@@ -1230,41 +1210,47 @@ export class PromoterService {
 	}
 
 	private async getSignUpsCommissions(signUps: SignUp[]): Promise<Map<string, Commission>> {
+		const contactIds = signUps.map(signUp => signUp.contactId);
+
+		const commissions = await this.commissionRepository.find({
+			where: {
+				conversionType: conversionTypeEnum.SIGNUP,
+				externalId: In(contactIds),
+			}
+		});
+
+		// Map commissions by contactId (externalId)
 		const signUpsCommissions: Map<string, Commission> = new Map();
-
-		await Promise.all(
-			signUps.map(async (signUp) => {
-				const commission = (await this.commissionRepository.findOne({
-					where: {
-						conversionType: conversionTypeEnum.SIGNUP,
-						externalId: signUp.contactId,
-					}
-				}))!;
-
-				signUpsCommissions.set(signUp.contactId, commission);
-			})
-		);
+		for (const commission of commissions) {
+			signUpsCommissions.set(commission.externalId, commission);
+		}
 
 		return signUpsCommissions;
 	}
 
 	private async getPurchasesCommissions(purchases: Purchase[]): Promise<Map<string, Commission[]>> {
-		const purchasesCommissions: Map<string, Commission[]> = new Map();
+		const purchaseIds = purchases.map(p => p.purchaseId);
 
-		await Promise.all(
-			purchases.map(async (purchase) => {
-				const commissions = await this.commissionRepository.find({
-					where: {
-						conversionType: conversionTypeEnum.PURCHASE,
-						externalId: purchase.purchaseId,
-					}
-				});
+		// Single optimized query
+		const commissions = await this.commissionRepository.find({
+			where: {
+				conversionType: conversionTypeEnum.PURCHASE,
+				externalId: In(purchaseIds),
+			},
+		});
 
-				purchasesCommissions.set(purchase.purchaseId, commissions);
-			})
-		);
+		// Group commissions by purchaseId (stored as externalId)
+		const purchaseCommissionsMap = new Map<string, Commission[]>();
 
-		return purchasesCommissions;
+		for (const commission of commissions) {
+			const purchaseId = commission.externalId;
+			if (!purchaseCommissionsMap.has(purchaseId)) {
+				purchaseCommissionsMap.set(purchaseId, []);
+			}
+			purchaseCommissionsMap.get(purchaseId)!.push(commission);
+		}
+
+		return purchaseCommissionsMap;
 	}
 
 	async getLinksReport(
@@ -1304,13 +1290,14 @@ export class PromoterService {
 			},
 			relations: {
 				commissions: true,
-				signUps: true,
-				purchases: true,
 				program: true,
 			}
 		});
 
-		const linkSheetJsonWorkbook = this.linkWorkbookConverter.convertFrom(linksResult, startDate, endDate);
+		const linkSignUpsMap = await this.getNumberOfSignUpsOnLinks(linksResult);
+		const linkPurchasesMap = await this.getPurchasesOnLinks(linksResult);
+
+		const linkSheetJsonWorkbook = this.linkWorkbookConverter.convertFrom(linksResult, linkSignUpsMap, linkPurchasesMap, startDate, endDate);
 
 		const workbook = LinkWorkbook.toXlsx(linkSheetJsonWorkbook);
 
@@ -1344,6 +1331,54 @@ export class PromoterService {
 
 		this.logger.info(`END: getLinksReport service`);
 		return fileBuffer;
+	}
+
+	private async getNumberOfSignUpsOnLinks(links: Link[]) {
+		this.logger.info(`START: getSignUpsOnLinks service`);
+
+		const linkIds = links.map(link => link.linkId);
+
+		const signUps = await this.signUpRepository.find({
+			where: {
+				linkId: In(linkIds)
+			}
+		});
+
+		const linkSignUpsMap: Map<string, number> = new Map();
+		for (const signUp of signUps) {
+			if (!linkSignUpsMap.has(signUp.linkId)) {
+				linkSignUpsMap.set(signUp.linkId, 0);
+			}
+
+			linkSignUpsMap.set(signUp.linkId, linkSignUpsMap.get(signUp.linkId)! + 1);
+		}
+
+		this.logger.info(`END: getSignUpsOnLinks service`);
+		return linkSignUpsMap;
+	}
+
+	private async getPurchasesOnLinks(links: Link[]) {
+		this.logger.info(`START: getPurchasesOnLinks service`);
+
+		const linkIds = links.map(link => link.linkId);
+
+		const purchases = await this.purchaseRepository.find({
+			where: {
+				linkId: In(linkIds)
+			}
+		});
+
+		const linkPurchasesMap: Map<string, Purchase[]> = new Map();
+		for (const purchase of purchases) {
+			if (!linkPurchasesMap.has(purchase.linkId)) {
+				linkPurchasesMap.set(purchase.linkId, []);
+			}
+
+			linkPurchasesMap.get(purchase.linkId)!.push(purchase);
+		}
+
+		this.logger.info(`END: getPurchasesOnLinks service`);
+		return linkPurchasesMap;	
 	}
 
 	async getPromoterAnalytics(

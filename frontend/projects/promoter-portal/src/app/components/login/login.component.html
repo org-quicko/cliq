@@ -31,7 +31,12 @@
 
 				<div>
 					<!-- Login Button -->
-					<button mat-flat-button color="primary" class="w-full h-12 mat-body-large font-normal rounded-full text-on-primary" type="submit">Login</button>
+					<button
+						mat-flat-button
+						[disabled]="isLoading()"
+						color="primary" class="w-full h-12 mat-body-large font-normal rounded-full text-on-primary" type="submit">
+						Login
+					</button>
 
 					<!-- Sign Up Link -->
 					<p class="text-center text-on-surface mt-4">

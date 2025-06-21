@@ -130,6 +130,12 @@
   }
 }
 
+.button-spinner {
+  @include mat.progress-spinner-overrides((
+    active-indicator-color: var(--sys-surface-container-low)
+  ));
+}
+
 .skeleton-loader {
   background-color: var(--sys-surface-container) !important;
 }

@@ -1,4 +1,4 @@
-import { Link } from "../../entities";
+import { Link, Purchase } from "../../entities";
 import { formatDate } from "../../utils";
 import { LinkSummaryList } from "@org-quicko/cliq-sheet-core/Link/beans";
 import { conversionTypeEnum } from "../../enums";
@@ -6,6 +6,8 @@ import { ConverterException } from "@org-quicko/core";
 
 export interface ILinkSummaryListConverterInput {
 	links: Link[],
+	linkSignUpsMap: Map<string, number>,
+	linkPurchasesMap: Map<string, Purchase[]>,
 	startDate: Date;
 	endDate: Date;
 }
@@ -13,6 +15,8 @@ export interface ILinkSummaryListConverterInput {
 export class LinkSummaryListConverter {
 	convertFrom({
 		links,
+		linkSignUpsMap,
+		linkPurchasesMap,
 		startDate,
 		endDate,
 	}: ILinkSummaryListConverterInput) {
@@ -30,27 +34,26 @@ export class LinkSummaryListConverter {
 			links.forEach((link) => {
 				let signUpsCommission = 0;
 				let purchasesCommission = 0;
-				let signUps = 0;
-				let purchases = 0;
-				let revenue = 0;
 	
 				link.commissions.forEach((commission) => {
 					if (commission.conversionType === conversionTypeEnum.SIGNUP) {
 						signUpsCommission += commission.amount;
-						signUps++;
 	
 					} else if (commission.conversionType === conversionTypeEnum.PURCHASE) {
 						purchasesCommission += commission.amount;
-						purchases++;
-						revenue += commission.revenue;
 					}
 				});
 	
-				totalSignUps += signUps;
-				totalPurchases += purchases;
+				totalSignUps += linkSignUpsMap.get(link.linkId) || 0;
+				totalPurchases += linkPurchasesMap.get(link.linkId)?.length || 0;
 				totalSignUpsCommission += signUpsCommission;
 				totalPurchasesCommission += purchasesCommission;
-				totalRevenue += revenue;
+				
+				const purchases = linkPurchasesMap.get(link.linkId) || [];
+				totalRevenue += purchases.reduce((sum, purchase) => {
+					return sum + purchase.amount;
+				}, 0);
+				
 			});
 
 	

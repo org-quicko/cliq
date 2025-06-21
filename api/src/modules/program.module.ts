@@ -10,6 +10,7 @@ import {
 	Purchase,
 	ReferralView,
 	PromoterAnalyticsView,
+	SignUp,
 } from '../entities';
 import { PromoterModule } from './promoter.module';
 import { ProgramConverter } from 'src/converters/program/program.dto.converter';
@@ -28,6 +29,7 @@ import { PromoterAnalyticsModule } from './promoterAnalytics.module';
 			Program,
 			ProgramUser,
 			ProgramPromoter,
+			SignUp,
 			Purchase,
 			Commission,
 			PromoterAnalyticsView,

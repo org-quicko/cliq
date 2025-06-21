@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -48,6 +48,8 @@ export class LoginComponent implements OnInit {
 
 	member: MemberDto;
 
+	isLoading = signal<boolean>(false);
+
 	constructor(
 		private fb: RxFormBuilder,
 		private router: Router,
@@ -61,15 +63,18 @@ export class LoginComponent implements OnInit {
 	ngOnInit() {
 		onSignInSuccess.subscribe(() => {
 			this.router.navigate(['../home/dashboard'], { relativeTo: this.route });
+			this.isLoading.set(false);
 		});
 
 		onSignInError.subscribe((message) => {
 			this.snackBarService.openSnackBar(message, '');
+			this.isLoading.set(false);
 		});
 	}
 
 	onLogin() {
 		if (this.loginForm.valid) {
+			this.isLoading.set(true);
 			this.logInStore.logIn({
 				member: this.member,
 				programId: this.programId()

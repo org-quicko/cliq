@@ -39,6 +39,12 @@ export class ReportsComponent {
 		[reportEnum.COMMISSIONS, 'supervised_user_circle'],
 	]);
 
+	reportsDesc = new Map<reportEnum, string>([
+		[reportEnum.PURCHASES, 'Track purchases made through your links'],
+		[reportEnum.SIGNUPS, 'Track signups through your links, along with the total commission earned through it'],
+		[reportEnum.COMMISSIONS, `See every commission you've earned from signups or purchases along with the revenue`],
+	]);
+
 	onClickReport(reportName: reportEnum) {
 
 		this.reportsStore.resetStatus();

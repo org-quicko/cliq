@@ -34,10 +34,24 @@
 			<mat-dialog-actions class="!p-0 flex justify-end gap-2">
 				<button matRipple mat-button mat-dialog-close type="button"
 					class="w-auto min-w-[70px] text-primary mat-label-large cursor-pointer">{{ cancelBtnText ?? 'Cancel' }}</button>
-				<button mat-flat-button type="submit"
-					class="w-auto min-w-[93px] rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
-					{{ submitBtnText ?? 'Submit' }}
-				</button>
+
+				@if (!isLoading) {
+					<button mat-flat-button type="submit"
+						class="w-auto min-w-[93px] rounded-full bg-primary text-on-primary mat-label-large cursor-pointer">
+						{{ submitBtnText ?? 'Submit' }}
+					</button>
+				}
+				@else {
+					<button mat-flat-button type="button" disabled
+						class="w-auto min-w-[93px] rounded-full bg-primary text-on-primary mat-label-large cursor-pointer flex items-center justify-center gap-2">
+						<mat-spinner
+							[diameter]="16"
+							class="button-spinner"
+							strokeWidth="2"
+						>
+						</mat-spinner>
+					</button>
+				}
 			</mat-dialog-actions>
 		</div>
 	</form>

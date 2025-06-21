@@ -9,7 +9,6 @@ import { CreateCommissionDto } from '../dtos';
 import { Commission } from '../entities';
 import { LoggerService } from './logger.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { WebhookService } from './webhook.service';
 import { COMMISSION_CREATED, CommissionCreatedEvent } from 'src/events/CommissionCreated.event';
 import { commissionEntityName } from 'src/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -28,27 +27,31 @@ export class CommissionService {
 	) { }
 
 	async createCommission(createCommissionDto: CreateCommissionDto) {
-		return this.datasource.transaction(async (manager) => {
-			this.logger.info(`START: createCommission service`);
+		try {
+			const { commissionResult, savedCommission } = await this.datasource.transaction(async (manager) => {
+				this.logger.info(`START: createCommission service`);
 
-			const commissionRepository = manager.getRepository(Commission);
+				const commissionRepository = manager.getRepository(Commission);
 
-			const newCommission = commissionRepository.create(createCommissionDto);
-			const savedCommission = await commissionRepository.save(newCommission);
+				const newCommission = commissionRepository.create(createCommissionDto);
+				const savedCommission = await commissionRepository.save(newCommission);
 
-			const commissionResult = await commissionRepository.findOne({
-				where: {
-					commissionId: savedCommission.commissionId
-				},
-				relations: {
-					contact: true
+				const commissionResult = await commissionRepository.findOne({
+					where: {
+						commissionId: savedCommission.commissionId
+					},
+					relations: {
+						contact: true
+					}
+				});
+
+				if (!commissionResult) {
+					this.logger.error(`Error. Failed to save commission.`);
+					throw new InternalServerErrorException(`Error. Failed to save commission.`);
 				}
-			});
 
-			if (!commissionResult) {
-				this.logger.error(`Error. Failed to save commission.`);
-				throw new InternalServerErrorException(`Error. Failed to save commission.`);
-			}
+				return { commissionResult, savedCommission };
+			});
 
 			const commissionCreatedEvent = new CommissionCreatedEvent(
 				commissionResult.contact.programId,
@@ -74,6 +77,16 @@ export class CommissionService {
 
 			this.logger.info(`END: createCommission service`);
 			return savedCommission;
-		});
+		} catch (error) {
+			this.logger.error(`Error while creating commission: ${error.message}`);
+			if (error instanceof NotFoundException ||
+				error instanceof BadRequestException ||
+				error instanceof InternalServerErrorException
+			) {
+				throw error;
+			} else {
+				throw new InternalServerErrorException(`Error while creating commission: ${error.message}`);
+			}
+		}
 	}
 }

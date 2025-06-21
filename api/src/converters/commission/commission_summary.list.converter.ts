@@ -34,7 +34,9 @@ export class CommissionSummaryListConverter {
 			const totalPurchaseCommission = purchases.reduce((acc, purchase) => {
 				let commissionAmount = 0;
 	
-				purchasesCommissions.get(purchase.purchaseId)!.forEach((commission) => {
+				const commissions = purchasesCommissions.get(purchase.purchaseId) ?? [];
+
+				commissions.forEach((commission) => {
 					commissionAmount += commission.amount;
 				});
 	

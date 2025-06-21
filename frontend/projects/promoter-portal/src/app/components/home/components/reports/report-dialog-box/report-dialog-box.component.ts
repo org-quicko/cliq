@@ -18,10 +18,6 @@ import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-
 
 const moment = _rollupMoment || _moment;
 
-const today = new Date();
-const month = today.getMonth();
-const year = today.getFullYear();
-
 export const MY_FORMATS = {
 	parse: {
 		dateInput: 'LL', // Standard parsing
@@ -66,6 +62,8 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 	minDate = moment().subtract(1, 'year').startOf('day');
 	maxDate = moment();
 
+	isLoading: boolean;
+
 	readonly reportForm = new FormGroup({
 		start: new FormControl(moment().subtract(30, 'days'), { nonNullable: true }),
 		end: new FormControl(moment(), { nonNullable: true }),
@@ -76,8 +74,13 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private dialogRef: MatDialogRef<ReportDialogBoxComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: { reportName: reportEnum, getReport: Function, status: Signal<Status> },
+		@Inject(MAT_DIALOG_DATA) public data: {
+			reportName: reportEnum,
+			getReport: Function,
+			status: Signal<Status>
+		},
 	) {
+		this.isLoading = false;
 		this.reportForm.controls.start.disable();
 		this.reportForm.controls.end.disable();
 
@@ -98,7 +101,10 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 
 		effect(() => {
 			if (this.data.status() === Status.SUCCESS) {
+				this.isLoading = false;
 				this.closeDialog();
+			} else if (this.data.status() === Status.ERROR) {
+				this.isLoading = false;
 			}
 		});
 
@@ -127,6 +133,7 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 				endDate: end
 			});
 
+			this.isLoading = true;
 		}
 	}
 }
