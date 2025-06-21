@@ -33,17 +33,42 @@ export class FunctionTriggerService {
     private async triggerProgramFunctions(event: TriggerEvent) {
         this.logger.info('START: triggerProgramFunctions service');
 
-        const functionsResult = await this.functionRepository.find({
+		// First triggering the functions that generate commissions, then switching circles.
+
+        const generateCommissionFunctions = await this.functionRepository.find({
             where: {
                 program: {
                     programId: event.programId,
                 },
+				effectType: effectEnum.GENERATE_COMMISSION,
             },
             relations: {
                 circle: true,
                 conditions: true,
             },
         });
+        await this.loopThroughFunctions(event, generateCommissionFunctions, effectEnum.GENERATE_COMMISSION);
+        
+		const switchCircleFunctions = await this.functionRepository.find({
+            where: {
+                program: {
+                    programId: event.programId,
+                },
+				effectType: effectEnum.SWITCH_CIRCLE,
+            },
+            relations: {
+                circle: true,
+                conditions: true,
+            },
+        });
+        await this.loopThroughFunctions(event, switchCircleFunctions, effectEnum.SWITCH_CIRCLE);
+
+        this.logger.info('END: triggerProgramFunctions service');
+        return;
+    }
+
+	private async loopThroughFunctions(event: TriggerEvent, funcs: Function[], functionType: effectEnum) {
+        this.logger.info(`START: loopThroughFunctions service. Type of Functions- ${functionType}`);
 
         const eventEntityPayload = Object.values(event.data)[0];
 
@@ -52,7 +77,7 @@ export class FunctionTriggerService {
         // 2. Function is not of that trigger type
         // 3. Promoter not in circle
         // 4. One of the function's conditions is false
-        for (const func of functionsResult) {
+        for (const func of funcs) {
             if (
                 !(
                     func.status === functionStatusEnum.ACTIVE &&
@@ -76,9 +101,9 @@ export class FunctionTriggerService {
             await this.triggerFunction(func, event);
         }
 
-        this.logger.info('END: triggerProgramFunctions service');
+        this.logger.info('END: loopThroughFunctions service');
         return;
-    }
+	}
 
     private async triggerFunction(func: Function, event: TriggerEvent) {
         this.logger.info(`START: triggerFunction service`);
