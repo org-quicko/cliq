@@ -52,14 +52,14 @@ export class MemberAuthService {
 		if (!entity) {
 			logInData = null;
 			errorMessage = `You are not registered in this program!`;
-			throw new BadRequestException(errorMessage);
+			throw new UnauthorizedException(errorMessage);
 
 		} else {
 			// incorrect password
 			if (!(await this.comparePasswords(input.password, entity.password))) {
 				logInData = null;
 				errorMessage = `Invalid password! Please try again!`;
-				throw new BadRequestException(errorMessage);
+				throw new UnauthorizedException(errorMessage);
 			} else {
 
 				// valid member, allow login
