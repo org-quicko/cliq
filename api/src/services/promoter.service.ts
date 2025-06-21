@@ -111,10 +111,7 @@ export class PromoterService {
 		private promoterMemberService: PromoterMemberService,
 
 		private promoterConverter: PromoterConverter,
-		private linkConverter: LinkConverter,
 		private memberConverter: MemberConverter,
-		private purchaseConverter: PurchaseConverter,
-		private signUpConverter: SignUpConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
 
@@ -1300,7 +1297,7 @@ export class PromoterService {
 		});
 
 		const linkSignUpsMap = await this.getNumberOfSignUpsOnLinks(linksResult);
-		const linkPurchasesMap = await this.getNumberOfPurchasesOnLinks(linksResult);
+		const linkPurchasesMap = await this.getPurchasesOnLinks(linksResult);
 
 		const linkSheetJsonWorkbook = this.linkWorkbookConverter.convertFrom(linksResult, linkSignUpsMap, linkPurchasesMap, startDate, endDate);
 
@@ -1362,8 +1359,8 @@ export class PromoterService {
 		return linkSignUpsMap;
 	}
 
-	private async getNumberOfPurchasesOnLinks(links: Link[]) {
-		this.logger.info(`START: getNumberOfPurchasesOnLinks service`);
+	private async getPurchasesOnLinks(links: Link[]) {
+		this.logger.info(`START: getPurchasesOnLinks service`);
 
 		const linkIds = links.map(link => link.linkId);
 
@@ -1373,16 +1370,16 @@ export class PromoterService {
 			}
 		});
 
-		const linkPurchasesMap: Map<string, number> = new Map();
+		const linkPurchasesMap: Map<string, Purchase[]> = new Map();
 		for (const purchase of purchases) {
 			if (!linkPurchasesMap.has(purchase.linkId)) {
-				linkPurchasesMap.set(purchase.linkId, 0);
+				linkPurchasesMap.set(purchase.linkId, []);
 			}
 
-			linkPurchasesMap.set(purchase.linkId, linkPurchasesMap.get(purchase.linkId)! + 1);
+			linkPurchasesMap.get(purchase.linkId)!.push(purchase);
 		}
 
-		this.logger.info(`END: getNumberOfPurchasesOnLinks service`);
+		this.logger.info(`END: getPurchasesOnLinks service`);
 		return linkPurchasesMap;	
 	}
 

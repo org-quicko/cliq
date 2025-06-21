@@ -1,5 +1,5 @@
 import { LinkSheet, LinkSummarySheet, LinkWorkbook } from "@org-quicko/cliq-sheet-core/Link/beans";
-import { Link } from "../../entities";
+import { Link, Purchase } from "../../entities";
 import { LinkTableConverter } from "./link.table.converter";
 import { LinkSummaryListConverter } from "./link_summary.list.converter";
 import { ConverterException } from "@org-quicko/core";
@@ -19,7 +19,7 @@ export class LinkWorkbookConverter {
 	convertFrom(
 		links: Link[],
 		linkSignUpsMap: Map<string, number>,
-		linkPurchasesMap: Map<string, number>,
+		linkPurchasesMap: Map<string, Purchase[]>,
 		startDate: Date,
 		endDate: Date,
 	): LinkWorkbook {

@@ -1,5 +1,5 @@
 import { conversionTypeEnum } from "../../enums";
-import { Link } from "../../entities";
+import { Link, Purchase } from "../../entities";
 import { LinkRow, LinkTable } from "@org-quicko/cliq-sheet-core/Link/beans";
 import { ConverterException } from "@org-quicko/core";
 
@@ -7,7 +7,7 @@ export class LinkTableConverter {
 	convertFrom(
 		links: Link[],
 		linkSignUpsMap: Map<string, number>,
-		linkPurchasesMap: Map<string, number>,
+		linkPurchasesMap: Map<string, Purchase[]>,
 	) {
 		try {
 			const linksTable = new LinkTable();
@@ -30,7 +30,7 @@ export class LinkTableConverter {
 				});
 
 				const signUps = linkSignUpsMap.get(link.linkId) || 0;
-				const purchases = linkPurchasesMap.get(link.linkId) || 0;
+				const purchases = linkPurchasesMap.get(link.linkId)?.length || 0;
 
 
 				row.setLinkName(link.name);
