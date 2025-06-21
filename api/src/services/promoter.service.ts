@@ -664,9 +664,7 @@ export class PromoterService {
 			},
 		});
 
-		const query = this.signUpRepository
-			.createQueryBuilder('sign_up')
-			
+		
 
 		if (!signUpsResult || signUpsResult.length === 0) {
 			this.logger.warn(
