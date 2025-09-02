@@ -62,6 +62,8 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				contact_status contact_status_enum;
 				contact_info VARCHAR;
 				record_date DATE;
+				contact_created_at TIMESTAMPTZ;
+				contact_updated_at TIMESTAMPTZ;
 			BEGIN
 				-- Query link table to get program_id and promoter_id based on link_id
 				SELECT l.program_id, l.promoter_id
@@ -81,8 +83,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 						WHEN p.referral_key_type = 'email' THEN c.email
 						WHEN p.referral_key_type = 'phone' THEN c.phone
 						ELSE c.email  -- default to email
-					END
-				INTO contact_status, contact_info
+					END,
+					c.created_at,
+					c.updated_at
+				INTO contact_status, contact_info, contact_created_at, contact_updated_at
 				FROM contact c
 				JOIN program p ON c.program_id = p.program_id
 				WHERE c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id);
@@ -100,10 +104,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					-- Insert or update daily record
 					INSERT INTO referral_day_wise_mv (
 						date, program_id, promoter_id, contact_id, status, contact_info, 
-						daily_revenue, daily_commission
+						daily_revenue, daily_commission, created_at, updated_at
 					) VALUES (
 						record_date, link_program_id, link_promoter_id, NEW.contact_id, 
-						contact_status, contact_info, 0, 0
+						contact_status, contact_info, 0, 0, contact_created_at, contact_updated_at
 					)
 					ON CONFLICT (date, program_id, promoter_id, contact_id)
 					DO UPDATE SET
@@ -123,11 +127,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 						AND contact_id = NEW.contact_id;
 
 				ELSIF TG_OP = 'DELETE' THEN
-					UPDATE referral_day_wise_mv  
-					SET 
-						status = contact_status,
-						contact_info = contact_info,
-						updated_at = now()
+					DELETE FROM referral_day_wise_mv  
 					WHERE date = record_date 
 						AND program_id = link_program_id 
 						AND promoter_id = link_promoter_id 
@@ -149,6 +149,8 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				contact_status contact_status_enum;
 				contact_info VARCHAR;
 				record_date DATE;
+				contact_created_at TIMESTAMPTZ;
+				contact_updated_at TIMESTAMPTZ;
 			BEGIN
 				-- Query link table to get program_id and promoter_id based on link_id
 				SELECT l.program_id, l.promoter_id
@@ -168,8 +170,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 						WHEN p.referral_key_type = 'email' THEN c.email
 						WHEN p.referral_key_type = 'phone' THEN c.phone
 						ELSE c.email  -- default to email
-					END
-				INTO contact_status, contact_info
+					END,
+					c.created_at,
+					c.updated_at
+				INTO contact_status, contact_info, contact_created_at, contact_updated_at
 				FROM contact c
 				JOIN program p ON c.program_id = p.program_id
 				WHERE c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id);
@@ -187,10 +191,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					-- Insert or update daily record
 					INSERT INTO referral_day_wise_mv (
 						date, program_id, promoter_id, contact_id, status, contact_info, 
-						daily_revenue, daily_commission
+						daily_revenue, daily_commission, created_at, updated_at
 					) VALUES (
 						record_date, link_program_id, link_promoter_id, NEW.contact_id, 
-						contact_status, contact_info, NEW.amount, 0
+						contact_status, contact_info, NEW.amount, 0, contact_created_at, contact_updated_at
 					)
 					ON CONFLICT (date, program_id, promoter_id, contact_id)
 					DO UPDATE SET
@@ -212,10 +216,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					-- Update daily record with new aggregated values
 					INSERT INTO referral_day_wise_mv (
 						date, program_id, promoter_id, contact_id, status, contact_info, 
-						daily_revenue, daily_commission
+						daily_revenue, daily_commission, created_at, updated_at
 					) VALUES (
 						record_date, link_program_id, link_promoter_id, NEW.contact_id, 
-						contact_status, contact_info, NEW.amount, 0
+						contact_status, contact_info, NEW.amount, 0, contact_created_at, contact_updated_at
 					)
 					ON CONFLICT (date, program_id, promoter_id, contact_id)
 					DO UPDATE SET
@@ -228,19 +232,20 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 								AND p.contact_id = NEW.contact_id
 								AND p.created_at::date = record_date
 						),
-						daily_commission = referral_day_wise_mv.daily_commission,
-						status = EXCLUDED.status,
+							daily_commission = referral_day_wise_mv.daily_commission,
+							status = EXCLUDED.status,
 						contact_info = EXCLUDED.contact_info,
-						updated_at = now();
+						updated_at = now(),
+						created_at = EXCLUDED.created_at;
 
 				ELSIF TG_OP = 'DELETE' THEN
 					-- Update daily record after deletion
 					INSERT INTO referral_day_wise_mv (
 						date, program_id, promoter_id, contact_id, status, contact_info, 
-						daily_revenue, daily_commission
+						daily_revenue, daily_commission, created_at, updated_at
 					) VALUES (
 						record_date, link_program_id, link_promoter_id, OLD.contact_id, 
-						contact_status, contact_info, 0, 0
+						contact_status, contact_info, 0, 0, contact_created_at, contact_updated_at
 					)
 					ON CONFLICT (date, program_id, promoter_id, contact_id)
 					DO UPDATE SET
@@ -274,6 +279,8 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				contact_status contact_status_enum;
 				contact_info VARCHAR;
 				record_date DATE;
+				contact_created_at TIMESTAMPTZ;
+				contact_updated_at TIMESTAMPTZ;
 			BEGIN
 				-- Query link table to get program_id and promoter_id based on link_id
 				SELECT l.program_id, l.promoter_id
@@ -293,8 +300,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 						WHEN p.referral_key_type = 'email' THEN c.email
 						WHEN p.referral_key_type = 'phone' THEN c.phone
 						ELSE c.email  -- default to email
-					END
-				INTO contact_status, contact_info
+					END,
+					c.created_at,
+					c.updated_at
+				INTO contact_status, contact_info, contact_created_at, contact_updated_at
 				FROM contact c
 				JOIN program p ON c.program_id = p.program_id
 				WHERE c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id);
@@ -312,10 +321,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					-- Insert or update daily record
 					INSERT INTO referral_day_wise_mv (
 						date, program_id, promoter_id, contact_id, status, contact_info, 
-						daily_revenue, daily_commission
+						daily_revenue, daily_commission, created_at, updated_at
 					) VALUES (
 						record_date, link_program_id, link_promoter_id, NEW.contact_id, 
-						contact_status, contact_info, 0, NEW.amount
+						contact_status, contact_info, 0, NEW.amount, contact_created_at, contact_updated_at
 					)
 					ON CONFLICT (date, program_id, promoter_id, contact_id)
 					DO UPDATE SET
@@ -331,16 +340,17 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 						daily_revenue = referral_day_wise_mv.daily_revenue,
 						status = EXCLUDED.status,
 						contact_info = EXCLUDED.contact_info,
-						updated_at = now();
+						updated_at = now(),
+						created_at = EXCLUDED.created_at;
 
 				ELSIF TG_OP = 'UPDATE' THEN
 					-- Update daily record with new aggregated values
 					INSERT INTO referral_day_wise_mv (
 						date, program_id, promoter_id, contact_id, status, contact_info, 
-						daily_revenue, daily_commission
+						daily_revenue, daily_commission, created_at, updated_at
 					) VALUES (
 						record_date, link_program_id, link_promoter_id, NEW.contact_id, 
-						contact_status, contact_info, 0, NEW.amount
+						contact_status, contact_info, 0, NEW.amount, contact_created_at, contact_updated_at
 					)
 					ON CONFLICT (date, program_id, promoter_id, contact_id)
 					DO UPDATE SET
@@ -361,10 +371,10 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					-- Update daily record after deletion
 					INSERT INTO referral_day_wise_mv (
 						date, program_id, promoter_id, contact_id, status, contact_info, 
-						daily_revenue, daily_commission
+						daily_revenue, daily_commission, created_at, updated_at
 					) VALUES (
 						record_date, link_program_id, link_promoter_id, OLD.contact_id, 
-						contact_status, contact_info, 0, 0
+						contact_status, contact_info, 0, 0, contact_created_at, contact_updated_at
 					)
 					ON CONFLICT (date, program_id, promoter_id, contact_id)
 					DO UPDATE SET
@@ -379,7 +389,8 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 						),
 						status = EXCLUDED.status,
 						contact_info = EXCLUDED.contact_info,
-						updated_at = now();
+						updated_at = now(),
+						created_at = EXCLUDED.created_at;
 				END IF;
 
 				RETURN NULL;
@@ -425,7 +436,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 		await queryRunner.query(`
 			-- Create trigger for signup operations
 			CREATE TRIGGER trg_signup_referral_mv 
-				AFTER INSERT OR UPDATE OR DELETE ON contact 
+				AFTER INSERT OR UPDATE OR DELETE ON sign_up 
 				FOR EACH ROW 
 				EXECUTE FUNCTION update_referral_day_wise_from_signup();
 		`);

@@ -41,7 +41,7 @@ import { CommissionConverter } from '../converters/commission/commission.dto.con
 import { ProgramService } from './program.service';
 import { sortOrderEnum } from '../enums/sortOrder.enum';
 import { referralSortByEnum } from '../enums/referralSortBy.enum';
-import { LinkAnalyticsView } from '../entities/linkAnalytics.view';
+import { LinkAnalyticsView } from '../entities';
 import { defaultQueryOptions } from '../constants';
 import { snakeCaseToHumanReadable } from '../utils';
 import * as bcrypt from 'bcrypt';
@@ -1428,6 +1428,8 @@ export class PromoterService {
 							totalRevenue: 0,
 							totalSignUps: 0,
 							totalPurchases: 0,
+							createdAt: new Date(),
+							updatedAt: new Date(),
 						}
 					]
 				}

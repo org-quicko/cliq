@@ -5,7 +5,7 @@ import { ProgramModule } from './program.module';
 import { Link } from '../entities';
 import { LinkController } from '../controllers/link.controller';
 import { LinkService } from '../services/link.service';
-import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
+import { LinkAnalyticsView } from 'src/entities';
 import { LinkConverter } from 'src/converters/link/link.dto.converter';
 
 @Module({

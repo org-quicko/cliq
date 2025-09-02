@@ -20,7 +20,6 @@ import { AuthModule } from './modules/auth.module';
 import { ApiKeyModule } from './modules/apiKey.module';
 import { ReferralModule } from './modules/referral.module';
 import { WebhookModule } from './modules/webhook.module';
-import { MaterializedViewSubscriber } from './subscribers/materializedView.subscriber';
 import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -41,8 +40,7 @@ import { PermissionsGuard } from './guards/permissions.guard';
 			imports: [ConfigModule],
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => ({
-				...(typeOrmConfig(configService)),
-				subscribers: [MaterializedViewSubscriber],
+				...(typeOrmConfig(configService))
 			})
 		}),
 		EventEmitterModule.forRoot(),

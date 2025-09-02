@@ -14,7 +14,7 @@ import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from '../constants';
 import { linkStatusEnum } from '../enums';
-import { LinkAnalyticsView } from '../entities/linkAnalytics.view';
+import { LinkAnalyticsView } from '../entities';
 import { LinkConverter } from '../converters/link/link.dto.converter';
 import { PromoterWorkbookConverter } from 'src/converters/promoter/promoter.workbook.converter';
 
