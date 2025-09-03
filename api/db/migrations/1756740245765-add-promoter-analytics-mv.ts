@@ -69,24 +69,33 @@ export class AddPromoterAnalyticsMv1756740245765 implements MigrationInterface {
             CREATE OR REPLACE FUNCTION aggregate_promoter_analytics_from_day_wise()
             RETURNS TRIGGER AS $$
             BEGIN
-                -- Delete existing aggregated data for this promoter-program combination
-                DELETE FROM promoter_analytics_mv 
-                WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id;
+                -- Handle DELETE operations by removing the record from promoter_analytics_mv
+                IF TG_OP = 'DELETE' THEN
+                    DELETE FROM promoter_analytics_mv 
+                    WHERE promoter_id = OLD.promoter_id 
+                      AND program_id = OLD.program_id;
+                    RETURN NULL;
+                END IF;
 
-                -- Insert aggregated data from day-wise summary
+                -- Handle INSERT and UPDATE operations
                 INSERT INTO promoter_analytics_mv (promoter_id, program_id, total_revenue, total_commission, total_signups, total_purchases, created_at, updated_at)
-                SELECT 
-                    promoter_id,
-                    program_id,
-                    SUM(daily_revenue) as total_revenue,
-                    SUM(daily_commission) as total_commission,
-                    SUM(daily_signups) as total_signups,
-                    SUM(daily_purchases) as total_purchases,
-                    MIN(created_at) as created_at,
-                    MAX(updated_at) as updated_at
-                FROM promoter_analytics_day_wise_mv
-                WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id
-                GROUP BY promoter_id, program_id;
+                VALUES (
+                    NEW.promoter_id,
+                    NEW.program_id,
+                    (SELECT COALESCE(SUM(daily_revenue), 0) FROM promoter_analytics_day_wise_mv WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id),
+                    (SELECT COALESCE(SUM(daily_commission), 0) FROM promoter_analytics_day_wise_mv WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id),
+                    (SELECT COALESCE(SUM(daily_signups), 0) FROM promoter_analytics_day_wise_mv WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id),
+                    (SELECT COALESCE(SUM(daily_purchases), 0) FROM promoter_analytics_day_wise_mv WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id),
+                    NEW.created_at,
+                    NEW.updated_at
+                )
+                ON CONFLICT (promoter_id, program_id)
+                DO UPDATE SET
+                    total_revenue = EXCLUDED.total_revenue,
+                    total_commission = EXCLUDED.total_commission,
+                    total_signups = EXCLUDED.total_signups,
+                    total_purchases = EXCLUDED.total_purchases,
+                    updated_at = EXCLUDED.updated_at;
 
                 RETURN NULL;
             END;
@@ -100,136 +109,97 @@ export class AddPromoterAnalyticsMv1756740245765 implements MigrationInterface {
             DECLARE
                 v_program_id UUID;
                 v_date DATE;
+                daily_metrics RECORD;
+                promoter_timestamps RECORD;
             BEGIN
-                -- Get program_id and date for the operation
+                -- Get program_id and date once
                 IF TG_OP = 'DELETE' THEN
-                    SELECT c.program_id INTO v_program_id FROM contact c WHERE c.contact_id = OLD.contact_id;
+                    -- For DELETE operations, try to get program_id from the signup record itself
+                    SELECT l.program_id INTO v_program_id 
+                    FROM link l 
+                    WHERE l.link_id = OLD.link_id;
+                    
+                    -- If still no program_id, return early
+                    IF v_program_id IS NULL THEN
+                        RETURN OLD;
+                    END IF;
+                    
                     v_date := DATE(OLD.created_at);
                 ELSE
                     SELECT c.program_id INTO v_program_id FROM contact c WHERE c.contact_id = NEW.contact_id;
                     v_date := DATE(NEW.created_at);
                 END IF;
 
-                IF TG_OP = 'DELETE' THEN
-                    -- Recalculate daily signups count for the day
-                    UPDATE promoter_analytics_day_wise_mv 
-                    SET 
-                        daily_signups = (
-                            SELECT COUNT(s.contact_id)
-                            FROM sign_up s
-                            JOIN contact c ON s.contact_id = c.contact_id
-                            WHERE c.program_id = promoter_analytics_day_wise_mv.program_id 
-                            AND s.promoter_id = promoter_analytics_day_wise_mv.promoter_id
-                            AND DATE(s.created_at) = promoter_analytics_day_wise_mv.date
-                        ),
-                        updated_at = now()
-                    WHERE promoter_id = OLD.promoter_id 
-                    AND program_id = v_program_id
-                    AND date = v_date;
-
-                    RETURN OLD;
-
-                ELSIF TG_OP = 'UPDATE' THEN
-                    UPDATE promoter_analytics_day_wise_mv 
-                    SET 
-                        daily_signups = (
-                            SELECT COUNT(s.contact_id)
-                            FROM sign_up s
-                            JOIN contact c ON s.contact_id = c.contact_id
-                            WHERE c.program_id = promoter_analytics_day_wise_mv.program_id 
-                            AND s.promoter_id = promoter_analytics_day_wise_mv.promoter_id
-                            AND DATE(s.created_at) = promoter_analytics_day_wise_mv.date
-                        ),
-                        updated_at = now()
-                    WHERE promoter_id = OLD.promoter_id 
-                    AND program_id = v_program_id
-                    AND date = v_date;
-                        
-                    RETURN NEW;
-
-                ELSIF TG_OP = 'INSERT' THEN
-                    -- Insert or update daily signups count
-                    INSERT INTO promoter_analytics_day_wise_mv (
-                        date, promoter_id, program_id, daily_revenue, daily_commission, daily_signups, daily_purchases, created_at, updated_at
-                    )
-                    SELECT 
-                        v_date,
-                        NEW.promoter_id,
-                        v_program_id,
-                        (
-                            SELECT COALESCE(SUM(amount), 0)
-                            FROM purchase p
-                            JOIN contact c ON p.contact_id = c.contact_id
-                            WHERE c.program_id = v_program_id
-                            AND p.promoter_id = NEW.promoter_id
-                            AND DATE(p.created_at) = v_date
-                        ),
-                        (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE l.program_id = v_program_id 
-                            AND l.promoter_id = NEW.promoter_id
-                            AND DATE(comm.created_at) = v_date
-                        ),
-                        (
-                            SELECT COUNT(s2.contact_id)
-                            FROM sign_up s2
-                            JOIN contact c2 ON s2.contact_id = c2.contact_id
-                            WHERE c2.program_id = v_program_id 
-                            AND s2.promoter_id = NEW.promoter_id
-                            AND DATE(s2.created_at) = v_date
-                        ),
-                        (
-                            SELECT COUNT(p2.purchase_id)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE c2.program_id = v_program_id 
-                            AND p2.promoter_id = NEW.promoter_id
-                            AND DATE(p2.created_at) = v_date
-                        ),
-                        now(),
-                        now()
-                    ON CONFLICT (date, promoter_id, program_id) 
-                    DO UPDATE SET 
-                        daily_revenue = (
-                            SELECT COALESCE(SUM(amount), 0)
-                            FROM purchase p
-                            JOIN contact c ON p.contact_id = c.contact_id
-                            WHERE c.program_id = EXCLUDED.program_id
-                            AND p.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(p.created_at) = EXCLUDED.date
-                        ),
-                        daily_commission = (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE l.program_id = EXCLUDED.program_id 
-                            AND l.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(comm.created_at) = EXCLUDED.date
-                        ),
-                        daily_signups = (
-                            SELECT COUNT(s2.contact_id)
-                            FROM sign_up s2
-                            JOIN contact c2 ON s2.contact_id = c2.contact_id
-                            WHERE c2.program_id = EXCLUDED.program_id 
-                            AND s2.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(s2.created_at) = EXCLUDED.date
-                        ),
-                        daily_purchases = (
-                            SELECT COUNT(p2.purchase_id)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE c2.program_id = EXCLUDED.program_id 
-                            AND p2.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(p2.created_at) = EXCLUDED.date
-                        ),
-                        updated_at = now();
-                    
-                    RETURN NEW;
+                -- If no program_id found, return early
+                IF v_program_id IS NULL THEN
+                    RETURN COALESCE(NEW, OLD);
                 END IF;
+
+                -- Get promoter timestamps
+                SELECT p.created_at, p.updated_at
+                INTO promoter_timestamps
+                FROM promoter p
+                WHERE p.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id);
+
+                -- Calculate metrics separately to avoid join issues
+                WITH signup_count AS (
+                    SELECT COUNT(*) as daily_signups
+                    FROM sign_up s
+                    JOIN contact c ON s.contact_id = c.contact_id
+                    WHERE c.program_id = v_program_id 
+                    AND s.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id)
+                    AND DATE(s.created_at) = v_date
+                ),
+                purchase_metrics AS (
+                    SELECT 
+                        COUNT(p.purchase_id) as daily_purchases,
+                        COALESCE(SUM(p.amount), 0) as daily_revenue
+                    FROM purchase p
+                    JOIN contact c ON p.contact_id = c.contact_id
+                    WHERE c.program_id = v_program_id 
+                    AND p.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id)
+                    AND DATE(p.created_at) = v_date
+                ),
+                commission_metrics AS (
+                    SELECT COALESCE(SUM(c.amount), 0) as daily_commission
+                    FROM commission c
+                    JOIN link l ON c.link_id = l.link_id
+                    WHERE l.program_id = v_program_id 
+                    AND l.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id)
+                    AND DATE(c.created_at) = v_date
+                )
+                SELECT 
+                    s.daily_signups,
+                    p.daily_purchases,
+                    p.daily_revenue,
+                    c.daily_commission
+                INTO daily_metrics
+                FROM signup_count s
+                CROSS JOIN purchase_metrics p
+                CROSS JOIN commission_metrics c;
+
+                INSERT INTO promoter_analytics_day_wise_mv (
+                    date, promoter_id, program_id, daily_revenue, daily_commission, daily_signups, daily_purchases, created_at, updated_at
+                ) VALUES (
+                    v_date,
+                    COALESCE(NEW.promoter_id, OLD.promoter_id),
+                    v_program_id,
+                    daily_metrics.daily_revenue,
+                    daily_metrics.daily_commission,
+                    daily_metrics.daily_signups,
+                    daily_metrics.daily_purchases,
+                    promoter_timestamps.created_at,
+                    promoter_timestamps.updated_at
+                )
+                ON CONFLICT (date, promoter_id, program_id) 
+                DO UPDATE SET 
+                    daily_revenue = EXCLUDED.daily_revenue,
+                    daily_commission = EXCLUDED.daily_commission,
+                    daily_signups = EXCLUDED.daily_signups,
+                    daily_purchases = EXCLUDED.daily_purchases,
+                    updated_at = now();
                 
-                RETURN NULL;
+                RETURN COALESCE(NEW, OLD);
             END;
             $$ LANGUAGE plpgsql;
         `);
@@ -238,128 +208,83 @@ export class AddPromoterAnalyticsMv1756740245765 implements MigrationInterface {
             -- Function to update promoter analytics day-wise when purchase is created/updated/deleted
             CREATE OR REPLACE FUNCTION update_promoter_analytics_from_purchase()
             RETURNS TRIGGER AS $$
+            DECLARE
+                v_program_id UUID;
+                v_date DATE;
+                daily_metrics RECORD;
+                promoter_timestamps RECORD;
             BEGIN
-                IF TG_OP = 'DELETE' OR TG_OP = 'UPDATE' THEN
-                    -- Recalculate daily purchases count for the day
-                    UPDATE promoter_analytics_day_wise_mv 
-                    SET 
-                        daily_purchases = (
-                            SELECT COUNT(p.purchase_id)
-                            FROM purchase p 
-                            JOIN contact c ON p.contact_id = c.contact_id
-                            WHERE c.program_id = promoter_analytics_day_wise_mv.program_id 
-                            AND p.promoter_id = promoter_analytics_day_wise_mv.promoter_id
-                            AND DATE(p.created_at) = promoter_analytics_day_wise_mv.date
-                        ),
-                        daily_commission = (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE l.program_id = promoter_analytics_day_wise_mv.program_id 
-                            AND comm.promoter_id = promoter_analytics_day_wise_mv.promoter_id
-                            AND DATE(comm.created_at) = DATE(promoter_analytics_day_wise_mv.date)
-                        ),
-                        daily_revenue = (
-                           SELECT SUM(p.amount)
-                            FROM purchase p 
-                            JOIN contact c ON p.contact_id = c.contact_id
-                            WHERE c.program_id = promoter_analytics_day_wise_mv.program_id 
-                            AND p.promoter_id = promoter_analytics_day_wise_mv.promoter_id
-                            AND DATE(p.created_at) = promoter_analytics_day_wise_mv.date
-                        ),
-                        updated_at = now()
-                    WHERE promoter_id = promoter_analytics_day_wise_mv.promoter_id 
-                        AND program_id = promoter_analytics_day_wise_mv.program_id
-                    AND date = DATE(promoter_analytics_day_wise_mv.date);
-
-                    RETURN OLD;
-
-                ELSIF TG_OP = 'INSERT' THEN
-                    -- Insert or update daily purchases count
-                    INSERT INTO promoter_analytics_day_wise_mv (
-                        date, promoter_id, program_id, daily_revenue, daily_commission, daily_signups, daily_purchases, created_at, updated_at
-                    )
-                    SELECT 
-                        DATE(NEW.created_at),
-                        NEW.promoter_id,
-                        c.program_id,
-                        (
-                            SELECT COALESCE(SUM(p2.amount), 0)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE program_id = c.program_id 
-                            AND promoter_id = NEW.promoter_id
-                            AND DATE(p2.created_at) = DATE(NEW.created_at)
-                        ),
-                        (
-                            SELECT COALESCE(SUM(amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE program_id = c2.program_id 
-                            AND l.promoter_id = NEW.promoter_id
-                            AND DATE(comm.created_at) = DATE(NEW.created_at)
-                        ),
-                        (
-                            SELECT COUNT(s2.contact_id)
-                            FROM sign_up s2
-                            JOIN contact c2 ON s2.contact_id = c2.contact_id
-                            WHERE c2.program_id = c2.program_id 
-                            AND s2.promoter_id = NEW.promoter_id
-                            AND DATE(s2.created_at) = DATE(NEW.created_at)
-                        ),
-                        (
-                            SELECT COUNT(p2.purchase_id)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE c2.program_id = c2.program_id 
-                            AND p2.promoter_id = NEW.promoter_id
-                            AND DATE(p2.created_at) = DATE(NEW.created_at)
-                        ),
-                        p.created_at,
-                        p.updated_at
-                    FROM contact c
-                    JOIN promoter p ON p.promoter_id = NEW.promoter_id
-                    WHERE c.contact_id = NEW.contact_id
-                    ON CONFLICT (date, promoter_id, program_id) 
-                    DO UPDATE SET 
-                        daily_revenue = (
-                            SELECT COALESCE(SUM(p2.amount), 0)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE c2.program_id = EXCLUDED.program_id 
-                            AND p2.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(p2.created_at) = EXCLUDED.date
-                        ),
-                        daily_commission = (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE program_id = EXCLUDED.program_id 
-                            AND l.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(comm.created_at) = EXCLUDED.date
-                        ),
-                        daily_signups = (
-                            SELECT COUNT(s2.contact_id)
-                            FROM sign_up s2
-                            JOIN contact c2 ON s2.contact_id = c2.contact_id
-                            WHERE c2.program_id = EXCLUDED.program_id 
-                            AND s2.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(s2.created_at) = EXCLUDED.date
-                        ),
-                        daily_purchases = (
-                            SELECT COUNT(p2.purchase_id)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE c2.program_id = EXCLUDED.program_id 
-                            AND p2.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(p2.created_at) = EXCLUDED.date
-                        ),
-                        updated_at = now();
-                    
-                    RETURN NEW;
-                END IF;
+                SELECT c.program_id INTO v_program_id 
+                FROM contact c 
+                WHERE c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id);
                 
-                RETURN NULL;
+                v_date := DATE(COALESCE(NEW.created_at, OLD.created_at));
+
+                -- Get promoter timestamps
+                SELECT p.created_at, p.updated_at
+                INTO promoter_timestamps
+                FROM promoter p
+                WHERE p.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id);
+
+                -- Calculate metrics separately to avoid join issues
+                WITH signup_count AS (
+                    SELECT COUNT(*) as daily_signups
+                    FROM sign_up s
+                    JOIN contact c ON s.contact_id = c.contact_id
+                    WHERE c.program_id = v_program_id 
+                    AND s.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id)
+                    AND DATE(s.created_at) = v_date
+                ),
+                purchase_metrics AS (
+                    SELECT 
+                        COUNT(p.purchase_id) as daily_purchases,
+                        COALESCE(SUM(p.amount), 0) as daily_revenue
+                    FROM purchase p
+                    JOIN contact c ON p.contact_id = c.contact_id
+                    WHERE c.program_id = v_program_id 
+                    AND p.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id)
+                    AND DATE(p.created_at) = v_date
+                ),
+                commission_metrics AS (
+                    SELECT COALESCE(SUM(c.amount), 0) as daily_commission
+                    FROM commission c
+                    JOIN link l ON c.link_id = l.link_id
+                    WHERE l.program_id = v_program_id 
+                    AND l.promoter_id = COALESCE(NEW.promoter_id, OLD.promoter_id)
+                    AND DATE(c.created_at) = v_date
+                )
+                SELECT 
+                    s.daily_signups,
+                    p.daily_purchases,
+                    p.daily_revenue,
+                    c.daily_commission
+                INTO daily_metrics
+                FROM signup_count s
+                CROSS JOIN purchase_metrics p
+                CROSS JOIN commission_metrics c;
+
+                INSERT INTO promoter_analytics_day_wise_mv (
+                    date, promoter_id, program_id, daily_revenue, daily_commission, daily_signups, daily_purchases, created_at, updated_at
+                ) VALUES (
+                    v_date,
+                    COALESCE(NEW.promoter_id, OLD.promoter_id),
+                    v_program_id,
+                    daily_metrics.daily_revenue,
+                    daily_metrics.daily_commission,
+                    daily_metrics.daily_signups,
+                    daily_metrics.daily_purchases,
+                    promoter_timestamps.created_at,
+                    promoter_timestamps.updated_at
+                )
+                ON CONFLICT (date, promoter_id, program_id) 
+                DO UPDATE SET 
+                    daily_revenue = EXCLUDED.daily_revenue,
+                    daily_commission = EXCLUDED.daily_commission,
+                    daily_signups = EXCLUDED.daily_signups,
+                    daily_purchases = EXCLUDED.daily_purchases,
+                    updated_at = now();
+                
+                RETURN COALESCE(NEW, OLD);
             END;
             $$ LANGUAGE plpgsql;
         `);
@@ -372,8 +297,10 @@ export class AddPromoterAnalyticsMv1756740245765 implements MigrationInterface {
                 v_program_id UUID;
                 v_promoter_id UUID;
                 v_date DATE;
+                daily_metrics RECORD;
+                promoter_timestamps RECORD;
             BEGIN
-                -- Get program_id, promoter_id and date for the operation
+                -- Get program_id, promoter_id and date once
                 IF TG_OP = 'DELETE' THEN
                     SELECT l.program_id, l.promoter_id INTO v_program_id, v_promoter_id FROM link l WHERE l.link_id = OLD.link_id;
                     v_date := DATE(OLD.created_at);
@@ -382,126 +309,71 @@ export class AddPromoterAnalyticsMv1756740245765 implements MigrationInterface {
                     v_date := DATE(NEW.created_at);
                 END IF;
 
-                IF TG_OP = 'DELETE' THEN
-                    -- Recalculate daily commission amount for the day
-                    UPDATE promoter_analytics_day_wise_mv 
-                    SET 
-                        daily_commission = (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE l.program_id = promoter_analytics_day_wise_mv.program_id 
-                            AND l.promoter_id = promoter_analytics_day_wise_mv.promoter_id
-                            AND DATE(comm.created_at) = promoter_analytics_day_wise_mv.date
-                        ),
-                        updated_at = now()
-                    WHERE promoter_id = v_promoter_id 
-                    AND program_id = v_program_id
-                    AND date = v_date;
+                -- Get promoter timestamps
+                SELECT p.created_at, p.updated_at
+                INTO promoter_timestamps
+                FROM promoter p
+                WHERE p.promoter_id = v_promoter_id;
 
-                    RETURN OLD;
-
-                ELSIF TG_OP = 'UPDATE' THEN
-                    UPDATE promoter_analytics_day_wise_mv 
-                    SET 
-                        daily_commission = (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE l.program_id = promoter_analytics_day_wise_mv.program_id 
-                            AND l.promoter_id = promoter_analytics_day_wise_mv.promoter_id
-                            AND DATE(comm.created_at) = promoter_analytics_day_wise_mv.date
-                        ),
-                        updated_at = now()
-                    WHERE promoter_id = v_promoter_id 
-                    AND program_id = v_program_id
-                    AND date = v_date;
-                        
-                    RETURN NEW;
-
-                ELSIF TG_OP = 'INSERT' THEN
-                    -- Insert or update daily commission amount
-                    INSERT INTO promoter_analytics_day_wise_mv (
-                        date, promoter_id, program_id, daily_revenue, daily_commission, daily_signups, daily_purchases, created_at, updated_at
-                    )
+                -- Calculate metrics separately to avoid join issues
+                WITH signup_count AS (
+                    SELECT COUNT(*) as daily_signups
+                    FROM sign_up s
+                    JOIN link l ON s.link_id = l.link_id
+                    WHERE l.program_id = v_program_id 
+                    AND l.promoter_id = v_promoter_id
+                    AND DATE(s.created_at) = v_date
+                ),
+                purchase_metrics AS (
                     SELECT 
-                        v_date,
-                        v_promoter_id,
-                        v_program_id,
-                        (
-                            SELECT COALESCE(SUM(p.amount), 0)
-                            FROM purchase p
-                            JOIN contact c ON p.contact_id = c.contact_id
-                            WHERE c.program_id = v_program_id 
-                            AND p.promoter_id = v_promoter_id
-                            AND DATE(p.created_at) = v_date
-                        ),
-                        (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE l.program_id = v_program_id 
-                            AND l.promoter_id = v_promoter_id
-                            AND DATE(comm.created_at) = v_date
-                        ),
-                        (
-                            SELECT COUNT(s.contact_id)
-                            FROM sign_up s
-                            JOIN contact c ON s.contact_id = c.contact_id
-                            WHERE c.program_id = v_program_id 
-                            AND s.promoter_id = v_promoter_id
-                            AND DATE(s.created_at) = v_date
-                        ),
-                        (
-                            SELECT COUNT(p2.purchase_id)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE c2.program_id = v_program_id 
-                            AND p2.promoter_id = v_promoter_id
-                            AND DATE(p2.created_at) = v_date
-                        ),
-                        now(),
-                        now()
-                    ON CONFLICT (date, promoter_id, program_id) 
-                    DO UPDATE SET 
-                        daily_revenue = (
-                            SELECT COALESCE(SUM(p.amount), 0)
-                            FROM purchase p
-                            JOIN contact c ON p.contact_id = c.contact_id
-                            WHERE c.program_id = EXCLUDED.program_id 
-                            AND p.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(p.created_at) = EXCLUDED.date
-                        ),
-                        daily_commission = (
-                            SELECT COALESCE(SUM(comm.amount), 0)
-                            FROM commission comm
-                            JOIN link l ON comm.link_id = l.link_id
-                            WHERE l.program_id = EXCLUDED.program_id 
-                            AND l.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(comm.created_at) = EXCLUDED.date
-                        ),
-                        daily_signups = (
-                            SELECT COUNT(s.contact_id)
-                            FROM sign_up s
-                            JOIN contact c ON s.contact_id = c.contact_id
-                            WHERE c.program_id = EXCLUDED.program_id 
-                            AND s.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(s.created_at) = EXCLUDED.date
-                        ),
-                        daily_purchases = (
-                            SELECT COUNT(p2.purchase_id)
-                            FROM purchase p2
-                            JOIN contact c2 ON p2.contact_id = c2.contact_id
-                            WHERE c2.program_id = EXCLUDED.program_id 
-                            AND p2.promoter_id = EXCLUDED.promoter_id
-                            AND DATE(p2.created_at) = EXCLUDED.date
-                        ),
-                        updated_at = now();
-                    
-                    RETURN NEW;
-                END IF;
+                        COUNT(p.purchase_id) as daily_purchases,
+                        COALESCE(SUM(p.amount), 0) as daily_revenue
+                    FROM purchase p
+                    JOIN contact c ON p.contact_id = c.contact_id
+                    WHERE c.program_id = v_program_id 
+                    AND p.promoter_id = v_promoter_id
+                    AND DATE(p.created_at) = v_date
+                ),
+                commission_metrics AS (
+                    SELECT COALESCE(SUM(c.amount), 0) as daily_commission
+                    FROM commission c
+                    JOIN link l ON c.link_id = l.link_id
+                    WHERE l.program_id = v_program_id 
+                    AND l.promoter_id = v_promoter_id
+                    AND DATE(c.created_at) = v_date
+                )
+                SELECT 
+                    s.daily_signups,
+                    p.daily_purchases,
+                    p.daily_revenue,
+                    c.daily_commission
+                INTO daily_metrics
+                FROM signup_count s
+                CROSS JOIN purchase_metrics p
+                CROSS JOIN commission_metrics c;
+
+                INSERT INTO promoter_analytics_day_wise_mv (
+                    date, promoter_id, program_id, daily_revenue, daily_commission, daily_signups, daily_purchases, created_at, updated_at
+                ) VALUES (
+                    v_date,
+                    v_promoter_id,
+                    v_program_id,
+                    daily_metrics.daily_revenue,
+                    daily_metrics.daily_commission,
+                    daily_metrics.daily_signups,
+                    daily_metrics.daily_purchases,
+                    promoter_timestamps.created_at,
+                    promoter_timestamps.updated_at
+                )
+                ON CONFLICT (date, promoter_id, program_id) 
+                DO UPDATE SET 
+                    daily_revenue = EXCLUDED.daily_revenue,
+                    daily_commission = EXCLUDED.daily_commission,
+                    daily_signups = EXCLUDED.daily_signups,
+                    daily_purchases = EXCLUDED.daily_purchases,
+                    updated_at = now();
                 
-                RETURN NULL;
+                RETURN COALESCE(NEW, OLD);
             END;
             $$ LANGUAGE plpgsql;
         `);
