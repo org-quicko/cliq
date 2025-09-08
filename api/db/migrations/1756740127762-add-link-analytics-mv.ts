@@ -30,9 +30,9 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
                 ref_val VARCHAR NOT NULL,
                 program_id UUID NOT NULL,
                 promoter_id UUID NOT NULL,
-                daily_signups NUMERIC DEFAULT 0,
-                daily_purchases NUMERIC DEFAULT 0,
-                daily_commission NUMERIC DEFAULT 0,
+                signups NUMERIC DEFAULT 0,
+                purchases NUMERIC DEFAULT 0,
+                commission NUMERIC DEFAULT 0,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
                 PRIMARY KEY (date, link_id)
@@ -41,17 +41,27 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
 
         // Create indexes for performance
         await queryRunner.query(`
-            CREATE INDEX idx_link_analytics_program_id ON link_analytics_mv (program_id);
-            CREATE INDEX idx_link_analytics_promoter_id ON link_analytics_mv (promoter_id);
-            CREATE INDEX idx_link_analytics_ref_val ON link_analytics_mv (ref_val);
+            -- Link analytics MV indexes
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_program_id ON link_analytics_mv (program_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_promoter_id ON link_analytics_mv (promoter_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_ref_val ON link_analytics_mv (ref_val);
+            
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_program_promoter ON link_analytics_mv (program_id, promoter_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_promoter_ref_val ON link_analytics_mv (promoter_id, ref_val);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_created_at ON link_analytics_mv (created_at);
         `);
 
         await queryRunner.query(`
-            CREATE INDEX idx_link_analytics_day_wise_date ON link_analytics_day_wise_mv (date);
-            CREATE INDEX idx_link_analytics_day_wise_link ON link_analytics_day_wise_mv (link_id);
-            CREATE INDEX idx_link_analytics_day_wise_program ON link_analytics_day_wise_mv (program_id);
-            CREATE INDEX idx_link_analytics_day_wise_promoter ON link_analytics_day_wise_mv (promoter_id);
-            CREATE INDEX idx_link_analytics_day_wise_date_program ON link_analytics_day_wise_mv (date, program_id);
+            -- Link analytics day-wise MV indexes
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_date ON link_analytics_day_wise_mv (date);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_link ON link_analytics_day_wise_mv (link_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_program ON link_analytics_day_wise_mv (program_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_promoter ON link_analytics_day_wise_mv (promoter_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_date_program ON link_analytics_day_wise_mv (date, program_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_date_link ON link_analytics_day_wise_mv (date, link_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_date_promoter ON link_analytics_day_wise_mv (date, promoter_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_program_promoter ON link_analytics_day_wise_mv (program_id, promoter_id);
+            CREATE INDEX IF NOT EXISTS idx_link_analytics_day_wise_date_program_promoter ON link_analytics_day_wise_mv (date, program_id, promoter_id);
         `);
 
         // Create functions
@@ -75,9 +85,9 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
                     NEW.ref_val,
                     NEW.program_id,
                     NEW.promoter_id,
-                    (SELECT COALESCE(SUM(daily_signups), 0) FROM link_analytics_day_wise_mv WHERE link_id = NEW.link_id),
-                    (SELECT COALESCE(SUM(daily_purchases), 0) FROM link_analytics_day_wise_mv WHERE link_id = NEW.link_id),
-                    (SELECT COALESCE(SUM(daily_commission), 0) FROM link_analytics_day_wise_mv WHERE link_id = NEW.link_id),
+                    (SELECT COALESCE(SUM(signups), 0) FROM link_analytics_day_wise_mv WHERE link_id = NEW.link_id),
+                    (SELECT COALESCE(SUM(purchases), 0) FROM link_analytics_day_wise_mv WHERE link_id = NEW.link_id),
+                    (SELECT COALESCE(SUM(commission), 0) FROM link_analytics_day_wise_mv WHERE link_id = NEW.link_id),
                     NEW.created_at,
                     NEW.updated_at
                 )
@@ -98,57 +108,111 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
             CREATE OR REPLACE FUNCTION update_link_analytics_from_signup()
             RETURNS TRIGGER AS $$
             DECLARE
-                link_data RECORD;
-                daily_signups_count NUMERIC;
+                v_link_id UUID;
+                v_name VARCHAR;
+                v_ref_val VARCHAR;
+                v_program_id UUID;
+                v_promoter_id UUID;
+                v_created_at TIMESTAMPTZ;
+                v_updated_at TIMESTAMPTZ;
+                signups_count NUMERIC;
+                purchases_count NUMERIC;
+                commission_amount NUMERIC;
                 record_date DATE;
+                date_start TIMESTAMPTZ;
+                date_end TIMESTAMPTZ;
             BEGIN
-                -- Get link data once
-                SELECT l.link_id, l.name, l.ref_val, l.program_id, l.promoter_id, l.created_at, l.updated_at
-                INTO link_data
-                FROM link l
-                WHERE l.link_id = COALESCE(NEW.link_id, OLD.link_id);
+                v_link_id := COALESCE(NEW.link_id, OLD.link_id);
+                record_date := DATE(COALESCE(NEW.created_at, OLD.created_at));
+                date_start := record_date::timestamp;
+                date_end := record_date::timestamp + INTERVAL '1 day';
 
-                IF link_data.link_id IS NULL THEN
+                -- Early exit if no link_id
+                IF v_link_id IS NULL THEN
                     RETURN COALESCE(NEW, OLD);
                 END IF;
 
-                record_date := DATE(COALESCE(NEW.created_at, OLD.created_at));
+                -- Get all required data in a single optimized query
+                WITH link_data AS (
+                    SELECT 
+                        l.link_id,
+                        l.name,
+                        l.ref_val,
+                        l.program_id,
+                        l.promoter_id,
+                        l.created_at,
+                        l.updated_at
+                    FROM link l
+                    WHERE l.link_id = v_link_id
+                ),
+                daily_metrics AS (
+                    SELECT 
+                        COUNT(DISTINCT s.contact_id) as signups,
+                        COUNT(DISTINCT p.purchase_id) as purchases,
+                        COALESCE(SUM(c.amount), 0) as commission
+                    FROM sign_up s
+                    LEFT JOIN purchase p ON p.link_id = s.link_id 
+                        AND p.created_at >= date_start 
+                        AND p.created_at < date_end
+                    LEFT JOIN commission c ON c.link_id = s.link_id 
+                        AND c.created_at >= date_start 
+                        AND c.created_at < date_end
+                    WHERE s.link_id = v_link_id 
+                      AND s.created_at >= date_start
+                      AND s.created_at < date_end
+                )
+                SELECT 
+                    ld.link_id,
+                    ld.name,
+                    ld.ref_val,
+                    ld.program_id,
+                    ld.promoter_id,
+                    ld.created_at,
+                    ld.updated_at,
+                    dm.signups,
+                    dm.purchases,
+                    dm.commission
+                INTO v_link_id, v_name, v_ref_val, v_program_id, v_promoter_id, v_created_at, v_updated_at, signups_count, purchases_count, commission_amount
+                FROM link_data ld
+                CROSS JOIN daily_metrics dm;
 
-                -- Calculate daily signups count once
-                SELECT COUNT(s.contact_id)
-                INTO daily_signups_count
-                FROM sign_up s
-                WHERE s.link_id = link_data.link_id 
-                  AND DATE(s.created_at) = record_date;
+                -- Early exit if no link found
+                IF v_link_id IS NULL THEN
+                    RETURN COALESCE(NEW, OLD);
+                END IF;
 
                 IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
                     INSERT INTO link_analytics_day_wise_mv (
                         date, link_id, name, ref_val, program_id, promoter_id, 
-                        daily_signups, daily_purchases, daily_commission,
+                        signups, purchases, commission,
                         created_at, updated_at
                     ) VALUES (
                         record_date,
-                        link_data.link_id,
-                        link_data.name,
-                        link_data.ref_val,
-                        link_data.program_id,
-                        link_data.promoter_id,
-                        daily_signups_count,
-                        0,
-                        0,
-                        link_data.created_at,
-                        link_data.updated_at
+                        v_link_id,
+                        v_name,
+                        v_ref_val,
+                        v_program_id,
+                        v_promoter_id,
+                        signups_count,
+                        purchases_count,
+                        commission_amount,
+                        v_created_at,
+                        v_updated_at
                     )
                     ON CONFLICT (date, link_id) 
                     DO UPDATE SET 
-                        daily_signups = EXCLUDED.daily_signups,
+                        signups = EXCLUDED.signups,
+                        purchases = EXCLUDED.purchases,
+                        commission = EXCLUDED.commission,
                         updated_at = now();
                 ELSIF TG_OP = 'DELETE' THEN
                     UPDATE link_analytics_day_wise_mv 
                     SET 
-                        daily_signups = daily_signups_count,
+                        signups = signups_count,
+                        purchases = purchases_count,
+                        commission = commission_amount,
                         updated_at = now()
-                    WHERE link_id = link_data.link_id 
+                    WHERE link_id = v_link_id 
                       AND date = record_date;
                 END IF;
                 
@@ -163,7 +227,7 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
             RETURNS TRIGGER AS $$
             DECLARE
                 link_data RECORD;
-                daily_purchases_count NUMERIC;
+                purchases_count NUMERIC;
                 record_date DATE;
             BEGIN
                 -- Get link data once
@@ -180,15 +244,16 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
 
                 -- Calculate daily purchases count once
                 SELECT COUNT(p.purchase_id)
-                INTO daily_purchases_count
+                INTO purchases_count
                 FROM purchase p
                 WHERE p.link_id = link_data.link_id 
-                  AND DATE(p.created_at) = record_date;
+                  AND p.created_at >= record_date::timestamp
+                  AND p.created_at < record_date::timestamp + INTERVAL '1 day';
 
                 IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
                     INSERT INTO link_analytics_day_wise_mv (
                         date, link_id, name, ref_val, program_id, promoter_id, 
-                        daily_signups, daily_purchases, daily_commission,
+                        signups, purchases, commission,
                         created_at, updated_at
                     ) VALUES (
                         record_date,
@@ -198,19 +263,19 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
                         link_data.program_id,
                         link_data.promoter_id,
                         0,
-                        daily_purchases_count,
+                        purchases_count,
                         0,
                         link_data.created_at,
                         link_data.updated_at
                     )
                     ON CONFLICT (date, link_id) 
                     DO UPDATE SET 
-                        daily_purchases = EXCLUDED.daily_purchases,
+                        purchases = EXCLUDED.purchases,
                         updated_at = now();
                 ELSIF TG_OP = 'DELETE' THEN
                     UPDATE link_analytics_day_wise_mv 
                     SET 
-                        daily_purchases = daily_purchases_count,
+                        purchases = purchases_count,
                         updated_at = now()
                     WHERE link_id = link_data.link_id 
                       AND date = record_date;
@@ -227,7 +292,7 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
             RETURNS TRIGGER AS $$
             DECLARE
                 link_data RECORD;
-                daily_commission_amount NUMERIC;
+                commission_amount NUMERIC;
                 record_date DATE;
             BEGIN
                 -- Get link data once
@@ -244,15 +309,16 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
 
                 -- Calculate daily commission amount once
                 SELECT COALESCE(SUM(amount), 0)
-                INTO daily_commission_amount
+                INTO commission_amount
                 FROM commission c
                 WHERE c.link_id = link_data.link_id 
-                  AND DATE(c.created_at) = record_date;
+                  AND c.created_at >= record_date::timestamp
+                  AND c.created_at < record_date::timestamp + INTERVAL '1 day';
 
                 IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
                     INSERT INTO link_analytics_day_wise_mv (
                         date, link_id, name, ref_val, program_id, promoter_id, 
-                        daily_signups, daily_purchases, daily_commission,
+                        signups, purchases, commission,
                         created_at, updated_at
                     ) VALUES (
                         record_date,
@@ -263,18 +329,18 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
                         link_data.promoter_id,
                         0,
                         0,
-                        daily_commission_amount,
+                        commission_amount,
                         link_data.created_at,
                         link_data.updated_at
                     )
                     ON CONFLICT (date, link_id) 
                     DO UPDATE SET 
-                        daily_commission = EXCLUDED.daily_commission,
+                        commission = EXCLUDED.commission,
                         updated_at = now();
                 ELSIF TG_OP = 'DELETE' THEN
                     UPDATE link_analytics_day_wise_mv 
                     SET 
-                        daily_commission = daily_commission_amount,
+                        commission = commission_amount,
                         updated_at = now()
                     WHERE link_id = link_data.link_id 
                       AND date = record_date;
@@ -317,9 +383,6 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
                 FOR EACH ROW
                 EXECUTE FUNCTION update_link_analytics_from_commission();
         `);
-
-        // // Initialize analytics with existing data
-        // await queryRunner.query(`SELECT initialize_link_analytics();`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
@@ -335,6 +398,25 @@ export class AddLinkAnalyticMv1756740127762 implements MigrationInterface {
         await queryRunner.query(`DROP FUNCTION IF EXISTS update_link_analytics_from_purchase();`);
         await queryRunner.query(`DROP FUNCTION IF EXISTS update_link_analytics_from_signup();`);
         await queryRunner.query(`DROP FUNCTION IF EXISTS aggregate_link_analytics_from_day_wise();`);
+
+        // Drop indexes for link_analytics_day_wise_mv
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_date;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_link;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_program;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_promoter;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_date_program;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_date_link;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_date_promoter;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_program_promoter;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_day_wise_date_program_promoter;`);
+
+        // Drop indexes for link_analytics_mv
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_program_id;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_promoter_id;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_ref_val;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_program_promoter;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_promoter_ref_val;`);
+        await queryRunner.query(`DROP INDEX IF EXISTS idx_link_analytics_created_at;`);
 
         // Drop tables
         await queryRunner.query(`DROP TABLE IF EXISTS link_analytics_day_wise_mv;`);
