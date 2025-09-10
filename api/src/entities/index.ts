@@ -18,7 +18,6 @@ export * from './promoterAnalyticsDayWiseView.entity';
 export * from './promoterMember.entity';
 export * from './purchase.entity';
 export * from './referralView.entity';
-export * from './referralDayWiseView.entity';
 export * from './signUp.entity';
 export * from './user.entity';
 export * from './webhook.entity';

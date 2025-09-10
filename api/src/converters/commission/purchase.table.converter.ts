@@ -28,13 +28,13 @@ export class PurchaseTableConverter {
 				row.setItemId(purchase.itemId);
 				row.setAmount(purchase.amount);
 				row.setCommission(commissionAmount);
-				row.setExternalId(purchase.contact.externalId);
-				row.setUtmId(purchase?.utmParams?.utmId);
-				row.setUtmSource(purchase?.utmParams?.utmSource);
-				row.setUtmMedium(purchase?.utmParams?.utmMedium);
-				row.setUtmCampaign(purchase?.utmParams?.utmCampaign);
-				row.setUtmTerm(purchase?.utmParams?.utmTerm);
-				row.setUtmContent(purchase?.utmParams?.utmContent);
+				row.setExternalId(purchase.contact.externalId || '');
+				row.setUtmId(purchase?.utmParams?.utmId || '');
+				row.setUtmSource(purchase?.utmParams?.utmSource || '');
+				row.setUtmMedium(purchase?.utmParams?.utmMedium || '');
+				row.setUtmCampaign(purchase?.utmParams?.utmCampaign || '');
+				row.setUtmTerm(purchase?.utmParams?.utmTerm || '');
+				row.setUtmContent(purchase?.utmParams?.utmContent || '');
 	
 				purchasesTable.addRow(row);
 			});

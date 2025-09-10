@@ -26,6 +26,7 @@ import {
 import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
+import { PassThrough } from 'node:stream';
 
 @ApiTags('Promoter')
 @Controller('/programs/:program_id/promoters')
@@ -411,7 +412,7 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getSignUpsReport(
+		const signUpCSV = await this.promoterService.getSignUpsReport(
 			programId,
 			promoterId,
 			memberId,
@@ -421,9 +422,12 @@ export class PromoterController {
 
 		const fileName = getReportFileName('Signups');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		res.send(workbookBuffer);
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
+
+		signUpCSV.pipe(res);
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })

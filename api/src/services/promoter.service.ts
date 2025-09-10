@@ -55,12 +55,14 @@ import { PromoterWorkbookConverter } from 'src/converters/promoter/promoter.work
 import { SignUpWorkbookConverter } from 'src/converters/signup/signup.workbook.converter';
 import { PurchaseWorkbookConverter } from 'src/converters/purchase/purchase.workbook.converter';
 import { LinkWorkbookConverter } from 'src/converters/link/link.workbook.converter';
-import { SignUpWorkbook } from '@org-quicko/cliq-sheet-core/SignUp/beans';
+import { SignupRow, SignUpWorkbook } from '@org-quicko/cliq-sheet-core/SignUp/beans';
 import { PurchaseWorkbook } from '@org-quicko/cliq-sheet-core/Purchase/beans';
 import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { CommissionWorkbookConverter } from 'src/converters/commission/commission.workbook.converter';
 import { CommissionWorkbook } from '@org-quicko/cliq-sheet-core/Commission/beans';
 import { LinkWorkbook } from '@org-quicko/cliq-sheet-core/Link/beans';
+import { stringify } from 'csv-stringify';
+import { Readable } from 'node:stream';
 
 @Injectable()
 export class PromoterService {
@@ -956,37 +958,79 @@ export class PromoterService {
 
 		const signUpSheetJsonWorkbook = this.signUpWorkbookConverter.convertFrom(signUpsResult, signUpsCommissions, promoterResult, startDate, endDate);
 
-		const signUpsTable = signUpSheetJsonWorkbook.getSignupSheet().getSignupTable();
-		const signUpSummaryList = signUpSheetJsonWorkbook.getSignupSummarySheet().getSignupSummaryList();
+		const signUpCSV = this.generateSignUpCSVStream(signUpSheetJsonWorkbook);
 
-		const workbook = SignUpWorkbook.toXlsx(signUpSheetJsonWorkbook);
-		const signUpsSheetData: any[] = [snakeCaseToHumanReadable(signUpsTable.getHeader())];
-		const signUpsSummarySheetData: any[] = [];
-
-		signUpsTable.getRows().map(row => {
-			signUpsSheetData.push(row);
-		});
-
-		signUpSummaryList.getItems().forEach((item) => {
-			signUpsSummarySheetData.push([snakeCaseToHumanReadable(item.getKey()), item.getValue()]);
-		})
-
-		const summarySheet = XLSX.utils.aoa_to_sheet(signUpsSummarySheetData);
-		const signUpsSheet = XLSX.utils.aoa_to_sheet(signUpsSheetData);
-
-		// Remove the snake_case sheets
-		workbook.SheetNames = workbook.SheetNames.filter(name => 
-			!name.includes('_sheet')
-		);
-
-		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
-		XLSX.utils.book_append_sheet(workbook, signUpsSheet, 'Signups');
-
-		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
 		this.logger.info('END: getSignUpsReport service');
-		return fileBuffer;
+		return signUpCSV;
 	}
+
+
+    /**
+     * Creates a readable stream that generates CSV data row-by-row.
+     * This is highly memory-efficient as it doesn't load the whole file into memory.
+     * @param signupWorkbook - The workbook data source.
+     * @returns A Readable stream outputting CSV data.
+     */
+    private generateSignUpCSVStream(signupWorkbook: SignUpWorkbook): Readable {
+        const signUpsTable = signupWorkbook.getSignupSheet().getSignupTable();
+        const rows = signUpsTable.getRows();
+        let rowIndex = 0;
+
+        const columns = [
+            { key: 'contactId', header: 'Contact ID' },
+            { key: 'signUpDate', header: 'Sign Up Date' },
+            { key: 'email', header: 'Email' },
+            { key: 'phone', header: 'Phone' },
+            { key: 'commission', header: 'Commission' },
+            { key: 'externalId', header: 'External ID' },
+            { key: 'utmId', header: 'UTM ID' },
+            { key: 'utmSource', header: 'UTM Source' },
+            { key: 'utmMedium', header: 'UTM Medium' },
+            { key: 'utmCampaign', header: 'UTM Campaign' },
+            { key: 'utmTerm', header: 'UTM Term' },
+            { key: 'utmContent', header: 'UTM Content' },
+        ];
+
+        // 1. Create a source stream from your data array
+        const sourceStream = new Readable({
+            objectMode: true,
+            read() {
+                if (rowIndex < rows.length) {
+                    const row = signUpsTable.getRow(rowIndex++);
+                    // 2. Push one transformed row object at a time
+                    this.push({
+                        contactId: row?.getContactId(),
+                        signUpDate: row.getSignUpDate(),
+                        email: row?.getEmail() ?? '',
+                        phone: row?.getPhone() ?? '',
+                        commission: row?.getCommission().toString(),
+                        externalId: row.getExternalId() ?? '',
+                        utmId: row.getUtmId() ?? '',
+                        utmSource: row.getUtmSource() ?? '',
+                        utmMedium: row.getUtmMedium() ?? '',
+                        utmCampaign: row.getUtmCampaign() ?? '',
+                        utmTerm: row.getUtmTerm() ?? '',
+                        utmContent: row.getUtmContent() ?? '',
+                    });
+                } else {
+                    this.push(null); // 3. Signal that there's no more data
+                }
+            },
+        });
+
+        // 4. Create the CSV stringifier stream
+        const stringifier = stringify({
+            header: true,
+            columns,
+        });
+
+        // 5. Pipe the source data through the stringifier and return the result
+        return sourceStream.pipe(stringifier);
+    }
+
+
+
 
 	/**
 	 * Get purchases report
@@ -1212,17 +1256,26 @@ export class PromoterService {
 	private async getSignUpsCommissions(signUps: SignUp[]): Promise<Map<string, Commission>> {
 		const contactIds = signUps.map(signUp => signUp.contactId);
 
-		const commissions = await this.commissionRepository.find({
-			where: {
-				conversionType: conversionTypeEnum.SIGNUP,
-				externalId: In(contactIds),
-			}
-		});
-
-		// Map commissions by contactId (externalId)
+		// PostgreSQL has a limit on the number of parameters (typically 32,767)
+		// We need to batch the query to avoid "bind message has X parameter formats but 0 parameters" error
+		const BATCH_SIZE = 1000; // Conservative batch size to stay well under the limit
 		const signUpsCommissions: Map<string, Commission> = new Map();
-		for (const commission of commissions) {
-			signUpsCommissions.set(commission.externalId, commission);
+
+		// Process contactIds in batches
+		for (let i = 0; i < contactIds.length; i += BATCH_SIZE) {
+			const batch = contactIds.slice(i, i + BATCH_SIZE);
+			
+			const commissions = await this.commissionRepository.find({
+				where: {
+					conversionType: conversionTypeEnum.SIGNUP,
+					externalId: In(batch),
+				}
+			});
+
+			// Map commissions by contactId (externalId)
+			for (const commission of commissions) {
+				signUpsCommissions.set(commission.externalId, commission);
+			}
 		}
 
 		return signUpsCommissions;
@@ -1231,23 +1284,28 @@ export class PromoterService {
 	private async getPurchasesCommissions(purchases: Purchase[]): Promise<Map<string, Commission[]>> {
 		const purchaseIds = purchases.map(p => p.purchaseId);
 
-		// Single optimized query
-		const commissions = await this.commissionRepository.find({
-			where: {
-				conversionType: conversionTypeEnum.PURCHASE,
-				externalId: In(purchaseIds),
-			},
-		});
-
-		// Group commissions by purchaseId (stored as externalId)
+		const BATCH_SIZE = 1000;
 		const purchaseCommissionsMap = new Map<string, Commission[]>();
 
-		for (const commission of commissions) {
-			const purchaseId = commission.externalId;
-			if (!purchaseCommissionsMap.has(purchaseId)) {
-				purchaseCommissionsMap.set(purchaseId, []);
+		// Process purchaseIds in batches
+		for (let i = 0; i < purchaseIds.length; i += BATCH_SIZE) {
+			const batch = purchaseIds.slice(i, i + BATCH_SIZE);
+			
+			const commissions = await this.commissionRepository.find({
+				where: {
+					conversionType: conversionTypeEnum.PURCHASE,
+					externalId: In(batch),
+				},
+			});
+
+			// Group commissions by purchaseId (stored as externalId)
+			for (const commission of commissions) {
+				const purchaseId = commission.externalId;
+				if (!purchaseCommissionsMap.has(purchaseId)) {
+					purchaseCommissionsMap.set(purchaseId, []);
+				}
+				purchaseCommissionsMap.get(purchaseId)!.push(commission);
 			}
-			purchaseCommissionsMap.get(purchaseId)!.push(commission);
 		}
 
 		return purchaseCommissionsMap;
