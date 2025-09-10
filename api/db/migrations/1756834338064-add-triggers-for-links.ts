@@ -13,7 +13,7 @@ export class AddTriggersForLinks1756834338064 implements MigrationInterface {
                 -- Add to day-wise analytics table
                 INSERT INTO link_analytics_day_wise_mv (
                     date, link_id, name, ref_val, program_id, promoter_id,
-                    daily_signups, daily_purchases, daily_commission,
+                    signups, purchases, commission,
                     created_at, updated_at
                 ) VALUES (
                     current_date_val, NEW.link_id, NEW.name, NEW.ref_val, 
