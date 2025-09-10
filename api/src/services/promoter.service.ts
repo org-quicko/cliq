@@ -1029,6 +1029,71 @@ export class PromoterService {
         return sourceStream.pipe(stringifier);
     }
 
+    /**
+     * Creates a readable stream that generates CSV data row-by-row for purchases.
+     * This is highly memory-efficient as it doesn't load the whole file into memory.
+     * @param purchaseWorkbook - The workbook data source.
+     * @returns A Readable stream outputting CSV data.
+     */
+    private generatePurchaseCSVStream(purchaseWorkbook: PurchaseWorkbook): Readable {
+        const purchasesTable = purchaseWorkbook.getPurchaseSheet().getPurchaseTable();
+        const rows = purchasesTable.getRows();
+        let rowIndex = 0;
+
+        const columns = [
+            { key: 'purchaseId', header: 'Purchase ID' },
+            { key: 'contactId', header: 'Contact ID' },
+            { key: 'purchaseDate', header: 'Purchase Date' },
+            { key: 'itemId', header: 'Item ID' },
+            { key: 'amount', header: 'Amount' },
+            { key: 'commission', header: 'Commission' },
+            { key: 'externalId', header: 'External ID' },
+            { key: 'utmId', header: 'UTM ID' },
+            { key: 'utmSource', header: 'UTM Source' },
+            { key: 'utmMedium', header: 'UTM Medium' },
+            { key: 'utmCampaign', header: 'UTM Campaign' },
+            { key: 'utmTerm', header: 'UTM Term' },
+            { key: 'utmContent', header: 'UTM Content' },
+        ];
+
+        // 1. Create a source stream from your data array
+        const sourceStream = new Readable({
+            objectMode: true,
+            read() {
+                if (rowIndex < rows.length) {
+                    const row = purchasesTable.getRow(rowIndex++);
+                    // 2. Push one transformed row object at a time
+                    this.push({
+                        purchaseId: row?.getPurchaseId(),
+                        contactId: row?.getContactId(),
+                        purchaseDate: row.getPurchaseDate(),
+                        itemId: row?.getItemId() ?? '',
+                        amount: row?.getAmount()?.toString() ?? '',
+                        commission: row?.getCommission()?.toString() ?? '',
+                        externalId: row.getExternalId() ?? '',
+                        utmId: row.getUtmId() ?? '',
+                        utmSource: row.getUtmSource() ?? '',
+                        utmMedium: row.getUtmMedium() ?? '',
+                        utmCampaign: row.getUtmCampaign() ?? '',
+                        utmTerm: row.getUtmTerm() ?? '',
+                        utmContent: row.getUtmContent() ?? '',
+                    });
+                } else {
+                    this.push(null); // 3. Signal that there's no more data
+                }
+            },
+        });
+
+        // 4. Create the CSV stringifier stream
+        const stringifier = stringify({
+            header: true,
+            columns,
+        });
+
+        // 5. Pipe the source data through the stringifier and return the result
+        return sourceStream.pipe(stringifier);
+    }
+
 
 
 
@@ -1070,36 +1135,10 @@ export class PromoterService {
 
 		const purchaseSheetJsonWorkbook = this.purchaseWorkbookConverter.convertFrom(purchasesResult, purchasesCommissions, promoterResult, startDate, endDate);
 
-		const purchasesTable = purchaseSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
-		const purchaseSummaryList = purchaseSheetJsonWorkbook.getPurchaseSummarySheet().getPurchaseSummaryList();
-		const workbook = PurchaseWorkbook.toXlsx(purchaseSheetJsonWorkbook);
-		const purchasesSheetData: any[] = [snakeCaseToHumanReadable(purchasesTable.getHeader())];
-		const purchasesSummarySheetData: any[] = [];
-
-		purchasesTable.getRows().map(row => {
-			purchasesSheetData.push(row);
-		});
-
-		purchaseSummaryList.getItems().forEach((item) => {
-			purchasesSummarySheetData.push([snakeCaseToHumanReadable(item.getKey()), item.getValue()]);
-		});
-
-		const summarySheet = XLSX.utils.aoa_to_sheet(purchasesSummarySheetData);
-		const purchasesSheet = XLSX.utils.aoa_to_sheet(purchasesSheetData);
-
-		// Remove the snake_case sheets
-		workbook.SheetNames = workbook.SheetNames.filter(name => 
-			!name.includes('_sheet')
-		);
-
-		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
-		XLSX.utils.book_append_sheet(workbook, purchasesSheet, 'Purchases');
-
-		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-
+		const purchaseCSV = this.generatePurchaseCSVStream(purchaseSheetJsonWorkbook);
 
 		this.logger.info('END: getPurchasesReport service');
-		return fileBuffer;
+		return purchaseCSV;
 	}
 
 	/**
@@ -1256,9 +1295,7 @@ export class PromoterService {
 	private async getSignUpsCommissions(signUps: SignUp[]): Promise<Map<string, Commission>> {
 		const contactIds = signUps.map(signUp => signUp.contactId);
 
-		// PostgreSQL has a limit on the number of parameters (typically 32,767)
-		// We need to batch the query to avoid "bind message has X parameter formats but 0 parameters" error
-		const BATCH_SIZE = 1000; // Conservative batch size to stay well under the limit
+		const BATCH_SIZE = 1000;
 		const signUpsCommissions: Map<string, Commission> = new Map();
 
 		// Process contactIds in batches
