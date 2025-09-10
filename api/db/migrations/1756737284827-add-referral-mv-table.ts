@@ -18,22 +18,6 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 			);
 		`);
 
-		await queryRunner.query(`
-			CREATE TABLE "referral_day_wise_mv" (
-				"date" DATE NOT NULL,
-				"program_id" UUID NOT NULL,
-				"promoter_id" UUID NOT NULL,
-				"contact_id" UUID NOT NULL,
-				"status" contact_status_enum NOT NULL,
-				"contact_info" VARCHAR NOT NULL,
-				"revenue" NUMERIC DEFAULT 0,
-				"commission" NUMERIC DEFAULT 0,
-				"created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-				"updated_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
-				PRIMARY KEY ("date", "program_id", "promoter_id", "contact_id")
-			);
-		`);
-
 		// Create indexes for performance
 		await queryRunner.query(`
 			-- Referral MV indexes
@@ -46,31 +30,18 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 			CREATE INDEX IF NOT EXISTS "idx_referral_mv_status" ON "referral_mv" ("status");
 		`);
 
-		await queryRunner.query(`
-			-- Referral day-wise MV indexes
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_date" ON "referral_day_wise_mv" ("date");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_program" ON "referral_day_wise_mv" ("program_id");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_promoter" ON "referral_day_wise_mv" ("promoter_id");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_contact" ON "referral_day_wise_mv" ("contact_id");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_date_program" ON "referral_day_wise_mv" ("date", "program_id");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_date_promoter" ON "referral_day_wise_mv" ("date", "promoter_id");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_program_promoter" ON "referral_day_wise_mv" ("program_id", "promoter_id");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_date_program_promoter" ON "referral_day_wise_mv" ("date", "program_id", "promoter_id");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_status" ON "referral_day_wise_mv" ("status");
-			CREATE INDEX IF NOT EXISTS "idx_referral_day_wise_date_program_promoter_contact" ON "referral_day_wise_mv" ("date", "program_id", "promoter_id", "contact_id");
-		`);
+		// Removed day-wise indexes as the table is no longer needed
 
-		// Create functions
+		// Create simplified functions that update referral_mv directly
 		await queryRunner.query(`
-			-- Function to update referral_day_wise_mv from signup operations
-			CREATE OR REPLACE FUNCTION update_referral_day_wise_from_signup()
+			-- Function to update referral_mv from signup operations
+			CREATE OR REPLACE FUNCTION update_referral_mv_from_signup()
 			RETURNS TRIGGER AS $$
 			DECLARE
 				link_program_id UUID;
 				link_promoter_id UUID;
 				contact_status contact_status_enum;
 				contact_info_val VARCHAR;
-				record_date DATE;
 				contact_created_at TIMESTAMPTZ;
 				contact_updated_at TIMESTAMPTZ;
 				v_contact_id UUID;
@@ -82,7 +53,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					RETURN COALESCE(NEW, OLD);
 				END IF;
 
-				-- Optimized: Get link and contact data in single query
+				-- Get link and contact data
 				SELECT 
 					l.program_id,
 					l.promoter_id,
@@ -105,39 +76,19 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					RETURN COALESCE(NEW, OLD);
 				END IF;
 
-				-- Determine the date for the record
-				record_date := COALESCE(NEW.created_at::date, OLD.created_at::date, CURRENT_DATE);
-
-				IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-					-- First try to update existing record (only status and contact_info)
-					UPDATE referral_day_wise_mv 
-					SET 
-						status = contact_status,
-						contact_info = contact_info_val,
-						updated_at = now()
-					WHERE date = record_date 
-						AND program_id = link_program_id 
-						AND promoter_id = link_promoter_id 
-						AND contact_id = v_contact_id;
-					
-					-- If no rows were updated, insert new record
-					IF NOT FOUND THEN
-						INSERT INTO referral_day_wise_mv (
-							date, program_id, promoter_id, contact_id, status, contact_info, 
-							revenue, commission, created_at, updated_at
-						) VALUES (
-							record_date, link_program_id, link_promoter_id, v_contact_id, 
-							contact_status, contact_info_val, 0, 0, contact_created_at, contact_updated_at
-						);
-					END IF;
-
-				ELSIF TG_OP = 'DELETE' THEN
-					DELETE FROM referral_day_wise_mv  
-					WHERE date = record_date 
-						AND program_id = link_program_id 
-						AND promoter_id = link_promoter_id 
-						AND contact_id = v_contact_id;
-				END IF;
+				-- Insert or update referral_mv directly
+				INSERT INTO referral_mv (
+					program_id, promoter_id, contact_id, status, contact_info, 
+					total_revenue, total_commission, created_at, updated_at
+				) VALUES (
+					link_program_id, link_promoter_id, v_contact_id, 
+					contact_status, contact_info_val, 0, 0, contact_created_at, contact_updated_at
+				)
+				ON CONFLICT (program_id, promoter_id, contact_id)
+				DO UPDATE SET
+					status = EXCLUDED.status,
+					contact_info = EXCLUDED.contact_info,
+					updated_at = now();
 
 				RETURN COALESCE(NEW, OLD);
 			END;
@@ -145,21 +96,23 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 		`);
 
 		await queryRunner.query(`
-			-- Function to update referral_day_wise_mv from purchase operations
-			CREATE OR REPLACE FUNCTION update_referral_day_wise_from_purchase()
+			-- Function to update referral_mv from purchase operations
+			CREATE OR REPLACE FUNCTION update_referral_mv_from_purchase()
 			RETURNS TRIGGER AS $$
 			DECLARE
 				link_program_id UUID;
 				link_promoter_id UUID;
 				contact_status contact_status_enum;
 				contact_info_val VARCHAR;
-				record_date DATE;
-				daily_revenue_calc NUMERIC;
-				daily_commission_calc NUMERIC;
+				total_revenue_calc NUMERIC;
+				total_commission_calc NUMERIC;
 				contact_created_at TIMESTAMPTZ;
 				contact_updated_at TIMESTAMPTZ;
+				v_contact_id UUID;
 			BEGIN
-				-- Optimized: Get link and contact data in single query
+				v_contact_id := COALESCE(NEW.contact_id, OLD.contact_id);
+				
+				-- Get link and contact data
 				SELECT 
 					l.program_id,
 					l.promoter_id,
@@ -173,202 +126,40 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					c.updated_at
 				INTO link_program_id, link_promoter_id, contact_status, contact_info_val, contact_created_at, contact_updated_at
 				FROM link l
-				JOIN contact c ON c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id)
+				JOIN contact c ON c.contact_id = v_contact_id
 				JOIN program p ON c.program_id = p.program_id
 				WHERE l.link_id = COALESCE(NEW.link_id, OLD.link_id);
 
 				-- If no link found, return early
 				IF link_program_id IS NULL OR link_promoter_id IS NULL THEN
-					RETURN NULL;
+					RETURN COALESCE(NEW, OLD);
 				END IF;
 
-				record_date := COALESCE(NEW.created_at::date, OLD.created_at::date);
-
-				-- Calculate daily revenue once
+				-- Calculate total revenue for this contact
 				SELECT COALESCE(SUM(amount), 0)
-				INTO daily_revenue_calc
+				INTO total_revenue_calc
 				FROM purchase p
 				JOIN link l ON p.link_id = l.link_id
 				WHERE l.program_id = link_program_id
 					AND l.promoter_id = link_promoter_id
-					AND p.contact_id = COALESCE(NEW.contact_id, OLD.contact_id)
-					AND p.created_at >= record_date::timestamp
-					AND p.created_at < record_date::timestamp + INTERVAL '1 day';
+					AND p.contact_id = v_contact_id;
 
-				-- Calculate daily commission once
+				-- Calculate total commission for this contact
 				SELECT COALESCE(SUM(amount), 0)
-				INTO daily_commission_calc
+				INTO total_commission_calc
 				FROM commission c
 				JOIN link l ON c.link_id = l.link_id
 				WHERE l.program_id = link_program_id
 					AND l.promoter_id = link_promoter_id
-					AND c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id)
-					AND c.created_at >= record_date::timestamp
-					AND c.created_at < record_date::timestamp + INTERVAL '1 day';
+					AND c.contact_id = v_contact_id;
 
-				IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-					-- First try to update existing record (only revenue and commission)
-					UPDATE referral_day_wise_mv 
-					SET 
-						revenue = daily_revenue_calc,
-						commission = daily_commission_calc,
-						updated_at = now()
-					WHERE date = record_date 
-						AND program_id = link_program_id 
-						AND promoter_id = link_promoter_id 
-						AND contact_id = COALESCE(NEW.contact_id, OLD.contact_id);
-					
-					-- If no rows were updated, insert new record
-					IF NOT FOUND THEN
-						INSERT INTO referral_day_wise_mv (
-							date, program_id, promoter_id, contact_id, status, contact_info, 
-							revenue, commission, created_at, updated_at
-						) VALUES (
-							record_date, link_program_id, link_promoter_id, COALESCE(NEW.contact_id, OLD.contact_id), 
-							contact_status, contact_info_val, daily_revenue_calc, daily_commission_calc, contact_created_at, contact_updated_at
-						);
-					END IF;
-				ELSIF TG_OP = 'DELETE' THEN
-					-- Recalculate and update after deletion
-					UPDATE referral_day_wise_mv 
-					SET 
-						revenue = daily_revenue_calc,
-						commission = daily_commission_calc,
-						updated_at = now()
-					WHERE date = record_date 
-						AND program_id = link_program_id 
-						AND promoter_id = link_promoter_id 
-						AND contact_id = OLD.contact_id;
-				END IF;
-
-				RETURN NULL;
-			END;
-			$$ LANGUAGE plpgsql;
-		`);
-
-		await queryRunner.query(`
-			-- Function to update referral_day_wise_mv from commission operations
-			CREATE OR REPLACE FUNCTION update_referral_day_wise_from_commission()
-			RETURNS TRIGGER AS $$
-			DECLARE
-				link_program_id UUID;
-				link_promoter_id UUID;
-				contact_status contact_status_enum;
-				contact_info_val VARCHAR;
-				record_date DATE;
-				contact_created_at TIMESTAMPTZ;
-				contact_updated_at TIMESTAMPTZ;
-				daily_commission_calc NUMERIC;
-			BEGIN
-				-- Optimized: Get link and contact data in single query
-				SELECT 
-					l.program_id,
-					l.promoter_id,
-					c.status,
-					CASE 
-						WHEN p.referral_key_type = 'email' THEN c.email
-						WHEN p.referral_key_type = 'phone' THEN c.phone
-						ELSE c.email
-					END as contact_info,
-					c.created_at,
-					c.updated_at
-				INTO link_program_id, link_promoter_id, contact_status, contact_info_val, contact_created_at, contact_updated_at
-				FROM link l
-				JOIN contact c ON c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id)
-				JOIN program p ON c.program_id = p.program_id
-				WHERE l.link_id = COALESCE(NEW.link_id, OLD.link_id);
-
-				-- If no link found, return early
-				IF link_program_id IS NULL OR link_promoter_id IS NULL THEN
-					RETURN NULL;
-				END IF;
-
-				record_date := COALESCE(NEW.created_at::date, OLD.created_at::date, CURRENT_DATE);
-
-				-- Calculate daily commission once (INDEX-FRIENDLY! - Full day aggregation)
-				SELECT COALESCE(SUM(amount), 0)
-				INTO daily_commission_calc
-				FROM commission c
-				JOIN link l ON c.link_id = l.link_id
-				WHERE l.program_id = link_program_id
-					AND l.promoter_id = link_promoter_id
-					AND c.contact_id = COALESCE(NEW.contact_id, OLD.contact_id)
-					AND c.created_at >= record_date::timestamp
-					AND c.created_at < record_date::timestamp + INTERVAL '1 day';
-
-				IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-					-- First try to update existing record (only commission)
-					UPDATE referral_day_wise_mv 
-					SET 
-						commission = daily_commission_calc,
-						updated_at = now()
-					WHERE date = record_date 
-						AND program_id = link_program_id 
-						AND promoter_id = link_promoter_id 
-						AND contact_id = COALESCE(NEW.contact_id, OLD.contact_id);
-					
-					-- If no rows were updated, insert new record
-					IF NOT FOUND THEN
-						INSERT INTO referral_day_wise_mv (
-							date, program_id, promoter_id, contact_id, status, contact_info, 
-							revenue, commission, created_at, updated_at
-						) VALUES (
-							record_date, link_program_id, link_promoter_id, COALESCE(NEW.contact_id, OLD.contact_id), 
-							contact_status, contact_info_val, 0, daily_commission_calc, contact_created_at, contact_updated_at
-						);
-					END IF;
-
-				ELSIF TG_OP = 'DELETE' THEN
-					-- Recalculate and update after deletion
-					UPDATE referral_day_wise_mv 
-					SET 
-						commission = daily_commission_calc,
-						updated_at = now()
-					WHERE date = record_date 
-						AND program_id = link_program_id 
-						AND promoter_id = link_promoter_id 
-						AND contact_id = OLD.contact_id;
-				END IF;
-
-				RETURN NULL;
-			END;
-			$$ LANGUAGE plpgsql;
-		`);
-
-		await queryRunner.query(`
-			-- Function to aggregate referral from day-wise data
-			CREATE OR REPLACE FUNCTION aggregate_referral_from_day_wise()
-			RETURNS TRIGGER AS $$
-			BEGIN
-				-- Handle DELETE operations by removing the record from referral_mv
-				IF TG_OP = 'DELETE' THEN
-					DELETE FROM referral_mv 
-					WHERE program_id = OLD.program_id 
-					  AND promoter_id = OLD.promoter_id 
-					  AND contact_id = OLD.contact_id;
-					RETURN NULL;
-				END IF;
-
-				-- Handle INSERT and UPDATE operations
-				INSERT INTO referral_mv (program_id, promoter_id, contact_id, status, contact_info, total_revenue, total_commission, created_at, updated_at)
-				VALUES (
-					NEW.program_id,
-					NEW.promoter_id,
-					NEW.contact_id,
-					NEW.status,
-					NEW.contact_info,
-					(SELECT COALESCE(SUM(revenue), 0) 
-					 FROM referral_day_wise_mv 
-					 WHERE program_id = NEW.program_id 
-					   AND promoter_id = NEW.promoter_id 
-					   AND contact_id = NEW.contact_id),
-					(SELECT COALESCE(SUM(commission), 0) 
-					 FROM referral_day_wise_mv 
-					 WHERE program_id = NEW.program_id 
-					   AND promoter_id = NEW.promoter_id 
-					   AND contact_id = NEW.contact_id),
-					NEW.created_at,
-					NEW.updated_at
+				-- Insert or update referral_mv directly
+				INSERT INTO referral_mv (
+					program_id, promoter_id, contact_id, status, contact_info, 
+					total_revenue, total_commission, created_at, updated_at
+				) VALUES (
+					link_program_id, link_promoter_id, v_contact_id, 
+					contact_status, contact_info_val, total_revenue_calc, total_commission_calc, contact_created_at, contact_updated_at
 				)
 				ON CONFLICT (program_id, promoter_id, contact_id)
 				DO UPDATE SET
@@ -376,12 +167,93 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					total_commission = EXCLUDED.total_commission,
 					status = EXCLUDED.status,
 					contact_info = EXCLUDED.contact_info,
-					updated_at = EXCLUDED.updated_at;
+					updated_at = now();
 
-				RETURN NULL;
+				RETURN COALESCE(NEW, OLD);
 			END;
 			$$ LANGUAGE plpgsql;
 		`);
+
+		await queryRunner.query(`
+			-- Function to update referral_mv from commission operations
+			CREATE OR REPLACE FUNCTION update_referral_mv_from_commission()
+			RETURNS TRIGGER AS $$
+			DECLARE
+				link_program_id UUID;
+				link_promoter_id UUID;
+				contact_status contact_status_enum;
+				contact_info_val VARCHAR;
+				total_revenue_calc NUMERIC;
+				total_commission_calc NUMERIC;
+				contact_created_at TIMESTAMPTZ;
+				contact_updated_at TIMESTAMPTZ;
+				v_contact_id UUID;
+			BEGIN
+				v_contact_id := COALESCE(NEW.contact_id, OLD.contact_id);
+				
+				-- Get link and contact data
+				SELECT 
+					l.program_id,
+					l.promoter_id,
+					c.status,
+					CASE 
+						WHEN p.referral_key_type = 'email' THEN c.email
+						WHEN p.referral_key_type = 'phone' THEN c.phone
+						ELSE c.email
+					END as contact_info,
+					c.created_at,
+					c.updated_at
+				INTO link_program_id, link_promoter_id, contact_status, contact_info_val, contact_created_at, contact_updated_at
+				FROM link l
+				JOIN contact c ON c.contact_id = v_contact_id
+				JOIN program p ON c.program_id = p.program_id
+				WHERE l.link_id = COALESCE(NEW.link_id, OLD.link_id);
+
+				-- If no link found, return early
+				IF link_program_id IS NULL OR link_promoter_id IS NULL THEN
+					RETURN COALESCE(NEW, OLD);
+				END IF;
+
+				-- Calculate total revenue for this contact
+				SELECT COALESCE(SUM(amount), 0)
+				INTO total_revenue_calc
+				FROM purchase p
+				JOIN link l ON p.link_id = l.link_id
+				WHERE l.program_id = link_program_id
+					AND l.promoter_id = link_promoter_id
+					AND p.contact_id = v_contact_id;
+
+				-- Calculate total commission for this contact
+				SELECT COALESCE(SUM(amount), 0)
+				INTO total_commission_calc
+				FROM commission c
+				JOIN link l ON c.link_id = l.link_id
+				WHERE l.program_id = link_program_id
+					AND l.promoter_id = link_promoter_id
+					AND c.contact_id = v_contact_id;
+
+				-- Insert or update referral_mv directly
+				INSERT INTO referral_mv (
+					program_id, promoter_id, contact_id, status, contact_info, 
+					total_revenue, total_commission, created_at, updated_at
+				) VALUES (
+					link_program_id, link_promoter_id, v_contact_id, 
+					contact_status, contact_info_val, total_revenue_calc, total_commission_calc, contact_created_at, contact_updated_at
+				)
+				ON CONFLICT (program_id, promoter_id, contact_id)
+				DO UPDATE SET
+					total_revenue = EXCLUDED.total_revenue,
+					total_commission = EXCLUDED.total_commission,
+					status = EXCLUDED.status,
+					contact_info = EXCLUDED.contact_info,
+					updated_at = now();
+
+				RETURN COALESCE(NEW, OLD);
+			END;
+			$$ LANGUAGE plpgsql;
+		`);
+
+		// Removed aggregation function as we no longer use day-wise data
 
 		// Create triggers
 		await queryRunner.query(`
@@ -389,7 +261,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 			CREATE TRIGGER trg_signup_referral_mv 
 				AFTER INSERT OR UPDATE OR DELETE ON sign_up 
 				FOR EACH ROW 
-				EXECUTE FUNCTION update_referral_day_wise_from_signup();
+				EXECUTE FUNCTION update_referral_mv_from_signup();
 		`);
 
 		await queryRunner.query(`
@@ -397,7 +269,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 			CREATE TRIGGER trg_purchase_referral_mv 
 				AFTER INSERT OR UPDATE OR DELETE ON purchase 
 				FOR EACH ROW 
-				EXECUTE FUNCTION update_referral_day_wise_from_purchase();
+				EXECUTE FUNCTION update_referral_mv_from_purchase();
 		`);
 
 		await queryRunner.query(`
@@ -405,23 +277,12 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 			CREATE TRIGGER trg_commission_referral_mv 
 				AFTER INSERT OR UPDATE OR DELETE ON commission 
 				FOR EACH ROW 
-				EXECUTE FUNCTION update_referral_day_wise_from_commission();
-		`);
-
-		await queryRunner.query(`
-			-- Create trigger to automatically update aggregated data
-			CREATE TRIGGER trg_aggregate_referral_mv 
-				AFTER INSERT OR UPDATE OR DELETE ON referral_day_wise_mv 
-				FOR EACH ROW 
-				EXECUTE FUNCTION aggregate_referral_from_day_wise();
+				EXECUTE FUNCTION update_referral_mv_from_commission();
 		`);
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
 		// Drop triggers first
-		await queryRunner.query(
-			`DROP TRIGGER IF EXISTS trg_aggregate_referral_mv ON referral_day_wise_mv;`,
-		);
 		await queryRunner.query(
 			`DROP TRIGGER IF EXISTS trg_commission_referral_mv ON commission;`,
 		);
@@ -434,29 +295,14 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 
 		// Drop functions
 		await queryRunner.query(
-			`DROP FUNCTION IF EXISTS aggregate_referral_from_day_wise();`,
+			`DROP FUNCTION IF EXISTS update_referral_mv_from_commission();`,
 		);
 		await queryRunner.query(
-			`DROP FUNCTION IF EXISTS update_referral_day_wise_from_commission();`,
+			`DROP FUNCTION IF EXISTS update_referral_mv_from_purchase();`,
 		);
 		await queryRunner.query(
-			`DROP FUNCTION IF EXISTS update_referral_day_wise_from_purchase();`,
+			`DROP FUNCTION IF EXISTS update_referral_mv_from_signup();`,
 		);
-		await queryRunner.query(
-			`DROP FUNCTION IF EXISTS update_referral_day_wise_from_signup();`,
-		);
-
-		// Drop indexes for referral_day_wise_mv
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_date";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_program";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_promoter";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_contact";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_date_program";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_date_promoter";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_program_promoter";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_date_program_promoter";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_status";`);
-		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_day_wise_date_program_promoter_contact";`);
 
 		// Drop indexes for referral_mv
 		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_program_id";`);
@@ -466,8 +312,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_promoter_contact";`);
 		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_status";`);
 
-		// Drop tables
-		await queryRunner.query(`DROP TABLE IF EXISTS referral_day_wise_mv;`);
+		// Drop table
 		await queryRunner.query(`DROP TABLE IF EXISTS referral_mv;`);
 	}
 }
