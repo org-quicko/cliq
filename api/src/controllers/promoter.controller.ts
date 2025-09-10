@@ -27,6 +27,7 @@ import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
 import { PassThrough } from 'node:stream';
+import archiver from 'archiver';
 
 @ApiTags('Promoter')
 @Controller('/programs/:program_id/promoters')
@@ -492,7 +493,7 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getCommissionsReport(
+		const { purchaseStream, signupStream } = await this.promoterService.getCommissionsReport(
 			programId,
 			promoterId,
 			memberId,
@@ -500,14 +501,30 @@ export class PromoterController {
 			parsedEndDate,
 		);
 
-		const fileName = getReportFileName('Commissions');
+		const fileName = "Commissions.zip"
 
+		res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		const archive = archiver('zip', {
+            zlib: { level: 9 } // Sets the compression level.
+        });
+
+		archive.on('error', (err) => {
+            this.logger.error('Archiver error:', err);
+            throw err;
+        });
+
+		archive.pipe(res);
+
+		archive.append(signupStream, { name: 'signups.csv' });
+        archive.append(purchaseStream, { name: 'purchases.csv' });
+
 
 		this.logger.info('END: getCommissionsReport controller');
-		res.send(workbookBuffer);
+		await archive.finalize();
+
+		this.logger.info(`Successfully streamed and finalized zip archive "${fileName}".`);
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })

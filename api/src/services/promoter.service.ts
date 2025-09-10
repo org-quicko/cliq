@@ -1094,8 +1094,127 @@ export class PromoterService {
         return sourceStream.pipe(stringifier);
     }
 
+    /**
+     * Generates a CSV stream for purchase commission data.
+     * @param purchaseTable The purchase table containing commission data.
+     * @returns A Readable stream outputting CSV data.
+     */
+    private generatePurchaseCommissionCSVStream(commissionWorkbook: CommissionWorkbook): Readable {
+        const purchaseTable = commissionWorkbook.getPurchaseSheet().getPurchaseTable();
+        const rows = purchaseTable.getRows();
+        let rowIndex = 0;
 
+        const columns = [
+            { key: 'purchaseId', header: 'Purchase ID' },
+            { key: 'contactId', header: 'Contact ID' },
+            { key: 'purchaseDate', header: 'Purchase Date' },
+            { key: 'itemId', header: 'Item ID' },
+            { key: 'amount', header: 'Amount' },
+            { key: 'commission', header: 'Commission' },
+            { key: 'externalId', header: 'External ID' },
+            { key: 'utmId', header: 'UTM ID' },
+            { key: 'utmSource', header: 'UTM Source' },
+            { key: 'utmMedium', header: 'UTM Medium' },
+            { key: 'utmCampaign', header: 'UTM Campaign' },
+            { key: 'utmTerm', header: 'UTM Term' },
+            { key: 'utmContent', header: 'UTM Content' },
+        ];
 
+        // 1. Create a source stream from your data array
+        const sourceStream = new Readable({
+            objectMode: true,
+            read() {
+                if (rowIndex < rows.length) {
+                    const row = purchaseTable.getRow(rowIndex++);
+                    // 2. Push one transformed row object at a time
+                    this.push({
+                        purchaseId: row?.getPurchaseId(),
+                        contactId: row?.getContactId(),
+                        purchaseDate: row.getPurchaseDate(),
+                        itemId: row?.getItemId() ?? '',
+                        amount: row?.getAmount()?.toString() ?? '',
+                        commission: row?.getCommission()?.toString() ?? '',
+                        externalId: row.getExternalId() ?? '',
+                        utmId: row.getUtmId() ?? '',
+                        utmSource: row.getUtmSource() ?? '',
+                        utmMedium: row.getUtmMedium() ?? '',
+                        utmCampaign: row.getUtmCampaign() ?? '',
+                        utmTerm: row.getUtmTerm() ?? '',
+                        utmContent: row.getUtmContent() ?? '',
+                    });
+                } else {
+                    this.push(null); // 3. Signal that there's no more data
+                }
+            },
+        });
+
+        // 4. Create the CSV stringifier stream
+        const stringifier = stringify({
+            header: true,
+            columns,
+        });
+
+        // 5. Pipe the source data through the stringifier and return the result
+        return sourceStream.pipe(stringifier);
+    }
+
+    /**
+     * Generates a CSV stream for signup commission data.
+     * @param signupTable The signup table containing commission data.
+     * @returns A Readable stream outputting CSV data.
+     */
+    private generateSignupCommissionCSVStream(commissionWorkbook: CommissionWorkbook): Readable {
+        const signUpsTable = commissionWorkbook.getSignupSheet().getSignupTable();
+        const rows = signUpsTable.getRows();
+        let rowIndex = 0;
+        
+        const columns = [
+            { key: 'contactId', header: 'Contact ID' },
+            { key: 'signUpDate', header: 'Sign Up Date' },
+            { key: 'email', header: 'Email' },
+            { key: 'phone', header: 'Phone' },
+            { key: 'commission', header: 'Commission' },
+            { key: 'externalId', header: 'External ID' },
+            { key: 'utmId', header: 'UTM ID' },
+            { key: 'utmSource', header: 'UTM Source' },
+            { key: 'utmMedium', header: 'UTM Medium' },
+            { key: 'utmCampaign', header: 'UTM Campaign' },
+            { key: 'utmTerm', header: 'UTM Term' },
+            { key: 'utmContent', header: 'UTM Content' },
+        ];
+        
+        const stringifier = stringify({
+            header: true,
+            columns,
+        });
+        
+        const sourceStream = new Readable({
+            objectMode: true,
+            read() {
+                if (rowIndex < rows.length) {
+                    const row = signUpsTable.getRow(rowIndex++);
+                    this.push({
+                        contactId: row?.getContactId(),
+                        signUpDate: row.getSignUpDate(),
+                        email: row?.getEmail() ?? '',
+                        phone: row?.getPhone() ?? '',
+                        commission: row?.getCommission().toString(),
+                        externalId: row.getExternalId() ?? '',
+                        utmId: row.getUtmId() ?? '',
+                        utmSource: row.getUtmSource() ?? '',
+                        utmMedium: row.getUtmMedium() ?? '',
+                        utmCampaign: row.getUtmCampaign() ?? '',
+                        utmTerm: row.getUtmTerm() ?? '',
+                        utmContent: row.getUtmContent() ?? '',
+                    });
+                } else {
+                    this.push(null); // 3. Signal that there's no more data
+                }
+            },
+        });
+        
+        return sourceStream.pipe(stringifier);
+    }
 
 	/**
 	 * Get purchases report
@@ -1204,7 +1323,7 @@ export class PromoterService {
 		memberId: string,
 		startDate: Date,
 		endDate: Date,
-	) {
+	): Promise<{ purchaseStream: Readable; signupStream: Readable }> {
 		this.logger.info(`START: getCommissionsReport service`);
 
 		try {
@@ -1244,52 +1363,12 @@ export class PromoterService {
 			endDate,
 		);
 
-		// get both tables and the list
-		const purchasesTable = commissionSheetJsonWorkbook.getPurchaseSheet().getPurchaseTable();
-		const signUpsTable = commissionSheetJsonWorkbook.getSignupSheet().getSignupTable();
-		const commissionSummaryList = commissionSheetJsonWorkbook.getCommissionSummarySheet().getCommissionSummaryList();
-
-		const workbook = CommissionWorkbook.toXlsx(commissionSheetJsonWorkbook);
-
-		// all 3 sheets
-		const purchasesSheetData: any[] = [snakeCaseToHumanReadable(purchasesTable.getHeader())];
-		const signUpsSheetData: any[] = [snakeCaseToHumanReadable(signUpsTable.getHeader())];
-		const commissionsSummarySheetData: any[] = [];
-
-		// pushing purchase data
-		purchasesTable.getRows().map(row => {
-			purchasesSheetData.push(row);
-		});
-
-		// pushing signups data
-		signUpsTable.getRows().map(row => {
-			signUpsSheetData.push(row);
-		});
-
-		// pushing commissions summary data
-		commissionSummaryList.getItems().forEach((item) => {
-			commissionsSummarySheetData.push([snakeCaseToHumanReadable(item.getKey()), item.getValue()]);
-		})
-
-		// entering data to sheet
-		const summarySheet = XLSX.utils.aoa_to_sheet(commissionsSummarySheetData);
-		const purchasesSheet = XLSX.utils.aoa_to_sheet(purchasesSheetData);
-		const signUpsSheet = XLSX.utils.aoa_to_sheet(signUpsSheetData);
-
-		// Remove the snake_case sheets
-		workbook.SheetNames = workbook.SheetNames.filter(name => 
-			!name.includes('_sheet')
-		);
-
-		// adding sheet to workbook
-		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
-		XLSX.utils.book_append_sheet(workbook, purchasesSheet, 'Purchases');
-		XLSX.utils.book_append_sheet(workbook, signUpsSheet, 'Signups');
-
-		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+		// Generate CSV streams for purchases and signups
+		const purchaseStream = this.generatePurchaseCommissionCSVStream(commissionSheetJsonWorkbook);
+		const signupStream = this.generateSignupCommissionCSVStream(commissionSheetJsonWorkbook);
 
 		this.logger.info(`END: getCommissionsReport service`);
-		return fileBuffer;
+		return { purchaseStream, signupStream };
 	}
 
 	private async getSignUpsCommissions(signUps: SignUp[]): Promise<Map<string, Commission>> {
