@@ -1534,6 +1534,7 @@ export class PromoterService {
 				AND ct.program_id = $3
 				AND su.created_at >= $4 
 				AND su.created_at <= $5
+			ORDER BY c.created_at ASC
 		`, [conversionTypeEnum.SIGNUP, promoterId, programId, startDate.toISOString(), endDate.toISOString()]);
 
 		// Map commissions by contactId (externalId)
@@ -1563,6 +1564,7 @@ export class PromoterService {
 				AND ct.program_id = $3
 				AND p.created_at >= $4
 				AND p.created_at <= $5
+			ORDER BY c.created_at ASC
 		`, [conversionTypeEnum.PURCHASE, promoterId, programId, startDate.toISOString(), endDate.toISOString()]);
 
 		// Group commissions by purchaseId (stored as externalId)
