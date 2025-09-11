@@ -20,7 +20,7 @@ export class SignUpTableConverter {
 				row.setSignUpDate(formatDate(signUp.createdAt));
 				row.setEmail(maskInfo(signUp.contact.email));
 				row.setPhone(maskInfo(signUp.contact.phone));
-				row.setCommission(commission?.amount ?? 0);
+				row.setCommission(Number(commission?.amount ?? 0));
 				row.setExternalId(signUp.contact.externalId || '');
 				row.setUtmId(signUp?.utmParams?.utmId || '');
 				row.setUtmSource(signUp?.utmParams?.utmSource || '');

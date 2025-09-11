@@ -185,28 +185,70 @@ export class FunctionTriggerService {
 
         const eventEntityPayload = Object.values(event.data)[0];
 
-        // SIGNUPS condition
+        // REVENUE condition
         if (condition.parameter === conditionParameterEnum.REVENUE) {
-            const purchases = await this.promoterService.getPurchasesForPromoter(
+            // Fetch all purchases using pagination
+            let allPurchases: Purchase[] = [];
+            let cursor: string | undefined = undefined;
+            let hasNextPage = true;
+
+            while (hasNextPage) {
+                const purchasesResponse = await this.promoterService.getPurchasesForPromoter(
                     event.programId,
                     eventEntityPayload.promoterId,
                     false,
-                ) as Purchase[];
+                    {},
+                    undefined,
+                    undefined,
+                    cursor,
+                    1000
+                );
+                const response = purchasesResponse as any;
+                
+                allPurchases.push(...response.data);
+                hasNextPage = response.pagination.hasNextPage;
+                cursor = response.pagination.nextCursor || undefined;
+                
+                this.logger.info(`Revenue condition: Fetched ${response.pagination.count} purchases. Total so far: ${allPurchases.length}`);
+            }
+            
+            this.logger.info(`Revenue condition: Completed fetching all purchases. Total count: ${allPurchases.length}`);
 
-            const revenue = purchases.reduce((acc, purchase) => acc + Number(purchase.amount), 0);
+            const revenue = allPurchases.reduce((acc, purchase) => acc + Number(purchase.amount), 0);
 
             evalResult = condition.evaluate({ revenue });
 
             // PURCHASES condition
         }
         else if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
-            const signUps = await this.promoterService.getSignUpsForPromoter(
-                event.programId,
-                eventEntityPayload.promoterId,
-                false,
-            ) as SignUp[];
+            // Fetch all signups using pagination
+            let allSignUps: SignUp[] = [];
+            let cursor: string | undefined = undefined;
+            let hasNextPage = true;
 
-            const numSignUps = signUps.length;
+            while (hasNextPage) {
+                const signUpsResponse = await this.promoterService.getSignUpsForPromoter(
+                    event.programId,
+                    eventEntityPayload.promoterId,
+                    false,
+                    {},
+                    undefined,
+                    undefined,
+                    cursor,
+                    1000
+                );
+                const response = signUpsResponse as any;
+                
+                allSignUps.push(...response.data);
+                hasNextPage = response.pagination.hasNextPage;
+                cursor = response.pagination.nextCursor || undefined;
+                
+                this.logger.info(`Signup count condition: Fetched ${response.pagination.count} signups. Total so far: ${allSignUps.length}`);
+            }
+            
+            this.logger.info(`Signup count condition: Completed fetching all signups. Total count: ${allSignUps.length}`);
+
+            const numSignUps = allSignUps.length;
 
             evalResult = condition.evaluate({ numSignUps });
 
@@ -214,13 +256,34 @@ export class FunctionTriggerService {
         } else if (
             condition.parameter === conditionParameterEnum.NUM_OF_PURCHASES
         ) {
-            const numPurchases = (
-                await this.promoterService.getPurchasesForPromoter(
+            // Fetch all purchases using pagination
+            let allPurchases: Purchase[] = [];
+            let cursor: string | undefined = undefined;
+            let hasNextPage = true;
+
+            while (hasNextPage) {
+                const purchasesResponse = await this.promoterService.getPurchasesForPromoter(
                     event.programId,
                     eventEntityPayload.promoterId,
                     false,
-                ) as Purchase[]
-            ).length;
+                    {},
+                    undefined,
+                    undefined,
+                    cursor,
+                    1000
+                );
+                const response = purchasesResponse as any;
+                
+                allPurchases.push(...response.data);
+                hasNextPage = response.pagination.hasNextPage;
+                cursor = response.pagination.nextCursor || undefined;
+                
+                this.logger.info(`Purchase count condition: Fetched ${response.pagination.count} purchases. Total so far: ${allPurchases.length}`);
+            }
+            
+            this.logger.info(`Purchase count condition: Completed fetching all purchases. Total count: ${allPurchases.length}`);
+
+            const numPurchases = allPurchases.length;
 
             evalResult = condition.evaluate({ numPurchases });
             // ITEM ID condition

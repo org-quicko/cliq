@@ -517,8 +517,8 @@ export class PromoterController {
 
 		archive.pipe(res);
 
-		archive.append(signupStream, { name: 'signups.csv' });
-        archive.append(purchaseStream, { name: 'purchases.csv' });
+		archive.append(signupStream, { name: getReportFileName('Signups') });
+        archive.append(purchaseStream, { name: getReportFileName('Purchases') });
 
 
 		this.logger.info('END: getCommissionsReport controller');

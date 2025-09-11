@@ -43,7 +43,7 @@ import { sortOrderEnum } from '../enums/sortOrder.enum';
 import { referralSortByEnum } from '../enums/referralSortBy.enum';
 import { LinkAnalyticsView } from '../entities';
 import { defaultQueryOptions } from '../constants';
-import { snakeCaseToHumanReadable } from '../utils';
+import { snakeCaseToHumanReadable, encodeCursor, decodeCursor } from '../utils';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from '../constants';
 import { subjectsType } from '../types';
@@ -639,6 +639,7 @@ export class PromoterService {
 		this.logger.info('END: removeMember service');
 	}
 
+
 	/**
 	 * Get signups for promoter
 	 */
@@ -646,25 +647,43 @@ export class PromoterService {
 		programId: string,
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
-		whereOptions: FindOptionsWhere<Purchase> = {},
+		whereOptions: FindOptionsWhere<SignUp> = {},
+		startDate?: Date,
+		endDate?: Date,
+		cursor?: string,
+		limit: number = 1000,
 	) {
 		this.logger.info('START: getSignUpsForPromoter service');
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
-		// getting signups for: program -> promoter -> signups
-		const signUpsResult = await this.signUpRepository.find({
-			where: {
-				promoterId,
-				contact: {
-					programId
-				},
-				...whereOptions
-			},
-			relations: {
-				contact: true
-			},
-		});
+		// Optimized query using query builder with cursor-based pagination
+		const queryBuilder = this.signUpRepository
+			.createQueryBuilder('signUp')
+			.innerJoinAndSelect('signUp.contact', 'contact')
+			.where('signUp.promoterId = :promoterId', { promoterId })
+			.andWhere('contact.programId = :programId', { programId });
+
+		// Apply date filters with proper indexing support
+		if (startDate && endDate) {
+			queryBuilder
+				.andWhere('signUp.createdAt >= :startDate', { startDate: startDate.toISOString() })
+				.andWhere('signUp.createdAt <= :endDate', { endDate: endDate.toISOString() });
+		}
+
+		// Apply cursor-based pagination for efficient retrieval
+		if (cursor) {
+			const cursorDate = decodeCursor(cursor);
+			queryBuilder.andWhere('signUp.createdAt > :cursorDate', { cursorDate: cursorDate.toISOString() });
+		}
+
+		// Add ordering for consistent results and cursor pagination
+		queryBuilder
+			.orderBy('signUp.createdAt', 'ASC')
+			.addOrderBy('signUp.contactId', 'ASC') // Secondary sort for deterministic ordering
+			.limit(limit);
+
+		const signUpsResult = await queryBuilder.getMany();
 
 		
 
@@ -672,6 +691,13 @@ export class PromoterService {
 			this.logger.warn(
 				`failed to get signups for promoter ${promoterId}`,
 			);
+		}
+
+		// Generate next cursor for pagination
+		let nextCursor: string | null = null;
+		if (signUpsResult.length === limit && signUpsResult.length > 0) {
+			const lastItem = signUpsResult[signUpsResult.length - 1];
+			nextCursor = encodeCursor(lastItem.createdAt);
 		}
 
 		if (toUseSheetJsonFormat) {
@@ -686,7 +712,15 @@ export class PromoterService {
 		}
 
 		this.logger.info('END: getSignUpsForPromoter service');
-		return signUpsResult;
+		return {
+			data: signUpsResult,
+			pagination: {
+				hasNextPage: nextCursor !== null,
+				nextCursor,
+				limit,
+				count: signUpsResult.length
+			}
+		};
 	}
 
 	/**
@@ -697,26 +731,42 @@ export class PromoterService {
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<Purchase> = {},
+		startDate?: Date,
+		endDate?: Date,
+		cursor?: string,
+		limit: number = 1000,
 	) {
 		this.logger.info('START: getPurchasesForPromoter service');
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
-		const purchases = await this.purchaseRepository.find({
-			where: {
-				promoterId,
-				contact: {
-					programId,
-					commissions: {
+		// Highly optimized query using INNER JOIN with cursor-based pagination
+		const queryBuilder = this.purchaseRepository
+			.createQueryBuilder('purchase')
+			.innerJoinAndSelect('purchase.contact', 'contact')
+			.where('purchase.promoterId = :promoterId', { promoterId })
+			.andWhere('contact.programId = :programId', { programId });
 
-					}
-				},
-				...whereOptions
-			},
-			relations: {
-				contact: true
-			},
-		});
+		// Apply date filters with proper indexing support
+		if (startDate && endDate) {
+			queryBuilder
+				.andWhere('purchase.createdAt >= :startDate', { startDate: startDate.toISOString() })
+				.andWhere('purchase.createdAt <= :endDate', { endDate: endDate.toISOString() });
+		}
+
+		// Apply cursor-based pagination for efficient retrieval
+		if (cursor) {
+			const cursorDate = decodeCursor(cursor);
+			queryBuilder.andWhere('purchase.createdAt > :cursorDate', { cursorDate: cursorDate.toISOString() });
+		}
+
+		// Add ordering for consistent results and cursor pagination
+		queryBuilder
+			.orderBy('purchase.createdAt', 'ASC')
+			.addOrderBy('purchase.purchaseId', 'ASC') // Secondary sort for deterministic ordering
+			.limit(limit);
+
+		const purchases = await queryBuilder.getMany();
 
 		if (!purchases) {
 			this.logger.warn(`failed to get purchases for promoter ${promoterId}`);
@@ -724,21 +774,34 @@ export class PromoterService {
 		}
 
 
+		// Generate next cursor for pagination
+		let nextCursor: string | null = null;
+		if (purchases.length === limit && purchases.length > 0) {
+			const lastItem = purchases[purchases.length - 1];
+			nextCursor = encodeCursor(lastItem.createdAt);
+		}
+
 		if (toUseSheetJsonFormat) {
 			const purchaseSheetJson = this.promoterWorkbookConverter.convertTo({
 				purchaseSheetInput: {
 					purchases,
-
 				}
 			});
 
 			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
-
 			return purchaseSheetJson;
 		}
 
 		this.logger.info('END: getPurchasesForPromoter service');
-		return purchases;
+		return {
+			data: purchases,
+			pagination: {
+				hasNextPage: nextCursor !== null,
+				nextCursor,
+				limit,
+				count: purchases.length
+			}
+		};
 	}
 
 	async getPromoterReferrals(
@@ -951,9 +1014,29 @@ export class PromoterService {
 			})
 		};
 
-		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, false, filter) as SignUp[];
+		let signUpsResult: SignUp[] = [];
+		let cursor: string | undefined = undefined;
+		let hasNextPage = true;
+
+		// Fetch all signups by paginating through all pages
+		while (hasNextPage) {
+			const signUpsResponse = await this.getSignUpsForPromoter(programId, promoterId, false, filter, startDate, endDate, cursor, 1000);
+			const response = signUpsResponse as any;
+			
+			// Append current page data to the result array
+			signUpsResult.push(...response.data);
+			
+			// Update pagination state
+			hasNextPage = response.pagination.hasNextPage;
+			cursor = response.pagination.nextCursor || undefined;
+			
+			this.logger.info(`Fetched ${response.pagination.count} signups. Total so far: ${signUpsResult.length}`);
+		}
+
+		this.logger.info(`Completed fetching all signups. Total count: ${signUpsResult.length}`);
+
 		const promoterResult = await this.getPromoterEntity(promoterId);
-		const signUpsCommissions = await this.getSignUpsCommissions(signUpsResult);
+		const signUpsCommissions = await this.getSignUpsCommissions(programId, promoterId, startDate, endDate);
 
 
 		const signUpSheetJsonWorkbook = this.signUpWorkbookConverter.convertFrom(signUpsResult, signUpsCommissions, promoterResult, startDate, endDate);
@@ -978,18 +1061,18 @@ export class PromoterService {
         let rowIndex = 0;
 
         const columns = [
-            { key: 'contactId', header: 'Contact ID' },
-            { key: 'signUpDate', header: 'Sign Up Date' },
-            { key: 'email', header: 'Email' },
-            { key: 'phone', header: 'Phone' },
-            { key: 'commission', header: 'Commission' },
-            { key: 'externalId', header: 'External ID' },
-            { key: 'utmId', header: 'UTM ID' },
-            { key: 'utmSource', header: 'UTM Source' },
-            { key: 'utmMedium', header: 'UTM Medium' },
-            { key: 'utmCampaign', header: 'UTM Campaign' },
-            { key: 'utmTerm', header: 'UTM Term' },
-            { key: 'utmContent', header: 'UTM Content' },
+            { key: 'contactId', header: 'contact_id' },
+            { key: 'signUpDate', header: 'sign_up_date' },
+            { key: 'email', header: 'email' },
+            { key: 'phone', header: 'phone' },
+            { key: 'commission', header: 'commission' },
+            { key: 'externalId', header: 'external_id' },
+            { key: 'utmId', header: 'utm_id' },
+            { key: 'utmSource', header: 'utm_source' },
+            { key: 'utmMedium', header: 'utm_medium' },
+            { key: 'utmCampaign', header: 'utm_campaign' },
+            { key: 'utmTerm', header: 'utm_term' },
+            { key: 'utmContent', header: 'utm_content' },
         ];
 
         // 1. Create a source stream from your data array
@@ -1004,7 +1087,7 @@ export class PromoterService {
                         signUpDate: row.getSignUpDate(),
                         email: row?.getEmail() ?? '',
                         phone: row?.getPhone() ?? '',
-                        commission: row?.getCommission().toString(),
+                        commission: Number(row?.getCommission()).toString(),
                         externalId: row.getExternalId() ?? '',
                         utmId: row.getUtmId() ?? '',
                         utmSource: row.getUtmSource() ?? '',
@@ -1041,19 +1124,19 @@ export class PromoterService {
         let rowIndex = 0;
 
         const columns = [
-            { key: 'purchaseId', header: 'Purchase ID' },
-            { key: 'contactId', header: 'Contact ID' },
-            { key: 'purchaseDate', header: 'Purchase Date' },
-            { key: 'itemId', header: 'Item ID' },
-            { key: 'amount', header: 'Amount' },
-            { key: 'commission', header: 'Commission' },
-            { key: 'externalId', header: 'External ID' },
-            { key: 'utmId', header: 'UTM ID' },
-            { key: 'utmSource', header: 'UTM Source' },
-            { key: 'utmMedium', header: 'UTM Medium' },
-            { key: 'utmCampaign', header: 'UTM Campaign' },
-            { key: 'utmTerm', header: 'UTM Term' },
-            { key: 'utmContent', header: 'UTM Content' },
+            { key: 'purchaseId', header: 'purchase_id' },
+            { key: 'contactId', header: 'contact_id' },
+            { key: 'purchaseDate', header: 'purchase_date' },
+            { key: 'itemId', header: 'item_id' },
+            { key: 'amount', header: 'amount' },
+            { key: 'commission', header: 'commission' },
+            { key: 'externalId', header: 'external_id' },
+            { key: 'utmId', header: 'utm_id' },
+            { key: 'utmSource', header: 'utm_source' },
+            { key: 'utmMedium', header: 'utm_medium' },
+            { key: 'utmCampaign', header: 'utm_campaign' },
+            { key: 'utmTerm', header: 'utm_term' },
+            { key: 'utmContent', header: 'utm_content' },
         ];
 
         // 1. Create a source stream from your data array
@@ -1068,8 +1151,8 @@ export class PromoterService {
                         contactId: row?.getContactId(),
                         purchaseDate: row.getPurchaseDate(),
                         itemId: row?.getItemId() ?? '',
-                        amount: row?.getAmount()?.toString() ?? '',
-                        commission: row?.getCommission()?.toString() ?? '',
+                        amount: Number(row?.getAmount()).toString(),
+                        commission: Number(row?.getCommission()).toString(),
                         externalId: row.getExternalId() ?? '',
                         utmId: row.getUtmId() ?? '',
                         utmSource: row.getUtmSource() ?? '',
@@ -1105,19 +1188,19 @@ export class PromoterService {
         let rowIndex = 0;
 
         const columns = [
-            { key: 'purchaseId', header: 'Purchase ID' },
-            { key: 'contactId', header: 'Contact ID' },
-            { key: 'purchaseDate', header: 'Purchase Date' },
-            { key: 'itemId', header: 'Item ID' },
-            { key: 'amount', header: 'Amount' },
-            { key: 'commission', header: 'Commission' },
-            { key: 'externalId', header: 'External ID' },
-            { key: 'utmId', header: 'UTM ID' },
-            { key: 'utmSource', header: 'UTM Source' },
-            { key: 'utmMedium', header: 'UTM Medium' },
-            { key: 'utmCampaign', header: 'UTM Campaign' },
-            { key: 'utmTerm', header: 'UTM Term' },
-            { key: 'utmContent', header: 'UTM Content' },
+            { key: 'purchaseId', header: 'purchase_id' },
+            { key: 'contactId', header: 'contact_id' },
+            { key: 'purchaseDate', header: 'purchase_date' },
+            { key: 'itemId', header: 'item_id' },
+            { key: 'amount', header: 'amount' },
+            { key: 'commission', header: 'commission' },
+            { key: 'externalId', header: 'external_id' },
+            { key: 'utmId', header: 'utm_id' },
+            { key: 'utmSource', header: 'utm_source' },
+            { key: 'utmMedium', header: 'utm_medium' },
+            { key: 'utmCampaign', header: 'utm_campaign' },
+            { key: 'utmTerm', header: 'utm_term' },
+            { key: 'utmContent', header: 'utm_content' },
         ];
 
         // 1. Create a source stream from your data array
@@ -1132,8 +1215,8 @@ export class PromoterService {
                         contactId: row?.getContactId(),
                         purchaseDate: row.getPurchaseDate(),
                         itemId: row?.getItemId() ?? '',
-                        amount: row?.getAmount()?.toString() ?? '',
-                        commission: row?.getCommission()?.toString() ?? '',
+                        amount: Number(row?.getAmount()).toString(),
+                        commission: Number(row?.getCommission()).toString(),
                         externalId: row.getExternalId() ?? '',
                         utmId: row.getUtmId() ?? '',
                         utmSource: row.getUtmSource() ?? '',
@@ -1169,18 +1252,18 @@ export class PromoterService {
         let rowIndex = 0;
         
         const columns = [
-            { key: 'contactId', header: 'Contact ID' },
-            { key: 'signUpDate', header: 'Sign Up Date' },
-            { key: 'email', header: 'Email' },
-            { key: 'phone', header: 'Phone' },
-            { key: 'commission', header: 'Commission' },
-            { key: 'externalId', header: 'External ID' },
-            { key: 'utmId', header: 'UTM ID' },
-            { key: 'utmSource', header: 'UTM Source' },
-            { key: 'utmMedium', header: 'UTM Medium' },
-            { key: 'utmCampaign', header: 'UTM Campaign' },
-            { key: 'utmTerm', header: 'UTM Term' },
-            { key: 'utmContent', header: 'UTM Content' },
+            { key: 'contactId', header: 'contact_id' },
+            { key: 'signUpDate', header: 'sign_up_date' },
+            { key: 'email', header: 'email' },
+            { key: 'phone', header: 'phone' },
+            { key: 'commission', header: 'commission' },
+            { key: 'externalId', header: 'external_id' },
+            { key: 'utmId', header: 'utm_id' },
+            { key: 'utmSource', header: 'utm_source' },
+            { key: 'utmMedium', header: 'utm_medium' },
+            { key: 'utmCampaign', header: 'utm_campaign' },
+            { key: 'utmTerm', header: 'utm_term' },
+            { key: 'utmContent', header: 'utm_content' },
         ];
         
         const stringifier = stringify({
@@ -1198,7 +1281,7 @@ export class PromoterService {
                         signUpDate: row.getSignUpDate(),
                         email: row?.getEmail() ?? '',
                         phone: row?.getPhone() ?? '',
-                        commission: row?.getCommission().toString(),
+                        commission: Number(row?.getCommission()).toString(),
                         externalId: row.getExternalId() ?? '',
                         utmId: row.getUtmId() ?? '',
                         utmSource: row.getUtmSource() ?? '',
@@ -1248,9 +1331,29 @@ export class PromoterService {
 			})
 		};
 
-		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
+		let purchasesResult: Purchase[] = [];
+		let cursor: string | undefined = undefined;
+		let hasNextPage = true;
+
+		// Fetch all purchases by paginating through all pages
+		while (hasNextPage) {
+			const purchasesResponse = await this.getPurchasesForPromoter(programId, promoterId, false, filter, startDate, endDate, cursor, 1000);
+			const response = purchasesResponse as any;
+			
+			// Append current page data to the result array
+			purchasesResult.push(...response.data);
+			
+			// Update pagination state
+			hasNextPage = response.pagination.hasNextPage;
+			cursor = response.pagination.nextCursor || undefined;
+			
+			this.logger.info(`Fetched ${response.pagination.count} purchases. Total so far: ${purchasesResult.length}`);
+		}
+
+		this.logger.info(`Completed fetching all purchases. Total count: ${purchasesResult.length}`);
+
 		const promoterResult = await this.getPromoterEntity(promoterId);
-		const purchasesCommissions = await this.getPurchasesCommissions(purchasesResult);
+		const purchasesCommissions = await this.getPurchasesCommissions(programId, promoterId, startDate, endDate);
 
 		const purchaseSheetJsonWorkbook = this.purchaseWorkbookConverter.convertFrom(purchasesResult, purchasesCommissions, promoterResult, startDate, endDate);
 
@@ -1346,10 +1449,51 @@ export class PromoterService {
 			})
 		};
 
-		const signUpsResult = await this.getSignUpsForPromoter(programId, promoterId, false, filter) as SignUp[];
-		const purchasesResult = await this.getPurchasesForPromoter(programId, promoterId, false, filter) as Purchase[];
-		const signUpsCommissions = await this.getSignUpsCommissions(signUpsResult);
-		const purchasesCommissions = await this.getPurchasesCommissions(purchasesResult);
+		
+		// Fetch all signups by paginating through all pages
+		let signUpsResult: SignUp[] = [];
+		let signUpsCursor: string | undefined = undefined;
+		let signUpsHasNextPage = true;
+
+		while (signUpsHasNextPage) {
+			const signUpsResponse = await this.getSignUpsForPromoter(programId, promoterId, false, filter, startDate, endDate, signUpsCursor, 1000);
+			const response = signUpsResponse as any;
+			
+			// Append current page data to the result array
+			signUpsResult.push(...response.data);
+			
+			// Update pagination state
+			signUpsHasNextPage = response.pagination.hasNextPage;
+			signUpsCursor = response.pagination.nextCursor || undefined;
+			
+			this.logger.info(`Fetched ${response.pagination.count} signups. Total so far: ${signUpsResult.length}`);
+		}
+
+		this.logger.info(`Completed fetching all signups. Total count: ${signUpsResult.length}`);
+
+		// Fetch all purchases by paginating through all pages
+		let purchasesResult: Purchase[] = [];
+		let purchasesCursor: string | undefined = undefined;
+		let purchasesHasNextPage = true;
+
+		while (purchasesHasNextPage) {
+			const purchasesResponse = await this.getPurchasesForPromoter(programId, promoterId, false, filter, startDate, endDate, purchasesCursor, 1000);
+			const response = purchasesResponse as any;
+			
+			// Append current page data to the result array
+			purchasesResult.push(...response.data);
+			
+			// Update pagination state
+			purchasesHasNextPage = response.pagination.hasNextPage;
+			purchasesCursor = response.pagination.nextCursor || undefined;
+			
+			this.logger.info(`Fetched ${response.pagination.count} purchases. Total so far: ${purchasesResult.length}`);
+		}
+
+		this.logger.info(`Completed fetching all purchases. Total count: ${purchasesResult.length}`);
+
+		const signUpsCommissions = await this.getSignUpsCommissions(programId, promoterId, startDate, endDate);
+		const purchasesCommissions = await this.getPurchasesCommissions(programId, promoterId, startDate, endDate);
 
 		const promoterResult = await this.getPromoterEntity(promoterId);
 
@@ -1371,60 +1515,66 @@ export class PromoterService {
 		return { purchaseStream, signupStream };
 	}
 
-	private async getSignUpsCommissions(signUps: SignUp[]): Promise<Map<string, Commission>> {
-		const contactIds = signUps.map(signUp => signUp.contactId);
-
-		const BATCH_SIZE = 1000;
+	private async getSignUpsCommissions(programId: string, promoterId: string, startDate: Date, endDate: Date): Promise<Map<string, Commission>> {
 		const signUpsCommissions: Map<string, Commission> = new Map();
 
-		// Process contactIds in batches
-		for (let i = 0; i < contactIds.length; i += BATCH_SIZE) {
-			const batch = contactIds.slice(i, i + BATCH_SIZE);
-			
-			const commissions = await this.commissionRepository.find({
-				where: {
-					conversionType: conversionTypeEnum.SIGNUP,
-					externalId: In(batch),
-				}
-			});
+		const commissions = await this.commissionRepository.query(`
+			SELECT 
+				c.commission_id as "commissionId",
+				c.external_id as "externalId",
+				c.amount,
+				c.revenue,
+				c.created_at as "createdAt",
+				c.updated_at as "updatedAt"
+			FROM commission c
+			INNER JOIN sign_up su ON c.external_id = su.contact_id
+			INNER JOIN contact ct ON su.contact_id = ct.contact_id
+			WHERE c.conversion_type = $1 
+				AND c.promoter_id = $2
+				AND ct.program_id = $3
+				AND su.created_at >= $4 
+				AND su.created_at <= $5
+		`, [conversionTypeEnum.SIGNUP, promoterId, programId, startDate.toISOString(), endDate.toISOString()]);
 
-			// Map commissions by contactId (externalId)
-			for (const commission of commissions) {
-				signUpsCommissions.set(commission.externalId, commission);
-			}
+		// Map commissions by contactId (externalId)
+		for (const commission of commissions) {
+			signUpsCommissions.set(commission.externalId, commission);
 		}
 
 		return signUpsCommissions;
 	}
 
-	private async getPurchasesCommissions(purchases: Purchase[]): Promise<Map<string, Commission[]>> {
-		const purchaseIds = purchases.map(p => p.purchaseId);
+	private async getPurchasesCommissions(programId: string, promoterId: string, startDate: Date, endDate: Date): Promise<Map<string, Commission[]>> {
+		const purchasesCommissionsMap: Map<string, Commission[]> = new Map();
+		
+		const commissions = await this.commissionRepository.query(`
+			SELECT 
+				c.commission_id as "commissionId",
+				c.external_id as "externalId",
+				c.amount,
+				c.revenue,
+				c.created_at as "createdAt",
+				c.updated_at as "updatedAt"
+			FROM commission c
+			INNER JOIN purchase p ON c.external_id = p.purchase_id
+			INNER JOIN contact ct ON p.contact_id = ct.contact_id
+			WHERE c.conversion_type = $1
+				AND c.promoter_id = $2
+				AND ct.program_id = $3
+				AND p.created_at >= $4
+				AND p.created_at <= $5
+		`, [conversionTypeEnum.PURCHASE, promoterId, programId, startDate.toISOString(), endDate.toISOString()]);
 
-		const BATCH_SIZE = 1000;
-		const purchaseCommissionsMap = new Map<string, Commission[]>();
-
-		// Process purchaseIds in batches
-		for (let i = 0; i < purchaseIds.length; i += BATCH_SIZE) {
-			const batch = purchaseIds.slice(i, i + BATCH_SIZE);
-			
-			const commissions = await this.commissionRepository.find({
-				where: {
-					conversionType: conversionTypeEnum.PURCHASE,
-					externalId: In(batch),
-				},
-			});
-
-			// Group commissions by purchaseId (stored as externalId)
-			for (const commission of commissions) {
-				const purchaseId = commission.externalId;
-				if (!purchaseCommissionsMap.has(purchaseId)) {
-					purchaseCommissionsMap.set(purchaseId, []);
-				}
-				purchaseCommissionsMap.get(purchaseId)!.push(commission);
+		// Group commissions by purchaseId (stored as externalId)
+		for (const commission of commissions) {
+			const purchaseId = commission.externalId;
+			if (!purchasesCommissionsMap.has(purchaseId)) {
+				purchasesCommissionsMap.set(purchaseId, []);
 			}
+			purchasesCommissionsMap.get(purchaseId)!.push(commission);
 		}
 
-		return purchaseCommissionsMap;
+		return purchasesCommissionsMap;
 	}
 
 	async getLinksReport(
