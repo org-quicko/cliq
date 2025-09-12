@@ -1057,7 +1057,7 @@ export class PromoterService {
      */
     private generateSignUpCSVStream(signupWorkbook: SignUpWorkbook): Readable {
         const signUpsTable = signupWorkbook.getSignupSheet().getSignupTable();
-        const rows = signUpsTable.getRows();
+        const len = signUpsTable.getRows().length;
         let rowIndex = 0;
 
         const columns = [
@@ -1079,8 +1079,8 @@ export class PromoterService {
         const sourceStream = new Readable({
             objectMode: true,
             read() {
-                if (rowIndex < rows.length) {
-                    const row = signUpsTable.getRow(rowIndex++);
+				const row = signUpsTable.getRow(rowIndex++);
+                if (row) {
                     // 2. Push one transformed row object at a time
                     this.push({
                         contactId: row?.getContactId(),
