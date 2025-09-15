@@ -1090,6 +1090,7 @@ export class PromoterService {
         // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
+            highWaterMark: 16, // Limit internal buffer size
             async read() {
                 try {
                     // If we have data in current chunk, process it
@@ -1098,7 +1099,7 @@ export class PromoterService {
                         totalProcessed++;
                         
                         // Transform row to CSV format
-                        this.push({
+                        const csvRow = {
                             contactId: row?.contactId,
                             signUpDate: formatDate(row.createdAt),
                             email: row?.contact.email ?? '',
@@ -1110,18 +1111,24 @@ export class PromoterService {
                             utmCampaign: row?.utmParams?.utmCampaign ?? '',
                             utmTerm: row?.utmParams?.utmTerm ?? '',
                             utmContent: row?.utmParams?.utmContent ?? '',
-                        });
-
+                        };
+						
+                        delete currentChunk[chunkIndex - 1];
+                        
+                        this.push(csvRow);
                         return;
                     }
 
                     // If no more data in current chunk and no more pages, end stream
                     if (!hasNextPage) {
                         console.log(`Completed processing all signups. Total count: ${totalProcessed}`);
+                        currentChunk = [];
                         this.push(null); // Signal end of data
                         return;
                     }
-
+					
+                    currentChunk = [];
+                    
                     // Fetch next chunk from database
                     const response = await getSignUpsForReports(programId, promoterId, startDate, endDate, cursor, 1000);
                     
@@ -1135,7 +1142,7 @@ export class PromoterService {
                         const row = currentChunk[chunkIndex++];
                         totalProcessed++;
                         
-                        this.push({
+                        const csvRow = {
                             contactId: row?.contactId,
                             signUpDate: formatDate(row.createdAt),
                             email: row?.contact.email ?? '',
@@ -1147,10 +1154,14 @@ export class PromoterService {
                             utmCampaign: row?.utmParams?.utmCampaign ?? '',
                             utmTerm: row?.utmParams?.utmTerm ?? '',
                             utmContent: row?.utmParams?.utmContent ?? '',
-                        });
+                        };
+                        
+                        this.push(csvRow);
                     }
                 } catch (error) {
                     console.error('Error in streaming signup data:', error);
+                    // Clear current chunk on error
+                    currentChunk = [];
                     this.destroy(error);
                 }
             },
@@ -1208,6 +1219,7 @@ export class PromoterService {
         // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
+            highWaterMark: 16, // Limit internal buffer size
             async read() {
                 try {
                     // If we have data in current chunk, process it
@@ -1216,7 +1228,7 @@ export class PromoterService {
                         totalProcessed++;
                         
                         // Transform row to CSV format
-                        this.push({
+                        const csvRow = {
                             purchaseId: row?.purchaseId,
                             contactId: row?.contactId,
                             purchaseDate: formatDate(row.createdAt),
@@ -1229,17 +1241,26 @@ export class PromoterService {
                             utmCampaign: row?.utmParams?.utmCampaign ?? '',
                             utmTerm: row?.utmParams?.utmTerm ?? '',
                             utmContent: row?.utmParams?.utmContent ?? '',
-                        });
-						return;
+                        };
+
+                        // Clear the processed row to free memory
+                        delete currentChunk[chunkIndex - 1];
+                        
+                        this.push(csvRow);
+                        return;
                     }
 
                     // If no more data in current chunk and no more pages, end stream
                     if (!hasNextPage) {
                         console.log(`Completed processing all purchases. Total count: ${totalProcessed}`);
+                        currentChunk = [];
                         this.push(null); // Signal end of data
                         return;
                     }
 
+                    // Clear previous chunk to free memory before fetching new one
+                    currentChunk = [];
+                    
                     // Fetch next chunk from database
                     const response = await getPurchasesForReports(programId, promoterId, startDate, endDate, cursor, 1000);
                     
@@ -1253,7 +1274,7 @@ export class PromoterService {
                         const row = currentChunk[chunkIndex++];
                         totalProcessed++;
                         
-                        this.push({
+                        const csvRow = {
                             purchaseId: row?.purchaseId,
                             contactId: row?.contactId,
                             purchaseDate: formatDate(row.createdAt),
@@ -1266,10 +1287,14 @@ export class PromoterService {
                             utmCampaign: row?.utmParams?.utmCampaign ?? '',
                             utmTerm: row?.utmParams?.utmTerm ?? '',
                             utmContent: row?.utmParams?.utmContent ?? '',
-                        });
+                        };
+                        
+                        this.push(csvRow);
                     }
                 } catch (error) {
                     console.error('Error in streaming purchase data:', error);
+                    // Clear current chunk on error
+                    currentChunk = [];
                     this.destroy(error);
                 }
             },
@@ -1492,6 +1517,7 @@ export class PromoterService {
         // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
+            highWaterMark: 16, // Limit internal buffer size
             async read() {
                 try {
                     // If we have data in current chunk, process it
@@ -1500,23 +1526,32 @@ export class PromoterService {
                         totalProcessed++;
                         
                         // Transform row to CSV format
-                        this.push({
+                        const csvRow = {
                             commissionId: row?.commissionId,
                             type: row?.conversionType,
                             referenceId: row?.externalId,
                             commission: Number(row?.amount).toString(),
                             createdAt: formatDate(row.createdAt),
-                        });
+                        };
 
+                        // Clear the processed row to free memory
+                        delete currentChunk[chunkIndex - 1];
+                        
+                        this.push(csvRow);
                         return;
                     }
 
                     // If no more data in current chunk and no more pages, end stream
                     if (!hasNextPage) {
+                        console.log(`Completed processing all commissions. Total count: ${totalProcessed}`);
+                        currentChunk = [];
                         this.push(null); // Signal end of data
                         return;
                     }
 
+                    // Clear previous chunk to free memory before fetching new one
+                    currentChunk = [];
+                    
                     // Fetch next chunk from database
                     const response = await getCommissionsForReports(programId, promoterId, startDate, endDate, cursor, 1000);
                     
@@ -1530,16 +1565,20 @@ export class PromoterService {
                         const row = currentChunk[chunkIndex++];
                         totalProcessed++;
                         
-                        this.push({
+                        const csvRow = {
                             commissionId: row?.commissionId,
                             type: row?.conversionType,
                             referenceId: row?.externalId,
                             commission: Number(row?.amount).toString(),
                             createdAt: formatDate(row.createdAt),
-                        });
+                        };
+                        
+                        this.push(csvRow);
                     }
                 } catch (error) {
                     console.error('Error in streaming commission data:', error);
+                    // Clear current chunk on error
+                    currentChunk = [];
                     this.destroy(error);
                 }
             },
