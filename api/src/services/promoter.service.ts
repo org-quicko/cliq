@@ -43,7 +43,7 @@ import { sortOrderEnum } from '../enums/sortOrder.enum';
 import { referralSortByEnum } from '../enums/referralSortBy.enum';
 import { LinkAnalyticsView } from '../entities';
 import { defaultQueryOptions } from '../constants';
-import { snakeCaseToHumanReadable, encodeCursor, decodeCursor } from '../utils';
+import { snakeCaseToHumanReadable, encodeCursor, decodeCursor, formatDate } from '../utils';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from '../constants';
 import { subjectsType } from '../types';
@@ -639,7 +639,6 @@ export class PromoterService {
 		this.logger.info('END: removeMember service');
 	}
 
-
 	/**
 	 * Get signups for promoter
 	 */
@@ -648,21 +647,76 @@ export class PromoterService {
 		promoterId: string,
 		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<SignUp> = {},
-		startDate?: Date,
-		endDate?: Date,
-		cursor?: string,
-		limit: number = 1000,
 	) {
 		this.logger.info('START: getSignUpsForPromoter service');
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
-		// Optimized query using query builder with cursor-based pagination
+		// getting signups for: program -> promoter -> signups
+		const signUpsResult = await this.signUpRepository.find({
+			where: {
+				promoterId,
+				contact: {
+					programId
+				},
+				...whereOptions
+			},
+			relations: {
+				contact: true
+			},
+		});
+
+		
+
+		if (!signUpsResult || signUpsResult.length === 0) {
+			this.logger.warn(
+				`failed to get signups for promoter ${promoterId}`,
+			);
+		}
+
+		if (toUseSheetJsonFormat) {
+			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+				signUpSheetInput: {
+					signUps: signUpsResult
+				}
+			});
+
+			this.logger.info('END: getSignUpsForPromoter service: Returning Workbook');
+			return promoterWorkbook;
+		}
+
+		this.logger.info('END: getSignUpsForPromoter service');
+		return signUpsResult;
+	}
+
+
+	/**
+	 * Get signups for reports
+	 */
+	async getSignUpsForReports(
+		programId: string,
+		promoterId: string,
+		startDate?: Date,
+		endDate?: Date,
+		cursor?: string,
+		limit: number = 1000,
+	): Promise<{
+		data: SignUp[];
+		pagination: {
+			hasNextPage: boolean;
+			nextCursor: string | null;
+			limit: number;
+			count: number;
+		};
+	}> {
+		this.logger.info('START: getSignUpsForReports service');
+
 		const queryBuilder = this.signUpRepository
 			.createQueryBuilder('signUp')
 			.innerJoinAndSelect('signUp.contact', 'contact')
 			.where('signUp.promoterId = :promoterId', { promoterId })
-			.andWhere('contact.programId = :programId', { programId });
+			.andWhere('contact.programId = :programId', { programId })
+			.select(['signUp.contactId', 'signUp.createdAt', 'contact.email', 'contact.phone', 'contact.externalId', 'signUp.utmParams']);
 
 		// Apply date filters with proper indexing support
 		if (startDate && endDate) {
@@ -700,18 +754,7 @@ export class PromoterService {
 			nextCursor = encodeCursor(lastItem.createdAt);
 		}
 
-		if (toUseSheetJsonFormat) {
-			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
-				signUpSheetInput: {
-					signUps: signUpsResult
-				}
-			});
-
-			this.logger.info('END: getSignUpsForPromoter service: Returning Workbook');
-			return promoterWorkbook;
-		}
-
-		this.logger.info('END: getSignUpsForPromoter service');
+		this.logger.info('END: getSignUpsForReports service');
 		return {
 			data: signUpsResult,
 			pagination: {
@@ -726,21 +769,24 @@ export class PromoterService {
 	/**
 	 * Get purchases for promoter
 	 */
-	async getPurchasesForPromoter(
+	async getPurchasesForReports(
 		programId: string,
 		promoterId: string,
-		toUseSheetJsonFormat: boolean = true,
-		whereOptions: FindOptionsWhere<Purchase> = {},
 		startDate?: Date,
 		endDate?: Date,
 		cursor?: string,
 		limit: number = 1000,
-	) {
-		this.logger.info('START: getPurchasesForPromoter service');
+	): Promise<{
+		data: Purchase[];
+		pagination: {
+			hasNextPage: boolean;
+			nextCursor: string | null;
+			limit: number;
+			count: number;
+		};
+	}> {
+		this.logger.info('START: getPurchasesForReports service');
 
-		await this.hasAcceptedTermsAndConditions(programId, promoterId);
-
-		// Highly optimized query using INNER JOIN with cursor-based pagination
 		const queryBuilder = this.purchaseRepository
 			.createQueryBuilder('purchase')
 			.innerJoinAndSelect('purchase.contact', 'contact')
@@ -781,18 +827,7 @@ export class PromoterService {
 			nextCursor = encodeCursor(lastItem.createdAt);
 		}
 
-		if (toUseSheetJsonFormat) {
-			const purchaseSheetJson = this.promoterWorkbookConverter.convertTo({
-				purchaseSheetInput: {
-					purchases,
-				}
-			});
-
-			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
-			return purchaseSheetJson;
-		}
-
-		this.logger.info('END: getPurchasesForPromoter service');
+		this.logger.info('END: getPurchasesForReports service');
 		return {
 			data: purchases,
 			pagination: {
@@ -983,7 +1018,7 @@ export class PromoterService {
 	}
 
 	/**
-	 * Get signups report
+	 * Get signups report - Memory efficient streaming version
 	 */
 	async getSignUpsReport(
 		programId: string,
@@ -1007,42 +1042,8 @@ export class PromoterService {
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
-		const filter = {
-			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
-				start: startDate.toISOString(),
-				end: endDate.toISOString(),
-			})
-		};
-
-		let signUpsResult: SignUp[] = [];
-		let cursor: string | undefined = undefined;
-		let hasNextPage = true;
-
-		// Fetch all signups by paginating through all pages
-		while (hasNextPage) {
-			const signUpsResponse = await this.getSignUpsForPromoter(programId, promoterId, false, filter, startDate, endDate, cursor, 1000);
-			const response = signUpsResponse as any;
-			
-			// Append current page data to the result array
-			signUpsResult.push(...response.data);
-			
-			// Update pagination state
-			hasNextPage = response.pagination.hasNextPage;
-			cursor = response.pagination.nextCursor || undefined;
-			
-			this.logger.info(`Fetched ${response.pagination.count} signups. Total so far: ${signUpsResult.length}`);
-		}
-
-		this.logger.info(`Completed fetching all signups. Total count: ${signUpsResult.length}`);
-
-		const promoterResult = await this.getPromoterEntity(promoterId);
-		const signUpsCommissions = await this.getSignUpsCommissions(programId, promoterId, startDate, endDate);
-
-
-		const signUpSheetJsonWorkbook = this.signUpWorkbookConverter.convertFrom(signUpsResult, signUpsCommissions, promoterResult, startDate, endDate);
-
-		const signUpCSV = this.generateSignUpCSVStream(signUpSheetJsonWorkbook);
-
+		// Create a streaming CSV generator that doesn't accumulate data in memory
+		const signUpCSV = this.generateSignUpCSVStream(programId, promoterId, startDate, endDate);
 
 		this.logger.info('END: getSignUpsReport service');
 		return signUpCSV;
@@ -1050,22 +1051,24 @@ export class PromoterService {
 
 
     /**
-     * Creates a readable stream that generates CSV data row-by-row.
-     * This is highly memory-efficient as it doesn't load the whole file into memory.
-     * @param signupWorkbook - The workbook data source.
+     * Creates a readable stream that generates CSV data row-by-row directly from database.
+     * @param programId - Program ID
+     * @param promoterId - Promoter ID  
+     * @param startDate - Start date filter
+     * @param endDate - End date filter
      * @returns A Readable stream outputting CSV data.
      */
-    private generateSignUpCSVStream(signupWorkbook: SignUpWorkbook): Readable {
-        const signUpsTable = signupWorkbook.getSignupSheet().getSignupTable();
-        const len = signUpsTable.getRows().length;
-        let rowIndex = 0;
-
+    private generateSignUpCSVStream(
+        programId: string,
+        promoterId: string,
+        startDate: Date,
+        endDate: Date
+    ): Readable {
         const columns = [
             { key: 'contactId', header: 'contact_id' },
             { key: 'signUpDate', header: 'sign_up_date' },
             { key: 'email', header: 'email' },
             { key: 'phone', header: 'phone' },
-            { key: 'commission', header: 'commission' },
             { key: 'externalId', header: 'external_id' },
             { key: 'utmId', header: 'utm_id' },
             { key: 'utmSource', header: 'utm_source' },
@@ -1075,61 +1078,115 @@ export class PromoterService {
             { key: 'utmContent', header: 'utm_content' },
         ];
 
-        // 1. Create a source stream from your data array
+        let cursor: string | undefined = undefined;
+        let hasNextPage = true;
+        let currentChunk: SignUp[] = [];
+        let chunkIndex = 0;
+        let totalProcessed = 0;
+
+        // Capture the method reference to avoid scope issues
+        const getSignUpsForReports = this.getSignUpsForReports.bind(this);
+
+        // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
-            read() {
-				const row = signUpsTable.getRow(rowIndex++);
-                if (row) {
-                    // 2. Push one transformed row object at a time
-                    this.push({
-                        contactId: row?.getContactId(),
-                        signUpDate: row.getSignUpDate(),
-                        email: row?.getEmail() ?? '',
-                        phone: row?.getPhone() ?? '',
-                        commission: Number(row?.getCommission()).toString(),
-                        externalId: row.getExternalId() ?? '',
-                        utmId: row.getUtmId() ?? '',
-                        utmSource: row.getUtmSource() ?? '',
-                        utmMedium: row.getUtmMedium() ?? '',
-                        utmCampaign: row.getUtmCampaign() ?? '',
-                        utmTerm: row.getUtmTerm() ?? '',
-                        utmContent: row.getUtmContent() ?? '',
-                    });
-                } else {
-                    this.push(null); // 3. Signal that there's no more data
+            async read() {
+                try {
+                    // If we have data in current chunk, process it
+                    if (chunkIndex < currentChunk.length) {
+                        const row = currentChunk[chunkIndex++];
+                        totalProcessed++;
+                        
+                        // Transform row to CSV format
+                        this.push({
+                            contactId: row?.contactId,
+                            signUpDate: formatDate(row.createdAt),
+                            email: row?.contact.email ?? '',
+                            phone: row?.contact.phone ?? '',
+                            externalId: row?.contact.externalId ?? '',
+                            utmId: row?.utmParams?.utmId ?? '',
+                            utmSource: row?.utmParams?.utmSource ?? '',
+                            utmMedium: row?.utmParams?.utmMedium ?? '',
+                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
+                            utmTerm: row?.utmParams?.utmTerm ?? '',
+                            utmContent: row?.utmParams?.utmContent ?? '',
+                        });
+
+                        return;
+                    }
+
+                    // If no more data in current chunk and no more pages, end stream
+                    if (!hasNextPage) {
+                        console.log(`Completed processing all signups. Total count: ${totalProcessed}`);
+                        this.push(null); // Signal end of data
+                        return;
+                    }
+
+                    // Fetch next chunk from database
+                    const response = await getSignUpsForReports(programId, promoterId, startDate, endDate, cursor, 1000);
+                    
+                    currentChunk = response.data;
+                    chunkIndex = 0;
+                    hasNextPage = response.pagination.hasNextPage;
+                    cursor = response.pagination.nextCursor || undefined;
+                    
+                    // Process first record from new chunk
+                    if (currentChunk.length > 0) {
+                        const row = currentChunk[chunkIndex++];
+                        totalProcessed++;
+                        
+                        this.push({
+                            contactId: row?.contactId,
+                            signUpDate: formatDate(row.createdAt),
+                            email: row?.contact.email ?? '',
+                            phone: row?.contact.phone ?? '',
+                            externalId: row?.contact.externalId ?? '',
+                            utmId: row?.utmParams?.utmId ?? '',
+                            utmSource: row?.utmParams?.utmSource ?? '',
+                            utmMedium: row?.utmParams?.utmMedium ?? '',
+                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
+                            utmTerm: row?.utmParams?.utmTerm ?? '',
+                            utmContent: row?.utmParams?.utmContent ?? '',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error in streaming signup data:', error);
+                    this.destroy(error);
                 }
             },
         });
 
-        // 4. Create the CSV stringifier stream
+        // Create the CSV stringifier stream
         const stringifier = stringify({
             header: true,
             columns,
         });
 
-        // 5. Pipe the source data through the stringifier and return the result
+        // Pipe the source data through the stringifier and return the result
         return sourceStream.pipe(stringifier);
     }
 
     /**
-     * Creates a readable stream that generates CSV data row-by-row for purchases.
-     * This is highly memory-efficient as it doesn't load the whole file into memory.
-     * @param purchaseWorkbook - The workbook data source.
+     * Creates a readable stream that generates CSV data row-by-row directly from database for purchases.
+
+     * @param programId - Program ID
+     * @param promoterId - Promoter ID  
+     * @param startDate - Start date filter
+     * @param endDate - End date filter
      * @returns A Readable stream outputting CSV data.
      */
-    private generatePurchaseCSVStream(purchaseWorkbook: PurchaseWorkbook): Readable {
-        const purchasesTable = purchaseWorkbook.getPurchaseSheet().getPurchaseTable();
-        const rows = purchasesTable.getRows();
-        let rowIndex = 0;
-
+    private generatePurchaseCSVStream(
+        programId: string,
+        promoterId: string,
+        startDate: Date,
+        endDate: Date
+    ): Readable {
         const columns = [
             { key: 'purchaseId', header: 'purchase_id' },
             { key: 'contactId', header: 'contact_id' },
             { key: 'purchaseDate', header: 'purchase_date' },
             { key: 'itemId', header: 'item_id' },
             { key: 'amount', header: 'amount' },
-            { key: 'commission', header: 'commission' },
             { key: 'externalId', header: 'external_id' },
             { key: 'utmId', header: 'utm_id' },
             { key: 'utmSource', header: 'utm_source' },
@@ -1139,168 +1196,149 @@ export class PromoterService {
             { key: 'utmContent', header: 'utm_content' },
         ];
 
-        // 1. Create a source stream from your data array
+        let cursor: string | undefined = undefined;
+        let hasNextPage = true;
+        let currentChunk: Purchase[] = [];
+        let chunkIndex = 0;
+        let totalProcessed = 0;
+
+        // Capture the method reference to avoid scope issues
+        const getPurchasesForReports = this.getPurchasesForReports.bind(this);
+
+        // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
-            read() {
-                if (rowIndex < rows.length) {
-                    const row = purchasesTable.getRow(rowIndex++);
-                    // 2. Push one transformed row object at a time
-                    this.push({
-                        purchaseId: row?.getPurchaseId(),
-                        contactId: row?.getContactId(),
-                        purchaseDate: row.getPurchaseDate(),
-                        itemId: row?.getItemId() ?? '',
-                        amount: Number(row?.getAmount()).toString(),
-                        commission: Number(row?.getCommission()).toString(),
-                        externalId: row.getExternalId() ?? '',
-                        utmId: row.getUtmId() ?? '',
-                        utmSource: row.getUtmSource() ?? '',
-                        utmMedium: row.getUtmMedium() ?? '',
-                        utmCampaign: row.getUtmCampaign() ?? '',
-                        utmTerm: row.getUtmTerm() ?? '',
-                        utmContent: row.getUtmContent() ?? '',
-                    });
-                } else {
-                    this.push(null); // 3. Signal that there's no more data
+            async read() {
+                try {
+                    // If we have data in current chunk, process it
+                    if (chunkIndex < currentChunk.length) {
+                        const row = currentChunk[chunkIndex++];
+                        totalProcessed++;
+                        
+                        // Transform row to CSV format
+                        this.push({
+                            purchaseId: row?.purchaseId,
+                            contactId: row?.contactId,
+                            purchaseDate: formatDate(row.createdAt),
+                            itemId: row?.itemId ?? '',
+                            amount: Number(row?.amount).toString(),
+                            externalId: row?.contact.externalId ?? '',
+                            utmId: row?.utmParams?.utmId ?? '',
+                            utmSource: row?.utmParams?.utmSource ?? '',
+                            utmMedium: row?.utmParams?.utmMedium ?? '',
+                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
+                            utmTerm: row?.utmParams?.utmTerm ?? '',
+                            utmContent: row?.utmParams?.utmContent ?? '',
+                        });
+						return;
+                    }
+
+                    // If no more data in current chunk and no more pages, end stream
+                    if (!hasNextPage) {
+                        console.log(`Completed processing all purchases. Total count: ${totalProcessed}`);
+                        this.push(null); // Signal end of data
+                        return;
+                    }
+
+                    // Fetch next chunk from database
+                    const response = await getPurchasesForReports(programId, promoterId, startDate, endDate, cursor, 1000);
+                    
+                    currentChunk = response.data;
+                    chunkIndex = 0;
+                    hasNextPage = response.pagination.hasNextPage;
+                    cursor = response.pagination.nextCursor || undefined;
+                    
+                    // Process first record from new chunk
+                    if (currentChunk.length > 0) {
+                        const row = currentChunk[chunkIndex++];
+                        totalProcessed++;
+                        
+                        this.push({
+                            purchaseId: row?.purchaseId,
+                            contactId: row?.contactId,
+                            purchaseDate: formatDate(row.createdAt),
+                            itemId: row?.itemId ?? '',
+                            amount: Number(row?.amount).toString(),
+                            externalId: row?.contact.externalId ?? '',
+                            utmId: row?.utmParams?.utmId ?? '',
+                            utmSource: row?.utmParams?.utmSource ?? '',
+                            utmMedium: row?.utmParams?.utmMedium ?? '',
+                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
+                            utmTerm: row?.utmParams?.utmTerm ?? '',
+                            utmContent: row?.utmParams?.utmContent ?? '',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error in streaming purchase data:', error);
+                    this.destroy(error);
                 }
             },
         });
 
-        // 4. Create the CSV stringifier stream
+        // Create the CSV stringifier stream
         const stringifier = stringify({
             header: true,
             columns,
         });
 
-        // 5. Pipe the source data through the stringifier and return the result
-        return sourceStream.pipe(stringifier);
-    }
-
-    /**
-     * Generates a CSV stream for purchase commission data.
-     * @param purchaseTable The purchase table containing commission data.
-     * @returns A Readable stream outputting CSV data.
-     */
-    private generatePurchaseCommissionCSVStream(commissionWorkbook: CommissionWorkbook): Readable {
-        const purchaseTable = commissionWorkbook.getPurchaseSheet().getPurchaseTable();
-        const rows = purchaseTable.getRows();
-        let rowIndex = 0;
-
-        const columns = [
-            { key: 'purchaseId', header: 'purchase_id' },
-            { key: 'contactId', header: 'contact_id' },
-            { key: 'purchaseDate', header: 'purchase_date' },
-            { key: 'itemId', header: 'item_id' },
-            { key: 'amount', header: 'amount' },
-            { key: 'commission', header: 'commission' },
-            { key: 'externalId', header: 'external_id' },
-            { key: 'utmId', header: 'utm_id' },
-            { key: 'utmSource', header: 'utm_source' },
-            { key: 'utmMedium', header: 'utm_medium' },
-            { key: 'utmCampaign', header: 'utm_campaign' },
-            { key: 'utmTerm', header: 'utm_term' },
-            { key: 'utmContent', header: 'utm_content' },
-        ];
-
-        // 1. Create a source stream from your data array
-        const sourceStream = new Readable({
-            objectMode: true,
-            read() {
-                if (rowIndex < rows.length) {
-                    const row = purchaseTable.getRow(rowIndex++);
-                    // 2. Push one transformed row object at a time
-                    this.push({
-                        purchaseId: row?.getPurchaseId(),
-                        contactId: row?.getContactId(),
-                        purchaseDate: row.getPurchaseDate(),
-                        itemId: row?.getItemId() ?? '',
-                        amount: Number(row?.getAmount()).toString(),
-                        commission: Number(row?.getCommission()).toString(),
-                        externalId: row.getExternalId() ?? '',
-                        utmId: row.getUtmId() ?? '',
-                        utmSource: row.getUtmSource() ?? '',
-                        utmMedium: row.getUtmMedium() ?? '',
-                        utmCampaign: row.getUtmCampaign() ?? '',
-                        utmTerm: row.getUtmTerm() ?? '',
-                        utmContent: row.getUtmContent() ?? '',
-                    });
-                } else {
-                    this.push(null); // 3. Signal that there's no more data
-                }
-            },
-        });
-
-        // 4. Create the CSV stringifier stream
-        const stringifier = stringify({
-            header: true,
-            columns,
-        });
-
-        // 5. Pipe the source data through the stringifier and return the result
-        return sourceStream.pipe(stringifier);
-    }
-
-    /**
-     * Generates a CSV stream for signup commission data.
-     * @param signupTable The signup table containing commission data.
-     * @returns A Readable stream outputting CSV data.
-     */
-    private generateSignupCommissionCSVStream(commissionWorkbook: CommissionWorkbook): Readable {
-        const signUpsTable = commissionWorkbook.getSignupSheet().getSignupTable();
-        const rows = signUpsTable.getRows();
-        let rowIndex = 0;
-        
-        const columns = [
-            { key: 'contactId', header: 'contact_id' },
-            { key: 'signUpDate', header: 'sign_up_date' },
-            { key: 'email', header: 'email' },
-            { key: 'phone', header: 'phone' },
-            { key: 'commission', header: 'commission' },
-            { key: 'externalId', header: 'external_id' },
-            { key: 'utmId', header: 'utm_id' },
-            { key: 'utmSource', header: 'utm_source' },
-            { key: 'utmMedium', header: 'utm_medium' },
-            { key: 'utmCampaign', header: 'utm_campaign' },
-            { key: 'utmTerm', header: 'utm_term' },
-            { key: 'utmContent', header: 'utm_content' },
-        ];
-        
-        const stringifier = stringify({
-            header: true,
-            columns,
-        });
-        
-        const sourceStream = new Readable({
-            objectMode: true,
-            read() {
-                if (rowIndex < rows.length) {
-                    const row = signUpsTable.getRow(rowIndex++);
-                    this.push({
-                        contactId: row?.getContactId(),
-                        signUpDate: row.getSignUpDate(),
-                        email: row?.getEmail() ?? '',
-                        phone: row?.getPhone() ?? '',
-                        commission: Number(row?.getCommission()).toString(),
-                        externalId: row.getExternalId() ?? '',
-                        utmId: row.getUtmId() ?? '',
-                        utmSource: row.getUtmSource() ?? '',
-                        utmMedium: row.getUtmMedium() ?? '',
-                        utmCampaign: row.getUtmCampaign() ?? '',
-                        utmTerm: row.getUtmTerm() ?? '',
-                        utmContent: row.getUtmContent() ?? '',
-                    });
-                } else {
-                    this.push(null); // 3. Signal that there's no more data
-                }
-            },
-        });
-        
+        // Pipe the source data through the stringifier and return the result
         return sourceStream.pipe(stringifier);
     }
 
 	/**
-	 * Get purchases report
+	 * Get purchases for promoter
+	 */
+	async getPurchasesForPromoter(
+		programId: string,
+		promoterId: string,
+		toUseSheetJsonFormat: boolean = true,
+		whereOptions: FindOptionsWhere<Purchase> = {},
+	) {
+		this.logger.info('START: getPurchasesForPromoter service');
+
+		await this.hasAcceptedTermsAndConditions(programId, promoterId);
+
+		const purchases = await this.purchaseRepository.find({
+			where: {
+				promoterId,
+				contact: {
+					programId,
+					commissions: {
+
+					}
+				},
+				...whereOptions
+			},
+			relations: {
+				contact: true
+			},
+		});
+
+		if (!purchases) {
+			this.logger.warn(`failed to get purchases for promoter ${promoterId}`);
+			throw new NotFoundException(`No purchases found for ${promoterId}`);
+		}
+
+
+		if (toUseSheetJsonFormat) {
+			const purchaseSheetJson = this.promoterWorkbookConverter.convertTo({
+				purchaseSheetInput: {
+					purchases,
+
+				}
+			});
+
+			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
+
+			return purchaseSheetJson;
+		}
+
+		this.logger.info('END: getPurchasesForPromoter service');
+		return purchases;
+	}
+
+	/**
+	 * Get purchases report - Memory efficient streaming version
 	 */
 	async getPurchasesReport(
 		programId: string,
@@ -1324,40 +1362,8 @@ export class PromoterService {
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
-		const filter = {
-			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
-				start: startDate.toISOString(),
-				end: endDate.toISOString(),
-			})
-		};
-
-		let purchasesResult: Purchase[] = [];
-		let cursor: string | undefined = undefined;
-		let hasNextPage = true;
-
-		// Fetch all purchases by paginating through all pages
-		while (hasNextPage) {
-			const purchasesResponse = await this.getPurchasesForPromoter(programId, promoterId, false, filter, startDate, endDate, cursor, 1000);
-			const response = purchasesResponse as any;
-			
-			// Append current page data to the result array
-			purchasesResult.push(...response.data);
-			
-			// Update pagination state
-			hasNextPage = response.pagination.hasNextPage;
-			cursor = response.pagination.nextCursor || undefined;
-			
-			this.logger.info(`Fetched ${response.pagination.count} purchases. Total so far: ${purchasesResult.length}`);
-		}
-
-		this.logger.info(`Completed fetching all purchases. Total count: ${purchasesResult.length}`);
-
-		const promoterResult = await this.getPromoterEntity(promoterId);
-		const purchasesCommissions = await this.getPurchasesCommissions(programId, promoterId, startDate, endDate);
-
-		const purchaseSheetJsonWorkbook = this.purchaseWorkbookConverter.convertFrom(purchasesResult, purchasesCommissions, promoterResult, startDate, endDate);
-
-		const purchaseCSV = this.generatePurchaseCSVStream(purchaseSheetJsonWorkbook);
+		// Create a streaming CSV generator that doesn't accumulate data in memory
+		const purchaseCSV = this.generatePurchaseCSVStream(programId, promoterId, startDate, endDate);
 
 		this.logger.info('END: getPurchasesReport service');
 		return purchaseCSV;
@@ -1420,13 +1426,16 @@ export class PromoterService {
 		return fileBuffer;
 	}
 
+	/**
+	 * Get commissions report
+	 */
 	async getCommissionsReport(
 		programId: string,
 		promoterId: string,
 		memberId: string,
 		startDate: Date,
 		endDate: Date,
-	): Promise<{ purchaseStream: Readable; signupStream: Readable }> {
+	) {
 		this.logger.info(`START: getCommissionsReport service`);
 
 		try {
@@ -1442,141 +1451,179 @@ export class PromoterService {
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
-		const filter = {
-			createdAt: Raw((alias) => `${alias} >= :start AND ${alias} <= :end`, {
-				start: startDate.toISOString(),
-				end: endDate.toISOString(),
-			})
+		const commissionCSV = this.generateCommissionCSVStream(programId, promoterId, startDate, endDate);
+
+		this.logger.info('END: getCommissionsReport service');
+		return commissionCSV;
+	}
+
+	/**
+	 * Creates a readable stream that generates CSV data row-by-row directly from database for commissions.
+
+	 * @param programId - Program ID
+	 * @param promoterId - Promoter ID  
+	 * @param startDate - Start date filter
+	 * @param endDate - End date filter
+	 * @returns A Readable stream outputting CSV data.
+	 */
+	private generateCommissionCSVStream(
+		programId: string,
+		promoterId: string,
+		startDate: Date,
+		endDate: Date
+	): Readable {
+		const columns = [
+            { key: 'commissionId', header: 'commission_id' },
+            { key: 'type', header: 'type' },
+            { key: 'referenceId', header: 'reference_id' },
+            { key: 'commission', header: 'commission' },
+            { key: 'createdAt', header: 'created_at' },
+        ];
+
+        let cursor: string | undefined = undefined;
+        let hasNextPage = true;
+        let currentChunk: Commission[] = [];
+        let chunkIndex = 0;
+        let totalProcessed = 0;
+
+        // Capture the method reference to avoid scope issues
+        const getCommissionsForReports = this.getCommissionsForReports.bind(this);
+
+        // Create a source stream that fetches data from database in chunks
+        const sourceStream = new Readable({
+            objectMode: true,
+            async read() {
+                try {
+                    // If we have data in current chunk, process it
+                    if (chunkIndex < currentChunk.length) {
+                        const row = currentChunk[chunkIndex++];
+                        totalProcessed++;
+                        
+                        // Transform row to CSV format
+                        this.push({
+                            commissionId: row?.commissionId,
+                            type: row?.conversionType,
+                            referenceId: row?.externalId,
+                            commission: Number(row?.amount).toString(),
+                            createdAt: formatDate(row.createdAt),
+                        });
+
+                        return;
+                    }
+
+                    // If no more data in current chunk and no more pages, end stream
+                    if (!hasNextPage) {
+                        this.push(null); // Signal end of data
+                        return;
+                    }
+
+                    // Fetch next chunk from database
+                    const response = await getCommissionsForReports(programId, promoterId, startDate, endDate, cursor, 1000);
+                    
+                    currentChunk = response.data;
+                    chunkIndex = 0;
+                    hasNextPage = response.pagination.hasNextPage;
+                    cursor = response.pagination.nextCursor || undefined;
+                    
+                    // Process first record from new chunk
+                    if (currentChunk.length > 0) {
+                        const row = currentChunk[chunkIndex++];
+                        totalProcessed++;
+                        
+                        this.push({
+                            commissionId: row?.commissionId,
+                            type: row?.conversionType,
+                            referenceId: row?.externalId,
+                            commission: Number(row?.amount).toString(),
+                            createdAt: formatDate(row.createdAt),
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error in streaming commission data:', error);
+                    this.destroy(error);
+                }
+            },
+        });
+
+        // Create the CSV stringifier stream
+        const stringifier = stringify({
+            header: true,
+            columns,
+        });
+
+        // Pipe the source data through the stringifier and return the result
+        return sourceStream.pipe(stringifier);
+	}
+
+	/**
+	 * Get commissions for reports
+	 */
+	async getCommissionsForReports(
+		programId: string,
+		promoterId: string,
+		startDate: Date,
+		endDate: Date,
+		cursor?: string,
+		limit: number = 1000,
+	): Promise<{
+		data: Commission[];
+		pagination: {
+			hasNextPage: boolean;
+			nextCursor: string | null;
+			limit: number;
+			count: number;
 		};
-
+	}> {
+		this.logger.info(`START: getCommissionsForReports service`);
 		
-		// Fetch all signups by paginating through all pages
-		let signUpsResult: SignUp[] = [];
-		let signUpsCursor: string | undefined = undefined;
-		let signUpsHasNextPage = true;
+		const queryBuilder = this.commissionRepository.createQueryBuilder('commission')
+			.innerJoinAndSelect('commission.contact', 'contact')
+			.where('commission.promoterId = :promoterId', { promoterId })
+			.andWhere('contact.programId = :programId', { programId });
 
-		while (signUpsHasNextPage) {
-			const signUpsResponse = await this.getSignUpsForPromoter(programId, promoterId, false, filter, startDate, endDate, signUpsCursor, 1000);
-			const response = signUpsResponse as any;
-			
-			// Append current page data to the result array
-			signUpsResult.push(...response.data);
-			
-			// Update pagination state
-			signUpsHasNextPage = response.pagination.hasNextPage;
-			signUpsCursor = response.pagination.nextCursor || undefined;
-			
-			this.logger.info(`Fetched ${response.pagination.count} signups. Total so far: ${signUpsResult.length}`);
+			// Apply date filters with proper indexing support
+		if (startDate && endDate) {
+			queryBuilder
+				.andWhere('commission.createdAt >= :startDate', { startDate: startDate.toISOString() })
+				.andWhere('commission.createdAt <= :endDate', { endDate: endDate.toISOString() });
 		}
 
-		this.logger.info(`Completed fetching all signups. Total count: ${signUpsResult.length}`);
-
-		// Fetch all purchases by paginating through all pages
-		let purchasesResult: Purchase[] = [];
-		let purchasesCursor: string | undefined = undefined;
-		let purchasesHasNextPage = true;
-
-		while (purchasesHasNextPage) {
-			const purchasesResponse = await this.getPurchasesForPromoter(programId, promoterId, false, filter, startDate, endDate, purchasesCursor, 1000);
-			const response = purchasesResponse as any;
-			
-			// Append current page data to the result array
-			purchasesResult.push(...response.data);
-			
-			// Update pagination state
-			purchasesHasNextPage = response.pagination.hasNextPage;
-			purchasesCursor = response.pagination.nextCursor || undefined;
-			
-			this.logger.info(`Fetched ${response.pagination.count} purchases. Total so far: ${purchasesResult.length}`);
+		// Apply cursor-based pagination for efficient retrieval
+		if (cursor) {
+			const cursorDate = decodeCursor(cursor);
+			queryBuilder.andWhere('commission.createdAt > :cursorDate', { cursorDate: cursorDate.toISOString() });
 		}
 
-		this.logger.info(`Completed fetching all purchases. Total count: ${purchasesResult.length}`);
+		// Add ordering for consistent results and cursor pagination
+		queryBuilder
+			.orderBy('commission.createdAt', 'ASC')
+			.addOrderBy('commission.commissionId', 'ASC') // Secondary sort for deterministic ordering
+			.limit(limit);
 
-		const signUpsCommissions = await this.getSignUpsCommissions(programId, promoterId, startDate, endDate);
-		const purchasesCommissions = await this.getPurchasesCommissions(programId, promoterId, startDate, endDate);
 
-		const promoterResult = await this.getPromoterEntity(promoterId);
+		const commissionsResult = await queryBuilder.getMany();
 
-		const commissionSheetJsonWorkbook = this.commissionWorkbookConverter.convertFrom(
-			signUpsResult,
-			purchasesResult,
-			signUpsCommissions,
-			purchasesCommissions,
-			promoterResult,
-			startDate,
-			endDate,
-		);
-
-		// Generate CSV streams for purchases and signups
-		const purchaseStream = this.generatePurchaseCommissionCSVStream(commissionSheetJsonWorkbook);
-		const signupStream = this.generateSignupCommissionCSVStream(commissionSheetJsonWorkbook);
-
-		this.logger.info(`END: getCommissionsReport service`);
-		return { purchaseStream, signupStream };
-	}
-
-	private async getSignUpsCommissions(programId: string, promoterId: string, startDate: Date, endDate: Date): Promise<Map<string, Commission>> {
-		const signUpsCommissions: Map<string, Commission> = new Map();
-
-		const commissions = await this.commissionRepository.query(`
-			SELECT 
-				c.commission_id as "commissionId",
-				c.external_id as "externalId",
-				c.amount,
-				c.revenue,
-				c.created_at as "createdAt",
-				c.updated_at as "updatedAt"
-			FROM commission c
-			INNER JOIN sign_up su ON c.external_id = su.contact_id
-			INNER JOIN contact ct ON su.contact_id = ct.contact_id
-			WHERE c.conversion_type = $1 
-				AND c.promoter_id = $2
-				AND ct.program_id = $3
-				AND su.created_at >= $4 
-				AND su.created_at <= $5
-			ORDER BY c.created_at ASC
-		`, [conversionTypeEnum.SIGNUP, promoterId, programId, startDate.toISOString(), endDate.toISOString()]);
-
-		// Map commissions by contactId (externalId)
-		for (const commission of commissions) {
-			signUpsCommissions.set(commission.externalId, commission);
+		if (!commissionsResult) {
+			this.logger.warn(`failed to get commissions for promoter ${promoterId}`);
+			throw new NotFoundException(`No commissions found for ${promoterId}`);
 		}
 
-		return signUpsCommissions;
-	}
+		let nextCursor: string | null = null;
+		if (commissionsResult.length === limit && commissionsResult.length > 0) {
+			const lastItem = commissionsResult[commissionsResult.length - 1];
+			nextCursor = encodeCursor(lastItem.createdAt);
+		}
 
-	private async getPurchasesCommissions(programId: string, promoterId: string, startDate: Date, endDate: Date): Promise<Map<string, Commission[]>> {
-		const purchasesCommissionsMap: Map<string, Commission[]> = new Map();
-		
-		const commissions = await this.commissionRepository.query(`
-			SELECT 
-				c.commission_id as "commissionId",
-				c.external_id as "externalId",
-				c.amount,
-				c.revenue,
-				c.created_at as "createdAt",
-				c.updated_at as "updatedAt"
-			FROM commission c
-			INNER JOIN purchase p ON c.external_id = p.purchase_id
-			INNER JOIN contact ct ON p.contact_id = ct.contact_id
-			WHERE c.conversion_type = $1
-				AND c.promoter_id = $2
-				AND ct.program_id = $3
-				AND p.created_at >= $4
-				AND p.created_at <= $5
-			ORDER BY c.created_at ASC
-		`, [conversionTypeEnum.PURCHASE, promoterId, programId, startDate.toISOString(), endDate.toISOString()]);
-
-		// Group commissions by purchaseId (stored as externalId)
-		for (const commission of commissions) {
-			const purchaseId = commission.externalId;
-			if (!purchasesCommissionsMap.has(purchaseId)) {
-				purchasesCommissionsMap.set(purchaseId, []);
+		this.logger.info(`END: getCommissionsForReports service`);
+		return {
+			data: commissionsResult,
+			pagination: {
+				hasNextPage: nextCursor !== null,
+				nextCursor,
+				limit,
+				count: commissionsResult.length
 			}
-			purchasesCommissionsMap.get(purchaseId)!.push(commission);
-		}
-
-		return purchasesCommissionsMap;
+		};
 	}
 
 	async getLinksReport(

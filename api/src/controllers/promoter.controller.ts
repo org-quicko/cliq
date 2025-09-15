@@ -493,7 +493,7 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const { purchaseStream, signupStream } = await this.promoterService.getCommissionsReport(
+		const commsissionCSV = await this.promoterService.getCommissionsReport(
 			programId,
 			promoterId,
 			memberId,
@@ -501,30 +501,16 @@ export class PromoterController {
 			parsedEndDate,
 		);
 
-		const fileName = "Commissions.zip"
+		const fileName = getReportFileName('Commissions');
 
-		res.setHeader('Content-Type', 'application/zip');
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-
-		const archive = archiver('zip', {
-            zlib: { level: 9 } // Sets the compression level.
-        });
-
-		archive.on('error', (err) => {
-            this.logger.error('Archiver error:', err);
-            throw err;
-        });
-
-		archive.pipe(res);
-
-		archive.append(signupStream, { name: getReportFileName('Signups') });
-        archive.append(purchaseStream, { name: getReportFileName('Purchases') });
-
-
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
+		
 		this.logger.info('END: getCommissionsReport controller');
-		await archive.finalize();
 
-		this.logger.info(`Successfully streamed and finalized zip archive "${fileName}".`);
+		commsissionCSV.pipe(res);
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
