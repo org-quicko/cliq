@@ -701,7 +701,7 @@ export class PromoterService {
 		cursor?: string,
 		limit: number = 1000,
 	): Promise<{
-		data: SignUp[];
+		data: any[];
 		pagination: {
 			hasNextPage: boolean;
 			nextCursor: string | null;
@@ -737,7 +737,9 @@ export class PromoterService {
 			.addOrderBy('signUp.contactId', 'ASC') // Secondary sort for deterministic ordering
 			.limit(limit);
 
-		const signUpsResult = await queryBuilder.getMany();
+		const signUpsResult = await queryBuilder.getRawMany();
+
+		console.log(signUpsResult);
 
 		
 
@@ -751,7 +753,7 @@ export class PromoterService {
 		let nextCursor: string | null = null;
 		if (signUpsResult.length === limit && signUpsResult.length > 0) {
 			const lastItem = signUpsResult[signUpsResult.length - 1];
-			nextCursor = encodeCursor(lastItem.createdAt);
+			nextCursor = encodeCursor(lastItem.signUp_created_at);
 		}
 
 		this.logger.info('END: getSignUpsForReports service');
@@ -777,7 +779,7 @@ export class PromoterService {
 		cursor?: string,
 		limit: number = 1000,
 	): Promise<{
-		data: Purchase[];
+		data: any[];
 		pagination: {
 			hasNextPage: boolean;
 			nextCursor: string | null;
@@ -789,9 +791,18 @@ export class PromoterService {
 
 		const queryBuilder = this.purchaseRepository
 			.createQueryBuilder('purchase')
-			.innerJoinAndSelect('purchase.contact', 'contact')
+			.innerJoin('purchase.contact', 'contact')
 			.where('purchase.promoterId = :promoterId', { promoterId })
-			.andWhere('contact.programId = :programId', { programId });
+			.andWhere('contact.programId = :programId', { programId })
+			.select([
+				'purchase.purchaseId',
+				'purchase.contactId',
+				'purchase.createdAt',
+				'purchase.itemId',
+				'purchase.amount',
+				'contact.externalId',
+				'purchase.utmParams'
+			]);
 
 		// Apply date filters with proper indexing support
 		if (startDate && endDate) {
@@ -812,7 +823,7 @@ export class PromoterService {
 			.addOrderBy('purchase.purchaseId', 'ASC') // Secondary sort for deterministic ordering
 			.limit(limit);
 
-		const purchases = await queryBuilder.getMany();
+		const purchases = await queryBuilder.getRawMany();
 
 		if (!purchases) {
 			this.logger.warn(`failed to get purchases for promoter ${promoterId}`);
@@ -824,7 +835,7 @@ export class PromoterService {
 		let nextCursor: string | null = null;
 		if (purchases.length === limit && purchases.length > 0) {
 			const lastItem = purchases[purchases.length - 1];
-			nextCursor = encodeCursor(lastItem.createdAt);
+			nextCursor = encodeCursor(lastItem.purchase_createdAt);
 		}
 
 		this.logger.info('END: getPurchasesForReports service');
@@ -1045,6 +1056,18 @@ export class PromoterService {
 		// Create a streaming CSV generator that doesn't accumulate data in memory
 		const signUpCSV = this.generateSignUpCSVStream(programId, promoterId, startDate, endDate);
 
+		signUpCSV.on('error', (err) => {
+			this.logger.error('SignUp CSV stream error:', err);
+		});
+	
+		signUpCSV.on('end', () => {
+			this.logger.info('SignUp CSV stream ended');
+		});
+	
+		signUpCSV.on('close', () => {
+			this.logger.info('SignUp CSV stream closed');
+		});	
+
 		this.logger.info('END: getSignUpsReport service');
 		return signUpCSV;
 	}
@@ -1059,123 +1082,185 @@ export class PromoterService {
      * @returns A Readable stream outputting CSV data.
      */
     private generateSignUpCSVStream(
-        programId: string,
-        promoterId: string,
-        startDate: Date,
-        endDate: Date
-    ): Readable {
-        const columns = [
-            { key: 'contactId', header: 'contact_id' },
-            { key: 'signUpDate', header: 'sign_up_date' },
-            { key: 'email', header: 'email' },
-            { key: 'phone', header: 'phone' },
-            { key: 'externalId', header: 'external_id' },
-            { key: 'utmId', header: 'utm_id' },
-            { key: 'utmSource', header: 'utm_source' },
-            { key: 'utmMedium', header: 'utm_medium' },
-            { key: 'utmCampaign', header: 'utm_campaign' },
-            { key: 'utmTerm', header: 'utm_term' },
-            { key: 'utmContent', header: 'utm_content' },
-        ];
-
-        let cursor: string | undefined = undefined;
-        let hasNextPage = true;
-        let currentChunk: SignUp[] = [];
-        let chunkIndex = 0;
-        let totalProcessed = 0;
-
-        // Capture the method reference to avoid scope issues
-        const getSignUpsForReports = this.getSignUpsForReports.bind(this);
-
-        // Create a source stream that fetches data from database in chunks
-        const sourceStream = new Readable({
-            objectMode: true,
-            highWaterMark: 16, // Limit internal buffer size
-            async read() {
-                try {
-                    // If we have data in current chunk, process it
-                    if (chunkIndex < currentChunk.length) {
-                        const row = currentChunk[chunkIndex++];
-                        totalProcessed++;
-                        
-                        // Transform row to CSV format
-                        const csvRow = {
-                            contactId: row?.contactId,
-                            signUpDate: formatDate(row.createdAt),
-                            email: row?.contact.email ?? '',
-                            phone: row?.contact.phone ?? '',
-                            externalId: row?.contact.externalId ?? '',
-                            utmId: row?.utmParams?.utmId ?? '',
-                            utmSource: row?.utmParams?.utmSource ?? '',
-                            utmMedium: row?.utmParams?.utmMedium ?? '',
-                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
-                            utmTerm: row?.utmParams?.utmTerm ?? '',
-                            utmContent: row?.utmParams?.utmContent ?? '',
-                        };
+		programId: string,
+		promoterId: string,
+		startDate: Date,
+		endDate: Date
+	): Readable {
+		const columns = [
+			{ key: 'contactId', header: 'contact_id' },
+			{ key: 'signUpDate', header: 'sign_up_date' },
+			{ key: 'email', header: 'email' },
+			{ key: 'phone', header: 'phone' },
+			{ key: 'externalId', header: 'external_id' },
+			{ key: 'utmId', header: 'utm_id' },
+			{ key: 'utmSource', header: 'utm_source' },
+			{ key: 'utmMedium', header: 'utm_medium' },
+			{ key: 'utmCampaign', header: 'utm_campaign' },
+			{ key: 'utmTerm', header: 'utm_term' },
+			{ key: 'utmContent', header: 'utm_content' },
+		];
+	
+		let cursor: string | undefined = undefined;
+		let hasNextPage = true;
+		let currentChunk: any[] = []; // Plain objects, not entities
+		let chunkIndex = 0;
+		let totalProcessed = 0;
+		let isStreamDestroyed = false;
+	
+		// Capture the method reference to avoid scope issues
+		const getSignUpsForReports = this.getSignUpsForReports.bind(this);
+	
+		// Create a source stream that fetches data from database in chunks
+		const sourceStream = new Readable({
+			objectMode: true,
+			highWaterMark: 16, // Reduced buffer size
+			async read() {
+				try {
+					// Check if stream is destroyed
+					if (isStreamDestroyed) {
+						return;
+					}
+	
+					// Process current chunk
+					if (chunkIndex < currentChunk.length) {
+						const row = currentChunk[chunkIndex++];
+						totalProcessed++;
 						
-                        delete currentChunk[chunkIndex - 1];
-                        
-                        this.push(csvRow);
-                        return;
-                    }
-
-                    // If no more data in current chunk and no more pages, end stream
-                    if (!hasNextPage) {
-                        console.log(`Completed processing all signups. Total count: ${totalProcessed}`);
-                        currentChunk = [];
-                        this.push(null); // Signal end of data
-                        return;
-                    }
+						// Transform row to CSV format - no entity overhead
+						const csvRow = {
+							contactId: row.signUp_contact_id,
+							signUpDate: formatDate(row.signUp_created_at),
+							email: row.contact_email ?? '',
+							phone: row.contact_phone ?? '',
+							externalId: row.contact_external_id ?? '',
+							utmId: row.signUp_utm_params?.utm_id ?? '',
+							utmSource: row.signUp_utm_params?.utm_source ?? '',
+							utmMedium: row.signUp_utm_params?.utm_medium ?? '',
+							utmCampaign: row.signUp_utm_params?.utm_campaign ?? '',
+							utmTerm: row.signUp_utm_params?.utm_term ?? '',
+							utmContent: row.signUp_utm_params?.utm_content ?? '',
+						};
+						
+						this.push(csvRow);
+						return;
+					}
+	
+					// Clear current chunk completely to free memory
+					currentChunk = [];
+					chunkIndex = 0;
 					
-                    currentChunk = [];
-                    
-                    // Fetch next chunk from database
-                    const response = await getSignUpsForReports(programId, promoterId, startDate, endDate, cursor, 1000);
-                    
-                    currentChunk = response.data;
-                    chunkIndex = 0;
-                    hasNextPage = response.pagination.hasNextPage;
-                    cursor = response.pagination.nextCursor || undefined;
-                    
-                    // Process first record from new chunk
-                    if (currentChunk.length > 0) {
-                        const row = currentChunk[chunkIndex++];
-                        totalProcessed++;
-                        
-                        const csvRow = {
-                            contactId: row?.contactId,
-                            signUpDate: formatDate(row.createdAt),
-                            email: row?.contact.email ?? '',
-                            phone: row?.contact.phone ?? '',
-                            externalId: row?.contact.externalId ?? '',
-                            utmId: row?.utmParams?.utmId ?? '',
-                            utmSource: row?.utmParams?.utmSource ?? '',
-                            utmMedium: row?.utmParams?.utmMedium ?? '',
-                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
-                            utmTerm: row?.utmParams?.utmTerm ?? '',
-                            utmContent: row?.utmParams?.utmContent ?? '',
-                        };
-                        
-                        this.push(csvRow);
-                    }
-                } catch (error) {
-                    console.error('Error in streaming signup data:', error);
-                    // Clear current chunk on error
-                    currentChunk = [];
-                    this.destroy(error);
-                }
-            },
-        });
-
-        // Create the CSV stringifier stream
-        const stringifier = stringify({
-            header: true,
-            columns,
-        });
-
-        // Pipe the source data through the stringifier and return the result
-        return sourceStream.pipe(stringifier);
-    }
+					// Force garbage collection every 1000 records
+					if (totalProcessed % 1000 === 0 && global.gc) {
+						// global.gc();
+						const used = process.memoryUsage();
+						console.log(`Processed ${totalProcessed} records. Memory: ${Math.round(used.heapUsed / 1024 / 1024)} MB`);
+					}
+	
+					// Fetch next chunk
+					if (hasNextPage && !isStreamDestroyed) {
+						const response = await getSignUpsForReports(programId, promoterId, startDate, endDate, cursor, 1000); // Smaller chunks
+						
+						currentChunk = response.data;
+						chunkIndex = 0;
+						hasNextPage = response.pagination.hasNextPage;
+						cursor = response.pagination.nextCursor || undefined;
+						
+						// Process first record immediately
+						if (currentChunk.length > 0) {
+							const row = currentChunk[chunkIndex++];
+							totalProcessed++;
+							
+							const csvRow = {
+								contactId: row.signUp_contact_id,
+								signUpDate: formatDate(row.signUp_created_at),
+								email: row.contact_email ?? '',
+								phone: row.contact_phone ?? '',
+								externalId: row.contact_external_id ?? '',
+								utmId: row.signUp_utm_params?.utm_id ?? '',
+								utmSource: row.signUp_utm_params?.utm_source ?? '',
+								utmMedium: row.signUp_utm_params?.utm_medium ?? '',
+								utmCampaign: row.signUp_utm_params?.utm_campaign ?? '',
+								utmTerm: row.signUp_utm_params?.utm_term ?? '',
+								utmContent: row.signUp_utm_params?.utm_content ?? '',
+							};
+							
+							this.push(csvRow);
+						}
+					} else {
+						// End of data
+						console.log(`Completed processing all signups. Total count: ${totalProcessed}`);
+						currentChunk = [];
+						this.push(null);
+					}
+				} catch (error) {
+					console.error('Error in streaming signup data:', error);
+					// Clear current chunk on error
+					currentChunk = [];
+					isStreamDestroyed = true;
+					this.destroy(error);
+				}
+			}
+		});
+	
+		// ✅ Add proper stream cleanup and error handling
+		sourceStream.on('error', (err) => {
+			console.error('Source stream error:', err);
+			isStreamDestroyed = true;
+			currentChunk = [];
+		});
+	
+		sourceStream.on('end', () => {
+			console.log('Source stream ended');
+			currentChunk = [];
+		});
+	
+		sourceStream.on('close', () => {
+			console.log('Source stream closed');
+			currentChunk = [];
+		});
+	
+		// Create the CSV stringifier stream
+		const stringifier = stringify({
+			header: true,
+			columns,
+		});
+	
+		// ✅ Add stringifier error handling
+		stringifier.on('error', (err) => {
+			console.error('Stringifier error:', err);
+			isStreamDestroyed = true;
+			sourceStream.destroy(err);
+		});
+	
+		stringifier.on('end', () => {
+			console.log('Stringifier ended');
+		});
+	
+		stringifier.on('close', () => {
+			console.log('Stringifier closed');
+		});
+	
+		// ✅ Handle pipe cleanup
+		const pipedStream = sourceStream.pipe(stringifier);
+		
+		pipedStream.on('error', (err) => {
+			console.error('Piped stream error:', err);
+			isStreamDestroyed = true;
+			sourceStream.destroy();
+			stringifier.destroy();
+		});
+	
+		pipedStream.on('end', () => {
+			console.log('Piped stream ended');
+		});
+	
+		pipedStream.on('close', () => {
+			console.log('Piped stream closed');
+		});
+	
+		return pipedStream;
+	}
 
     /**
      * Creates a readable stream that generates CSV data row-by-row directly from database for purchases.
@@ -1209,7 +1294,7 @@ export class PromoterService {
 
         let cursor: string | undefined = undefined;
         let hasNextPage = true;
-        let currentChunk: Purchase[] = [];
+        let currentChunk: any[] = [];
         let chunkIndex = 0;
         let totalProcessed = 0;
 
@@ -1229,18 +1314,18 @@ export class PromoterService {
                         
                         // Transform row to CSV format
                         const csvRow = {
-                            purchaseId: row?.purchaseId,
-                            contactId: row?.contactId,
-                            purchaseDate: formatDate(row.createdAt),
-                            itemId: row?.itemId ?? '',
-                            amount: Number(row?.amount).toString(),
-                            externalId: row?.contact.externalId ?? '',
-                            utmId: row?.utmParams?.utmId ?? '',
-                            utmSource: row?.utmParams?.utmSource ?? '',
-                            utmMedium: row?.utmParams?.utmMedium ?? '',
-                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
-                            utmTerm: row?.utmParams?.utmTerm ?? '',
-                            utmContent: row?.utmParams?.utmContent ?? '',
+                            purchaseId: row?.purchase_purchase_id,
+                            contactId: row?.purchase_contact_id,
+                            purchaseDate: formatDate(row.purchase_created_at),
+                            itemId: row?.purchase_item_id ?? '',
+                            amount: Number(row?.purchase_amount).toString(),
+                            externalId: row?.contact_external_id ?? '',
+                            utmId: row?.purchase_utm_params?.utm_id ?? '',
+                            utmSource: row?.purchase_utm_params?.utm_source ?? '',
+                            utmMedium: row?.purchase_utm_params?.utm_medium ?? '',
+                            utmCampaign: row?.purchase_utm_params?.utm_campaign ?? '',
+                            utmTerm: row?.purchase_utm_params?.utm_term ?? '',
+                            utmContent: row?.purchase_utm_params?.utm_content ?? '',
                         };
 
                         // Clear the processed row to free memory
@@ -1275,18 +1360,18 @@ export class PromoterService {
                         totalProcessed++;
                         
                         const csvRow = {
-                            purchaseId: row?.purchaseId,
-                            contactId: row?.contactId,
-                            purchaseDate: formatDate(row.createdAt),
-                            itemId: row?.itemId ?? '',
-                            amount: Number(row?.amount).toString(),
-                            externalId: row?.contact.externalId ?? '',
-                            utmId: row?.utmParams?.utmId ?? '',
-                            utmSource: row?.utmParams?.utmSource ?? '',
-                            utmMedium: row?.utmParams?.utmMedium ?? '',
-                            utmCampaign: row?.utmParams?.utmCampaign ?? '',
-                            utmTerm: row?.utmParams?.utmTerm ?? '',
-                            utmContent: row?.utmParams?.utmContent ?? '',
+                            purchaseId: row?.purchase_purchase_id,
+                            contactId: row?.purchase_contact_id,
+                            purchaseDate: formatDate(row.purchase_created_at),
+                            itemId: row?.purchase_item_id ?? '',
+                            amount: Number(row?.purchase_amount).toString(),
+                            externalId: row?.contact_external_id ?? '',
+                            utmId: row?.purchase_utm_params?.utm_id ?? '',
+                            utmSource: row?.purchase_utm_params?.utm_source ?? '',
+                            utmMedium: row?.purchase_utm_params?.utm_medium ?? '',
+                            utmCampaign: row?.purchase_utm_params?.utm_campaign ?? '',
+                            utmTerm: row?.purchase_utm_params?.utm_term ?? '',
+                            utmContent: row?.purchase_utm_params?.utm_content ?? '',
                         };
                         
                         this.push(csvRow);
@@ -1507,7 +1592,7 @@ export class PromoterService {
 
         let cursor: string | undefined = undefined;
         let hasNextPage = true;
-        let currentChunk: Commission[] = [];
+        let currentChunk: any[] = [];
         let chunkIndex = 0;
         let totalProcessed = 0;
 
@@ -1517,7 +1602,7 @@ export class PromoterService {
         // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
-            highWaterMark: 16, // Limit internal buffer size
+            highWaterMark: 64, // Limit internal buffer size
             async read() {
                 try {
                     // If we have data in current chunk, process it
@@ -1527,15 +1612,16 @@ export class PromoterService {
                         
                         // Transform row to CSV format
                         const csvRow = {
-                            commissionId: row?.commissionId,
-                            type: row?.conversionType,
-                            referenceId: row?.externalId,
-                            commission: Number(row?.amount).toString(),
-                            createdAt: formatDate(row.createdAt),
+                            commissionId: row?.commission_commission_id,
+                            type: row?.commission_conversion_type,
+                            referenceId: row?.commission_external_id,
+                            commission: Number(row?.commission_amount).toString(),
+                            createdAt: formatDate(row.commission_created_at),
                         };
 
                         // Clear the processed row to free memory
-                        delete currentChunk[chunkIndex - 1];
+                        currentChunk = currentChunk.slice(chunkIndex);
+						chunkIndex = 0;
                         
                         this.push(csvRow);
                         return;
@@ -1566,11 +1652,11 @@ export class PromoterService {
                         totalProcessed++;
                         
                         const csvRow = {
-                            commissionId: row?.commissionId,
-                            type: row?.conversionType,
-                            referenceId: row?.externalId,
-                            commission: Number(row?.amount).toString(),
-                            createdAt: formatDate(row.createdAt),
+                            commissionId: row?.commission_commission_id,
+                            type: row?.commission_conversion_type,
+                            referenceId: row?.commission_external_id,
+                            commission: Number(row?.commission_amount).toString(),
+                            createdAt: formatDate(row.commission_created_at),
                         };
                         
                         this.push(csvRow);
@@ -1605,7 +1691,7 @@ export class PromoterService {
 		cursor?: string,
 		limit: number = 1000,
 	): Promise<{
-		data: Commission[];
+		data: any[];
 		pagination: {
 			hasNextPage: boolean;
 			nextCursor: string | null;
@@ -1616,9 +1702,16 @@ export class PromoterService {
 		this.logger.info(`START: getCommissionsForReports service`);
 		
 		const queryBuilder = this.commissionRepository.createQueryBuilder('commission')
-			.innerJoinAndSelect('commission.contact', 'contact')
+			.innerJoin('commission.contact', 'contact')
 			.where('commission.promoterId = :promoterId', { promoterId })
-			.andWhere('contact.programId = :programId', { programId });
+			.andWhere('contact.programId = :programId', { programId })
+			.select([
+				'commission.commissionId',
+				'commission.conversionType',
+				'commission.externalId',
+				'commission.amount',
+				'commission.createdAt'
+			]);
 
 			// Apply date filters with proper indexing support
 		if (startDate && endDate) {
@@ -1640,7 +1733,7 @@ export class PromoterService {
 			.limit(limit);
 
 
-		const commissionsResult = await queryBuilder.getMany();
+		const commissionsResult = await queryBuilder.getRawMany();
 
 		if (!commissionsResult) {
 			this.logger.warn(`failed to get commissions for promoter ${promoterId}`);
@@ -1650,7 +1743,7 @@ export class PromoterService {
 		let nextCursor: string | null = null;
 		if (commissionsResult.length === limit && commissionsResult.length > 0) {
 			const lastItem = commissionsResult[commissionsResult.length - 1];
-			nextCursor = encodeCursor(lastItem.createdAt);
+			nextCursor = encodeCursor(lastItem.commission_created_at);
 		}
 
 		this.logger.info(`END: getCommissionsForReports service`);

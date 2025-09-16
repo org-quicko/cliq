@@ -428,6 +428,20 @@ export class PromoterController {
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
 
+		res.on('close', () => {
+			this.logger.info('Response closed, cleaning up stream');
+			if (signUpCSV && typeof signUpCSV.destroy === 'function') {
+				signUpCSV.destroy();
+			}
+		});
+	
+		res.on('error', (err) => {
+			this.logger.error('Response error:', err);
+			if (signUpCSV && typeof signUpCSV.destroy === 'function') {
+				signUpCSV.destroy();
+			}
+		});
+
 		signUpCSV.pipe(res);
 	}
 
