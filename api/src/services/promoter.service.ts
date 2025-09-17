@@ -719,7 +719,12 @@ export class PromoterService {
 				c.email,
 				c.phone,
 				c.external_id,
-				s.utm_params
+				s.utm_params ->> 'utm_id' as utm_id,
+				s.utm_params ->> 'utm_source' as utm_source,
+				s.utm_params ->> 'utm_medium' as utm_medium,
+				s.utm_params ->> 'utm_campaign' as utm_campaign,
+				s.utm_params ->> 'utm_content' as utm_content,
+				s.utm_params ->> 'utm_term' as utm_term
 			FROM sign_up s
 			INNER JOIN contact c ON s.contact_id = c.contact_id
 			WHERE s.promoter_id = $1 AND c.program_id = $2
@@ -803,7 +808,12 @@ export class PromoterService {
 				p.item_id,
 				p.amount,
 				c.external_id,
-				p.utm_params
+				p.utm_params ->> 'utm_id' as utm_id,
+				p.utm_params ->> 'utm_source' as utm_source,
+				p.utm_params ->> 'utm_medium' as utm_medium,
+				p.utm_params ->> 'utm_campaign' as utm_campaign,
+				p.utm_params ->> 'utm_content' as utm_content,
+				p.utm_params ->> 'utm_term' as utm_term
 			FROM purchase p
 			INNER JOIN contact c ON p.contact_id = c.contact_id
 			WHERE p.promoter_id = $1 AND c.program_id = $2
@@ -1080,6 +1090,7 @@ export class PromoterService {
 
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
+
 		// Create a streaming CSV generator that doesn't accumulate data in memory
 		const signUpCSV = this.generateSignUpCSVStream(programId, promoterId, startDate, endDate);
 
@@ -1159,10 +1170,6 @@ export class PromoterService {
 						const row = currentChunk[chunkIndex++];
 						totalProcessed++;
 						
-						// Transform row to CSV format - no entity overhead
-						// Parse UTM params once to avoid repeated parsing
-						const utmParams = row.utm_params || {};
-						
 						// Safely convert date to avoid "Invalid time value" errors
 						const signUpDate = new Date(row.created_at);
 						const formattedDate = isNaN(signUpDate.getTime()) ? '' : formatDate(signUpDate);
@@ -1173,12 +1180,12 @@ export class PromoterService {
 							email: row.email || '',
 							phone: row.phone || '',
 							externalId: row.external_id || '',
-							utmId: utmParams.utm_id || '',
-							utmSource: utmParams.utm_source || '',
-							utmMedium: utmParams.utm_medium || '',
-							utmCampaign: utmParams.utm_campaign || '',
-							utmTerm: utmParams.utm_term || '',
-							utmContent: utmParams.utm_content || '',
+							utmId: row.utm_id || '',
+							utmSource: row.utm_source || '',
+							utmMedium: row.utm_medium || '',
+							utmCampaign: row.utm_campaign || '',
+							utmTerm: row.utm_term || '',
+							utmContent: row.utm_content || '',
 						};
 						
 						// Clear the processed row to free memory
@@ -1232,12 +1239,12 @@ export class PromoterService {
 								email: row.contact_email || '',
 								phone: row.contact_phone || '',
 								externalId: row.external_id || '',
-								utmId: utmParams.utm_id || '',
-								utmSource: utmParams.utm_source || '',
-								utmMedium: utmParams.utm_medium || '',
-								utmCampaign: utmParams.utm_campaign || '',
-								utmTerm: utmParams.utm_term || '',
-								utmContent: utmParams.utm_content || '',
+								utmId: row.utm_id || '',
+								utmSource: row.utm_source || '',
+								utmMedium: row.utm_medium || '',
+								utmCampaign: row.utm_campaign || '',
+								utmTerm: row.utm_term || '',
+								utmContent: row.utm_content || '',
 							};
 							
 							// Clear the processed row to free memory
@@ -1379,12 +1386,12 @@ export class PromoterService {
                             itemId: row?.item_id ?? '',
                             amount: Number(row?.amount).toString(),
                             externalId: row?.external_id ?? '',
-                            utmId: row?.utm_params?.utm_id ?? '',
-                            utmSource: row?.utm_params?.utm_source ?? '',
-                            utmMedium: row?.utm_params?.utm_medium ?? '',
-                            utmCampaign: row?.utm_params?.utm_campaign ?? '',
-                            utmTerm: row?.utm_params?.utm_term ?? '',
-                            utmContent: row?.utm_params?.utm_content ?? '',
+                            utmId: row?.utm_id ?? '',
+                            utmSource: row?.utm_source ?? '',
+                            utmMedium: row?.utm_medium ?? '',
+                            utmCampaign: row?.utm_campaign ?? '',
+                            utmTerm: row?.utm_term ?? '',
+                            utmContent: row?.utm_content ?? '',
                         };
 
                         // Clear the processed row to free memory
@@ -1425,12 +1432,12 @@ export class PromoterService {
                             itemId: row?.item_id ?? '',
                             amount: Number(row?.amount).toString(),
                             externalId: row?.external_id ?? '',
-                            utmId: row?.utm_params?.utm_id ?? '',
-                            utmSource: row?.utm_params?.utm_source ?? '',
-                            utmMedium: row?.utm_params?.utm_medium ?? '',
-                            utmCampaign: row?.utm_params?.utm_campaign ?? '',
-                            utmTerm: row?.utm_params?.utm_term ?? '',
-                            utmContent: row?.utm_params?.utm_content ?? '',
+                            utmId: row?.utm_id ?? '',
+                            utmSource: row?.utm_source ?? '',
+                            utmMedium: row?.utm_medium ?? '',
+                            utmCampaign: row?.utm_campaign ?? '',
+                            utmTerm: row?.utm_term ?? '',
+                            utmContent: row?.utm_content ?? '',
                         };
                         
                         this.push(csvRow);
