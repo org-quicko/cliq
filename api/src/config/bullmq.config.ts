@@ -6,7 +6,6 @@ export const bullMqConfig = (configService: ConfigService): BullRootModuleOption
 		host: configService.get<string>('REDIS_HOST'),
 		port: configService.get<number>('REDIS_PORT'),
 		// Add connection pool management
-		maxRetriesPerRequest: 3,
 		retryDelayOnFailover: 1000,
 		enableReadyCheck: false,
 		lazyConnect: true,

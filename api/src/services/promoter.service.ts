@@ -711,49 +711,54 @@ export class PromoterService {
 	}> {
 		this.logger.info('START: getSignUpsForReports service');
 
-		const queryBuilder = this.signUpRepository
-			.createQueryBuilder('signUp')
-			.innerJoinAndSelect('signUp.contact', 'contact')
-			.where('signUp.promoterId = :promoterId', { promoterId })
-			.andWhere('contact.programId = :programId', { programId })
-			.select(['signUp.contactId', 'signUp.createdAt', 'contact.email', 'contact.phone', 'contact.externalId', 'signUp.utmParams']);
+		// Build raw SQL query for memory efficiency
+		let sql = `
+			SELECT 
+				s.contact_id,
+				s.created_at,
+				c.email,
+				c.phone,
+				c.external_id,
+				s.utm_params
+			FROM sign_up s
+			INNER JOIN contact c ON s.contact_id = c.contact_id
+			WHERE s.promoter_id = $1 AND c.program_id = $2
+		`;
 
-		// Apply date filters with proper indexing support
+		const queryParams: any[] = [promoterId, programId];
+		let paramIndex = 3;
+
+		// Apply date filters
 		if (startDate && endDate) {
-			queryBuilder
-				.andWhere('signUp.createdAt >= :startDate', { startDate: startDate.toISOString() })
-				.andWhere('signUp.createdAt <= :endDate', { endDate: endDate.toISOString() });
+			sql += ` AND s.created_at >= $${paramIndex} AND s.created_at <= $${paramIndex + 1}`;
+			queryParams.push(startDate.toISOString(), endDate.toISOString());
+			paramIndex += 2;
 		}
 
-		// Apply cursor-based pagination for efficient retrieval
+		// Apply cursor-based pagination
 		if (cursor) {
 			const cursorDate = decodeCursor(cursor);
-			queryBuilder.andWhere('signUp.createdAt > :cursorDate', { cursorDate: cursorDate.toISOString() });
+			sql += ` AND s.created_at > $${paramIndex}`;
+			queryParams.push(cursorDate.toISOString());
+			paramIndex++;
 		}
 
-		// Add ordering for consistent results and cursor pagination
-		queryBuilder
-			.orderBy('signUp.createdAt', 'ASC')
-			.addOrderBy('signUp.contactId', 'ASC') // Secondary sort for deterministic ordering
-			.limit(limit);
+		// Add ordering and limit
+		sql += ` ORDER BY s.created_at ASC, s.contact_id ASC LIMIT $${paramIndex}`;
+		queryParams.push(limit);
 
-		const signUpsResult = await queryBuilder.getRawMany();
-
-		console.log(signUpsResult);
-
-		
+		// Execute raw query
+		const signUpsResult = await this.datasource.query(sql, queryParams);
 
 		if (!signUpsResult || signUpsResult.length === 0) {
-			this.logger.warn(
-				`failed to get signups for promoter ${promoterId}`,
-			);
+			this.logger.warn(`failed to get signups for promoter ${promoterId}`);
 		}
 
 		// Generate next cursor for pagination
 		let nextCursor: string | null = null;
 		if (signUpsResult.length === limit && signUpsResult.length > 0) {
 			const lastItem = signUpsResult[signUpsResult.length - 1];
-			nextCursor = encodeCursor(lastItem.signUp_created_at);
+			nextCursor = encodeCursor(new Date(lastItem.created_at));
 		}
 
 		this.logger.info('END: getSignUpsForReports service');
@@ -789,53 +794,55 @@ export class PromoterService {
 	}> {
 		this.logger.info('START: getPurchasesForReports service');
 
-		const queryBuilder = this.purchaseRepository
-			.createQueryBuilder('purchase')
-			.innerJoin('purchase.contact', 'contact')
-			.where('purchase.promoterId = :promoterId', { promoterId })
-			.andWhere('contact.programId = :programId', { programId })
-			.select([
-				'purchase.purchaseId',
-				'purchase.contactId',
-				'purchase.createdAt',
-				'purchase.itemId',
-				'purchase.amount',
-				'contact.externalId',
-				'purchase.utmParams'
-			]);
+		// Build raw SQL query for memory efficiency
+		let sql = `
+			SELECT 
+				p.purchase_id,
+				p.contact_id,
+				p.created_at,
+				p.item_id,
+				p.amount,
+				c.external_id,
+				p.utm_params
+			FROM purchase p
+			INNER JOIN contact c ON p.contact_id = c.contact_id
+			WHERE p.promoter_id = $1 AND c.program_id = $2
+		`;
 
-		// Apply date filters with proper indexing support
+		const queryParams: any[] = [promoterId, programId];
+		let paramIndex = 3;
+
+		// Apply date filters
 		if (startDate && endDate) {
-			queryBuilder
-				.andWhere('purchase.createdAt >= :startDate', { startDate: startDate.toISOString() })
-				.andWhere('purchase.createdAt <= :endDate', { endDate: endDate.toISOString() });
+			sql += ` AND p.created_at >= $${paramIndex} AND p.created_at <= $${paramIndex + 1}`;
+			queryParams.push(startDate.toISOString(), endDate.toISOString());
+			paramIndex += 2;
 		}
 
-		// Apply cursor-based pagination for efficient retrieval
+		// Apply cursor-based pagination
 		if (cursor) {
 			const cursorDate = decodeCursor(cursor);
-			queryBuilder.andWhere('purchase.createdAt > :cursorDate', { cursorDate: cursorDate.toISOString() });
+			sql += ` AND p.created_at > $${paramIndex}`;
+			queryParams.push(cursorDate.toISOString());
+			paramIndex++;
 		}
 
-		// Add ordering for consistent results and cursor pagination
-		queryBuilder
-			.orderBy('purchase.createdAt', 'ASC')
-			.addOrderBy('purchase.purchaseId', 'ASC') // Secondary sort for deterministic ordering
-			.limit(limit);
+		// Add ordering and limit
+		sql += ` ORDER BY p.created_at ASC, p.purchase_id ASC LIMIT $${paramIndex}`;
+		queryParams.push(limit);
 
-		const purchases = await queryBuilder.getRawMany();
+		// Execute raw query
+		const purchases = await this.datasource.query(sql, queryParams);
 
-		if (!purchases) {
+		if (!purchases || purchases.length === 0) {
 			this.logger.warn(`failed to get purchases for promoter ${promoterId}`);
-			throw new NotFoundException(`No purchases found for ${promoterId}`);
 		}
-
 
 		// Generate next cursor for pagination
 		let nextCursor: string | null = null;
 		if (purchases.length === limit && purchases.length > 0) {
 			const lastItem = purchases[purchases.length - 1];
-			nextCursor = encodeCursor(lastItem.purchase_createdAt);
+			nextCursor = encodeCursor(new Date(lastItem.created_at));
 		}
 
 		this.logger.info('END: getPurchasesForReports service');
@@ -1028,6 +1035,23 @@ export class PromoterService {
 		return commissionDtos;
 	}
 
+
+	/**
+	 * Log memory usage for monitoring (optimized for 768MB constraint)
+	 */
+	private logMemoryUsage(context: string): void {
+		const memUsage = process.memoryUsage();
+		const memUsageMB = memUsage.heapUsed / 1024 / 1024;
+		const memLimitMB = 768;
+		const percentage = ((memUsageMB / memLimitMB) * 100).toFixed(1);
+		
+		this.logger.info(`${context} - Memory: ${memUsageMB.toFixed(2)}MB (${percentage}% of ${memLimitMB}MB limit)`);
+		
+		if (memUsageMB > 600) { // 78% of 768MB
+			this.logger.warn(`High memory usage detected: ${memUsageMB.toFixed(2)}MB (${percentage}%)`);
+		}
+	}
+
 	/**
 	 * Get signups report - Memory efficient streaming version
 	 */
@@ -1039,6 +1063,9 @@ export class PromoterService {
 		endDate: Date,
 	) {
 		this.logger.info('START: getSignUpsReport service');
+
+		// Log initial memory usage for monitoring
+		this.logMemoryUsage('Report start');
 
 		try {
 			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
@@ -1062,6 +1089,9 @@ export class PromoterService {
 	
 		signUpCSV.on('end', () => {
 			this.logger.info('SignUp CSV stream ended');
+			
+			// Log memory usage after stream ends
+			this.logMemoryUsage('Report end');
 		});
 	
 		signUpCSV.on('close', () => {
@@ -1110,11 +1140,13 @@ export class PromoterService {
 	
 		// Capture the method reference to avoid scope issues
 		const getSignUpsForReports = this.getSignUpsForReports.bind(this);
+
+		const logger = this.logger;
 	
 		// Create a source stream that fetches data from database in chunks
 		const sourceStream = new Readable({
 			objectMode: true,
-			highWaterMark: 16, // Reduced buffer size
+			highWaterMark: 8,
 			async read() {
 				try {
 					// Check if stream is destroyed
@@ -1128,19 +1160,29 @@ export class PromoterService {
 						totalProcessed++;
 						
 						// Transform row to CSV format - no entity overhead
+						// Parse UTM params once to avoid repeated parsing
+						const utmParams = row.utm_params || {};
+						
+						// Safely convert date to avoid "Invalid time value" errors
+						const signUpDate = new Date(row.created_at);
+						const formattedDate = isNaN(signUpDate.getTime()) ? '' : formatDate(signUpDate);
+						
 						const csvRow = {
-							contactId: row.signUp_contact_id,
-							signUpDate: formatDate(row.signUp_created_at),
-							email: row.contact_email ?? '',
-							phone: row.contact_phone ?? '',
-							externalId: row.contact_external_id ?? '',
-							utmId: row.signUp_utm_params?.utm_id ?? '',
-							utmSource: row.signUp_utm_params?.utm_source ?? '',
-							utmMedium: row.signUp_utm_params?.utm_medium ?? '',
-							utmCampaign: row.signUp_utm_params?.utm_campaign ?? '',
-							utmTerm: row.signUp_utm_params?.utm_term ?? '',
-							utmContent: row.signUp_utm_params?.utm_content ?? '',
+							contactId: row.contact_id,
+							signUpDate: formattedDate,
+							email: row.email || '',
+							phone: row.phone || '',
+							externalId: row.external_id || '',
+							utmId: utmParams.utm_id || '',
+							utmSource: utmParams.utm_source || '',
+							utmMedium: utmParams.utm_medium || '',
+							utmCampaign: utmParams.utm_campaign || '',
+							utmTerm: utmParams.utm_term || '',
+							utmContent: utmParams.utm_content || '',
 						};
+						
+						// Clear the processed row to free memory
+						delete currentChunk[chunkIndex - 1];
 						
 						this.push(csvRow);
 						return;
@@ -1150,16 +1192,22 @@ export class PromoterService {
 					currentChunk = [];
 					chunkIndex = 0;
 					
-					// Force garbage collection every 1000 records
-					if (totalProcessed % 1000 === 0 && global.gc) {
-						// global.gc();
+					
+					// Log memory usage every 100 records for monitoring
+					if (totalProcessed % 100 === 0) {
 						const used = process.memoryUsage();
-						console.log(`Processed ${totalProcessed} records. Memory: ${Math.round(used.heapUsed / 1024 / 1024)} MB`);
+						const memUsageMB = Math.round(used.heapUsed / 1024 / 1024);
+						logger.info(`Processed ${totalProcessed} records. Memory: ${memUsageMB}MB`);
+						
+						// Warning if memory usage is getting high
+						if (memUsageMB > 200) {
+							logger.warn(`High memory usage detected: ${memUsageMB}MB at ${totalProcessed} records`);
+						}
 					}
 	
 					// Fetch next chunk
 					if (hasNextPage && !isStreamDestroyed) {
-						const response = await getSignUpsForReports(programId, promoterId, startDate, endDate, cursor, 1000); // Smaller chunks
+						const response = await getSignUpsForReports(programId, promoterId, startDate, endDate, cursor, 100); // Ultra-small chunks for memory constraint
 						
 						currentChunk = response.data;
 						chunkIndex = 0;
@@ -1171,30 +1219,40 @@ export class PromoterService {
 							const row = currentChunk[chunkIndex++];
 							totalProcessed++;
 							
+							// Parse UTM params once to avoid repeated parsing
+							const utmParams = row.utm_params || {};
+							
+							// Safely convert date to avoid "Invalid time value" errors
+							const signUpDate = new Date(row.created_at);
+							const formattedDate = isNaN(signUpDate.getTime()) ? '' : formatDate(signUpDate);
+							
 							const csvRow = {
-								contactId: row.signUp_contact_id,
-								signUpDate: formatDate(row.signUp_created_at),
-								email: row.contact_email ?? '',
-								phone: row.contact_phone ?? '',
-								externalId: row.contact_external_id ?? '',
-								utmId: row.signUp_utm_params?.utm_id ?? '',
-								utmSource: row.signUp_utm_params?.utm_source ?? '',
-								utmMedium: row.signUp_utm_params?.utm_medium ?? '',
-								utmCampaign: row.signUp_utm_params?.utm_campaign ?? '',
-								utmTerm: row.signUp_utm_params?.utm_term ?? '',
-								utmContent: row.signUp_utm_params?.utm_content ?? '',
+								contactId: row.contact_id,
+								signUpDate: formattedDate,
+								email: row.contact_email || '',
+								phone: row.contact_phone || '',
+								externalId: row.external_id || '',
+								utmId: utmParams.utm_id || '',
+								utmSource: utmParams.utm_source || '',
+								utmMedium: utmParams.utm_medium || '',
+								utmCampaign: utmParams.utm_campaign || '',
+								utmTerm: utmParams.utm_term || '',
+								utmContent: utmParams.utm_content || '',
 							};
+							
+							// Clear the processed row to free memory
+							delete currentChunk[chunkIndex - 1];
 							
 							this.push(csvRow);
 						}
 					} else {
 						// End of data
-						console.log(`Completed processing all signups. Total count: ${totalProcessed}`);
+						logger.info(`Completed processing all signups. Total count: ${totalProcessed}`);
 						currentChunk = [];
 						this.push(null);
 					}
 				} catch (error) {
-					console.error('Error in streaming signup data:', error);
+					logger.error('Error in streaming signup data:', error);
 					// Clear current chunk on error
 					currentChunk = [];
 					isStreamDestroyed = true;
@@ -1205,18 +1263,18 @@ export class PromoterService {
 	
 		// ✅ Add proper stream cleanup and error handling
 		sourceStream.on('error', (err) => {
-			console.error('Source stream error:', err);
+			logger.error('Source stream error:', err);
 			isStreamDestroyed = true;
 			currentChunk = [];
 		});
 	
 		sourceStream.on('end', () => {
-			console.log('Source stream ended');
+			logger.info('Source stream ended');
 			currentChunk = [];
 		});
 	
 		sourceStream.on('close', () => {
-			console.log('Source stream closed');
+			logger.info('Source stream closed');
 			currentChunk = [];
 		});
 	
@@ -1228,35 +1286,35 @@ export class PromoterService {
 	
 		// ✅ Add stringifier error handling
 		stringifier.on('error', (err) => {
-			console.error('Stringifier error:', err);
+			logger.error('Stringifier error:', err);
 			isStreamDestroyed = true;
 			sourceStream.destroy(err);
 		});
 	
 		stringifier.on('end', () => {
-			console.log('Stringifier ended');
+			logger.info('Stringifier ended');
 		});
 	
 		stringifier.on('close', () => {
-			console.log('Stringifier closed');
+			logger.info('Stringifier closed');
 		});
 	
 		// ✅ Handle pipe cleanup
 		const pipedStream = sourceStream.pipe(stringifier);
 		
 		pipedStream.on('error', (err) => {
-			console.error('Piped stream error:', err);
+			logger.error('Piped stream error:', err);
 			isStreamDestroyed = true;
 			sourceStream.destroy();
 			stringifier.destroy();
 		});
 	
 		pipedStream.on('end', () => {
-			console.log('Piped stream ended');
+			logger.info('Piped stream ended');
 		});
 	
 		pipedStream.on('close', () => {
-			console.log('Piped stream closed');
+			logger.info('Piped stream closed');
 		});
 	
 		return pipedStream;
@@ -1300,11 +1358,12 @@ export class PromoterService {
 
         // Capture the method reference to avoid scope issues
         const getPurchasesForReports = this.getPurchasesForReports.bind(this);
+		const logger = this.logger;
 
         // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
-            highWaterMark: 16, // Limit internal buffer size
+            highWaterMark: 8,
             async read() {
                 try {
                     // If we have data in current chunk, process it
@@ -1314,18 +1373,18 @@ export class PromoterService {
                         
                         // Transform row to CSV format
                         const csvRow = {
-                            purchaseId: row?.purchase_purchase_id,
-                            contactId: row?.purchase_contact_id,
-                            purchaseDate: formatDate(row.purchase_created_at),
-                            itemId: row?.purchase_item_id ?? '',
-                            amount: Number(row?.purchase_amount).toString(),
-                            externalId: row?.contact_external_id ?? '',
-                            utmId: row?.purchase_utm_params?.utm_id ?? '',
-                            utmSource: row?.purchase_utm_params?.utm_source ?? '',
-                            utmMedium: row?.purchase_utm_params?.utm_medium ?? '',
-                            utmCampaign: row?.purchase_utm_params?.utm_campaign ?? '',
-                            utmTerm: row?.purchase_utm_params?.utm_term ?? '',
-                            utmContent: row?.purchase_utm_params?.utm_content ?? '',
+                            purchaseId: row?.purchase_id,
+                            contactId: row?.contact_id,
+                            purchaseDate: formatDate(row.created_at),
+                            itemId: row?.item_id ?? '',
+                            amount: Number(row?.amount).toString(),
+                            externalId: row?.external_id ?? '',
+                            utmId: row?.utm_params?.utm_id ?? '',
+                            utmSource: row?.utm_params?.utm_source ?? '',
+                            utmMedium: row?.utm_params?.utm_medium ?? '',
+                            utmCampaign: row?.utm_params?.utm_campaign ?? '',
+                            utmTerm: row?.utm_params?.utm_term ?? '',
+                            utmContent: row?.utm_params?.utm_content ?? '',
                         };
 
                         // Clear the processed row to free memory
@@ -1337,7 +1396,7 @@ export class PromoterService {
 
                     // If no more data in current chunk and no more pages, end stream
                     if (!hasNextPage) {
-                        console.log(`Completed processing all purchases. Total count: ${totalProcessed}`);
+                        logger.info(`Completed processing all purchases. Total count: ${totalProcessed}`);
                         currentChunk = [];
                         this.push(null); // Signal end of data
                         return;
@@ -1347,7 +1406,7 @@ export class PromoterService {
                     currentChunk = [];
                     
                     // Fetch next chunk from database
-                    const response = await getPurchasesForReports(programId, promoterId, startDate, endDate, cursor, 1000);
+                    const response = await getPurchasesForReports(programId, promoterId, startDate, endDate, cursor, 100);
                     
                     currentChunk = response.data;
                     chunkIndex = 0;
@@ -1360,24 +1419,24 @@ export class PromoterService {
                         totalProcessed++;
                         
                         const csvRow = {
-                            purchaseId: row?.purchase_purchase_id,
-                            contactId: row?.purchase_contact_id,
-                            purchaseDate: formatDate(row.purchase_created_at),
-                            itemId: row?.purchase_item_id ?? '',
-                            amount: Number(row?.purchase_amount).toString(),
-                            externalId: row?.contact_external_id ?? '',
-                            utmId: row?.purchase_utm_params?.utm_id ?? '',
-                            utmSource: row?.purchase_utm_params?.utm_source ?? '',
-                            utmMedium: row?.purchase_utm_params?.utm_medium ?? '',
-                            utmCampaign: row?.purchase_utm_params?.utm_campaign ?? '',
-                            utmTerm: row?.purchase_utm_params?.utm_term ?? '',
-                            utmContent: row?.purchase_utm_params?.utm_content ?? '',
+                            purchaseId: row?.purchase_id,
+                            contactId: row?.contact_id,
+                            purchaseDate: formatDate(row.created_at),
+                            itemId: row?.item_id ?? '',
+                            amount: Number(row?.amount).toString(),
+                            externalId: row?.external_id ?? '',
+                            utmId: row?.utm_params?.utm_id ?? '',
+                            utmSource: row?.utm_params?.utm_source ?? '',
+                            utmMedium: row?.utm_params?.utm_medium ?? '',
+                            utmCampaign: row?.utm_params?.utm_campaign ?? '',
+                            utmTerm: row?.utm_params?.utm_term ?? '',
+                            utmContent: row?.utm_params?.utm_content ?? '',
                         };
                         
                         this.push(csvRow);
                     }
                 } catch (error) {
-                    console.error('Error in streaming purchase data:', error);
+                    logger.error('Error in streaming purchase data:', error);
                     // Clear current chunk on error
                     currentChunk = [];
                     this.destroy(error);
@@ -1459,6 +1518,9 @@ export class PromoterService {
 	) {
 		this.logger.info('START: getPurchasesReport service');
 
+		// Log initial memory usage for monitoring
+		this.logMemoryUsage('Report start');
+
 		try {
 			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
 		} catch (error) {
@@ -1474,6 +1536,21 @@ export class PromoterService {
 
 		// Create a streaming CSV generator that doesn't accumulate data in memory
 		const purchaseCSV = this.generatePurchaseCSVStream(programId, promoterId, startDate, endDate);
+
+		purchaseCSV.on('error', (err) => {
+			this.logger.error('Purchase CSV stream error:', err);
+		});
+	
+		purchaseCSV.on('end', () => {
+			this.logger.info('Purchase CSV stream ended');
+			
+			// Log memory usage after stream ends
+			this.logMemoryUsage('Report end');
+		});
+	
+		purchaseCSV.on('close', () => {
+			this.logger.info('Purchase CSV stream closed');
+		});	
 
 		this.logger.info('END: getPurchasesReport service');
 		return purchaseCSV;
@@ -1548,6 +1625,9 @@ export class PromoterService {
 	) {
 		this.logger.info(`START: getCommissionsReport service`);
 
+		// Log initial memory usage for monitoring
+		this.logMemoryUsage('Report start');
+
 		try {
 			await this.promoterMemberService.getPromoterMemberRowEntity(promoterId, memberId);
 		} catch (error) {
@@ -1562,6 +1642,21 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const commissionCSV = this.generateCommissionCSVStream(programId, promoterId, startDate, endDate);
+
+		commissionCSV.on('error', (err) => {
+			this.logger.error('Commission CSV stream error:', err);
+		});
+	
+		commissionCSV.on('end', () => {
+			this.logger.info('Commission CSV stream ended');
+			
+			// Log memory usage after stream ends
+			this.logMemoryUsage('Report end');
+		});
+	
+		commissionCSV.on('close', () => {
+			this.logger.info('Commission CSV stream closed');
+		});	
 
 		this.logger.info('END: getCommissionsReport service');
 		return commissionCSV;
@@ -1598,11 +1693,12 @@ export class PromoterService {
 
         // Capture the method reference to avoid scope issues
         const getCommissionsForReports = this.getCommissionsForReports.bind(this);
+        const logger = this.logger;
 
         // Create a source stream that fetches data from database in chunks
         const sourceStream = new Readable({
             objectMode: true,
-            highWaterMark: 64, // Limit internal buffer size
+            highWaterMark: 8,
             async read() {
                 try {
                     // If we have data in current chunk, process it
@@ -1612,16 +1708,15 @@ export class PromoterService {
                         
                         // Transform row to CSV format
                         const csvRow = {
-                            commissionId: row?.commission_commission_id,
-                            type: row?.commission_conversion_type,
-                            referenceId: row?.commission_external_id,
-                            commission: Number(row?.commission_amount).toString(),
-                            createdAt: formatDate(row.commission_created_at),
+                            commissionId: row?.commission_id,
+                            type: row?.conversion_type,
+                            referenceId: row?.external_id,
+                            commission: Number(row?.amount).toString(),
+                            createdAt: formatDate(row.created_at),
                         };
 
                         // Clear the processed row to free memory
-                        currentChunk = currentChunk.slice(chunkIndex);
-						chunkIndex = 0;
+                        delete currentChunk[chunkIndex - 1];
                         
                         this.push(csvRow);
                         return;
@@ -1629,7 +1724,7 @@ export class PromoterService {
 
                     // If no more data in current chunk and no more pages, end stream
                     if (!hasNextPage) {
-                        console.log(`Completed processing all commissions. Total count: ${totalProcessed}`);
+                        logger.info(`Completed processing all commissions. Total count: ${totalProcessed}`);
                         currentChunk = [];
                         this.push(null); // Signal end of data
                         return;
@@ -1639,7 +1734,7 @@ export class PromoterService {
                     currentChunk = [];
                     
                     // Fetch next chunk from database
-                    const response = await getCommissionsForReports(programId, promoterId, startDate, endDate, cursor, 1000);
+                    const response = await getCommissionsForReports(programId, promoterId, startDate, endDate, cursor, 100);
                     
                     currentChunk = response.data;
                     chunkIndex = 0;
@@ -1652,17 +1747,17 @@ export class PromoterService {
                         totalProcessed++;
                         
                         const csvRow = {
-                            commissionId: row?.commission_commission_id,
-                            type: row?.commission_conversion_type,
-                            referenceId: row?.commission_external_id,
-                            commission: Number(row?.commission_amount).toString(),
-                            createdAt: formatDate(row.commission_created_at),
+                            commissionId: row?.commission_id,
+                            type: row?.conversion_type,
+                            referenceId: row?.external_id,
+                            commission: Number(row?.amount).toString(),
+                            createdAt: formatDate(row.created_at),
                         };
                         
                         this.push(csvRow);
                     }
                 } catch (error) {
-                    console.error('Error in streaming commission data:', error);
+                    logger.error('Error in streaming commission data:', error);
                     // Clear current chunk on error
                     currentChunk = [];
                     this.destroy(error);
@@ -1701,49 +1796,52 @@ export class PromoterService {
 	}> {
 		this.logger.info(`START: getCommissionsForReports service`);
 		
-		const queryBuilder = this.commissionRepository.createQueryBuilder('commission')
-			.innerJoin('commission.contact', 'contact')
-			.where('commission.promoterId = :promoterId', { promoterId })
-			.andWhere('contact.programId = :programId', { programId })
-			.select([
-				'commission.commissionId',
-				'commission.conversionType',
-				'commission.externalId',
-				'commission.amount',
-				'commission.createdAt'
-			]);
+		// Build raw SQL query for memory efficiency
+		let sql = `
+			SELECT 
+				c.commission_id,
+				c.conversion_type,
+				c.external_id,
+				c.amount,
+				c.created_at
+			FROM commission c
+			INNER JOIN contact ct ON c.contact_id = ct.contact_id
+			WHERE c.promoter_id = $1 AND ct.program_id = $2
+		`;
 
-			// Apply date filters with proper indexing support
+		const queryParams: any[] = [promoterId, programId];
+		let paramIndex = 3;
+
+		// Apply date filters
 		if (startDate && endDate) {
-			queryBuilder
-				.andWhere('commission.createdAt >= :startDate', { startDate: startDate.toISOString() })
-				.andWhere('commission.createdAt <= :endDate', { endDate: endDate.toISOString() });
+			sql += ` AND c.created_at >= $${paramIndex} AND c.created_at <= $${paramIndex + 1}`;
+			queryParams.push(startDate.toISOString(), endDate.toISOString());
+			paramIndex += 2;
 		}
 
-		// Apply cursor-based pagination for efficient retrieval
+		// Apply cursor-based pagination
 		if (cursor) {
 			const cursorDate = decodeCursor(cursor);
-			queryBuilder.andWhere('commission.createdAt > :cursorDate', { cursorDate: cursorDate.toISOString() });
+			sql += ` AND c.created_at > $${paramIndex}`;
+			queryParams.push(cursorDate.toISOString());
+			paramIndex++;
 		}
 
-		// Add ordering for consistent results and cursor pagination
-		queryBuilder
-			.orderBy('commission.createdAt', 'ASC')
-			.addOrderBy('commission.commissionId', 'ASC') // Secondary sort for deterministic ordering
-			.limit(limit);
+		// Add ordering and limit
+		sql += ` ORDER BY c.created_at ASC, c.commission_id ASC LIMIT $${paramIndex}`;
+		queryParams.push(limit);
 
+		// Execute raw query
+		const commissionsResult = await this.datasource.query(sql, queryParams);
 
-		const commissionsResult = await queryBuilder.getRawMany();
-
-		if (!commissionsResult) {
+		if (!commissionsResult || commissionsResult.length === 0) {
 			this.logger.warn(`failed to get commissions for promoter ${promoterId}`);
-			throw new NotFoundException(`No commissions found for ${promoterId}`);
 		}
 
 		let nextCursor: string | null = null;
 		if (commissionsResult.length === limit && commissionsResult.length > 0) {
 			const lastItem = commissionsResult[commissionsResult.length - 1];
-			nextCursor = encodeCursor(lastItem.commission_created_at);
+			nextCursor = encodeCursor(new Date(lastItem.created_at));
 		}
 
 		this.logger.info(`END: getCommissionsForReports service`);

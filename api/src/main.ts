@@ -11,13 +11,10 @@ import * as winston from 'winston';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './exceptionFilters/globalExceptionFilter';
 import { TransformInterceptor } from './interceptors/response.interceptor';
-import { AppDataSource } from 'db/data-source';
 
 async function bootstrap() {
 
 	const app = await NestFactory.create(AppModule, {
-		snapshot: true,
-		bufferLogs: true,
 		logger: WinstonModule.createLogger({
 			level: 'info',
 			transports: [

@@ -482,6 +482,20 @@ export class PromoterController {
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
 
+		res.on('close', () => {
+			this.logger.info('Response closed, cleaning up stream');
+			if (purchaseCSV && typeof purchaseCSV.destroy === 'function') {
+				purchaseCSV.destroy();
+			}
+		});
+	
+		res.on('error', (err) => {
+			this.logger.error('Response error:', err);
+			if (purchaseCSV && typeof purchaseCSV.destroy === 'function') {
+				purchaseCSV.destroy();
+			}
+		});
+
 		purchaseCSV.pipe(res);
 	}
 
@@ -507,7 +521,7 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const commsissionCSV = await this.promoterService.getCommissionsReport(
+		const commissionCSV = await this.promoterService.getCommissionsReport(
 			programId,
 			promoterId,
 			memberId,
@@ -521,10 +535,24 @@ export class PromoterController {
 		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
+
+		res.on('close', () => {
+			this.logger.info('Response closed, cleaning up stream');
+			if (commissionCSV && typeof commissionCSV.destroy === 'function') {
+				commissionCSV.destroy();
+			}
+		});
+	
+		res.on('error', (err) => {
+			this.logger.error('Response error:', err);
+			if (commissionCSV && typeof commissionCSV.destroy === 'function') {
+				commissionCSV.destroy();
+			}
+		});
 		
 		this.logger.info('END: getCommissionsReport controller');
 
-		commsissionCSV.pipe(res);
+		commissionCSV.pipe(res);
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
