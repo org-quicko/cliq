@@ -62,7 +62,7 @@ import { CommissionWorkbookConverter } from 'src/converters/commission/commissio
 import { CommissionWorkbook } from '@org-quicko/cliq-sheet-core/Commission/beans';
 import { LinkWorkbook } from '@org-quicko/cliq-sheet-core/Link/beans';
 import { stringify } from 'csv-stringify';
-import { Readable } from 'node:stream';
+import { PassThrough, Readable, Transform } from 'node:stream';
 
 @Injectable()
 export class PromoterService {
@@ -693,7 +693,7 @@ export class PromoterService {
 	/**
 	 * Get signups for reports
 	 */
-	async getSignUpsForReports(
+	private async getSignUpsForReports(
 		programId: string,
 		promoterId: string,
 		startDate?: Date,
@@ -1092,7 +1092,7 @@ export class PromoterService {
 
 
 		// Create a streaming CSV generator that doesn't accumulate data in memory
-		const signUpCSV = this.generateSignUpCSVStream(programId, promoterId, startDate, endDate);
+		const signUpCSV = this.streamSignUpsCSVViaQuery(programId, promoterId, startDate, endDate);
 
 		signUpCSV.on('error', (err) => {
 			this.logger.error('SignUp CSV stream error:', err);
@@ -1114,219 +1114,93 @@ export class PromoterService {
 	}
 
 
-    /**
-     * Creates a readable stream that generates CSV data row-by-row directly from database.
-     * @param programId - Program ID
-     * @param promoterId - Promoter ID  
-     * @param startDate - Start date filter
-     * @param endDate - End date filter
-     * @returns A Readable stream outputting CSV data.
-     */
-    private generateSignUpCSVStream(
+	private streamSignUpsCSVViaQuery(
 		programId: string,
 		promoterId: string,
 		startDate: Date,
 		endDate: Date
-	): Readable {
+	  ): NodeJS.ReadableStream {
+		const sql = `
+		  SELECT 
+			s.contact_id,
+			s.created_at,
+			c.email,
+			c.phone,
+			c.external_id,
+			s.utm_params ->> 'utm_id'      AS utm_id,
+			s.utm_params ->> 'utm_source'  AS utm_source,
+			s.utm_params ->> 'utm_medium'  AS utm_medium,
+			s.utm_params ->> 'utm_campaign'AS utm_campaign,
+			s.utm_params ->> 'utm_term'    AS utm_term,
+			s.utm_params ->> 'utm_content' AS utm_content
+		  FROM sign_up s
+		  INNER JOIN contact c ON c.contact_id = s.contact_id
+		  WHERE s.promoter_id = $1
+			AND c.program_id  = $2
+			AND s.created_at >= $3
+			AND s.created_at <  $4
+		  ORDER BY s.created_at ASC, s.contact_id ASC
+		`;
+	  
+		const params = [promoterId, programId, startDate.toISOString(), endDate.toISOString()];
+	  
+		const queryRunner = this.datasource.createQueryRunner();
 		const columns = [
-			{ key: 'contactId', header: 'contact_id' },
-			{ key: 'signUpDate', header: 'sign_up_date' },
-			{ key: 'email', header: 'email' },
-			{ key: 'phone', header: 'phone' },
-			{ key: 'externalId', header: 'external_id' },
-			{ key: 'utmId', header: 'utm_id' },
-			{ key: 'utmSource', header: 'utm_source' },
-			{ key: 'utmMedium', header: 'utm_medium' },
-			{ key: 'utmCampaign', header: 'utm_campaign' },
-			{ key: 'utmTerm', header: 'utm_term' },
-			{ key: 'utmContent', header: 'utm_content' },
+		  'contact_id','sign_up_date','email','phone','external_id',
+		  'utm_id','utm_source','utm_medium','utm_campaign','utm_term','utm_content'
 		];
-	
-		let cursor: string | undefined = undefined;
-		let hasNextPage = true;
-		let currentChunk: any[] = []; // Plain objects, not entities
-		let chunkIndex = 0;
-		let totalProcessed = 0;
-		let isStreamDestroyed = false;
-	
-		// Capture the method reference to avoid scope issues
-		const getSignUpsForReports = this.getSignUpsForReports.bind(this);
-
-		const logger = this.logger;
-	
-		// Create a source stream that fetches data from database in chunks
-		const sourceStream = new Readable({
-			objectMode: true,
-			highWaterMark: 8,
-			async read() {
-				try {
-					// Check if stream is destroyed
-					if (isStreamDestroyed) {
-						return;
-					}
-	
-					// Process current chunk
-					if (chunkIndex < currentChunk.length) {
-						const row = currentChunk[chunkIndex++];
-						totalProcessed++;
-						
-						// Safely convert date to avoid "Invalid time value" errors
-						const signUpDate = new Date(row.created_at);
-						const formattedDate = isNaN(signUpDate.getTime()) ? '' : formatDate(signUpDate);
-						
-						const csvRow = {
-							contactId: row.contact_id,
-							signUpDate: formattedDate,
-							email: row.email || '',
-							phone: row.phone || '',
-							externalId: row.external_id || '',
-							utmId: row.utm_id || '',
-							utmSource: row.utm_source || '',
-							utmMedium: row.utm_medium || '',
-							utmCampaign: row.utm_campaign || '',
-							utmTerm: row.utm_term || '',
-							utmContent: row.utm_content || '',
-						};
-						
-						// Clear the processed row to free memory
-						delete currentChunk[chunkIndex - 1];
-						
-						this.push(csvRow);
-						return;
-					}
-	
-					// Clear current chunk completely to free memory
-					currentChunk = [];
-					chunkIndex = 0;
-					
-					
-					// Log memory usage every 100 records for monitoring
-					if (totalProcessed % 100 === 0) {
-						const used = process.memoryUsage();
-						const memUsageMB = Math.round(used.heapUsed / 1024 / 1024);
-						logger.info(`Processed ${totalProcessed} records. Memory: ${memUsageMB}MB`);
-						
-						// Warning if memory usage is getting high
-						if (memUsageMB > 200) {
-							logger.warn(`High memory usage detected: ${memUsageMB}MB at ${totalProcessed} records`);
-						}
-					}
-	
-					// Fetch next chunk
-					if (hasNextPage && !isStreamDestroyed) {
-						const response = await getSignUpsForReports(programId, promoterId, startDate, endDate, cursor, 100); // Ultra-small chunks for memory constraint
-						
-						currentChunk = response.data;
-						chunkIndex = 0;
-						hasNextPage = response.pagination.hasNextPage;
-						cursor = response.pagination.nextCursor || undefined;
-						
-						// Process first record immediately
-						if (currentChunk.length > 0) {
-							const row = currentChunk[chunkIndex++];
-							totalProcessed++;
-							
-							// Parse UTM params once to avoid repeated parsing
-							const utmParams = row.utm_params || {};
-							
-							// Safely convert date to avoid "Invalid time value" errors
-							const signUpDate = new Date(row.created_at);
-							const formattedDate = isNaN(signUpDate.getTime()) ? '' : formatDate(signUpDate);
-							
-							const csvRow = {
-								contactId: row.contact_id,
-								signUpDate: formattedDate,
-								email: row.contact_email || '',
-								phone: row.contact_phone || '',
-								externalId: row.external_id || '',
-								utmId: row.utm_id || '',
-								utmSource: row.utm_source || '',
-								utmMedium: row.utm_medium || '',
-								utmCampaign: row.utm_campaign || '',
-								utmTerm: row.utm_term || '',
-								utmContent: row.utm_content || '',
-							};
-							
-							// Clear the processed row to free memory
-							delete currentChunk[chunkIndex - 1];
-							
-							this.push(csvRow);
-						}
-					} else {
-						// End of data
-						logger.info(`Completed processing all signups. Total count: ${totalProcessed}`);
-						currentChunk = [];
-						this.push(null);
-					}
-				} catch (error) {
-					logger.error('Error in streaming signup data:', error);
-					// Clear current chunk on error
-					currentChunk = [];
-					isStreamDestroyed = true;
-					this.destroy(error);
-				}
-			}
+	  
+		const rowToCsv = new Transform({
+		  objectMode: true,
+		  highWaterMark: 16,
+		  transform(row: any, _enc, cb) {
+			// Format once; avoid throwing if null
+			const d = row.created_at ? new Date(row.created_at) : null;
+			const sign_up_date = d && !Number.isNaN(d.getTime())
+			  ? d.toISOString().replace(/\.\d{3}Z$/, 'Z')
+			  : '';
+			cb(null, {
+			  contact_id: row.contact_id,
+			  sign_up_date,
+			  email: row.email ?? '',
+			  phone: row.phone ?? '',
+			  external_id: row.external_id ?? '',
+			  utm_id: row.utm_id ?? '',
+			  utm_source: row.utm_source ?? '',
+			  utm_medium: row.utm_medium ?? '',
+			  utm_campaign: row.utm_campaign ?? '',
+			  utm_term: row.utm_term ?? '',
+			  utm_content: row.utm_content ?? '',
+			});
+		  }
 		});
-	
-		// ✅ Add proper stream cleanup and error handling
-		sourceStream.on('error', (err) => {
-			logger.error('Source stream error:', err);
-			isStreamDestroyed = true;
-			currentChunk = [];
-		});
-	
-		sourceStream.on('end', () => {
-			logger.info('Source stream ended');
-			currentChunk = [];
-		});
-	
-		sourceStream.on('close', () => {
-			logger.info('Source stream closed');
-			currentChunk = [];
-		});
-	
-		// Create the CSV stringifier stream
-		const stringifier = stringify({
-			header: true,
-			columns,
-		});
-	
-		// ✅ Add stringifier error handling
-		stringifier.on('error', (err) => {
-			logger.error('Stringifier error:', err);
-			isStreamDestroyed = true;
-			sourceStream.destroy(err);
-		});
-	
-		stringifier.on('end', () => {
-			logger.info('Stringifier ended');
-		});
-	
-		stringifier.on('close', () => {
-			logger.info('Stringifier closed');
-		});
-	
-		// ✅ Handle pipe cleanup
-		const pipedStream = sourceStream.pipe(stringifier);
-		
-		pipedStream.on('error', (err) => {
-			logger.error('Piped stream error:', err);
-			isStreamDestroyed = true;
-			sourceStream.destroy();
-			stringifier.destroy();
-		});
-	
-		pipedStream.on('end', () => {
-			logger.info('Piped stream ended');
-		});
-	
-		pipedStream.on('close', () => {
-			logger.info('Piped stream closed');
-		});
-	
-		return pipedStream;
-	}
-
+	  
+		const csv = stringify({ header: true, columns });
+	  
+		// Wire up
+		const stream = new PassThrough(); // what we return to callers
+	  
+		(async () => {
+		  try {
+			await queryRunner.connect();
+			const rowStream = await queryRunner.stream(sql, params); // Readable of rows
+			rowStream
+			  .on('error', (e: any) => stream.destroy(e))
+			  .pipe(rowToCsv)
+			  .on('error', (e: any) => stream.destroy(e))
+			  .pipe(csv)
+			  .on('error', (e: any) => stream.destroy(e))
+			  .pipe(stream)
+			  .on('finish', () => queryRunner.release())
+			  .on('error', () => queryRunner.release());
+		  } catch (err) {
+			stream.destroy(err as any);
+			await queryRunner.release();
+		  }
+		})();
+	  
+		return stream;
+	  }
     /**
      * Creates a readable stream that generates CSV data row-by-row directly from database for purchases.
 

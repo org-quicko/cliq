@@ -26,7 +26,8 @@ import {
 import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
-import { PassThrough } from 'node:stream';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import archiver from 'archiver';
 
 @ApiTags('Promoter')
@@ -391,9 +392,8 @@ export class PromoterController {
 		};
 	}
 
-	@ApiResponse({ status: 200, description: 'OK' })
-	@SkipTransform()
 	@Get(':promoter_id/reports/signups')
+	@SkipTransform()
 	async getSignUpsReport(
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
@@ -402,47 +402,55 @@ export class PromoterController {
 		@Res() res: Response,
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
-	) {
+	  ) {
 		this.logger.info('START: getSignUpsReport controller');
-
+	  
 		if (acceptType !== 'application/json;format=sheet-json') {
-			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
-			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+		  this.logger.error('Header accept type must be set to application/json;format=sheet-json');
+		  throw new BadRequestException('Header accept type must be set to application/json;format=sheet-json');
 		}
-
-
+	  
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
-
-		const signUpCSV = await this.promoterService.getSignUpsReport(
-			programId,
-			promoterId,
-			memberId,
-			parsedStartDate,
-			parsedEndDate,
-		);
-
+	  
+		// Ensure service returns a Node Readable (not Web ReadableStream)
+		const csvStream = (await this.promoterService.getSignUpsReport(
+		  programId,
+		  promoterId,
+		  memberId,
+		  parsedStartDate,
+		  parsedEndDate,
+		)) as Readable;
+	  
 		const fileName = getReportFileName('Signups');
-
+	  
 		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
 		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
-
+	  
+		// Optional: observe client aborts to stop the DB stream early
 		res.on('close', () => {
-			this.logger.info('Response closed, cleaning up stream');
-			if (signUpCSV && typeof signUpCSV.destroy === 'function') {
-				signUpCSV.destroy();
-			}
+		  if (!res.writableEnded) {
+			this.logger.warn('Client closed connection early; destroying CSV stream');
+			csvStream.destroy?.();
+		  }
 		});
-	
-		res.on('error', (err) => {
-			this.logger.error('Response error:', err);
-			if (signUpCSV && typeof signUpCSV.destroy === 'function') {
-				signUpCSV.destroy();
-			}
-		});
-
-		signUpCSV.pipe(res);
+	  
+		try {
+		  await pipeline(csvStream, res); // backpressure + cleanup
+		  this.logger.info('Signups CSV streamed successfully');
+		} catch (err) {
+		  this.logger.error('Streaming failed:', err as Error);
+		  // If headers already sent, just terminate the socket gracefully
+		  if (!res.headersSent) {
+			res.status(500).end('Failed to generate report');
+		  } else {
+			try { res.end(); } catch {}
+		  }
+		} finally {
+		  csvStream.destroy?.();
+		  this.logger.info('END: getSignUpsReport controller');
+		}
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
