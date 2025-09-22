@@ -36,4 +36,4 @@ EXPOSE 3001
 
 # Command to start the NestJS backend and serve Angular frontend
 ENTRYPOINT [ "/app/scripts/db-migrate.sh" ]
-CMD ["node", "dist/src/main.js", "--max-old-space-size=350", "--max-semi-space-size=16", "--optimize-for-size", "--gc-interval=50", "--max-http-header-size=8192"]
+CMD ["node", "dist/src/main.js", "--max-old-space-size=512","--optimize-for-size"]

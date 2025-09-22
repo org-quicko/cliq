@@ -2,6 +2,7 @@ import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, Headers,
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { PromoterService } from '../services/promoter.service';
+import { ConnectionMonitor } from '../utils/connectionMonitor.util';
 import {
 	CreateMemberDto,
 	CreatePromoterDto,
@@ -428,28 +429,53 @@ export class PromoterController {
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
 	  
-		// Optional: observe client aborts to stop the DB stream early
-		res.on('close', () => {
-		  if (!res.writableEnded) {
-			this.logger.warn('Client closed connection early; destroying CSV stream');
-			csvStream.destroy?.();
-		  }
+		// Enhanced connection monitoring with auto-recovery
+		const connectionMonitor = new ConnectionMonitor(res, () => {
+			this.logger.warn('Connection lost, stopping CSV stream');
 		});
+		
+		res.on('close', () => {
+			connectionMonitor.stopHeartbeat();
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; stopping CSV stream');
+			}
+		});
+		
+		// Start connection monitoring
+		connectionMonitor.startHeartbeat(10000); // 10 second intervals
 	  
 		try {
-		  await pipeline(csvStream, res); // backpressure + cleanup
-		  this.logger.info('Signups CSV streamed successfully');
+			// Create a heartbeat-aware stream wrapper
+			const heartbeatStream = new (require('stream').Transform)({
+				transform(chunk, encoding, callback) {
+					// Pass through data and maintain heartbeat
+					callback(null, chunk);
+				}
+			});
+			
+			// Pipe through heartbeat stream
+			csvStream.pipe(heartbeatStream);
+			await pipeline(heartbeatStream, res);
+			this.logger.info('Signups CSV streamed successfully');
 		} catch (err) {
-		  this.logger.error('Streaming failed:', err as Error);
-		  // If headers already sent, just terminate the socket gracefully
-		  if (!res.headersSent) {
-			res.status(500).end('Failed to generate report');
-		  } else {
-			try { res.end(); } catch {}
-		  }
+			const error = err as Error & { code?: string };
+			// Don't log premature close errors as errors - they're expected when client disconnects
+			if (error.code === 'ERR_STREAM_PREMATURE_CLOSE' || error.message.includes('Premature close')) {
+				this.logger.info('Client disconnected during streaming (expected behavior)');
+			} else {
+				this.logger.error('Streaming failed:', error);
+			}
+			
+			// If headers already sent, just terminate the socket gracefully
+			if (!res.headersSent && connectionMonitor.isConnectionAlive()) {
+				res.status(500).end('Failed to generate report');
+			} else {
+				try { res.end(); } catch {}
+			}
 		} finally {
-		  csvStream.destroy?.();
-		  this.logger.info('END: getSignUpsReport controller');
+			connectionMonitor.stopHeartbeat();
+			// Don't destroy the stream - let it end naturally
+			this.logger.info('END: getSignUpsReport controller');
 		}
 	}
 
@@ -475,13 +501,14 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const purchaseCSV = await this.promoterService.getPurchasesReport(
+		// Ensure service returns a Node Readable (not Web ReadableStream)
+		const csvStream = (await this.promoterService.getPurchasesReport(
 			programId,
 			promoterId,
 			memberId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Purchases');
 
@@ -490,21 +517,29 @@ export class PromoterController {
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
 
+		// Optional: observe client aborts to stop the DB stream early
 		res.on('close', () => {
-			this.logger.info('Response closed, cleaning up stream');
-			if (purchaseCSV && typeof purchaseCSV.destroy === 'function') {
-				purchaseCSV.destroy();
-			}
-		});
-	
-		res.on('error', (err) => {
-			this.logger.error('Response error:', err);
-			if (purchaseCSV && typeof purchaseCSV.destroy === 'function') {
-				purchaseCSV.destroy();
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
 			}
 		});
 
-		purchaseCSV.pipe(res);
+		try {
+			await pipeline(csvStream, res); // backpressure + cleanup
+			this.logger.info('Purchases CSV streamed successfully');
+		} catch (err) {
+			this.logger.error('Streaming failed:', err as Error);
+			// If headers already sent, just terminate the socket gracefully
+			if (!res.headersSent) {
+				res.status(500).end('Failed to generate report');
+			} else {
+				try { res.end(); } catch {}
+			}
+		} finally {
+			csvStream.destroy?.();
+			this.logger.info('END: getPurchasesReport controller');
+		}
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
@@ -526,16 +561,16 @@ export class PromoterController {
 			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
 		}
 
-
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const commissionCSV = await this.promoterService.getCommissionsReport(
+		// Ensure service returns a Node Readable (not Web ReadableStream)
+		const csvStream = (await this.promoterService.getCommissionsReport(
 			programId,
 			promoterId,
 			memberId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Commissions');
 
@@ -544,23 +579,29 @@ export class PromoterController {
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
 
+		// Optional: observe client aborts to stop the DB stream early
 		res.on('close', () => {
-			this.logger.info('Response closed, cleaning up stream');
-			if (commissionCSV && typeof commissionCSV.destroy === 'function') {
-				commissionCSV.destroy();
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
 			}
 		});
-	
-		res.on('error', (err) => {
-			this.logger.error('Response error:', err);
-			if (commissionCSV && typeof commissionCSV.destroy === 'function') {
-				commissionCSV.destroy();
-			}
-		});
-		
-		this.logger.info('END: getCommissionsReport controller');
 
-		commissionCSV.pipe(res);
+		try {
+			await pipeline(csvStream, res); // backpressure + cleanup
+			this.logger.info('Commissions CSV streamed successfully');
+		} catch (err) {
+			this.logger.error('Streaming failed:', err as Error);
+			// If headers already sent, just terminate the socket gracefully
+			if (!res.headersSent) {
+				res.status(500).end('Failed to generate report');
+			} else {
+				try { res.end(); } catch {}
+			}
+		} finally {
+			csvStream.destroy?.();
+			this.logger.info('END: getCommissionsReport controller');
+		}
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
