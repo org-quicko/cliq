@@ -14,12 +14,4 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
     poolSize: 20,
     maxQueryExecutionTime: 30000,
     connectTimeoutMS: 30000,
-    extra: {
-        max: 20,
-        min: 5,
-        acquire: 30000,
-        idle: 10000,
-        evict: 1000,
-        handleDisconnects: true,
-    },
 });
