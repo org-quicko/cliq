@@ -411,7 +411,6 @@ export class PromoterController {
 	  
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 	  
-		// Ensure service returns a Node Readable (not Web ReadableStream)
 		const csvStream = (await this.promoterService.getSignUpsReport(
 		  programId,
 		  promoterId,
@@ -473,7 +472,6 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		// Ensure service returns a Node Readable (not Web ReadableStream)
 		const csvStream = (await this.promoterService.getPurchasesReport(
 			programId,
 			promoterId,
@@ -534,7 +532,6 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		// Ensure service returns a Node Readable (not Web ReadableStream)
 		const csvStream = (await this.promoterService.getCommissionsReport(
 			programId,
 			promoterId,
@@ -585,32 +582,47 @@ export class PromoterController {
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
 	) {
-		this.logger.info('START: getCommissionsReport controller');
+		this.logger.info('START: getLinksReport controller');
 
 		if (acceptType !== 'application/json;format=sheet-json') {
 			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
 			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
 		}
 
-
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getLinksReport(
+		const csvStream = (await this.promoterService.getLinksReport(
 			programId,
 			promoterId,
 			memberId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Links');
 
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.on('close', () => {
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
+			}
+		});
 
-		this.logger.info('END: getCommissionsReport controller');
-		res.send(workbookBuffer);
+		try {
+			csvStream.pipe(res);
+		} catch (error) {
+			this.logger.error('Error piping CSV stream to response:', error);
+			if (!res.headersSent) {
+				res.status(500).json({ error: 'Failed to generate report' });
+			}
+		}
+
+		this.logger.info('END: getLinksReport controller');
 	}
 
 
@@ -632,23 +644,40 @@ export class PromoterController {
 			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
 		}
 
-
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getReferralsReport(
+		const csvStream = (await this.promoterService.getReferralsReport(
 			memberId,
 			programId,
 			promoterId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Referrals');
 
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		res.send(workbookBuffer);
+		res.on('close', () => {
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
+			}
+		});
+
+		try {
+			csvStream.pipe(res);
+		} catch (error) {
+			this.logger.error('Error piping CSV stream to response:', error);
+			if (!res.headersSent) {
+				res.status(500).json({ error: 'Failed to generate report' });
+			}
+		}
+
+		this.logger.info('END: getReferralsReport controller');
 	}
 
 	/**

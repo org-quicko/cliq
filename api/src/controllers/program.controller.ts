@@ -28,6 +28,7 @@ import { getReportFileName, getStartEndDate } from '../utils';
 import { Response } from 'express';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { isUUID } from 'class-validator';
+import { Readable } from 'node:stream';
 import { Public } from 'src/decorators/public.decorator';
 
 @ApiTags('Program')
@@ -385,15 +386,36 @@ export class ProgramController {
 
     const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-    const workbookBuffer = await this.programService.getProgramReport(programId, parsedStartDate, parsedEndDate);
+    const csvStream = (await this.programService.getProgramReport(
+      programId,
+      parsedStartDate,
+      parsedEndDate,
+    )) as Readable;
 
     const fileName = getReportFileName('Program');
 
-    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-store');
+
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        this.logger.warn('Client closed connection early; destroying CSV stream');
+        csvStream.destroy?.();
+      }
+    });
+
+    try {
+      csvStream.pipe(res);
+    } catch (error) {
+      this.logger.error('Error piping CSV stream to response:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Failed to generate report' });
+      }
+    }
 
     this.logger.info('END: getProgramReport controller');
-    res.send(workbookBuffer);
   }
 
   /**
