@@ -18,7 +18,7 @@ import { PromoterMemberService } from '../services/promoterMember.service';
 import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
 import { CommissionModule } from './commission.module';
 import { ProgramModule } from './program.module';
-import { LinkAnalyticsView } from 'src/entities/linkAnalytics.view';
+import { LinkAnalyticsView } from 'src/entities';
 import { ReferralModule } from './referral.module';
 import { LinkModule } from './link.module';
 import { ContactModule } from './contact.module';

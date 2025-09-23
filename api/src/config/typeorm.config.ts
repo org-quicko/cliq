@@ -11,7 +11,7 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
     autoLoadEntities: true,
     synchronize: configService.get('NODE_ENV') !== 'production',
     logging: configService.get('NODE_ENV') === 'production' ? ['info'] : true,
-    poolSize: 10,
-    connectTimeoutMS: 2000,
-    maxQueryExecutionTime: 5000,
+    poolSize: 20,
+    maxQueryExecutionTime: 30000,
+    connectTimeoutMS: 30000,
 });

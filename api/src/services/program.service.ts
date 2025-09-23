@@ -27,14 +27,13 @@ import { userRoleEnum, statusEnum, visibilityEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
-import * as XLSX from 'xlsx';
 import { defaultQueryOptions } from 'src/constants';
-import { snakeCaseToHumanReadable } from 'src/utils';
+import { formatDate } from 'src/utils';
 import { subjectsType } from 'src/types';
 import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
-import { ProgramWorkbookConverter } from 'src/converters/program/program.workbook.converter';
-import { ProgramWorkbook } from '@org-quicko/cliq-sheet-core/Program/beans';
 import { ReferralConverter } from 'src/converters/referral.converter';
+import { stringify } from 'csv-stringify';
+import { PassThrough, Transform } from 'node:stream';
 
 @Injectable()
 export class ProgramService {
@@ -656,148 +655,160 @@ export class ProgramService {
 		programId: string,
 		startDate: Date,
 		endDate: Date,
+		cancellationToken?: { isCancelled: boolean }
 	) {
 		this.logger.info(`START: getProgramReport service`);
 
-		// const query = this.programRepository
-		// 	.createQueryBuilder("program")
-		// 	.leftJoinAndSelect("program.programPromoters", "programPromoters")
-		// 	.leftJoinAndSelect("programPromoters.promoter", "promoter")
-		// 	.leftJoinAndSelect(
-		// 		"promoter.signUps",
-		// 		"signUps",
-		// 		"signUps.createdAt >= :start AND signUps.createdAt <= :end"
-		// 	)
-		// 	.leftJoinAndSelect(
-		// 		"promoter.purchases",
-		// 		"purchases",
-		// 		"purchases.createdAt >= :start AND purchases.createdAt <= :end"
-		// 	)
-		// 	.leftJoinAndSelect(
-		// 		"promoter.commissions",
-		// 		"commissions",
-		// 		"commissions.createdAt >= :start AND commissions.createdAt <= :end"
-		// 	)
-		// 	.where("program.programId = :programId AND promoter.createdAt <= :end", { programId })
-		// 	.setParameters({ start: startDate.toISOString(), end: endDate.toISOString() });
+		// Create a streaming CSV generator that doesn't accumulate data in memory
+		const promotersCSV = this.streamPromoters(programId, startDate, endDate, cancellationToken);
 
-		// const programResult = await query.getOne();
-
-		const programResult = await this.programRepository
-			.createQueryBuilder("program")
-			.leftJoinAndSelect("program.programPromoters", "programPromoters")
-			.leftJoinAndSelect("programPromoters.promoter", "promoter")
-			.where("program.programId = :programId", { programId })
-			.andWhere("promoter.createdAt <= :end", { end: endDate.toISOString() })
-			.getOne();
-			
-		if (!programResult) {
-			this.logger.warn(`Warning. No data found for Program ${programId} for period: ${startDate} - ${endDate}`);
-		}
-
-		const programPromoters = programResult?.programPromoters ?? [];
-		const promoterIds = programPromoters.map(pp => pp.promoter.promoterId);
-		const numPromoters = promoterIds.length;
-
-		const signUps = await this.signUpRepository.find({
-			where: {
-				promoterId: In(promoterIds),
-				createdAt: Between(startDate, endDate),
-			},
-		});
-		// tracks no. of signups for each promoter
-		const promoterSignUpsMap: Map<string, SignUp[]> = new Map();
-		signUps.forEach(signUp => {
-			if (!promoterSignUpsMap.has(signUp.promoterId)) {
-				promoterSignUpsMap.set(signUp.promoterId, []);
-			}
-
-			promoterSignUpsMap.get(signUp.promoterId)!.push(signUp);
-		});
-		
-		// tracks no. of purchases for each promoter
-		const purchases = await this.purchaseRepository.find({
-			where: {
-				promoterId: In(promoterIds),
-				createdAt: Between(startDate, endDate),
-			},
-		});
-		const promoterPurchasesMap: Map<string, Purchase[]> = new Map();
-		purchases.forEach(purchase => {
-			if (!promoterPurchasesMap.has(purchase.promoterId)) {
-				promoterPurchasesMap.set(purchase.promoterId, []);
-			}
-
-			promoterPurchasesMap.get(purchase.promoterId)!.push(purchase);
-		});
-		
-		// tracks commission for each promoter
-		const promoterCommissionsMap: Map<string, Commission[]> = new Map();
-		const commissions = await this.commissionRepository.find({
-			where: {
-				promoterId: In(promoterIds),
-				createdAt: Between(startDate, endDate),
-			},
-		});
-		commissions.forEach(commission => {
-			if (!promoterCommissionsMap.has(commission.promoterId)) {
-				promoterCommissionsMap.set(commission.promoterId, []);
-			}
-
-			promoterCommissionsMap.get(commission.promoterId)!.push(commission);
+		promotersCSV.on('error', (err) => {
+			this.logger.error('Promoters CSV stream error:', err);
 		});
 
-		const programWorkbookConverter = new ProgramWorkbookConverter();
-		const programSheetJsonWorkbook = programWorkbookConverter.convertFrom(
-			programId,
-			numPromoters, 
-			programResult, 
-			signUps, 
-			purchases, 
-			commissions, 
-			promoterSignUpsMap,
-			promoterPurchasesMap,
-			promoterCommissionsMap,
-			startDate, 
-			endDate
-		);
-
-		const workbook = ProgramWorkbook.toXlsx(programSheetJsonWorkbook);
-
-		// get list and table
-		const programSummaryList = programSheetJsonWorkbook.getProgramSummarySheet().getProgramSummaryList();
-		const promotersTable = programSheetJsonWorkbook.getPromoterSheet().getPromoterTable();
-
-		// all sheets
-		const promotersSheetData: any[] = [snakeCaseToHumanReadable(promotersTable.getHeader())];
-
-		const programSummarySheetData: any[] = [];
-
-		// pushing promoters data
-		promotersTable.getRows().map((row) => {
-			promotersSheetData.push(row);
+		promotersCSV.on('end', () => {
+			this.logger.info('Promoters CSV stream ended');
 		});
 
-		// pushing program summary data
-		programSummaryList.getItems().forEach((item) => {
-			programSummarySheetData.push([snakeCaseToHumanReadable(item.getKey()), item.getValue()]);
+		promotersCSV.on('close', () => {
+			this.logger.info('Promoters CSV stream closed');
 		});
-
-		const summarySheet = XLSX.utils.aoa_to_sheet(programSummarySheetData);
-		const promotersSheet = XLSX.utils.aoa_to_sheet(promotersSheetData);
-
-		// Remove the snake_case sheets
-		workbook.SheetNames = workbook.SheetNames.filter(name => 
-			!name.includes('_sheet')
-		);
-		
-		// adding sheets to workbook
-		XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
-		XLSX.utils.book_append_sheet(workbook, promotersSheet, 'Promoters');
-
-		const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
 		this.logger.info(`END: getProgramReport service`);
-		return fileBuffer;
+		return promotersCSV;
+	}
+
+	/**
+	 * Creates a readable stream that generates CSV data for promoters in a program
+	 */
+	private streamPromoters(
+		programId: string,
+		startDate: Date,
+		endDate: Date,
+		cancellationToken?: { isCancelled: boolean }
+	): NodeJS.ReadableStream {
+		const sql = `
+			SELECT 
+				pa.promoter_id,
+				p.name,
+				pa.total_revenue,
+				pa.total_commission,
+				pa.total_signups,
+				pa.total_purchases,
+				pa.created_at
+			FROM promoter_analytics_mv pa
+			INNER JOIN promoter p ON p.promoter_id = pa.promoter_id
+			WHERE pa.program_id = $1
+				AND pa.created_at >= $2
+				AND pa.created_at < $3
+			ORDER BY pa.created_at ASC, pa.promoter_id ASC
+		`;
+
+		const params = [programId, startDate.toISOString(), endDate.toISOString()];
+
+		const queryRunner = this.datasource.createQueryRunner();
+		const columns = [
+			'promoter_id',
+			'promoter_name',
+			'total_revenue',
+			'total_commission',
+			'total_signups',
+			'total_purchases',
+			'created_at',
+		];
+
+		const rowToCsv = new Transform({
+			objectMode: true,
+			highWaterMark: 16,
+			transform(row: any, _enc, cb) {
+				// Check for cancellation
+				if (cancellationToken?.isCancelled) {
+					return cb(new Error('Stream cancelled'));
+				}
+
+				cb(null, {
+					promoter_id: row.promoter_id,
+					promoter_name: row.name,
+					total_revenue: row.total_revenue,
+					total_commission: row.total_commission,
+					total_signups: row.total_signups,
+					total_purchases: row.total_purchases,
+					created_at: formatDate(row.created_at),
+				});
+			}
+		});
+
+		const csv = stringify({ 
+			header: true, 
+			columns,
+		});
+
+		const stream = new PassThrough();
+
+		// Track if cleanup is needed
+		let isCleanedUp = false;
+		const cleanup = async () => {
+			if (!isCleanedUp) {
+				isCleanedUp = true;
+				try {
+					await queryRunner.release();
+				} catch (err) {
+					this.logger.warn('Error releasing query runner:', err);
+				}
+			}
+		};
+
+		(async () => {
+			try {
+				await queryRunner.connect();
+				const rowStream = await queryRunner.stream(sql, params);
+
+				// Handle row stream errors
+				rowStream.on('error', (err) => {
+					this.logger.error('Row stream error:', err);
+					stream.destroy(err);
+					cleanup();
+				});
+
+				// Handle row stream end
+				rowStream.on('end', () => {
+					this.logger.info('Row stream ended');
+				});
+
+				// Handle row stream close
+				rowStream.on('close', () => {
+					this.logger.info('Row stream closed');
+				});
+
+				// Pipe the streams with proper error handling
+				rowStream
+					.pipe(rowToCsv)
+					.on('error', (err) => {
+						this.logger.error('Transform error:', err);
+						stream.destroy(err);
+						cleanup();
+					})
+					.pipe(csv)
+					.on('error', (err) => {
+						this.logger.error('CSV stringify error:', err);
+						stream.destroy(err);
+						cleanup();
+					})
+					.pipe(stream)
+					.on('finish', cleanup)
+					.on('error', cleanup);
+
+			} catch (err) {
+				this.logger.error('Stream setup error:', err);
+				stream.destroy(err as any);
+				await cleanup();
+			}
+		})();
+
+		// Handle stream cleanup on destroy
+		stream.on('close', cleanup);
+		stream.on('error', cleanup);
+
+		return stream;
 	}
 }

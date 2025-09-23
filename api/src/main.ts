@@ -15,7 +15,6 @@ import { TransformInterceptor } from './interceptors/response.interceptor';
 async function bootstrap() {
 
 	const app = await NestFactory.create(AppModule, {
-		snapshot: true,
 		logger: WinstonModule.createLogger({
 			level: 'info',
 			transports: [
@@ -72,6 +71,18 @@ async function bootstrap() {
 	);
 
 	await app.listen(process.env.PORT ?? 3000);
+
+	process.on('SIGTERM', async () => {
+		console.log('SIGTERM received, shutting down gracefully');
+		await app.close();
+		process.exit(0);
+	});
+
+	process.on('SIGINT', async () => {
+		console.log('SIGINT received, shutting down gracefully');
+		await app.close();
+		process.exit(0);
+	});
 }
 
 bootstrap().catch((err) => console.log(err));

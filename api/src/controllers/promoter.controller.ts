@@ -26,6 +26,8 @@ import {
 import { sortOrderEnum } from 'src/enums/sortOrder.enum';
 import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 
 @ApiTags('Promoter')
 @Controller('/programs/:program_id/promoters')
@@ -389,9 +391,8 @@ export class PromoterController {
 		};
 	}
 
-	@ApiResponse({ status: 200, description: 'OK' })
-	@SkipTransform()
 	@Get(':promoter_id/reports/signups')
+	@SkipTransform()
 	async getSignUpsReport(
 		@Headers('x-accept-type') acceptType: string,
 		@Param('program_id') programId: string,
@@ -400,30 +401,53 @@ export class PromoterController {
 		@Res() res: Response,
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
-	) {
+	  ) {
 		this.logger.info('START: getSignUpsReport controller');
-
+	  
 		if (acceptType !== 'application/json;format=sheet-json') {
-			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
-			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
+		  this.logger.error('Header accept type must be set to application/json;format=sheet-json');
+		  throw new BadRequestException('Header accept type must be set to application/json;format=sheet-json');
 		}
-
-
+	  
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
-
-		const workbookBuffer = await this.promoterService.getSignUpsReport(
-			programId,
-			promoterId,
-			memberId,
-			parsedStartDate,
-			parsedEndDate,
-		);
-
+	  
+		const csvStream = (await this.promoterService.getSignUpsReport(
+		  programId,
+		  promoterId,
+		  memberId,
+		  parsedStartDate,
+		  parsedEndDate,
+		)) as Readable;
+	  
 		const fileName = getReportFileName('Signups');
+	  
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		res.send(workbookBuffer);
+		res.on('close', () => {
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
+			}
+		});
+
+		try {
+			await pipeline(csvStream, res); // backpressure + cleanup
+			this.logger.info('Purchases CSV streamed successfully');
+		} catch (err) {
+			this.logger.error('Streaming failed:', err as Error);
+			// If headers already sent, just terminate the socket gracefully
+			if (!res.headersSent) {
+				res.status(500).end('Failed to generate report');
+			} else {
+				try { res.end(); } catch {}
+			}
+		} finally {
+			csvStream.destroy?.();
+			this.logger.info('END: getPurchasesReport controller');
+		}
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
@@ -448,19 +472,43 @@ export class PromoterController {
 
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getPurchasesReport(
+		const csvStream = (await this.promoterService.getPurchasesReport(
 			programId,
 			promoterId,
 			memberId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Purchases');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		res.send(workbookBuffer);
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
+
+		res.on('close', () => {
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
+			}
+		});
+
+		try {
+			await pipeline(csvStream, res); // backpressure + cleanup
+			this.logger.info('Purchases CSV streamed successfully');
+		} catch (err) {
+			this.logger.error('Streaming failed:', err as Error);
+			// If headers already sent, just terminate the socket gracefully
+			if (!res.headersSent) {
+				res.status(500).end('Failed to generate report');
+			} else {
+				try { res.end(); } catch {}
+			}
+		} finally {
+			csvStream.destroy?.();
+			this.logger.info('END: getPurchasesReport controller');
+		}
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
@@ -482,25 +530,44 @@ export class PromoterController {
 			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
 		}
 
-
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getCommissionsReport(
+		const csvStream = (await this.promoterService.getCommissionsReport(
 			programId,
 			promoterId,
 			memberId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Commissions');
 
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.on('close', () => {
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
+			}
+		});
 
-		this.logger.info('END: getCommissionsReport controller');
-		res.send(workbookBuffer);
+		try {
+			await pipeline(csvStream, res); // backpressure + cleanup
+			this.logger.info('Commissions CSV streamed successfully');
+		} catch (err) {
+			this.logger.error('Streaming failed:', err as Error);
+			if (!res.headersSent) {
+				res.status(500).end('Failed to generate report');
+			} else {
+				try { res.end(); } catch {}
+			}
+		} finally {
+			csvStream.destroy?.();
+			this.logger.info('END: getCommissionsReport controller');
+		}
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
@@ -515,37 +582,53 @@ export class PromoterController {
 		@Query('start_date') startDate?: string,
 		@Query('end_date') endDate?: string,
 	) {
-		this.logger.info('START: getCommissionsReport controller');
+		this.logger.info('START: getLinksReport controller');
 
 		if (acceptType !== 'application/json;format=sheet-json') {
 			this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
 			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
 		}
 
-
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getLinksReport(
+		const csvStream = (await this.promoterService.getLinksReport(
 			programId,
 			promoterId,
 			memberId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Links');
 
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		res.on('close', () => {
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
+			}
+		});
 
-		this.logger.info('END: getCommissionsReport controller');
-		res.send(workbookBuffer);
+		try {
+			csvStream.pipe(res);
+		} catch (error) {
+			this.logger.error('Error piping CSV stream to response:', error);
+			if (!res.headersSent) {
+				res.status(500).json({ error: 'Failed to generate report' });
+			}
+		}
+
+		this.logger.info('END: getLinksReport controller');
 	}
 
 
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Get(':promoter_id/reports/referrals')
+	@SkipTransform()
 	async getReferralsReport(
 		@Headers('member_id') memberId: string,
 		@Headers('x-accept-type') acceptType: string,
@@ -562,23 +645,40 @@ export class PromoterController {
 			throw new BadRequestException(`Header accept type must be set to application/json;format=sheet-json`);
 		}
 
-
 		const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-		const workbookBuffer = await this.promoterService.getReferralsReport(
+		const csvStream = (await this.promoterService.getReferralsReport(
 			memberId,
 			programId,
 			promoterId,
 			parsedStartDate,
 			parsedEndDate,
-		);
+		)) as Readable;
 
 		const fileName = getReportFileName('Referrals');
 
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+		res.setHeader('X-Content-Type-Options', 'nosniff');
+		res.setHeader('Cache-Control', 'no-store');
 
-		res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-		res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		res.send(workbookBuffer);
+		res.on('close', () => {
+			if (!res.writableEnded) {
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
+			}
+		});
+
+		try {
+			csvStream.pipe(res);
+		} catch (error) {
+			this.logger.error('Error piping CSV stream to response:', error);
+			if (!res.headersSent) {
+				res.status(500).json({ error: 'Failed to generate report' });
+			}
+		}
+
+		this.logger.info('END: getReferralsReport controller');
 	}
 
 	/**

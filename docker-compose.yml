@@ -20,10 +20,12 @@ services:
       - JWT_SECRET
       - JWT_EXPIRES_IN
     depends_on:
-      - cliq-redis
-      - cliq-db
+      cliq-db:
+        condition: service_healthy
+      cliq-redis:
+        condition: service_healthy
     networks:
-      - nginxproxymanager_default
+      - cliq-network
 
   cliq-db:
     image: postgres:17
@@ -34,10 +36,10 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
     ports:
-      - 5432
+      - 5432:5432
     restart: unless-stopped
     networks:
-      - nginxproxymanager_default
+      - cliq-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
@@ -51,10 +53,16 @@ services:
     volumes:
       - ./redis_data:/data
     networks:
-      - nginxproxymanager_default
+      - cliq-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
 
 networks:
-  nginxproxymanager_default:
+  cliq-network:
+    driver: bridge
 
 volumes:
   cliq-data:
