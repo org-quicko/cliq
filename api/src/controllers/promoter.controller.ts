@@ -2,7 +2,6 @@ import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Res, Headers,
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { PromoterService } from '../services/promoter.service';
-import { ConnectionMonitor } from '../utils/connectionMonitor.util';
 import {
 	CreateMemberDto,
 	CreatePromoterDto,
@@ -29,7 +28,6 @@ import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import archiver from 'archiver';
 
 @ApiTags('Promoter')
 @Controller('/programs/:program_id/promoters')
@@ -428,54 +426,28 @@ export class PromoterController {
 		res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
-	  
-		// Enhanced connection monitoring with auto-recovery
-		const connectionMonitor = new ConnectionMonitor(res, () => {
-			this.logger.warn('Connection lost, stopping CSV stream');
-		});
-		
+
 		res.on('close', () => {
-			connectionMonitor.stopHeartbeat();
 			if (!res.writableEnded) {
-				this.logger.warn('Client closed connection early; stopping CSV stream');
+				this.logger.warn('Client closed connection early; destroying CSV stream');
+				csvStream.destroy?.();
 			}
 		});
-		
-		// Start connection monitoring
-		connectionMonitor.startHeartbeat(10000); // 10 second intervals
-	  
+
 		try {
-			// Create a heartbeat-aware stream wrapper
-			const heartbeatStream = new (require('stream').Transform)({
-				transform(chunk, encoding, callback) {
-					// Pass through data and maintain heartbeat
-					callback(null, chunk);
-				}
-			});
-			
-			// Pipe through heartbeat stream
-			csvStream.pipe(heartbeatStream);
-			await pipeline(heartbeatStream, res);
-			this.logger.info('Signups CSV streamed successfully');
+			await pipeline(csvStream, res); // backpressure + cleanup
+			this.logger.info('Purchases CSV streamed successfully');
 		} catch (err) {
-			const error = err as Error & { code?: string };
-			// Don't log premature close errors as errors - they're expected when client disconnects
-			if (error.code === 'ERR_STREAM_PREMATURE_CLOSE' || error.message.includes('Premature close')) {
-				this.logger.info('Client disconnected during streaming (expected behavior)');
-			} else {
-				this.logger.error('Streaming failed:', error);
-			}
-			
+			this.logger.error('Streaming failed:', err as Error);
 			// If headers already sent, just terminate the socket gracefully
-			if (!res.headersSent && connectionMonitor.isConnectionAlive()) {
+			if (!res.headersSent) {
 				res.status(500).end('Failed to generate report');
 			} else {
 				try { res.end(); } catch {}
 			}
 		} finally {
-			connectionMonitor.stopHeartbeat();
-			// Don't destroy the stream - let it end naturally
-			this.logger.info('END: getSignUpsReport controller');
+			csvStream.destroy?.();
+			this.logger.info('END: getPurchasesReport controller');
 		}
 	}
 
@@ -517,7 +489,6 @@ export class PromoterController {
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
 
-		// Optional: observe client aborts to stop the DB stream early
 		res.on('close', () => {
 			if (!res.writableEnded) {
 				this.logger.warn('Client closed connection early; destroying CSV stream');
@@ -579,7 +550,6 @@ export class PromoterController {
 		res.setHeader('X-Content-Type-Options', 'nosniff');
 		res.setHeader('Cache-Control', 'no-store');
 
-		// Optional: observe client aborts to stop the DB stream early
 		res.on('close', () => {
 			if (!res.writableEnded) {
 				this.logger.warn('Client closed connection early; destroying CSV stream');
@@ -592,7 +562,6 @@ export class PromoterController {
 			this.logger.info('Commissions CSV streamed successfully');
 		} catch (err) {
 			this.logger.error('Streaming failed:', err as Error);
-			// If headers already sent, just terminate the socket gracefully
 			if (!res.headersSent) {
 				res.status(500).end('Failed to generate report');
 			} else {

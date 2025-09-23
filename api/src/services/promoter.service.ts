@@ -1099,11 +1099,6 @@ export class PromoterService {
 		endDate: Date,
 		cancellationToken?: { isCancelled: boolean }
 	  ): NodeJS.ReadableStream {
-		// Use pagination to process data in chunks
-		const pageSize = 1000;
-		let offset = 0;
-		let hasMoreData = true;
-		
 		const sql = `
 		  SELECT 
 			s.contact_id,
@@ -1124,116 +1119,111 @@ export class PromoterService {
 			AND s.created_at >= $3
 			AND s.created_at <  $4
 		  ORDER BY s.created_at ASC, s.contact_id ASC
-		  LIMIT $5 OFFSET $6
 		`;
 	  
-		const baseParams = [promoterId, programId, startDate.toISOString(), endDate.toISOString()];
+		const params = [promoterId, programId, startDate.toISOString(), endDate.toISOString()];
 	  
 		const queryRunner = this.datasource.createQueryRunner();
 		const columns = [
 		  'contact_id','sign_up_date','email','phone','external_id',
 		  'utm_id','utm_source','utm_medium','utm_campaign','utm_term','utm_content'
 		];
+
+		const rowToCsv = new Transform({
+			objectMode: true,
+			highWaterMark: 16,
+			transform(row: any, _enc, cb) {
+				// Check for cancellation
+				if (cancellationToken?.isCancelled) {
+					return cb(new Error('Stream cancelled'));
+				}
+				
+				cb(null, {
+					contact_id: row.contact_id,
+					sign_up_date: formatDate(row.created_at),
+					email: row.email,
+					phone: row.phone,
+					external_id: row.external_id,
+					utm_id: row.utm_id,
+					utm_source: row.utm_source,
+					utm_medium: row.utm_medium,
+					utm_campaign: row.utm_campaign,
+					utm_term: row.utm_term,
+					utm_content: row.utm_content,
+				});
+			}
+		});
+
+		const csv = stringify({ 
+			header: true, 
+			columns,
+		});
 	  
-		let rowCount = 0;
-	  
-		// Wire up with pagination-based streaming
 		const stream = new PassThrough();
-		let isReleased = false;
 		
-		const releaseQueryRunner = async () => {
-			if (!isReleased) {
-				isReleased = true;
-				await queryRunner.release();
+		// Track if cleanup is needed
+		let isCleanedUp = false;
+		const cleanup = async () => {
+			if (!isCleanedUp) {
+				isCleanedUp = true;
+				try {
+					await queryRunner.release();
+				} catch (err) {
+					this.logger.warn('Error releasing query runner:', err);
+				}
 			}
 		};
-		
-		// Process data in paginated chunks
+
 		(async () => {
-		  try {
-			await queryRunner.connect();
-			
-			// Check for cancellation before starting
-			if (cancellationToken?.isCancelled) {
-				console.log('Database stream cancelled before starting');
-				await releaseQueryRunner();
-				return;
-			}
-			
-			// Send CSV header
-			const headerLine = columns.map(col => `"${col}"`).join(',') + '\n';
-			stream.write(headerLine);
-			
-			// Process data in chunks of 1000 rows
-			while (hasMoreData && !cancellationToken?.isCancelled) {
-				const params = [...baseParams, pageSize, offset];
-				const rows = await queryRunner.query(sql, params);
-				
-				if (rows.length === 0) {
-					hasMoreData = false;
-					break;
-				}
-				
-				// Process each row in the chunk
-				for (const row of rows) {
-					if (cancellationToken?.isCancelled) {
-						console.log(`Processing cancelled at row ${rowCount}. Stopping immediately.`);
-						await releaseQueryRunner();
-						return;
-					}
-					
-					rowCount++;
-					
-					// Send progress data every 100 rows
-					if (rowCount % 100 === 0) {
-						console.log(`Processing signup ${rowCount}...`);
-						stream.write(`# Progress: ${rowCount} rows processed\n`);
-					}
-					
-					// Convert row to CSV format
-					const csvRow = {
-						contact_id: row.contact_id,
-						sign_up_date: formatDate(row.created_at),
-						email: row.email ?? '',
-						phone: row.phone ?? '',
-						external_id: row.external_id ?? '',
-						utm_id: row.utm_id ?? '',
-						utm_source: row.utm_source ?? '',
-						utm_medium: row.utm_medium ?? '',
-						utm_campaign: row.utm_campaign ?? '',
-						utm_term: row.utm_term ?? '',
-						utm_content: row.utm_content ?? '',
-					};
-					
-					// Send CSV row immediately
-					const csvLine = Object.values(csvRow).map(val => `"${val}"`).join(',') + '\n';
-					stream.write(csvLine);
-				}
-				
-				offset += pageSize;
-				
-				// Small delay to prevent overwhelming the client
-				await new Promise(resolve => setTimeout(resolve, 10));
-			}
-			
-			// Send completion message
-			stream.write(`# Processing completed. Total rows: ${rowCount}\n`);
-			stream.end();
-			await releaseQueryRunner();
-			this.logger.info(`Signup streaming completed. Total rows: ${rowCount}`);
-			
-		  } catch (err) {
-			await releaseQueryRunner();
-			if (!stream.destroyed) {
-				stream.end();
-			}
-		  }
-		})();
-		
-		// Handle stream close gracefully
-		stream.on('close', async () => {
-			await releaseQueryRunner();
-		});
+            try {
+                await queryRunner.connect();
+                const rowStream = await queryRunner.stream(sql, params);
+                
+                // Handle row stream errors
+                rowStream.on('error', (err) => {
+					this.logger.error('Row stream error:', err);
+					stream.destroy(err);
+					cleanup();
+				});
+
+				// Handle row stream end
+				rowStream.on('end', () => {
+					this.logger.info('Row stream ended');
+				});
+
+				// Handle row stream close
+				rowStream.on('close', () => {
+					this.logger.info('Row stream closed');
+				});
+
+                // Pipe the streams with proper error handling
+                rowStream
+                    .pipe(rowToCsv)
+                    .on('error', (err) => {
+						this.logger.error('Transform error:', err);
+						stream.destroy(err);
+						cleanup();
+					})
+                    .pipe(csv)
+                    .on('error', (err) => {
+						this.logger.error('CSV stringify error:', err);
+						stream.destroy(err);
+						cleanup();
+					})
+                    .pipe(stream)
+                    .on('finish', cleanup)
+                    .on('error', cleanup);
+                    
+            } catch (err) {
+				this.logger.error('Stream setup error:', err);
+                stream.destroy(err as any);
+                await cleanup();
+            }
+        })();
+
+		// Handle stream cleanup on destroy
+		stream.on('close', cleanup);
+		stream.on('error', cleanup);
 	  
 		return stream;
 	}
