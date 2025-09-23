@@ -1253,7 +1253,7 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		// Create a streaming CSV generator that doesn't accumulate data in memory
-		const referralsCSV = this.streamReferrals(memberId, programId, promoterId, startDate, endDate, cancellationToken);
+		const referralsCSV = this.streamReferrals(programId, promoterId, startDate, endDate, cancellationToken);
 
 		referralsCSV.on('error', (err) => {
 			this.logger.error('Referrals CSV stream error:', err);
@@ -1275,7 +1275,6 @@ export class PromoterService {
 	 * Creates a readable stream that generates CSV data for referrals
 	 */
 	private streamReferrals(
-		memberId: string,
 		programId: string,
 		promoterId: string,
 		startDate: Date,

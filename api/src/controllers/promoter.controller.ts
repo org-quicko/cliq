@@ -628,6 +628,7 @@ export class PromoterController {
 
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Get(':promoter_id/reports/referrals')
+	@SkipTransform()
 	async getReferralsReport(
 		@Headers('member_id') memberId: string,
 		@Headers('x-accept-type') acceptType: string,

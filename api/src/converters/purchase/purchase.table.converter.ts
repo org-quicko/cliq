@@ -26,8 +26,8 @@ export class PurchaseTableConverter {
 				row.setPurchaseDate(formatDate(purchase.createdAt));
 				row.setContactId(purchase.contact.contactId);
 				row.setItemId(purchase.itemId);
-				row.setAmount(Number(purchase.amount) ?? 0);
-				row.setCommission(Number(commissionAmount) ?? 0);
+				row.setAmount(Number(purchase.amount ?? 0));
+				row.setCommission(Number(commissionAmount ?? 0));
 				row.setExternalId(purchase.contact.externalId || '');
 				row.setUtmId(purchase?.utmParams?.utmId || '');
 				row.setUtmSource(purchase?.utmParams?.utmSource || '');
