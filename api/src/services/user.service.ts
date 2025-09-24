@@ -47,6 +47,8 @@ export class UserService {
 				throw new ConflictException(`Error. Email ${body.email} already exists!`);
 			}
 
+			body.email = body.email.toLowerCase().trim();
+
 			const userEntity = this.userRepository.create(body);
 
 			if (await this.isFirstUserSignUp()) {
@@ -159,7 +161,7 @@ export class UserService {
 					throw new BadRequestException(`Error. Cannot use that email as it already exists in the program!`);
 				}
 
-				user.email = email;
+				user.email = email.toLowerCase().trim();
 			}
 
 			// Update other fields

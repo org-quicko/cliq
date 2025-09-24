@@ -1148,10 +1148,7 @@ export class PromoterService {
 			where: {
 				promoterId,
 				contact: {
-					programId,
-					commissions: {
-
-					}
+					programId
 				},
 				...whereOptions
 			},
