@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { LoggerService } from "./logger.service";
 import { commissionTypeEnum, conditionParameterEnum, conversionTypeEnum, effectEnum, functionStatusEnum, triggerEnum } from "../enums";
 import { PURCHASE_CREATED, PurchaseCreatedEvent, SIGNUP_CREATED, SignUpCreatedEvent, TriggerEvent } from "../events";
@@ -185,26 +185,41 @@ export class FunctionTriggerService {
 
         const eventEntityPayload = Object.values(event.data)[0];
 
-        const promoterAnalyticsView = await this.promoterService.getPromoterAnalytics(
-            event.programId,
-            eventEntityPayload.promoterId,
-            false,
-        ) as PromoterAnalyticsView;
+        let promoterAnalyticsView: PromoterAnalyticsView;
+        let numOfSignUps: number = 0;
+        let numOfPurchases: number = 0;
+        let revenue: number = 0;
+
+        try {
+            promoterAnalyticsView = await this.promoterService.getPromoterAnalytics(
+                event.programId,
+                eventEntityPayload.promoterId,
+                false,
+            ) as PromoterAnalyticsView;
+
+            numOfSignUps = promoterAnalyticsView.totalSignUps;
+            numOfPurchases = promoterAnalyticsView.totalPurchases;
+            revenue = promoterAnalyticsView.totalRevenue;
+        } catch (error) {
+            numOfSignUps = 0;
+            numOfPurchases = 0;
+            revenue = 0;
+        }
 
         // PURCHASES condition
         if (condition.parameter === conditionParameterEnum.REVENUE) {    
-            evalResult = condition.evaluate({ revenue: promoterAnalyticsView.totalRevenue });
+            evalResult = condition.evaluate({ revenue });
         }
         // SIGNUPS condition
         else if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
-            evalResult = condition.evaluate({ numSignUps: promoterAnalyticsView.totalSignUps });
+            evalResult = condition.evaluate({ numSignUps: numOfSignUps });
 
         } 
         // PURCHASES condition
         else if (
             condition.parameter === conditionParameterEnum.NUM_OF_PURCHASES
         ) {
-            evalResult = condition.evaluate({ numPurchases: promoterAnalyticsView.totalPurchases });
+            evalResult = condition.evaluate({ numPurchases: numOfPurchases });
         }
         // ITEM ID condition
         else if (condition.parameter === conditionParameterEnum.ITEM_ID) {
