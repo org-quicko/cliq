@@ -1,11 +1,11 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { LoggerService } from "./logger.service";
 import { commissionTypeEnum, conditionParameterEnum, conversionTypeEnum, effectEnum, functionStatusEnum, triggerEnum } from "../enums";
 import { PURCHASE_CREATED, PurchaseCreatedEvent, SIGNUP_CREATED, SignUpCreatedEvent, TriggerEvent } from "../events";
 import { OnEvent } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Condition, Function, Purchase, SignUp } from "../entities";
+import { Condition, Function, PromoterAnalyticsView, Purchase, SignUp } from "../entities";
 import { PromoterService } from "./promoter.service";
 import { CircleService } from "./circle.service";
 import { CommissionService } from "./commission.service";
@@ -185,46 +185,45 @@ export class FunctionTriggerService {
 
         const eventEntityPayload = Object.values(event.data)[0];
 
-        // SIGNUPS condition
-        if (condition.parameter === conditionParameterEnum.REVENUE) {
-            const purchases = await this.promoterService.getPurchasesForPromoter(
-                    event.programId,
-                    eventEntityPayload.promoterId,
-                    false,
-                ) as Purchase[];
+        let promoterAnalyticsView: PromoterAnalyticsView;
+        let numOfSignUps: number = 0;
+        let numOfPurchases: number = 0;
+        let revenue: number = 0;
 
-            const revenue = purchases.reduce((acc, purchase) => acc + Number(purchase.amount), 0);
-
-            evalResult = condition.evaluate({ revenue });
-
-            // PURCHASES condition
-        }
-        else if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
-            const signUps = await this.promoterService.getSignUpsForPromoter(
+        // promoterAnalyticsView for a promoter will always be present
+        try {
+            promoterAnalyticsView = await this.promoterService.getPromoterAnalytics(
                 event.programId,
                 eventEntityPayload.promoterId,
                 false,
-            ) as SignUp[];
+            ) as PromoterAnalyticsView;
 
-            const numSignUps = signUps.length;
+            numOfSignUps = promoterAnalyticsView.totalSignUps;
+            numOfPurchases = promoterAnalyticsView.totalPurchases;
+            revenue = promoterAnalyticsView.totalRevenue;
+        } catch (error) {
+            numOfSignUps = 0;
+            numOfPurchases = 0;
+            revenue = 0;
+        }
 
-            evalResult = condition.evaluate({ numSignUps });
+        // PURCHASES condition
+        if (condition.parameter === conditionParameterEnum.REVENUE) {    
+            evalResult = condition.evaluate({ revenue });
+        }
+        // SIGNUPS condition
+        else if (condition.parameter === conditionParameterEnum.NUM_OF_SIGNUPS) {
+            evalResult = condition.evaluate({ numSignUps: numOfSignUps });
 
-            // PURCHASES condition
-        } else if (
+        } 
+        // PURCHASES condition
+        else if (
             condition.parameter === conditionParameterEnum.NUM_OF_PURCHASES
         ) {
-            const numPurchases = (
-                await this.promoterService.getPurchasesForPromoter(
-                    event.programId,
-                    eventEntityPayload.promoterId,
-                    false,
-                ) as Purchase[]
-            ).length;
-
-            evalResult = condition.evaluate({ numPurchases });
-            // ITEM ID condition
-        } else if (condition.parameter === conditionParameterEnum.ITEM_ID) {
+            evalResult = condition.evaluate({ numPurchases: numOfPurchases });
+        }
+        // ITEM ID condition
+        else if (condition.parameter === conditionParameterEnum.ITEM_ID) {
             if (!eventEntityPayload.itemId) {
                 this.logger.warn(`Error. API event requires item ID for this function condition.`);
                 throw new BadRequestException(`Error. API event requires item ID for this function condition.`);

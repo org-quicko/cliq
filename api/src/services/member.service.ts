@@ -49,6 +49,8 @@ export class MemberService {
 			throw new BadRequestException(`Error. Email ${body.email} is already part of Program ${programId}`);
 		}
 
+		body.email = body.email.toLowerCase().trim();
+
 		const newMember = this.memberRepository.create({
 			...body,
 			program: {
@@ -57,7 +59,7 @@ export class MemberService {
 		});
 		const savedMember = await this.memberRepository.save(newMember);
 		const authResult = await this.memberAuthService.authenticateMember(programId, {
-			email: savedMember.email,
+			email: savedMember.email.toLowerCase().trim(),
 			password: body.password
 		});
 
@@ -183,7 +185,7 @@ export class MemberService {
 					throw new BadRequestException(`Error. Cannot use that email as it already exists in the program!`);
 				}
 
-				member.email = email;
+				member.email = email.toLowerCase().trim();
 			}
 
 			// Update other fields

@@ -45,7 +45,7 @@ export class MemberAuthService {
 
 		const entity: Member | null = await this.memberService.getMemberByEmail(
 			programId,
-			input.email,
+			input.email.toLowerCase().trim(),
 		);
 
 		// member isn't part of the program

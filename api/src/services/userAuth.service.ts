@@ -41,7 +41,7 @@ export class UserAuthService {
 		this.logger.info(`START: validateUser service`);
 
 		const entity: User | null = await this.userService.getUserByEmail(
-			input.email,
+			input.email.toLowerCase().trim(),
 		);
 
 		let logInData: UserLoginData | null;
