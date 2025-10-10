@@ -190,6 +190,7 @@ export class FunctionTriggerService {
         let numOfPurchases: number = 0;
         let revenue: number = 0;
 
+        // promoterAnalyticsView for a promoter will always be present
         try {
             promoterAnalyticsView = await this.promoterService.getPromoterAnalytics(
                 event.programId,
