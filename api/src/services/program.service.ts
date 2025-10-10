@@ -691,17 +691,16 @@ export class ProgramService {
 			SELECT 
 				pa.promoter_id,
 				p.name,
-				pa.total_revenue,
-				pa.total_commission,
-				pa.total_signups,
-				pa.total_purchases,
-				pa.created_at
-			FROM promoter_analytics_mv pa
+				SUM(pa.revenue) AS total_revenue,
+				SUM(pa.commission) AS total_commission,
+				SUM(pa.signups) AS total_signups,
+				SUM(pa.purchases) AS total_purchases
+			FROM promoter_analytics_day_wise_mv pa
 			INNER JOIN promoter p ON p.promoter_id = pa.promoter_id
 			WHERE pa.program_id = $1
-				AND pa.created_at >= $2
-				AND pa.created_at < $3
-			ORDER BY pa.created_at ASC, pa.promoter_id ASC
+			AND pa.date >= $2
+			AND pa.date <= $3
+			GROUP BY pa.promoter_id, p.name;
 		`;
 
 		const params = [programId, startDate.toISOString(), endDate.toISOString()];
@@ -713,8 +712,7 @@ export class ProgramService {
 			'total_revenue',
 			'total_commission',
 			'total_signups',
-			'total_purchases',
-			'created_at',
+			'total_purchases'
 		];
 
 		const rowToCsv = new Transform({
@@ -733,7 +731,6 @@ export class ProgramService {
 					total_commission: row.total_commission,
 					total_signups: row.total_signups,
 					total_purchases: row.total_purchases,
-					created_at: formatDate(row.created_at),
 				});
 			}
 		});
