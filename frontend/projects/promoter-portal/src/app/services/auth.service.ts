@@ -4,8 +4,8 @@ import { CookieService } from 'ngx-cookie-service';
 import * as _ from 'lodash-es';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ProgramStore } from '../store/program.store';
-import { environment } from '../../environments/environment';
+import { ProgramStore } from '../../../../promoter-portal/src/app/store/program.store';
+import { environment } from '../../../../promoter-portal/src/environments/environment';
 
 @Injectable({
 	providedIn: 'root'

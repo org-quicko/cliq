@@ -1,7 +1,8 @@
-
 services:
   cliq-app:
-    image: labsatquicko/cliq:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
     env_file:
@@ -11,7 +12,7 @@ services:
       - DB_PORT=5432
       - DB_HOST=cliq-db
       - DB_USERNAME=root
-      - DB_PASSWORD=admin
+      - DB_PASSWORD=root
       - DB_NAME=cliq
       - REDIS_HOST=cliq-redis
       - REDIS_PORT=6379
@@ -31,12 +32,12 @@ services:
     image: postgres:17
     environment:
       - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_PASSWORD=root
       - POSTGRES_DB=cliq
     volumes:
       - ./data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - 5433:5432
     restart: unless-stopped
     networks:
       - cliq-network

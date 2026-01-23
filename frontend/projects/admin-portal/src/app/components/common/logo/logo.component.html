@@ -1,0 +1,8 @@
+<div>
+	@if (programLogoUrl()) {
+	<img [src]="programLogoUrl()" [alt]="programName() + 'logo'" [ngClass]="imgClass ?? 'size-[40px]'">
+	}
+	@else {
+	<h5 class="text-on-surface" [ngClass]="nameClass ?? 'mat-headline-small'">{{ programName() }}</h5>
+	}
+</div>

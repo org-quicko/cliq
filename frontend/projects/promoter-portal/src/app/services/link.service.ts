@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
-import { AuthService } from './auth.service';
+import { AuthService } from '../services/auth.service';
 import { PromoterStore } from '../store/promoter.store';
 import { ProgramStore } from '../store/program.store';
 import { instanceToPlain } from 'class-transformer';

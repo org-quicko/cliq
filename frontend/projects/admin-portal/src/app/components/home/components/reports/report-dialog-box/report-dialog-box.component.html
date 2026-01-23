@@ -1,0 +1,46 @@
+<app-form-dialog-box
+	[formGroup]="reportForm"
+	[onSubmit]="onSubmit"
+	icon="assignment_add"
+	[headerText]="`Generate ${data.reportName} report`"
+	submitBtnText="Generate"
+	height="h-auto max-h-[356px]"
+	[isLoading]="isLoading"
+>
+	<!-- Form fields -->
+	<div class="flex flex-col gap-2">
+
+		<mat-form-field [appearance]="'outline'" class="w-full">
+			<mat-label>Select Period</mat-label>
+			<mat-select formControlName="reportPeriod" class="bg-surface-container-lowest">
+				@for (period of reportPeriod; track period) {
+				@if (period === 'last_7_days' || period === 'custom') {
+				<mat-divider class="border-gray-300"></mat-divider>
+				}
+				<mat-option [value]="period" class="h-auto bg-surface-container-lowest hover:bg-surface-container">{{ period | snakeToCapitalized }}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+
+		<mat-form-field [appearance]="'outline'" class="w-full mb-[-20px]" (click)="reportStartEndPicker.open()">
+			<mat-label>Select date range</mat-label>
+			<mat-date-range-input
+				[rangePicker]="reportStartEndPicker"
+				[min]="minDate"
+				[max]="maxDate"
+				[comparisonStart]="reportForm.value.start"
+				[comparisonEnd]="reportForm.value.end"
+				(click)="reportStartEndPicker.open()"
+			>
+				<input matStartDate placeholder="Start date" formControlName="start" readonly>
+				<input matEndDate placeholder="End date" formControlName="end" readonly>
+			</mat-date-range-input>
+			<mat-datepicker-toggle matIconSuffix [for]="reportStartEndPicker">
+				<mat-icon matDatepickerToggleIcon class="material-symbols-outlined">today</mat-icon>
+			</mat-datepicker-toggle>
+			<mat-date-range-picker #reportStartEndPicker>
+			</mat-date-range-picker>
+		</mat-form-field>
+
+	</div>
+</app-form-dialog-box>

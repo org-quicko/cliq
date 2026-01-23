@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
 
 	ngOnInit() {
 		this.themeService.initializeTheme();
-		// ColorUtil.setThemeFromSeed(`#4D5C92`);
+		ColorUtil.setThemeFromSeed(`#4D5C92`);
 
 		this.router.events
 			.pipe(filter(event => event instanceof NavigationEnd))

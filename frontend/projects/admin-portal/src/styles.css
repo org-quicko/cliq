@@ -1,2 +1,34 @@
 /* You can add global styles to this file, and also import other style files */
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@config '../../../tailwind.config.ts';
+
+.mdc-notched-outline__notch {
+	border-right: none;
+}
+
+.slick-track {
+	margin: 0;
+}
+
+.body {
+	overflow-x: hidden;
+	background-color: var(--sys-surface-container-lowest);
+}
+
+.shadow {
+	box-shadow: 0px 0px 15px 0px #0000001A;
+}
+
+th.hide-sort-arrow:not(.mat-sort-header-sorted) .mat-sort-header-arrow {
+	opacity: 0;
+	pointer-events: none;
+}
+
+th {
+	user-select: none;
+}
+
+.info-dialog-shadow {
+	box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.15);
+}

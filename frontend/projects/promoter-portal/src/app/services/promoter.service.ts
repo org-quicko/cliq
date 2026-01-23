@@ -18,7 +18,7 @@ import {
 	UpdatePromoterMemberDto
 } from "@org.quicko.cliq/ngx-core";
 import { instanceToPlain } from "class-transformer";
-import { AuthService } from "./auth.service";
+import { AuthService } from "../services/auth.service";
 import { ProgramStore } from "../store/program.store";
 import { environment } from "../../environments/environment";
 

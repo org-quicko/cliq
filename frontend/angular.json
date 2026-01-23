@@ -32,7 +32,9 @@
 							}
 						],
 						"styles": [
-							"projects/admin-portal/src/styles.css"
+							"projects/admin-portal/src/styles.css",
+							"dist/@org.quicko.cliq/ngx-core/src/styles/theme.scss",
+							"dist/@org.quicko.cliq/ngx-core/src/styles/styles.css"
 						],
 						"scripts": []
 					},
@@ -42,7 +44,7 @@
 								{
 									"type": "initial",
 									"maximumWarning": "500kB",
-									"maximumError": "1MB"
+									"maximumError": "3MB"
 								},
 								{
 									"type": "anyComponentStyle",
@@ -55,7 +57,13 @@
 						"development": {
 							"optimization": false,
 							"extractLicenses": false,
-							"sourceMap": true
+							"sourceMap": true,
+							"fileReplacements": [  
+								{
+									"replace": "projects/admin-portal/src/environments/environment.ts",
+									"with": "projects/admin-portal/src/environments/environment.development.ts"
+								}
+							]
 						}
 					},
 					"defaultConfiguration": "production"
@@ -94,7 +102,9 @@
 							}
 						],
 						"styles": [
-							"projects/admin-portal/src/styles.css"
+							"projects/admin-portal/src/styles.css",
+							"dist/@org.quicko.cliq/ngx-core/src/styles/theme.scss",
+							"dist/@org.quicko.cliq/ngx-core/src/styles/styles.css"
 						],
 						"scripts": []
 					}
