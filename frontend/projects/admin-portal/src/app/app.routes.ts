@@ -4,12 +4,15 @@ import { HomeComponent } from './components/home/home.component';
 import { ProgramResolver } from '../app/resolver/program.resolver';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { ReportsComponent } from './components/home/components/reports/reports.component';
+import { PromotersComponent } from './components/home/components/promoters/promoters.component';
+import { CirclesComponent } from './components/home/components/circles/circles.component';
+import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     {
         resolve: { program: ProgramResolver },
-        path: ':program_id',
+        path: 'admin/:program_id',
         children: [
             {
                 path: '',
@@ -22,8 +25,10 @@ export const routes: Routes = [
                    children: [
                     { path: '', component: HomeComponent },
                     { path: 'dashboard', component: HomeComponent },
-                    { path: 'referrals', component: HomeComponent },
+                    { path: 'referrals', component: ReferralsComponent },
                     { path: 'reports', component: ReportsComponent },
+                    { path: 'circles', component: CirclesComponent },
+                    { path: 'promoters', component: PromotersComponent },
                 ]
             },
         ],

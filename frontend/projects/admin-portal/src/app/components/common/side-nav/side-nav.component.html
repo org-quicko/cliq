@@ -14,14 +14,14 @@
 						</div>
 					</mat-list-item>
 				</a>
-				<a routerLink="dashboard" routerLinkActive #dashboard="routerLinkActive" class="block mb-2">
-					<mat-list-item [activated]="dashboard.isActive" class="px-4 py-1">
+				<a routerLink="promoters" routerLinkActive #promoters="routerLinkActive" class="block mb-2">
+					<mat-list-item [activated]="promoters.isActive" class="px-4 py-1">
 						<mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">
-							browse
+							account_circle
 						</mat-icon>
 						<div matListItemTitle
-							[class]="`font-sans leading-[20px] ${dashboard.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
-							Dashboard
+							[class]="`font-sans leading-[20px] ${promoters.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
+							Promoters
 						</div>
 					</mat-list-item>
 				</a>
@@ -33,6 +33,17 @@
 						<div matListItemTitle
 							[class]="`font-sans leading-[20px] ${referrals.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
 							Referrals
+						</div>
+					</mat-list-item>
+				</a>
+				<a routerLink="circles" routerLinkActive #circles="routerLinkActive" class="block mb-2">
+					<mat-list-item [activated]="circles.isActive" class="px-4 py-1">
+						<mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">
+							radio_button_unchecked
+						</mat-icon>
+						<div matListItemTitle
+							[class]="`font-sans leading-[20px] ${circles.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
+							Circles
 						</div>
 					</mat-list-item>
 				</a>
