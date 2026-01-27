@@ -436,4 +436,40 @@ export class ProgramController {
     this.logger.info('END: getAllProgramReferrals controller');
     return { message: 'Successfully got program referrals.', result };
   }
+
+
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Public()
+    @Get(':program_id/analytics')
+    async getProgramAnalytics(
+        @Param('program_id') programId: string,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        this.logger.info('START: getProgramAnalytics controller');
+
+        const result = await this.programService.getProgramAnalytics(
+            programId,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+        );
+
+        console.log('=== PROGRAM ANALYTICS RESULT ===');
+        console.log('Type:', typeof result);
+        console.log('Constructor:', result?.constructor?.name);
+        console.log('Is Workbook:', result?.constructor?.name === 'ProgramAnalyticsWorkbook');
+        console.log('Result:', JSON.stringify(result, null, 2));
+        console.log('================================');
+
+        this.logger.info('END: getProgramAnalytics controller');
+        return { 
+            message: 'Successfully fetched program analytics.', 
+            result 
+        };
+    }
 }
+
+
+

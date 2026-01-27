@@ -24,8 +24,6 @@ import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { bullMqConfig, jwtConfig, typeOrmConfig } from './config';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
@@ -71,10 +69,6 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,
-		ServeStaticModule.forRoot({
-			rootPath: join(__dirname, '..', '..', 'public'),
-			exclude: ['/api'],
-		}),
 	],
 	controllers: [AppController],
 	providers: [

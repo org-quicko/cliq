@@ -8,6 +8,7 @@ import {
 import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, Between } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Circle, Commission, Program, Promoter, Purchase, ReferralView, SignUp, User } from '../entities';
+import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
 import { CreateUserDto } from '../dtos';
 import { ProgramUser } from '../entities/programUser.entity';
 import {
@@ -34,6 +35,9 @@ import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
 import { ReferralConverter } from 'src/converters/referral.converter';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Transform } from 'node:stream';
+import { BadRequestException } from '@org-quicko/core';
+import { ProgramAnalyticsConverter } from '../converters/program/program_analytics.workbook.converter';
+
 
 @Injectable()
 export class ProgramService {
@@ -62,6 +66,7 @@ export class ProgramService {
 		private userService: UserService,
 
 		private programConverter: ProgramConverter,
+		private programAnalyticsConverter: ProgramAnalyticsConverter,
 		private promoterConverter: PromoterConverter,
 		private userConverter: UserConverter,
 		private signUpConverter: SignUpConverter,
@@ -808,4 +813,104 @@ export class ProgramService {
 
 		return stream;
 	}
+
+
+	async getProgramAnalytics(
+        programId: string,
+        period: string = '30days',
+        customStartDate?: Date,
+        customEndDate?: Date,
+    ) {
+        this.logger.info('START: getProgramAnalytics service');
+
+        let startDate: Date;
+        let endDate = new Date();
+
+        switch (period) {
+            case '7days':
+                startDate = new Date();
+                startDate.setDate(startDate.getDate() - 7);
+                break;
+            case '30days':
+                startDate = new Date();
+                startDate.setDate(startDate.getDate() - 30);
+                break;
+            case '3months':
+                startDate = new Date();
+                startDate.setMonth(startDate.getMonth() - 3);
+                break;
+            case '6months':
+                startDate = new Date();
+                startDate.setMonth(startDate.getMonth() - 6);
+                break;
+            case '1year':
+                startDate = new Date();
+                startDate.setFullYear(startDate.getFullYear() - 1);
+                break;
+            case 'custom':
+                if (!customStartDate || !customEndDate) {
+                    throw new BadRequestException(
+                        'startDate and endDate are required for custom period',
+                    );
+                }
+                startDate = customStartDate;
+                endDate = customEndDate;
+                break;
+            case 'all':
+                startDate = new Date('1970-01-01'); 
+                break;
+            default:
+                startDate = new Date();
+                startDate.setDate(startDate.getDate() - 30); 
+        }
+
+        const dayWiseAnalytics = await this.datasource
+            .getRepository(PromoterAnalyticsDayWiseView)
+            .find({
+                where: {
+                    programId,
+                    date: Between(startDate, endDate),
+                },
+            });
+
+        if (!dayWiseAnalytics || dayWiseAnalytics.length === 0) {
+            this.logger.info('END: getProgramAnalytics service - no data found');
+            return this.programAnalyticsConverter.convert({
+                totalRevenue: 0,
+                totalCommissions: 0,
+                totalSignups: 0,
+                totalPurchases: 0,
+                period,
+            });
+        }
+        const totalRevenue = dayWiseAnalytics.reduce(
+            (sum, analytics) => sum + (analytics.dailyRevenue || 0),
+            0,
+        );
+
+        const totalCommissions = dayWiseAnalytics.reduce(
+            (sum, analytics) => sum + (analytics.dailyCommission || 0),
+            0,
+        );
+
+        const totalSignups = dayWiseAnalytics.reduce(
+            (sum, analytics) => sum + (analytics.dailySignups || 0),
+            0,
+        );
+
+        const totalPurchases = dayWiseAnalytics.reduce(
+            (sum, analytics) => sum + (analytics.dailyPurchases || 0),
+            0,
+        );
+
+        this.logger.info('END: getProgramAnalytics service');
+
+            return this.programAnalyticsConverter.convert({
+            totalRevenue,
+            totalCommissions,
+            totalSignups,
+            totalPurchases,
+            period,
+        });
+    }
 }

@@ -1,5 +1,5 @@
 import { IsString, IsEnum, IsOptional, IsUUID, IsDate, IsUrl } from 'class-validator';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
 
@@ -141,3 +141,38 @@ export class UpdateProgramDto {
 	@IsString()
 	timeZone?: string;
 }
+
+
+export class ProgramAnalyticsDto {
+    @Expose({ name: 'total_revenue' })
+    totalRevenue: number;
+
+    @Expose({ name: 'total_commissions' })
+    totalCommissions: number;
+
+    @Expose({ name: 'total_signups' })
+    totalSignups: number;
+
+    @Expose({ name: 'total_purchases' })
+    totalPurchases: number;
+}
+
+export class ProgramAnalyticsQueryDto {
+    @IsOptional()
+    @IsEnum(['7days', '30days', '3months', '6months', '1year', 'all', 'custom'])
+    period?: string;
+
+    @IsOptional()
+    @IsDate()
+    @Type(() => Date)
+    startDate?: Date;
+
+    @IsOptional()
+    @IsDate()
+    @Type(() => Date)
+    endDate?: Date;
+}
+
+
+
+

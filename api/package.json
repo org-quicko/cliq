@@ -41,7 +41,7 @@
     "@nestjs/serve-static": "^5.0.3",
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/typeorm": "^11.0.0",
-    "@org-quicko/cliq-sheet-core": "^1.0.0",
+    "@org-quicko/cliq-sheet-core": "^1.1.0-alpha",
     "@org-quicko/core": "^1.1.0",
     "@org-quicko/sheet": "^1.0.4",
     "axios": "^1.9.0",
