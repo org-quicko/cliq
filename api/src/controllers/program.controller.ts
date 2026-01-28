@@ -456,16 +456,43 @@ export class ProgramController {
             endDate ? new Date(endDate) : undefined,
         );
 
-        console.log('=== PROGRAM ANALYTICS RESULT ===');
-        console.log('Type:', typeof result);
-        console.log('Constructor:', result?.constructor?.name);
-        console.log('Is Workbook:', result?.constructor?.name === 'ProgramAnalyticsWorkbook');
-        console.log('Result:', JSON.stringify(result, null, 2));
-        console.log('================================');
-
         this.logger.info('END: getProgramAnalytics controller');
         return { 
             message: 'Successfully fetched program analytics.', 
+            result 
+        };
+    }
+
+    /**
+     * Get promoters sorted by signups or purchases
+     */
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Public()
+    @Get(':program_id/analytics/promoters')
+    async getPromoterAnalytics(
+        @Param('program_id') programId: string,
+        @Query('sortBy') sortBy: 'signups' | 'purchases' = 'signups',
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('skip') skip: number = 0,
+        @Query('take') take: number = 5,
+    ) {
+        this.logger.info('START: getPromoterAnalytics controller');
+
+        const result = await this.programService.getPromoterAnalytics(
+            programId,
+            sortBy,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+            skip,
+            take,
+        );
+
+        this.logger.info('END: getPromoterAnalytics controller');
+        return { 
+            message: `Successfully fetched promoters sorted by ${sortBy}.`, 
             result 
         };
     }

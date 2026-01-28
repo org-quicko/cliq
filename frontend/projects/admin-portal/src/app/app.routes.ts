@@ -7,6 +7,7 @@ import { ReportsComponent } from './components/home/components/reports/reports.c
 import { PromotersComponent } from './components/home/components/promoters/promoters.component';
 import { CirclesComponent } from './components/home/components/circles/circles.component';
 import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
+import { DashboardComponent } from './components/home/components/dashboard/dashboard.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
@@ -24,7 +25,7 @@ export const routes: Routes = [
                 component: LayoutComponent,
                    children: [
                     { path: '', component: HomeComponent },
-                    { path: 'dashboard', component: HomeComponent },
+                    { path: 'dashboard', component: DashboardComponent },
                     { path: 'referrals', component: ReferralsComponent },
                     { path: 'reports', component: ReportsComponent },
                     { path: 'circles', component: CirclesComponent },

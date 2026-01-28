@@ -66,4 +66,33 @@ getProgramReport(
             })
         );
     }
+
+    getProgramAnalytics(
+        programId: string,
+        options?: {
+            period?: string;
+            startDate?: string;
+            endDate?: string;
+        }
+    ): Observable<ProgramApiResponse> {
+        const url = `${this.endpoint}/${programId}/analytics`;
+
+        let params = new HttpParams();
+        if (options?.period) {
+            params = params.set('period', options.period);
+        }
+        if (options?.startDate) {
+            params = params.set('startDate', options.startDate);
+        }
+        if (options?.endDate) {
+            params = params.set('endDate', options.endDate);
+        }
+
+        return this.httpClient.get<ProgramApiResponse>(url, {
+            params,
+            headers: {
+                'x-accept-type': 'application/json;format=sheet-json'
+            }
+        });
+    }
 }

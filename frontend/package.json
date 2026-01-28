@@ -44,7 +44,7 @@
 		"@ngrx/signals": "^19.0.1",
 		"@ngrx/store": "^19.0.1",
 		"@ngrx/store-devtools": "^19.0.1",
-		"@org-quicko/cliq-sheet-core": "^1.0.0",
+		"@org-quicko/cliq-sheet-core": "^1.1.0-alpha",
 		"@org-quicko/core": "^1.1.0",
 		"@org-quicko/sheet": "^1.0.1",
 		"@rxweb/reactive-form-validators": "^13.0.1",
