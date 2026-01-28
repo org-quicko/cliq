@@ -1,0 +1,50 @@
+<mat-card class="rounded-lg border border-outline-variant flex flex-col">
+    <div class="p-4">
+        <!-- Title -->
+        <div class="mat-body-large text-on-surface mb-4">{{ title }}</div>
+
+        <div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
+            <!-- Header row -->
+            <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline px-3">
+                <div>{{ labelColumn }}</div>
+                <div>{{ valueColumn }}</div>
+            </div>
+
+            <!-- Data rows -->
+            <div *ngIf="data.length > 0; else noData" class="space-y-2">
+                <div *ngFor="let item of data" class="grid grid-cols-1 items-center relative mt-3 group">
+                    <div class="relative w-full h-8 rounded-md flex items-center">
+                        <!-- Bar background -->
+                        <div class="absolute left-0 top-0 h-full rounded-md bg-inverse-on-surface 
+                            transition-all duration-300 group-hover:bg-surface-variant"
+                            [style.width.%]="getBarWidth(item.value)">
+                        </div>
+                        <!-- Content -->
+                        <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
+                            <span>{{ item.label }}</span>
+                            <span class="flex items-center gap-1">
+                                <span>{{ item.value | formatCurrency:currency }}</span>
+                                <span *ngIf="showSubValue && item.subValue !== undefined" class="text-outline">({{ item.subValue }})</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No data template -->
+            <ng-template #noData>
+                <div class="flex items-center justify-center h-[15rem] mat-body-medium text-on-surface-variant
+                    mt-3 border border-dashed border-outline-variant rounded-md">
+                    No data available
+                </div>
+            </ng-template>
+        </div>
+
+        <!-- Navigation link -->
+        <div *ngIf="navigationLink " 
+            class="mt-4 text-primary mat-body-medium cursor-pointer hover:underline"
+            (click)="onNavigate()">
+            {{ navigationText }}
+        </div>
+    </div>
+</mat-card>

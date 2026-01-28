@@ -480,20 +480,20 @@ export class ProgramController {
     ) {
         this.logger.info('START: getPromoterAnalytics controller');
 
-        const result = await this.programService.getPromoterAnalytics(
-            programId,
-            sortBy,
-            period,
-            startDate ? new Date(startDate) : undefined,
-            endDate ? new Date(endDate) : undefined,
-            skip,
-            take,
+        const workbook = await this.programService.getPromoterAnalytics(
+          programId,
+          sortBy,
+          period,
+          startDate ? new Date(startDate) : undefined,
+          endDate ? new Date(endDate) : undefined,
+          skip,
+          take,
         );
 
         this.logger.info('END: getPromoterAnalytics controller');
-        return { 
-            message: `Successfully fetched promoters sorted by ${sortBy}.`, 
-            result 
+        return {
+          message: `Successfully fetched promoters sorted by ${sortBy}.`,
+          result: workbook
         };
     }
 }

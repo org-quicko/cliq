@@ -8,6 +8,8 @@ import { PromotersComponent } from './components/home/components/promoters/promo
 import { CirclesComponent } from './components/home/components/circles/circles.component';
 import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
 import { DashboardComponent } from './components/home/components/dashboard/dashboard.component';
+import { PromotersBySignupsComponent } from './components/home/components/promoters-by-signups/promoters-by-signups.component';
+import { PromotersByPurchasesComponent } from './components/home/components/promoters-by-purchases/promoters-by-purchases.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
@@ -30,6 +32,8 @@ export const routes: Routes = [
                     { path: 'reports', component: ReportsComponent },
                     { path: 'circles', component: CirclesComponent },
                     { path: 'promoters', component: PromotersComponent },
+                    { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
+                    { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
                 ]
             },
         ],

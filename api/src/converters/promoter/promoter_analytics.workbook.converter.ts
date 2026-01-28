@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from '../../services/logger.service';
 import { ConverterException } from '@org-quicko/core';
+import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
+
 
 export interface IPromoterAnalyticsData {
     promoterId: string;
@@ -12,6 +14,7 @@ export interface IPromoterAnalyticsData {
 }
 
 export interface IPromoterAnalyticsConverterInput {
+    programId: string;
     promoters: IPromoterAnalyticsData[];
     pagination: {
         total: number;
@@ -30,50 +33,45 @@ export class PromoterAnalyticsConverter {
     ) { }
     
     convert(data: IPromoterAnalyticsConverterInput) {
-        try {
-            this.logger.info('START: convert function: PromoterAnalyticsConverter');
-            
-            // Create workbook structure
-            const workbook = {
-                name: 'PromoterAnalytics',
-                sheets: [
-                    {
-                        name: 'PromoterAnalyticsSheet',
-                        tables: [
-                            {
-                                name: 'PromoterAnalyticsTable',
-                                columns: [
-                                    { name: 'Promoter ID', key: 'promoterId' },
-                                    { name: 'Promoter Name', key: 'promoterName' },
-                                    { name: 'Signups', key: 'signups' },
-                                    { name: 'Purchases', key: 'purchases' },
-                                    { name: 'Revenue', key: 'revenue' },
-                                    { name: 'Commission', key: 'commission' },
-                                ],
-                                rows: data.promoters.map(promoter => ({
-                                    promoterId: promoter.promoterId,
-                                    promoterName: promoter.promoterName,
-                                    signups: promoter.signups,
-                                    purchases: promoter.purchases,
-                                    revenue: promoter.revenue,
-                                    commission: promoter.commission,
-                                })),
-                            },
-                        ],
-                    },
-                ],
-                metadata: {
-                    sortBy: data.sortBy,
-                    period: data.period,
-                    pagination: data.pagination,
-                },
-            };
-            
-            this.logger.info('END: convert function: PromoterAnalyticsConverter');
-            return workbook;
-        } catch (error) {
-            this.logger.error('Error in PromoterAnalyticsConverter:', error);
-            throw new ConverterException('Error converting promoter analytics data', error);
+    try {
+        this.logger.info('START: convert function: PromoterAnalyticsConverter');
+
+        const {
+            PromoterAnalyticsRow,
+        } = require('@org-quicko/cliq-sheet-core/Promoter/beans');
+
+        const workbook = new PromoterWorkbook();
+
+
+        const sheet = workbook.getPromoterAnalyticsSheet();
+        const table = sheet.getPromoterAnalyticsTable();
+
+        for (const promoter of data.promoters) {
+            const row = new PromoterAnalyticsRow();
+
+          row.setProgramId(String(data.programId ?? '00000000-0000-0000-0000-000000000000'));
+    row.setPromoterId(String(promoter.promoterId ?? 'unknown'));
+    row.setTotalSignups(Number(promoter.signups ?? 0));
+    row.setTotalPurchases(Number(promoter.purchases ?? 0));
+    row.setTotalRevenue(Number(promoter.revenue ?? 0));
+    row.setTotalCommission(Number(promoter.commission ?? 0));
+            table.addRow(row);
         }
+
+        // metadata stays same
+        workbook['metadata'] = {
+            sortBy: data.sortBy,
+            period: data.period,
+            pagination: data.pagination,
+        };
+
+        this.logger.info('END: convert function: PromoterAnalyticsConverter');
+        return workbook;
+
+    } catch (error) {
+        this.logger.error('Error in PromoterAnalyticsConverter:', error);
+        throw new ConverterException('Error converting promoter analytics data', error);
     }
+}
+
 }

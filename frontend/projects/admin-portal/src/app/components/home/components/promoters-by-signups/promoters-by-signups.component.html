@@ -1,0 +1,81 @@
+<div class="p-2">
+    <!-- Breadcrumb -->
+    <div class="overflow-hidden mb-4">
+        <div class="flex items-center mat-body-medium gap-[4px] text-on-surface">
+            <div class="cursor-pointer hover:underline" (click)="onNavigateToDashboard()">Dashboard</div>
+            <mat-icon class="!text-[20px] !leading-none mt-1">navigate_next</mat-icon>
+            <div>Top promoters by signups</div>
+        </div>
+    </div>
+
+    <!-- Header with Period Selector -->
+    <div class="flex flex-col gap-3 mb-4">
+        <div class="flex items-center justify-between w-full">
+            <div class="mat-headline-medium text-on-surface">
+                Top promoters by signups
+            </div>
+            <div>
+                <button mat-button [matMenuTriggerFor]="periodMenu" class="flex items-center gap-2 border border-outline-variant rounded px-4 py-2">
+                    <mat-icon class="text-outline">calendar_today</mat-icon>
+                    <span class="text-on-surface">{{ getPeriodLabel(selectedPeriod()) }}</span>
+                    <mat-icon class="text-outline">arrow_drop_down</mat-icon>
+                </button>
+                <mat-menu #periodMenu="matMenu">
+                    <button *ngFor="let option of periodOptions" 
+                        mat-menu-item 
+                        (click)="onPeriodChange(option.value)"
+                        [class.bg-surface-container]="selectedPeriod() === option.value">
+                        {{ option.label }}
+                    </button>
+                </mat-menu>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Card -->
+    <mat-card class="rounded-lg border border-outline-variant flex flex-col">
+        <div class="p-4">
+            <div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto p-2">
+                <ng-container *ngIf="isLoading; else loadedContent">
+                    <div class="space-y-3">
+                        <ngx-skeleton-loader count="10" appearance="line" [theme]="{
+                                height: '32px',
+                                'border-radius': '8px',
+                                'margin-bottom': '12px'
+                            }">
+                        </ngx-skeleton-loader>
+                    </div>
+                </ng-container>
+                <ng-template #loadedContent>
+                    <!-- Header Row -->
+                    <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline">
+                        <div>{{ labelColumn }}</div>
+                        <div>{{ valueColumn }}</div>
+                    </div>
+
+                    <!-- Data Rows -->
+                    <div *ngIf="chartData.length > 0; else noData" class="space-y-2">
+                        <div *ngFor="let item of chartData" class="grid grid-cols-1 items-center relative mt-3 group">
+                            <div class="relative w-full h-8 rounded-md flex items-center">
+                                <div class="absolute left-0 top-0 h-full rounded-md bg-inverse-on-surface 
+                                    transition-all duration-300 group-hover:bg-surface-variant"
+                                    [style.width.%]="getBarWidth(item.value)">
+                                </div>
+                                <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
+                                    <span>{{ item.label }}</span>
+                                    <span>{{ item.value | formatCurrency:currency }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #noData>
+                        <div class="flex items-center justify-center h-[15rem] mat-body-medium text-on-surface-variant
+                            mt-3 border border-dashed border-outline-variant rounded-md">
+                            No data available
+                        </div>
+                    </ng-template>
+                </ng-template>
+            </div>
+        </div>
+    </mat-card>
+</div>

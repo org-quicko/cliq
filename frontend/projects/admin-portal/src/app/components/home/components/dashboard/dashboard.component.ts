@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, inject, OnInit, computed, signal, effect } from '@angular/core';
+import { DatePipe, NgIf, NgForOf } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,12 +10,18 @@ import { FormatCurrencyPipe, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ProgramStore } from '../../../../store/program.store';
 import { DashboardStore } from './store/dashboard.store';
+import { PromoterSignupsStore } from './store/promoter-signups.store';
+import { PromoterPurchasesStore } from './store/promoter-purchases.store';
+import { PopularityChartComponent } from '../../../common/popularity-chart/popularity-chart.component';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-dashboard',
 	standalone: true,
 	imports: [
 		DatePipe,
+		NgIf,
+		NgForOf,
 		MatCardModule,
 		MatDividerModule,
 		MatIconModule,
@@ -25,8 +31,9 @@ import { DashboardStore } from './store/dashboard.store';
 		FormatCurrencyPipe,
 		ZeroToDashPipe,
 		NgxSkeletonLoaderModule,
+		PopularityChartComponent,
 	],
-	providers: [DashboardStore],
+	providers: [DashboardStore, PromoterSignupsStore, PromoterPurchasesStore],
 	templateUrl: './dashboard.component.html',
 	styleUrl: './dashboard.component.css'
 })
@@ -34,14 +41,22 @@ export class DashboardComponent implements OnInit {
 
 	readonly dashboardStore = inject(DashboardStore);
 	readonly programStore = inject(ProgramStore);
+	readonly promoterSignupsStore = inject(PromoterSignupsStore);
+	readonly promoterPurchasesStore = inject(PromoterPurchasesStore);
+	private router = inject(Router);
 
 	readonly isAnalyticsLoading = computed(() => this.dashboardStore.analytics().status === Status.LOADING);
+	readonly isSignupsLoading = computed(() => this.promoterSignupsStore.isLoading());
+	readonly isPurchasesLoading = computed(() => this.promoterPurchasesStore.isLoading());
 
 	readonly program = computed(() => this.programStore.program());
 	readonly programId = computed(() => this.programStore.program()?.programId);
 
 	readonly analytics = computed(() => this.dashboardStore.analytics().data);
 	readonly period = computed(() => this.dashboardStore.analytics().period);
+
+	readonly signupsPopularityData = computed(() => this.promoterSignupsStore.popularityData());
+	readonly purchasesPopularityData = computed(() => this.promoterPurchasesStore.popularityData());
 
 	readonly today = new Date();
 
@@ -65,6 +80,7 @@ export class DashboardComponent implements OnInit {
 
 	ngOnInit() {
 		this.loadAnalytics();
+		this.loadPromoterData();
 	}
 
 	loadAnalytics() {
@@ -77,12 +93,39 @@ export class DashboardComponent implements OnInit {
 		}
 	}
 
+	loadPromoterData() {
+		const programId = this.programId();
+		if (programId) {
+			this.promoterSignupsStore.fetchPromotersBySignups({
+				programId,
+				period: this.selectedPeriod(),
+				take: 5,
+			});
+			this.promoterPurchasesStore.fetchPromotersByPurchases({
+				programId,
+				period: this.selectedPeriod(),
+				take: 5,
+			});
+		}
+	}
+
 	onPeriodChange(period: string) {
 		this.selectedPeriod.set(period);
 		this.loadAnalytics();
+		this.loadPromoterData();
 	}
 
 	getPeriodLabel(value: string): string {
 		return this.periodOptions.find(p => p.value === value)?.label || 'Last 30 days';
+	}
+
+	getSignupsPromotersLink(): string {
+		const programId = this.programId();
+		return programId ? `/admin/${programId}/home/promoters-by-signups` : '';
+	}
+
+	getPurchasesPromotersLink(): string {
+		const programId = this.programId();
+		return programId ? `/admin/${programId}/home/promoters-by-purchases` : '';
 	}
 }

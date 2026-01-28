@@ -37,7 +37,7 @@ import { stringify } from 'csv-stringify';
 import { PassThrough, Transform } from 'node:stream';
 import { BadRequestException } from '@org-quicko/core';
 import { ProgramAnalyticsConverter } from '../converters/program/program_analytics.workbook.converter';
-
+import { PromoterAnalyticsConverter } from '../converters/promoter/promoter_analytics.workbook.converter';
 
 @Injectable()
 export class ProgramService {
@@ -73,6 +73,7 @@ export class ProgramService {
 		private purchaseConverter: PurchaseConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
+		private promoterAnalyticsConverter: PromoterAnalyticsConverter,
 
 		private datasource: DataSource,
 
@@ -916,6 +917,8 @@ export class ProgramService {
     }
 
 
+	
+
     async getPromoterAnalytics(
         programId: string,
         sortBy: 'signups' | 'purchases' = 'signups',
@@ -925,132 +928,135 @@ export class ProgramService {
         skip: number = 0,
         take: number = 5,
     ) {
-        this.logger.info('START: getPromoterAnalytics service');
 
-        let startDate: Date;
-        let endDate = new Date();
+		
+		this.logger.info('START: getPromoterAnalytics service');
 
-        switch (period) {
-            case '7days':
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 7);
-                break;
-            case '30days':
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 30);
-                break;
-            case '3months':
-                startDate = new Date();
-                startDate.setMonth(startDate.getMonth() - 3);
-                break;
-            case '6months':
-                startDate = new Date();
-                startDate.setMonth(startDate.getMonth() - 6);
-                break;
-            case '1year':
-                startDate = new Date();
-                startDate.setFullYear(startDate.getFullYear() - 1);
-                break;
-            case 'custom':
-                if (!customStartDate || !customEndDate) {
-                    throw new BadRequestException(
-                        'startDate and endDate are required for custom period',
-                    );
-                }
-                startDate = customStartDate;
-                endDate = customEndDate;
-                break;
-            case 'all':
-                startDate = new Date('1970-01-01');
-                break;
-            default:
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 30);
-        }
+		let startDate: Date;
+		let endDate = new Date();
+
+		switch (period) {
+			case '7days':
+				startDate = new Date();
+				startDate.setDate(startDate.getDate() - 7);
+				break;
+			case '30days':
+				startDate = new Date();
+				startDate.setDate(startDate.getDate() - 30);
+				break;
+			case '3months':
+				startDate = new Date();
+				startDate.setMonth(startDate.getMonth() - 3);
+				break;
+			case '6months':
+				startDate = new Date();
+				startDate.setMonth(startDate.getMonth() - 6);
+				break;
+			case '1year':
+				startDate = new Date();
+				startDate.setFullYear(startDate.getFullYear() - 1);
+				break;
+			case 'custom':
+				if (!customStartDate || !customEndDate) {
+					throw new BadRequestException(
+						'startDate and endDate are required for custom period',
+					);
+				}
+				startDate = customStartDate;
+				endDate = customEndDate;
+				break;
+			case 'all':
+				startDate = new Date('1970-01-01');
+				break;
+			default:
+				startDate = new Date();
+				startDate.setDate(startDate.getDate() - 30);
+		}
+
+		const dayWiseAnalytics = await this.datasource
+			.getRepository(PromoterAnalyticsDayWiseView)
+			.find({
+				where: {
+					programId,
+					date: Between(startDate, endDate),
+				},
+			});
+
+		const promoterMap = new Map<string, {
+			promoterId: string;
+			signups: number;
+			purchases: number;
+			revenue: number;
+			commission: number;
+		}>();
+
+		for (const analytics of dayWiseAnalytics) {
+			const existing = promoterMap.get(String(analytics.promoterId)) || {
+                promoterId: String(analytics.promoterId),
+				signups: 0,
+				purchases: 0,
+				revenue: 0,
+				commission: 0,
+			};
+
+			existing.signups += Number(analytics.dailySignups || 0);
+existing.purchases += Number(analytics.dailyPurchases || 0);
+existing.revenue += Number(analytics.dailyRevenue || 0);
+existing.commission += Number(analytics.dailyCommission || 0);
 
 
-        const dayWiseAnalytics = await this.datasource
-            .getRepository(PromoterAnalyticsDayWiseView)
-            .find({
-                where: {
-                    programId,
-                    date: Between(startDate, endDate),
-                },
-            });
+			promoterMap.set(String(analytics.promoterId), existing);
+		}
 
-        const promoterMap = new Map<string, {
-            promoterId: string;
-            signups: number;
-            purchases: number;
-            revenue: number;
-            commission: number;
-        }>();
+		let promotersData = Array.from(promoterMap.values());
 
-        for (const analytics of dayWiseAnalytics) {
-            const existing = promoterMap.get(analytics.promoterId) || {
-                promoterId: analytics.promoterId,
-                signups: 0,
-                purchases: 0,
-                revenue: 0,
-                commission: 0,
-            };
+		if (sortBy === 'signups') {
+			promotersData.sort((a, b) => b.signups - a.signups);
+		} else {
+			promotersData.sort((a, b) => b.purchases - a.purchases);
+		}
 
-            existing.signups += analytics.dailySignups || 0;
-            existing.purchases += analytics.dailyPurchases || 0;
-            existing.revenue += analytics.dailyRevenue || 0;
-            existing.commission += analytics.dailyCommission || 0;
+		const totalCount = promotersData.length;
+		const paginatedData = promotersData.slice(skip, skip + take);
 
-            promoterMap.set(analytics.promoterId, existing);
-        }
+		const promoterIds = paginatedData.map(p => p.promoterId);
+		const promoters = await this.datasource
+			.getRepository(Promoter)
+			.find({
+				where: {
+					promoterId: In(promoterIds),
+				},
+				select: ['promoterId', 'name'],
+			});
 
- 
-        let promotersData = Array.from(promoterMap.values());
+		const promoterNameMap = new Map(
+			promoters.map(p => [p.promoterId, p.name])
+		);
 
-        if (sortBy === 'signups') {
-            promotersData.sort((a, b) => b.signups - a.signups);
-        } else {
-            promotersData.sort((a, b) => b.purchases - a.purchases);
-        }
+	const result = paginatedData.map(data => ({
+    promoterId: String(data.promoterId),
+    promoterName: promoterNameMap.get(data.promoterId) || 'Unknown',
+    signups: Number(data.signups || 0),
+    purchases: Number(data.purchases || 0),
+    revenue: Number(data.revenue || 0),
+    commission: Number(data.commission || 0),
+}));
 
-        const totalCount = promotersData.length;
 
-        const paginatedData = promotersData.slice(skip, skip + take);
+		this.logger.info('END: getPromoterAnalytics service');
 
-        const promoterIds = paginatedData.map(p => p.promoterId);
-        const promoters = await this.datasource
-            .getRepository(Promoter)
-            .find({
-                where: {
-                    promoterId: In(promoterIds),
-                },
-                select: ['promoterId', 'name'],
-            });
-
-        const promoterNameMap = new Map(
-            promoters.map(p => [p.promoterId, p.name])
-        );
-
-        const result = paginatedData.map(data => ({
-            promoterId: data.promoterId,
-            promoterName: promoterNameMap.get(data.promoterId) || 'Unknown',
-            signups: data.signups,
-            purchases: data.purchases,
-            revenue: data.revenue,
-            commission: data.commission,
-        }));
-
-        this.logger.info('END: getPromoterAnalytics service');
-
-        return {
-            promoters: result,
-            pagination: {
-                total: totalCount,
-                skip,
-                take,
-                hasMore: skip + take < totalCount,
-            },
-            sortBy,
-            period,
-        };
+		
+		return this.promoterAnalyticsConverter.convert({
+			programId,
+			promoters: result,
+			pagination: {
+				total: totalCount,
+				skip,
+				take,
+				hasMore: skip + take < totalCount,
+			},
+			sortBy,
+			period,
+		});
     }
 }
