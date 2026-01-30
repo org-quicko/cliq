@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from '../../services/logger.service';
 import { ConverterException } from '@org-quicko/core';
-import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
+import { PromoterWorkbook, PromoterAnalyticsRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 
 export interface IPromoterAnalyticsData {
@@ -36,10 +36,6 @@ export class PromoterAnalyticsConverter {
     try {
         this.logger.info('START: convert function: PromoterAnalyticsConverter');
 
-        const {
-            PromoterAnalyticsRow,
-        } = require('@org-quicko/cliq-sheet-core/Promoter/beans');
-
         const workbook = new PromoterWorkbook();
 
 
@@ -47,18 +43,19 @@ export class PromoterAnalyticsConverter {
         const table = sheet.getPromoterAnalyticsTable();
 
         for (const promoter of data.promoters) {
-            const row = new PromoterAnalyticsRow();
+            const row = new PromoterAnalyticsRow([]);
 
-          row.setProgramId(String(data.programId ?? '00000000-0000-0000-0000-000000000000'));
-    row.setPromoterId(String(promoter.promoterId ?? 'unknown'));
-    row.setTotalSignups(Number(promoter.signups ?? 0));
-    row.setTotalPurchases(Number(promoter.purchases ?? 0));
-    row.setTotalRevenue(Number(promoter.revenue ?? 0));
-    row.setTotalCommission(Number(promoter.commission ?? 0));
+                        row.setProgramId(String(data.programId));
+                        row.setPromoterId(String(promoter.promoterId));
+                        row.setPromoterName(String(promoter.promoterName));
+                        row.setTotalSignups(Number(promoter.signups ?? 0));
+                        row.setTotalPurchases(Number(promoter.purchases ?? 0));
+                        row.setTotalRevenue(Number(promoter.revenue ?? 0));
+                        row.setTotalCommission(Number(promoter.commission ?? 0));
             table.addRow(row);
         }
 
-        // metadata stays same
+
         workbook['metadata'] = {
             sortBy: data.sortBy,
             period: data.period,

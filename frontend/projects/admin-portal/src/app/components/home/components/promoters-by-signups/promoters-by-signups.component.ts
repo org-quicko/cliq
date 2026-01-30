@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { Component, inject, OnInit, computed, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf, NgForOf } from '@angular/common';
 import { NgxSkeletonLoaderModule } from "ngx-skeleton-loader";
 import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
@@ -20,6 +21,7 @@ import { PromoterSignupsStore } from '../dashboard/store/promoter-signups.store'
         MatCardModule,
         MatButtonModule,
         MatMenuModule,
+        MatProgressSpinnerModule,
         NgIf,
         NgForOf,
         NgxSkeletonLoaderModule,
@@ -27,10 +29,15 @@ import { PromoterSignupsStore } from '../dashboard/store/promoter-signups.store'
     ],
     providers: [PromoterSignupsStore]
 })
-export class PromotersBySignupsComponent implements OnInit {
+export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDestroy {
+    @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
+    
     readonly programStore = inject(ProgramStore);
     readonly promoterSignupsStore = inject(PromoterSignupsStore);
     private router = inject(Router);
+
+    private scrollListener: (() => void) | null = null;
+    private readonly PAGE_SIZE = 20;
 
     labelColumn = 'Promoters';
     valueColumn = 'Commission';
@@ -53,6 +60,14 @@ export class PromotersBySignupsComponent implements OnInit {
         this.fetchData();
     }
 
+    ngAfterViewInit() {
+        this.setupScrollListener();
+    }
+
+    ngOnDestroy() {
+        this.removeScrollListener();
+    }
+
     get chartData() {
         return this.promoterSignupsStore.popularityData() ?? [];
     }
@@ -65,6 +80,14 @@ export class PromotersBySignupsComponent implements OnInit {
 
     get isLoading() {
         return this.promoterSignupsStore.isLoading();
+    }
+
+    get isLoadingMore() {
+        return this.promoterSignupsStore.isLoadingMore();
+    }
+
+    get hasMore() {
+        return this.promoterSignupsStore.hasMore();
     }
 
     get currency() {
@@ -89,6 +112,52 @@ export class PromotersBySignupsComponent implements OnInit {
         return this.maxValue > 0 ? (value / this.maxValue) * 100 : 0;
     }
 
+    private setupScrollListener() {
+        setTimeout(() => {
+            const container = this.scrollContainer?.nativeElement;
+            if (container) {
+                this.scrollListener = () => this.onScroll();
+                container.addEventListener('scroll', this.scrollListener);
+            }
+        });
+    }
+
+    private removeScrollListener() {
+        const container = this.scrollContainer?.nativeElement;
+        if (container && this.scrollListener) {
+            container.removeEventListener('scroll', this.scrollListener);
+        }
+    }
+
+    private onScroll() {
+        const container = this.scrollContainer?.nativeElement;
+        if (!container) return;
+
+        const threshold = 100; // pixels from bottom to trigger load
+        const scrollPosition = container.scrollTop + container.clientHeight;
+        const scrollHeight = container.scrollHeight;
+
+        if (scrollHeight - scrollPosition < threshold) {
+            this.loadMore();
+        }
+    }
+
+    private loadMore() {
+        if (this.isLoadingMore || !this.hasMore) return;
+
+        const programId = this.programId();
+        if (!programId) return;
+
+        const currentCount = this.chartData.length;
+        
+        this.promoterSignupsStore.loadMorePromotersBySignups({
+            programId,
+            period: this.selectedPeriod(),
+            skip: currentCount,
+            take: this.PAGE_SIZE,
+        });
+    }
+
     private fetchData() {
         const programId = this.programId();
         if (!programId) return;
@@ -96,7 +165,8 @@ export class PromotersBySignupsComponent implements OnInit {
         this.promoterSignupsStore.fetchPromotersBySignups({
             programId,
             period: this.selectedPeriod(),
-            take: 100, // Get all promoters for this page
+            skip: 0,
+            take: this.PAGE_SIZE,
         });
     }
 }

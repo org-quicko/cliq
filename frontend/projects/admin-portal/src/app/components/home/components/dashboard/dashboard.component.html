@@ -69,11 +69,11 @@
 					<mat-divider class="border-outline-variant"></mat-divider>
 
 					<!-- Total Commission stats -->
-					<div class="w-full flex flex-col h-[130px] px-2 py-6 gap-4">
+			<div class="w-full flex flex-col h-[130px] px-2 py-6 gap-4">
 						<div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
 							@if (isAnalyticsLoading()) {
 								<ngx-skeleton-loader [theme]="{
-									width: '120px',
+									width: '100px',
 									height: '24px',
 								}" />
 							} @else {
@@ -207,6 +207,24 @@
 					[currency]="program()?.currency || 'INR'"
 				>
 				</app-popularity-chart>
+			</ng-template>
+		</div>
+
+		<!-- Analytics Chart Section -->
+		<div class="mt-6 border border-outline-variant rounded-lg overflow-hidden">
+			<ng-container *ngIf="isDayWiseLoading(); else chartContent">
+				<div class="h-[450px] flex items-center justify-center">
+					<ngx-skeleton-loader [theme]="{ width: '90%', height: '350px', borderRadius: '8px' }">
+					</ngx-skeleton-loader>
+				</div>
+			</ng-container>
+			<ng-template #chartContent>
+				<app-analytics-chart
+					[graphData]="dayWiseData()"
+					[period]="selectedPeriod()"
+					[currency]="program()?.currency || 'INR'"
+				>
+				</app-analytics-chart>
 			</ng-template>
 		</div>
 

@@ -496,6 +496,34 @@ export class ProgramController {
           result: workbook
         };
     }
+
+    /**
+     * Get day-wise program analytics for charts
+     */
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Public()
+    @Get(':program_id/analytics/daily')
+    async getDayWiseProgramAnalytics(
+        @Param('program_id') programId: string,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        this.logger.info('START: getDayWiseProgramAnalytics controller');
+
+        const result = await this.programService.getDayWiseProgramAnalytics(
+            programId,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+        );
+
+        this.logger.info('END: getDayWiseProgramAnalytics controller');
+        return {
+            message: 'Successfully fetched day-wise program analytics.',
+            result
+        };
+    }
 }
 
 

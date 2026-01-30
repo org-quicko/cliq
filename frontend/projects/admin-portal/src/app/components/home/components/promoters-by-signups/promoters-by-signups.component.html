@@ -35,7 +35,7 @@
     <!-- Content Card -->
     <mat-card class="rounded-lg border border-outline-variant flex flex-col">
         <div class="p-4">
-            <div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto p-2">
+            <div #scrollContainer class="flex-1 overflow-y-auto min-h-[16rem] max-h-[70vh] p-2">
                 <ng-container *ngIf="isLoading; else loadedContent">
                     <div class="space-y-3">
                         <ngx-skeleton-loader count="10" appearance="line" [theme]="{
@@ -58,7 +58,7 @@
                         <div *ngFor="let item of chartData" class="grid grid-cols-1 items-center relative mt-3 group">
                             <div class="relative w-full h-8 rounded-md flex items-center">
                                 <div class="absolute left-0 top-0 h-full rounded-md bg-inverse-on-surface 
-                                    transition-all duration-300 group-hover:bg-surface-variant"
+                                    transition-all duration-300 bg-surface-variant"
                                     [style.width.%]="getBarWidth(item.value)">
                                 </div>
                                 <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
@@ -66,6 +66,16 @@
                                     <span>{{ item.value | formatCurrency:currency }}</span>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <!-- Loading More Indicator -->
+                        <div *ngIf="isLoadingMore" class="flex justify-center py-4">
+                            <mat-spinner diameter="24"></mat-spinner>
+                        </div>
+                        
+                        <!-- End of List Indicator -->
+                        <div *ngIf="!hasMore && chartData.length > 0" class="text-center py-4 text-on-surface-variant text-sm">
+                            No more promoters to load
                         </div>
                     </div>
                     <ng-template #noData>

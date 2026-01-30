@@ -12,7 +12,9 @@ import { ProgramStore } from '../../../../store/program.store';
 import { DashboardStore } from './store/dashboard.store';
 import { PromoterSignupsStore } from './store/promoter-signups.store';
 import { PromoterPurchasesStore } from './store/promoter-purchases.store';
+import { DayWiseAnalyticsStore } from './store/day-wise-analytics.store';
 import { PopularityChartComponent } from '../../../common/popularity-chart/popularity-chart.component';
+import { AnalyticsChartComponent } from '../../../common/analytics-chart/analytics-chart.component';
 import { Router } from '@angular/router';
 
 @Component({
@@ -32,8 +34,9 @@ import { Router } from '@angular/router';
 		ZeroToDashPipe,
 		NgxSkeletonLoaderModule,
 		PopularityChartComponent,
+		AnalyticsChartComponent,
 	],
-	providers: [DashboardStore, PromoterSignupsStore, PromoterPurchasesStore],
+	providers: [DashboardStore, PromoterSignupsStore, PromoterPurchasesStore, DayWiseAnalyticsStore],
 	templateUrl: './dashboard.component.html',
 	styleUrl: './dashboard.component.css'
 })
@@ -43,20 +46,27 @@ export class DashboardComponent implements OnInit {
 	readonly programStore = inject(ProgramStore);
 	readonly promoterSignupsStore = inject(PromoterSignupsStore);
 	readonly promoterPurchasesStore = inject(PromoterPurchasesStore);
+	readonly dayWiseAnalyticsStore = inject(DayWiseAnalyticsStore);
 	private router = inject(Router);
 
 	readonly isAnalyticsLoading = computed(() => this.dashboardStore.analytics().status === Status.LOADING);
 	readonly isSignupsLoading = computed(() => this.promoterSignupsStore.isLoading());
 	readonly isPurchasesLoading = computed(() => this.promoterPurchasesStore.isLoading());
+	readonly isDayWiseLoading = computed(() => this.dayWiseAnalyticsStore.isLoading());
 
 	readonly program = computed(() => this.programStore.program());
 	readonly programId = computed(() => this.programStore.program()?.programId);
 
 	readonly analytics = computed(() => this.dashboardStore.analytics().data);
 	readonly period = computed(() => this.dashboardStore.analytics().period);
+	readonly dayWiseData = computed(() => {
+		const data = this.dayWiseAnalyticsStore.dailyData();
+		console.log('[Dashboard] Day-wise data received:', data);
+		return data;
+	});
 
-	readonly signupsPopularityData = computed(() => this.promoterSignupsStore.popularityData());
-	readonly purchasesPopularityData = computed(() => this.promoterPurchasesStore.popularityData());
+	readonly signupsPopularityData = computed(() => this.promoterSignupsStore.topPopularityData());
+	readonly purchasesPopularityData = computed(() => this.promoterPurchasesStore.topPopularityData());
 
 	readonly today = new Date();
 
@@ -79,14 +89,27 @@ export class DashboardComponent implements OnInit {
 	]);
 
 	ngOnInit() {
+		console.log('[Dashboard] Component initialized, programId:', this.programId());
 		this.loadAnalytics();
 		this.loadPromoterData();
+		this.loadDayWiseAnalytics();
 	}
 
 	loadAnalytics() {
 		const programId = this.programId();
 		if (programId) {
 			this.dashboardStore.getProgramAnalytics({
+				programId,
+				period: this.selectedPeriod(),
+			});
+		}
+	}
+
+	loadDayWiseAnalytics() {
+		const programId = this.programId();
+		if (programId) {
+			console.log('[Dashboard] Fetching day-wise analytics for programId:', programId, 'period:', this.selectedPeriod());
+			this.dayWiseAnalyticsStore.fetchDayWiseAnalytics({
 				programId,
 				period: this.selectedPeriod(),
 			});
@@ -113,6 +136,7 @@ export class DashboardComponent implements OnInit {
 		this.selectedPeriod.set(period);
 		this.loadAnalytics();
 		this.loadPromoterData();
+		this.loadDayWiseAnalytics();
 	}
 
 	getPeriodLabel(value: string): string {
