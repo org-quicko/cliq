@@ -868,7 +868,6 @@ export class ProgramService {
                 startDate.setDate(startDate.getDate() - 30); 
         }
 
-        // ===================== PRODUCTION CODE =====================
         const dayWiseAnalytics = await this.datasource
             .getRepository(PromoterAnalyticsDayWiseView)
             .find({
@@ -1044,7 +1043,6 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			promoters.map(p => [p.promoterId, p.name])
 		);
 
-// ===================== PRODUCTION CODE =====================
 		const result = paginatedData.map(p => ({
 			promoterId: p.promoterId,
 			promoterName: promoterNameMap.get(p.promoterId) || 'Unknown',
@@ -1054,51 +1052,51 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			commission: p.commission,
 		}));
 
-		/* ===================== TEST DATA - Commented out for future testing =====================
-		const resultTest = [
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-		];
+		// ===================== TEST DATA - Commented out for future testing =====================
+		// const resultTest = [
+		// 	{
+		// 		promoterId: '11111111-1111-1111-1111-111111111111',
+		// 		promoterName: 'Aarav Sharma',
+		// 		signups: 120,
+		// 		purchases: 45,
+		// 		revenue: 25000,
+		// 		commission: 5000,
+		// 	},
+		// 	{
+		// 		promoterId: '22222222-2222-2222-2222-222222222222',
+		// 		promoterName: 'Priya Patel',
+		// 		signups: 95,
+		// 		purchases: 38,
+		// 		revenue: 21000,
+		// 		commission: 4200,
+		// 	},
+		// 	{
+		// 		promoterId: '33333333-3333-3333-3333-333333333333',
+		// 		promoterName: 'Rohan Mehta',
+		// 		signups: 80,
+		// 		purchases: 30,
+		// 		revenue: 18000,
+		// 		commission: 3600,
+		// 	},
+		// 	{
+		// 		promoterId: '44444444-4444-4444-4444-444444444444',
+		// 		promoterName: 'Sneha Kapoor',
+		// 		signups: 60,
+		// 		purchases: 25,
+		// 		revenue: 14000,
+		// 		commission: 2800,
+		// 	},
+		// 	{
+		// 		promoterId: '55555555-5555-5555-5555-555555555555',
+		// 		promoterName: 'Vikram Singh',
+		// 		signups: 45,
+		// 		purchases: 18,
+		// 		revenue: 10000,
+		// 		commission: 2000,
+		// 	},
+		// ];
 		// To use test data, replace 'result' with 'resultTest' in the return statement
-		===================== END TEST DATA ===================== */
+		// ===================== END TEST DATA ===================== 
 
 
 		this.logger.info('END: getPromoterAnalytics service');
@@ -1118,9 +1116,7 @@ existing.commission += Number(analytics.dailyCommission || 0);
 		});
     }
 
-    /**
-     * Get day-wise program analytics for charts
-     */
+
     async getDayWiseProgramAnalytics(
         programId: string,
         period: string = '30days',
@@ -1170,10 +1166,8 @@ existing.commission += Number(analytics.dailyCommission || 0);
                 startDate.setDate(startDate.getDate() - 30);
         }
 
-        // ===================== PRODUCTION CODE - Fetch from database =====================
 		const today = new Date();
 		
-		// Fetch day-wise analytics from database
 		const dayWiseData = await this.promoterAnalyticsDayWiseViewRepository
 			.createQueryBuilder('analytics')
 			.select('analytics.date', 'date')
@@ -1188,7 +1182,6 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			.orderBy('analytics.date', 'ASC')
 			.getRawMany();
 
-		// Convert to the expected format
 		const allDailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> = 
 			dayWiseData.map(row => ({
 				date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : row.date,
@@ -1198,29 +1191,23 @@ existing.commission += Number(analytics.dailyCommission || 0);
 				commission: Number(row.commission) || 0,
 			}));
 
-		// Process data based on period
 		let analyticsData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
 
 		if (period === '7days') {
-			// For 7 days, use daily data (last 7 days)
 			analyticsData = allDailyData.slice(-7);
 		} else if (period === '30days') {
-			// For 30 days, use all daily data
 			analyticsData = allDailyData;
 		} else if (period === '3months') {
-			// For 3 months, show data with 7-day intervals (starting from today, going back every 7 days)
 			analyticsData = [];
 			const dataMap = new Map(allDailyData.map(d => [d.date, d]));
 			
 			const currentDate = new Date(today);
-			// ~13 weeks = ~3 months with 7-day gaps
 			for (let i = 0; i < 13; i++) {
 				const dateStr = currentDate.toISOString().split('T')[0];
 				const dataPoint = dataMap.get(dateStr);
 				if (dataPoint) {
 					analyticsData.unshift(dataPoint);
 				} else {
-					// If exact date not found, add zero values
 					analyticsData.unshift({
 						date: dateStr,
 						signups: 0,
@@ -1232,16 +1219,12 @@ existing.commission += Number(analytics.dailyCommission || 0);
 				currentDate.setDate(currentDate.getDate() - 7);
 			}
 		} else if (period === '6months') {
-			// For 6 months, aggregate data by month
 			analyticsData = this.aggregateDataByMonth(allDailyData, 6);
 		} else if (period === '1year') {
-			// For 1 year, aggregate data by month (12 months)
 			analyticsData = this.aggregateDataByMonth(allDailyData, 12);
 		} else if (period === 'all') {
-			// For all time, aggregate data by year
 			analyticsData = this.aggregateDataByYear(allDailyData);
 		} else {
-			// Default to 30 days
 			analyticsData = allDailyData;
 		}
 
@@ -1315,20 +1298,17 @@ existing.commission += Number(analytics.dailyCommission || 0);
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0],
             dailyData: analyticsData,
-            dataType: this.getDataType(period), // 'daily', 'monthly', or 'yearly'
+            dataType: this.getDataType(period), 
         };
     }
 
-	/**
-	 * Aggregate daily data by month
-	 */
+
 	private aggregateDataByMonth(
 		dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>,
 		numberOfMonths: number,
 	): Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> {
 		const monthlyMap = new Map<string, { signups: number; purchases: number; revenue: number; commission: number }>();
 		
-		// Group daily data by month
 		dailyData.forEach(day => {
 			const date = new Date(day.date);
 			const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -1346,27 +1326,22 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			}
 		});
 		
-		// Convert to array and sort by date
 		const result = Array.from(monthlyMap.entries())
 			.map(([monthKey, data]) => ({
-				date: monthKey + '-01', // Use first day of month as date
+				date: monthKey + '-01', 
 				...data,
 			}))
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 		
-		// Return only last N months
 		return result.slice(-numberOfMonths);
 	}
 
-	/**
-	 * Aggregate daily data by year
-	 */
+
 	private aggregateDataByYear(
 		dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>,
 	): Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> {
 		const yearlyMap = new Map<number, { signups: number; purchases: number; revenue: number; commission: number }>();
 		
-		// Group daily data by year
 		dailyData.forEach(day => {
 			const year = new Date(day.date).getFullYear();
 			
@@ -1383,7 +1358,6 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			}
 		});
 		
-		// Convert to array and sort by year
 		return Array.from(yearlyMap.entries())
 			.map(([year, data]) => ({
 				date: `${year}-01-01`,
@@ -1392,9 +1366,6 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 	}
 
-	/**
-	 * Get data type for the period
-	 */
 	private getDataType(period: string): string {
 		if (period === '7days' || period === '30days' || period === '3months') {
 			return 'daily';
