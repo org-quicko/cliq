@@ -20,6 +20,7 @@ export interface DailyData {
 export interface DayWiseAnalyticsState {
     dailyData: DailyData[];
     period: string | null;
+    dataType: string | null;
     startDate: string | null;
     endDate: string | null;
     error: any | null;
@@ -29,6 +30,7 @@ export interface DayWiseAnalyticsState {
 export const initialDayWiseAnalyticsState: DayWiseAnalyticsState = {
     dailyData: [],
     period: '30days',
+    dataType: 'daily',
     startDate: null,
     endDate: null,
     error: null,
@@ -73,6 +75,7 @@ export const DayWiseAnalyticsStore = signalStore(
                                     patchState(store, {
                                         dailyData,
                                         period: resultData?.period || period || '30days',
+                                        dataType: resultData?.dataType || 'daily',
                                         startDate: resultData?.startDate || null,
                                         endDate: resultData?.endDate || null,
                                         error: null,
@@ -83,6 +86,7 @@ export const DayWiseAnalyticsStore = signalStore(
                                     patchState(store, {
                                         dailyData: [],
                                         period: period || '30days',
+                                        dataType: 'daily',
                                         startDate: null,
                                         endDate: null,
                                         status: Status.ERROR,

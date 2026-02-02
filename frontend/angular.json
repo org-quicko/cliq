@@ -29,6 +29,11 @@
 							{
 								"glob": "**/*",
 								"input": "projects/admin-portal/public"
+							},
+							{
+								"glob": "**/*",
+								"input": "projects/admin-portal/src/assets",
+								"output": "/assets"
 							}
 						],
 						"styles": [
@@ -99,6 +104,11 @@
 							{
 								"glob": "**/*",
 								"input": "projects/admin-portal/public"
+							},
+							{
+								"glob": "**/*",
+								"input": "projects/admin-portal/src/assets",
+								"output": "/assets"
 							}
 						],
 						"styles": [

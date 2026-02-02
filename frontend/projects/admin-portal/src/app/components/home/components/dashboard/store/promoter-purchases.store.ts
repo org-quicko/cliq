@@ -55,6 +55,7 @@ export const PromoterPurchasesStore = signalStore(
                     label: p.promoterName,
                     value: p.commission,
                     subValue: p.purchases,
+                    revenue: p.revenue,
                 }));
         }),
         // Full list (for "View all promoters") - sorted descending by purchases
@@ -65,6 +66,7 @@ export const PromoterPurchasesStore = signalStore(
                     label: p.promoterName,
                     value: p.commission,
                     subValue: p.purchases,
+                    revenue: p.revenue,
                 }));
         }),
     })),

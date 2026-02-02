@@ -41,6 +41,10 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
     labelColumn = 'Promoters';
     valueColumn = 'Commission';
+    alternateValueColumn = 'Revenue by signups';
+    
+    // Toggle state: false = Commission, true = Revenue
+    showRevenue = signal(false);
 
     readonly program = computed(() => this.programStore.program());
     readonly programId = computed(() => this.programStore.program()?.programId);
@@ -73,9 +77,10 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
     }
 
     get maxValue() {
-        return this.chartData.length > 0
-            ? Math.max(...this.chartData.map(d => d.value))
-            : 0;
+        if (this.chartData.length === 0) return 0;
+        return this.showRevenue()
+            ? Math.max(...this.chartData.map(d => d.revenue ?? 0))
+            : Math.max(...this.chartData.map(d => d.value));
     }
 
     get isLoading() {
@@ -94,6 +99,18 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         return this.program()?.currency || 'INR';
     }
 
+    get displayedValueColumn(): string {
+        return this.showRevenue() ? this.alternateValueColumn : this.valueColumn;
+    }
+
+    toggleValueType() {
+        this.showRevenue.update(v => !v);
+    }
+
+    getDisplayValue(item: any): number {
+        return this.showRevenue() ? (item.revenue ?? 0) : item.value;
+    }
+
     onNavigateToDashboard() {
         const id = this.programId();
         this.router.navigate([`/admin/${id}/home/dashboard`]);
@@ -108,7 +125,8 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         return this.periodOptions.find(p => p.value === value)?.label || 'Last 30 days';
     }
 
-    getBarWidth(value: number): number {
+    getBarWidth(item: any): number {
+        const value = this.getDisplayValue(item);
         return this.maxValue > 0 ? (value / this.maxValue) * 100 : 0;
     }
 

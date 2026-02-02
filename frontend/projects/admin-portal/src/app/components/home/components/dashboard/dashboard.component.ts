@@ -1,20 +1,21 @@
-import { Component, inject, OnInit, computed, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, computed, effect } from '@angular/core';
 import { DatePipe, NgIf, NgForOf } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormatCurrencyPipe, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ProgramStore } from '../../../../store/program.store';
+import { DateRangeStore } from '../../../../store/date-range.store';
 import { DashboardStore } from './store/dashboard.store';
 import { PromoterSignupsStore } from './store/promoter-signups.store';
 import { PromoterPurchasesStore } from './store/promoter-purchases.store';
 import { DayWiseAnalyticsStore } from './store/day-wise-analytics.store';
 import { PopularityChartComponent } from '../../../common/popularity-chart/popularity-chart.component';
 import { AnalyticsChartComponent } from '../../../common/analytics-chart/analytics-chart.component';
+import { DateRangeFilterComponent } from '../../../layout/range-selector/date-range-filter.component';
 import { Router } from '@angular/router';
 
 @Component({
@@ -28,13 +29,13 @@ import { Router } from '@angular/router';
 		MatDividerModule,
 		MatIconModule,
 		MatButtonModule,
-		MatMenuModule,
 		MatTooltipModule,
 		FormatCurrencyPipe,
 		ZeroToDashPipe,
 		NgxSkeletonLoaderModule,
 		PopularityChartComponent,
 		AnalyticsChartComponent,
+		DateRangeFilterComponent,
 	],
 	providers: [DashboardStore, PromoterSignupsStore, PromoterPurchasesStore, DayWiseAnalyticsStore],
 	templateUrl: './dashboard.component.html',
@@ -44,10 +45,50 @@ export class DashboardComponent implements OnInit {
 
 	readonly dashboardStore = inject(DashboardStore);
 	readonly programStore = inject(ProgramStore);
+	readonly dateRangeStore = inject(DateRangeStore);
 	readonly promoterSignupsStore = inject(PromoterSignupsStore);
 	readonly promoterPurchasesStore = inject(PromoterPurchasesStore);
 	readonly dayWiseAnalyticsStore = inject(DayWiseAnalyticsStore);
 	private router = inject(Router);
+
+	// For infinite-loop prevention
+	private lastProgramId: string | null = null;
+	private lastActiveRange: string | null = null;
+	private lastStart: string | null = null;
+	private lastEnd: string | null = null;
+
+	constructor() {
+		effect(() => {
+			const programId = this.programId();
+			if (!programId) return;
+
+			const activeRange = this.dateRangeStore.activeRange();
+			const start = this.dateRangeStore.start();
+			const end = this.dateRangeStore.end();
+
+			const startStr = start ? start.toISOString().split('T')[0] : null;
+			const endStr = end ? end.toISOString().split('T')[0] : null;
+
+			// Prevent infinite loops - only fetch if something actually changed
+			if (
+				this.lastProgramId === programId &&
+				this.lastActiveRange === activeRange &&
+				this.lastStart === startStr &&
+				this.lastEnd === endStr
+			) {
+				return;
+			}
+
+			// Update references
+			this.lastProgramId = programId;
+			this.lastActiveRange = activeRange;
+			this.lastStart = startStr;
+			this.lastEnd = endStr;
+
+			console.log('[Dashboard] Data changed, fetching:', { programId, activeRange, startStr, endStr });
+			this.loadAllData();
+		});
+	}
 
 	readonly isAnalyticsLoading = computed(() => this.dashboardStore.analytics().status === Status.LOADING);
 	readonly isSignupsLoading = computed(() => this.promoterSignupsStore.isLoading());
@@ -58,28 +99,18 @@ export class DashboardComponent implements OnInit {
 	readonly programId = computed(() => this.programStore.program()?.programId);
 
 	readonly analytics = computed(() => this.dashboardStore.analytics().data);
-	readonly period = computed(() => this.dashboardStore.analytics().period);
+	readonly period = computed(() => this.dashboardStore.analytics().period ?? '30days');
 	readonly dayWiseData = computed(() => {
 		const data = this.dayWiseAnalyticsStore.dailyData();
 		console.log('[Dashboard] Day-wise data received:', data);
 		return data;
 	});
+	readonly dataType = computed(() => this.dayWiseAnalyticsStore.dataType() ?? 'daily');
 
 	readonly signupsPopularityData = computed(() => this.promoterSignupsStore.topPopularityData());
 	readonly purchasesPopularityData = computed(() => this.promoterPurchasesStore.topPopularityData());
 
 	readonly today = new Date();
-
-	readonly periodOptions = [
-		{ value: '7days', label: 'Last 7 days' },
-		{ value: '30days', label: 'Last 30 days' },
-		{ value: '3months', label: 'Last 3 months' },
-		{ value: '6months', label: 'Last 6 months' },
-		{ value: '1year', label: 'Last 1 year' },
-		{ value: 'all', label: 'All time' },
-	];
-
-	selectedPeriod = signal<string>('30days');
 
 	tooltips = new Map<string, string>([
 		['revenue', 'The total value driven through all referral links'],
@@ -90,6 +121,28 @@ export class DashboardComponent implements OnInit {
 
 	ngOnInit() {
 		console.log('[Dashboard] Component initialized, programId:', this.programId());
+		// Effect will handle the initial load
+	}
+
+	/**
+	 * Convert DateRangeStore type to backend period format
+	 * Backend expects: '7days', '30days', '3months', '6months', '1year', 'all'
+	 */
+	private getPeriodValue(): string {
+		const type = this.dateRangeStore.activeRange();
+		const periodMap: Record<string, string> = {
+			'7': '7days',
+			'30': '30days',
+			'90': '3months',
+			'180': '6months',
+			'365': '1year',
+			'all': 'all',
+			'custom': 'custom'
+		};
+		return periodMap[type] || '30days';
+	}
+
+	private loadAllData() {
 		this.loadAnalytics();
 		this.loadPromoterData();
 		this.loadDayWiseAnalytics();
@@ -98,9 +151,18 @@ export class DashboardComponent implements OnInit {
 	loadAnalytics() {
 		const programId = this.programId();
 		if (programId) {
+			const period = this.getPeriodValue();
+			const start = this.dateRangeStore.start();
+			const end = this.dateRangeStore.end();
+			
 			this.dashboardStore.getProgramAnalytics({
 				programId,
-				period: this.selectedPeriod(),
+				period,
+				// Pass custom dates for 'custom' range
+				...(period === 'custom' && start && end ? {
+					startDate: start.toISOString(),
+					endDate: end.toISOString(),
+				} : {}),
 			});
 		}
 	}
@@ -108,10 +170,18 @@ export class DashboardComponent implements OnInit {
 	loadDayWiseAnalytics() {
 		const programId = this.programId();
 		if (programId) {
-			console.log('[Dashboard] Fetching day-wise analytics for programId:', programId, 'period:', this.selectedPeriod());
+			const period = this.getPeriodValue();
+			const start = this.dateRangeStore.start();
+			const end = this.dateRangeStore.end();
+			
+			console.log('[Dashboard] Fetching day-wise analytics for programId:', programId, 'period:', period);
 			this.dayWiseAnalyticsStore.fetchDayWiseAnalytics({
 				programId,
-				period: this.selectedPeriod(),
+				period,
+				...(period === 'custom' && start && end ? {
+					startDate: start.toISOString(),
+					endDate: end.toISOString(),
+				} : {}),
 			});
 		}
 	}
@@ -119,28 +189,29 @@ export class DashboardComponent implements OnInit {
 	loadPromoterData() {
 		const programId = this.programId();
 		if (programId) {
+			const period = this.getPeriodValue();
+			const start = this.dateRangeStore.start();
+			const end = this.dateRangeStore.end();
+			
 			this.promoterSignupsStore.fetchPromotersBySignups({
 				programId,
-				period: this.selectedPeriod(),
+				period,
 				take: 5,
+				...(period === 'custom' && start && end ? {
+					startDate: start.toISOString(),
+					endDate: end.toISOString(),
+				} : {}),
 			});
 			this.promoterPurchasesStore.fetchPromotersByPurchases({
 				programId,
-				period: this.selectedPeriod(),
+				period,
 				take: 5,
+				...(period === 'custom' && start && end ? {
+					startDate: start.toISOString(),
+					endDate: end.toISOString(),
+				} : {}),
 			});
 		}
-	}
-
-	onPeriodChange(period: string) {
-		this.selectedPeriod.set(period);
-		this.loadAnalytics();
-		this.loadPromoterData();
-		this.loadDayWiseAnalytics();
-	}
-
-	getPeriodLabel(value: string): string {
-		return this.periodOptions.find(p => p.value === value)?.label || 'Last 30 days';
 	}
 
 	getSignupsPromotersLink(): string {

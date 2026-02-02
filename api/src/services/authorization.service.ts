@@ -329,8 +329,8 @@ export class AuthorizationService {
 
             if (role === userRoleEnum.ADMIN || role === userRoleEnum.SUPER_ADMIN) {
 
-                // can update program or invite other users to the program
-                allow(['update', 'invite_user'], Program, { programId });
+                // can read, update program or invite other users to the program
+                allow(['read', 'update', 'invite_user'], Program, { programId });
                 allow('manage', Promoter);
 
                 // can only manage the program-promoter relations if you are admin of a program with this program ID

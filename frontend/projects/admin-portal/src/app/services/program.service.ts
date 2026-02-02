@@ -19,11 +19,16 @@ export class ProgramService {
 
     private endpoint = `${environment.base_api_url}/programs`;
 
+    getAllPrograms(): Observable<ProgramApiResponse> {
+        return this.httpClient.get<ProgramApiResponse>(this.endpoint);
+    }
+
     getProgram(programId: string): Observable<ProgramApiResponse> {
         const url = `${this.endpoint}/${programId}`;
         return this.httpClient.get<ProgramApiResponse>(url);  
     }
-getProgramReport(
+
+    getProgramReport(
         programId: string,
         options?: {
             report_period?: string,

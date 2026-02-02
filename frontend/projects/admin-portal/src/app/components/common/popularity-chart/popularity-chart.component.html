@@ -7,7 +7,14 @@
             <!-- Header row -->
             <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline px-3">
                 <div>{{ labelColumn }}</div>
-                <div>{{ valueColumn }}</div>
+                <div class="flex items-center gap-1">
+                    <span>{{ displayedValueColumn }}</span>
+                    <button *ngIf="showToggle" 
+                        (click)="toggleValueType()" 
+                        class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
+                        <img src="assets/icon.svg" alt="toggle" class="w-4 h-4" />
+                    </button>
+                </div>
             </div>
 
             <!-- Data rows -->
@@ -17,13 +24,13 @@
                         <!-- Bar background -->
                         <div class="absolute left-0 top-0 h-full rounded-md bg-inverse-on-surface 
                             transition-all duration-300 bg-surface-variant"
-                            [style.width.%]="getBarWidth(item.value)">
+                            [style.width.%]="getBarWidth(item)">
                         </div>
                         <!-- Content -->
                         <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
                             <span>{{ item.label }}</span>
                             <span class="flex items-center gap-1">
-                                <span>{{ item.value | formatCurrency:currency }}</span>
+                                <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
                                 <span *ngIf="showSubValue && item.subValue !== undefined" class="text-outline">({{ item.subValue }})</span>
                             </span>
                         </div>

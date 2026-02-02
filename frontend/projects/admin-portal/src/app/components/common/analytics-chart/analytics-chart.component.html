@@ -1,6 +1,6 @@
 <!-- ================= TABS BAR ================= -->
-<div class="border border-outline-variant rounded-t-[6px] overflow-hidden">
-  <div class="flex bg-surface-container-lowest">
+<div class="border border-b-0 border-outline-variant rounded-t-[6px] overflow-hidden">
+  <div class="flex">
 
     <!-- Signups -->
     <button
@@ -8,8 +8,8 @@
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'signups'
-        ? 'bg-white border-b-0'
-        : 'bg-surface-container-lowest border-b border-outline-variant'">
+        ? 'bg-[#FFFFFF]'
+        : 'bg-[#F8F9FA] border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'signups'"></div>
@@ -26,8 +26,8 @@
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'purchases'
-        ? 'bg-white border-b-0'
-        : 'bg-surface-container-lowest border-b border-outline-variant'">
+        ? 'bg-[#FFFFFF]'
+        : 'bg-[#F8F9FA] border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'purchases'"></div>
@@ -44,8 +44,8 @@
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'revenue'
-        ? 'bg-white border-b-0'
-        : 'bg-surface-container-lowest border-b border-outline-variant'">
+        ? 'bg-[#FFFFFF]'
+        : 'bg-[#F8F9FA] border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'revenue'"></div>
@@ -60,10 +60,10 @@
     <button
       (click)="selectMetric('commission')"
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
-             transition-colors"
+             border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'commission'
-        ? 'bg-white border-b-0'
-        : 'bg-surface-container-lowest border-b border-outline-variant'">
+        ? 'bg-[#FFFFFF]'
+        : 'bg-[#F8F9FA] border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'commission'"></div>

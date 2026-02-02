@@ -4,7 +4,7 @@
 		<!-- Header -->
 		<header class="w-full h-auto flex flex-col gap-5">
 
-			<!-- Dashboard welcome header with period selector -->
+			<!-- Dashboard welcome header with date range filter -->
 			<div class="w-full flex justify-between items-center">
 				<div>
 					<span class="text-on-surface mat-title-large">
@@ -15,19 +15,7 @@
 					</div>
 				</div>
 				<div>
-					<button mat-button [matMenuTriggerFor]="periodMenu" class="flex items-center gap-2 border border-outline-variant rounded px-4 py-2">
-						<mat-icon class="text-outline">calendar_today</mat-icon>
-						<span class="text-on-surface">{{ getPeriodLabel(selectedPeriod()) }}</span>
-						<mat-icon class="text-outline">arrow_drop_down</mat-icon>
-					</button>
-					<mat-menu #periodMenu="matMenu">
-						@for (option of periodOptions; track option.value) {
-							<button mat-menu-item (click)="onPeriodChange(option.value)" 
-								[class.bg-surface-container]="selectedPeriod() === option.value">
-								{{ option.label }}
-							</button>
-						}
-					</mat-menu>
+					<app-date-range-filter></app-date-range-filter>
 				</div>
 			</div>
 
@@ -178,10 +166,12 @@
 					[title]="'Top promoters by signups'"
 					[labelColumn]="'Promoters'"
 					[valueColumn]="'Commission'"
+					[alternateValueColumn]="'Revenue by signups'"
 					[data]="signupsPopularityData()"
 					[navigationText]="'View all promoters'"
 					[navigationLink]="getSignupsPromotersLink()"
 					[currency]="program()?.currency || 'INR'"
+					[showToggle]="true"
 				>
 				</app-popularity-chart>
 			</ng-template>
@@ -200,11 +190,13 @@
 					[title]="'Top promoters by purchases'"
 					[labelColumn]="'Promoters'"
 					[valueColumn]="'Commission'"
+					[alternateValueColumn]="'Revenue by purchases'"
 					[data]="purchasesPopularityData()"
 					[navigationText]="'View all promoters'"
 					[navigationLink]="getPurchasesPromotersLink()"
 					[showSubValue]="true"
 					[currency]="program()?.currency || 'INR'"
+					[showToggle]="true"
 				>
 				</app-popularity-chart>
 			</ng-template>
@@ -221,7 +213,8 @@
 			<ng-template #chartContent>
 				<app-analytics-chart
 					[graphData]="dayWiseData()"
-					[period]="selectedPeriod()"
+					[period]="period()"
+					[dataType]="dataType()"
 					[currency]="program()?.currency || 'INR'"
 				>
 				</app-analytics-chart>

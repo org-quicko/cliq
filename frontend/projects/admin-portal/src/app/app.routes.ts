@@ -10,31 +10,40 @@ import { ReferralsComponent } from './components/home/components/referrals/refer
 import { DashboardComponent } from './components/home/components/dashboard/dashboard.component';
 import { PromotersBySignupsComponent } from './components/home/components/promoters-by-signups/promoters-by-signups.component';
 import { PromotersByPurchasesComponent } from './components/home/components/promoters-by-purchases/promoters-by-purchases.component';
+import { LoginComponent } from './components/login/login.component';
+import { ProgramsListComponent } from './components/programs-list/programs-list.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     {
-        resolve: { program: ProgramResolver },
-        path: 'admin/:program_id',
+        path: 'admin',
         children: [
+            { path: 'login', component: LoginComponent },
+            { path: 'programs', component: ProgramsListComponent },
             {
-                path: '',
-                pathMatch: 'full',
-                redirectTo: 'home',
-            },
-            {
-                path: 'home',
-                component: LayoutComponent,
-                   children: [
-                    { path: '', component: HomeComponent },
-                    { path: 'dashboard', component: DashboardComponent },
-                    { path: 'referrals', component: ReferralsComponent },
-                    { path: 'reports', component: ReportsComponent },
-                    { path: 'circles', component: CirclesComponent },
-                    { path: 'promoters', component: PromotersComponent },
-                    { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
-                    { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
-                ]
+                resolve: { program: ProgramResolver },
+                path: ':program_id',
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        redirectTo: 'home',
+                    },
+                    {
+                        path: 'home',
+                        component: LayoutComponent,
+                        children: [
+                            { path: '', component: HomeComponent },
+                            { path: 'dashboard', component: DashboardComponent },
+                            { path: 'referrals', component: ReferralsComponent },
+                            { path: 'reports', component: ReportsComponent },
+                            { path: 'circles', component: CirclesComponent },
+                            { path: 'promoters', component: PromotersComponent },
+                            { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
+                            { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
+                        ]
+                    },
+                ],
             },
         ],
     },

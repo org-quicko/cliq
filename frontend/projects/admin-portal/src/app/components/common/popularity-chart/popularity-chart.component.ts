@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, signal, computed, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ export interface PopularityDataItem {
     label: string;
     value: number;
     subValue?: number;
+    revenue?: number;
 }
 
 @Component({
@@ -22,18 +23,36 @@ export class PopularityChartComponent {
     @Input() title: string = '';
     @Input() labelColumn: string = 'Label';
     @Input() valueColumn: string = 'Value';
+    @Input() alternateValueColumn: string = 'Revenue';
     @Input() data: PopularityDataItem[] = [];
     @Input() navigationText: string = 'View all';
     @Input() navigationLink: string = '';
     @Input() showSubValue: boolean = false;
     @Input() currency: string = 'INR';
+    @Input() showToggle: boolean = false;
+
+    // Toggle state: false = Commission (value), true = Revenue
+    showRevenue = signal(false);
+
+    toggleValueType() {
+        this.showRevenue.update(v => !v);
+    }
+
+    get displayedValueColumn(): string {
+        return this.showRevenue() ? this.alternateValueColumn : this.valueColumn;
+    }
+
+    getDisplayValue(item: PopularityDataItem): number {
+        return this.showRevenue() ? (item.revenue ?? 0) : item.value;
+    }
 
     constructor(private router: Router) {}
 
     get maxValue(): number {
-        return this.data.length > 0
-            ? Math.max(...this.data.map(d => d.value))
-            : 0;
+        if (this.data.length === 0) return 0;
+        return this.showRevenue()
+            ? Math.max(...this.data.map(d => d.revenue ?? 0))
+            : Math.max(...this.data.map(d => d.value));
     }
 
     onNavigate() {
@@ -42,7 +61,8 @@ export class PopularityChartComponent {
         }
     }
 
-    getBarWidth(value: number): number {
+    getBarWidth(item: PopularityDataItem): number {
+        const value = this.getDisplayValue(item);
         return this.maxValue > 0 ? (value / this.maxValue) * 100 : 0;
     }
 }

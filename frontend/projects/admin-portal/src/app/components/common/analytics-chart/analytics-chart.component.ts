@@ -58,6 +58,7 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     @Input() graphData: DailyData[] = [];
     @Input() period: string = '30days';
     @Input() currency: string = 'INR';
+    @Input() dataType: string = 'daily'; // 'daily', 'monthly', or 'yearly';
 
     @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
@@ -132,7 +133,7 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     ngOnInit() {}
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['graphData'] || changes['period']) this.updateChart();
+        if (changes['graphData'] || changes['period'] || changes['dataType']) this.updateChart();
     }
 
     ngOnDestroy(): void {}
@@ -271,6 +272,47 @@ backgroundColor: isLineChart
             data.forEach(p => {
                 p.xLabel = p.date.getFullYear().toString();
             });
+        } else if (period === 'custom') {
+            // Handle custom period based on dataType
+            if (this.dataType === 'yearly') {
+                // Show year for each bar (> 35 months)
+                data.forEach(p => {
+                    p.xLabel = p.date.getFullYear().toString();
+                });
+            } else if (this.dataType === 'monthly') {
+                // Show month and year for each bar (> 3 months, ≤ 35 months)
+                data.forEach(p => {
+                    p.xLabel = p.date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                });
+            } else if (this.dataType === 'weekly') {
+                // Show date with month for weekly intervals (> 30 days, ≤ 3 months)
+                data.forEach(p => {
+                    p.xLabel = p.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                });
+            } else if (this.dataType === 'daily-7') {
+                // Show day names for ≤ 7 days
+                data.forEach(p => p.xLabel = p.date.toLocaleDateString('en-US', { weekday: 'short' }));
+            } else if (this.dataType === 'daily-30') {
+                // Show date with month at intervals for ≤ 30 days
+                const interval = Math.max(1, Math.floor(data.length / 10));
+                data.forEach((p, i) => {
+                    if (i % interval === 0 || i === data.length - 1) {
+                        p.xLabel = p.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                    } else {
+                        p.xLabel = '';
+                    }
+                });
+            } else {
+                // Fallback: daily data - show date with month at intervals
+                const interval = Math.max(1, Math.floor(data.length / 10));
+                data.forEach((p, i) => {
+                    if (i % interval === 0 || i === data.length - 1) {
+                        p.xLabel = p.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                    } else {
+                        p.xLabel = '';
+                    }
+                });
+            }
         } else {
             // Default: show month names
             let lastMonth = '';
