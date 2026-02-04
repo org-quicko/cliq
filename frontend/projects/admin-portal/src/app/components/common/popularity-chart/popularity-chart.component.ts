@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf, NgForOf, CurrencyPipe } from '@angular/common';
 import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 
 export interface PopularityDataItem {
     label: string;
@@ -15,7 +16,7 @@ export interface PopularityDataItem {
 @Component({
     selector: 'app-popularity-chart',
     standalone: true,
-    imports: [MatCardModule, MatIconModule, NgIf, NgForOf, FormatCurrencyPipe],
+    imports: [MatCardModule, MatIconModule, NgIf, NgForOf, FormatCurrencyPipe, NgxSkeletonLoaderModule],
     templateUrl: './popularity-chart.component.html',
     styleUrls: ['./popularity-chart.component.css'],
 })
@@ -30,29 +31,44 @@ export class PopularityChartComponent {
     @Input() showSubValue: boolean = false;
     @Input() currency: string = 'INR';
     @Input() showToggle: boolean = false;
+    @Input() isLoading: boolean = false;
+    // When true, alternate value is subValue (count) instead of revenue
+    @Input() useSubValueAsAlternate: boolean = false;
 
-    // Toggle state: false = Commission (value), true = Revenue
-    showRevenue = signal(false);
+    // Toggle state: false = Commission (value), true = alternate value
+    showAlternate = signal(false);
 
     toggleValueType() {
-        this.showRevenue.update(v => !v);
+        this.showAlternate.update(v => !v);
     }
 
     get displayedValueColumn(): string {
-        return this.showRevenue() ? this.alternateValueColumn : this.valueColumn;
+        return this.showAlternate() ? this.alternateValueColumn : this.valueColumn;
     }
 
     getDisplayValue(item: PopularityDataItem): number {
-        return this.showRevenue() ? (item.revenue ?? 0) : item.value;
+        if (this.showAlternate()) {
+            return this.useSubValueAsAlternate ? (item.subValue ?? 0) : (item.revenue ?? 0);
+        }
+        return item.value;
+    }
+
+    // Check if we should format as currency
+    shouldFormatAsCurrency(): boolean {
+        // When showing alternate value and using subValue (count), don't format as currency
+        return !(this.showAlternate() && this.useSubValueAsAlternate);
     }
 
     constructor(private router: Router) {}
 
     get maxValue(): number {
         if (this.data.length === 0) return 0;
-        return this.showRevenue()
-            ? Math.max(...this.data.map(d => d.revenue ?? 0))
-            : Math.max(...this.data.map(d => d.value));
+        if (this.showAlternate()) {
+            return this.useSubValueAsAlternate
+                ? Math.max(...this.data.map(d => d.subValue ?? 0))
+                : Math.max(...this.data.map(d => d.revenue ?? 0));
+        }
+        return Math.max(...this.data.map(d => d.value));
     }
 
     onNavigate() {

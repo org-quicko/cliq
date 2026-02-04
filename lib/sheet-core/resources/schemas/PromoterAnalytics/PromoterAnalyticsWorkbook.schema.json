@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "enum": [
+        "promoters_analytics_workbook"
+      ]
+    },
+    "@entity": {
+      "type": "string",
+      "enum": [
+        "workbook"
+      ]
+    },
+    "sheets": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "promoter_analytics_sheet"
+                ]
+              },
+              "@entity": {
+                "type": "string",
+                "enum": [
+                  "sheet"
+                ]
+              },
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "promoter_analytics_table"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "table"
+                          ]
+                        },
+                        "header": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "program_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "promoter_id"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "promoter_name"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "total_signups"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "total_purchases"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "total_revenue"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "total_commission"
+                              ]
+                            }
+                          ],
+                          "additionalItems": false,
+                          "minItems": 7,
+                          "maxItems": 7
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ],
+                            "additionalItems": false,
+                            "minItems": 7,
+                            "maxItems": 7
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "header",
+                        "rows"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "@entity",
+              "blocks"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "@entity",
+    "sheets"
+  ]
+}

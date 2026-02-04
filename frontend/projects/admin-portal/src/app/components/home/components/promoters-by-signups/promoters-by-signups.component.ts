@@ -1,15 +1,16 @@
-import { Component, inject, OnInit, computed, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, computed, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf, NgForOf } from '@angular/common';
 import { NgxSkeletonLoaderModule } from "ngx-skeleton-loader";
 import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { PromoterSignupsStore } from '../dashboard/store/promoter-signups.store';
+import { DateRangeFilterComponent } from '../../../layout/range-selector/date-range-filter.component';
+import { DateRangeStore } from '../../../../store/date-range.store';
 
 @Component({
     selector: 'app-promoters-by-signups',
@@ -20,12 +21,12 @@ import { PromoterSignupsStore } from '../dashboard/store/promoter-signups.store'
         MatIconModule,
         MatCardModule,
         MatButtonModule,
-        MatMenuModule,
         MatProgressSpinnerModule,
         NgIf,
         NgForOf,
         NgxSkeletonLoaderModule,
         FormatCurrencyPipe,
+        DateRangeFilterComponent,
     ],
     providers: [PromoterSignupsStore]
 })
@@ -34,6 +35,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
     
     readonly programStore = inject(ProgramStore);
     readonly promoterSignupsStore = inject(PromoterSignupsStore);
+    readonly dateRangeStore = inject(DateRangeStore);
     private router = inject(Router);
 
     private scrollListener: (() => void) | null = null;
@@ -41,24 +43,28 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
     labelColumn = 'Promoters';
     valueColumn = 'Commission';
-    alternateValueColumn = 'Revenue by signups';
+    alternateValueColumn = 'Signups';
     
-    // Toggle state: false = Commission, true = Revenue
-    showRevenue = signal(false);
+    // Toggle state: false = Commission, true = Signups count
+    showSignups = signal(false);
 
     readonly program = computed(() => this.programStore.program());
     readonly programId = computed(() => this.programStore.program()?.programId);
 
-    readonly periodOptions = [
-        { value: '7days', label: 'Last 7 days' },
-        { value: '30days', label: 'Last 30 days' },
-        { value: '3months', label: 'Last 3 months' },
-        { value: '6months', label: 'Last 6 months' },
-        { value: '1year', label: 'Last 1 year' },
-        { value: 'all', label: 'All time' },
-    ];
+    constructor() {
+        // React to date range changes
+        effect(() => {
+            const programId = this.programId();
+            if (!programId) return;
 
-    selectedPeriod = signal<string>('30days');
+            const activeRange = this.dateRangeStore.activeRange();
+            const start = this.dateRangeStore.start();
+            const end = this.dateRangeStore.end();
+
+            // Fetch data when date range changes
+            this.fetchDataWithDateRange();
+        });
+    }
 
     ngOnInit() {
         this.fetchData();
@@ -78,8 +84,8 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
     get maxValue() {
         if (this.chartData.length === 0) return 0;
-        return this.showRevenue()
-            ? Math.max(...this.chartData.map(d => d.revenue ?? 0))
+        return this.showSignups()
+            ? Math.max(...this.chartData.map(d => d.subValue ?? 0))
             : Math.max(...this.chartData.map(d => d.value));
     }
 
@@ -100,15 +106,20 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
     }
 
     get displayedValueColumn(): string {
-        return this.showRevenue() ? this.alternateValueColumn : this.valueColumn;
+        return this.showSignups() ? this.alternateValueColumn : this.valueColumn;
     }
 
     toggleValueType() {
-        this.showRevenue.update(v => !v);
+        this.showSignups.update(v => !v);
     }
 
     getDisplayValue(item: any): number {
-        return this.showRevenue() ? (item.revenue ?? 0) : item.value;
+        return this.showSignups() ? (item.subValue ?? 0) : item.value;
+    }
+
+    // Check if we should format as currency
+    shouldFormatAsCurrency(): boolean {
+        return !this.showSignups();
     }
 
     onNavigateToDashboard() {
@@ -116,13 +127,8 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         this.router.navigate([`/admin/${id}/home/dashboard`]);
     }
 
-    onPeriodChange(period: string) {
-        this.selectedPeriod.set(period);
-        this.fetchData();
-    }
-
-    getPeriodLabel(value: string): string {
-        return this.periodOptions.find(p => p.value === value)?.label || 'Last 30 days';
+    onDateRangeApplied() {
+        this.fetchDataWithDateRange();
     }
 
     getBarWidth(item: any): number {
@@ -167,10 +173,14 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         if (!programId) return;
 
         const currentCount = this.chartData.length;
+        const start = this.dateRangeStore.start();
+        const end = this.dateRangeStore.end();
         
         this.promoterSignupsStore.loadMorePromotersBySignups({
             programId,
-            period: this.selectedPeriod(),
+            period: this.getPeriodValue(),
+            startDate: start ? start.toISOString().split('T')[0] : undefined,
+            endDate: end ? end.toISOString().split('T')[0] : undefined,
             skip: currentCount,
             take: this.PAGE_SIZE,
         });
@@ -182,9 +192,40 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
         this.promoterSignupsStore.fetchPromotersBySignups({
             programId,
-            period: this.selectedPeriod(),
+            period: this.getPeriodValue(),
             skip: 0,
             take: this.PAGE_SIZE,
         });
+    }
+
+    private fetchDataWithDateRange() {
+        const programId = this.programId();
+        if (!programId) return;
+
+        const start = this.dateRangeStore.start();
+        const end = this.dateRangeStore.end();
+
+        this.promoterSignupsStore.fetchPromotersBySignups({
+            programId,
+            period: this.getPeriodValue(),
+            startDate: start ? start.toISOString().split('T')[0] : undefined,
+            endDate: end ? end.toISOString().split('T')[0] : undefined,
+            skip: 0,
+            take: this.PAGE_SIZE,
+        });
+    }
+
+    private getPeriodValue(): string {
+        const type = this.dateRangeStore.activeRange();
+        const periodMap: Record<string, string> = {
+            '7': '7days',
+            '30': '30days',
+            '90': '3months',
+            '180': '6months',
+            '365': '1year',
+            'all': 'all',
+            'custom': 'custom'
+        };
+        return periodMap[type] || '30days';
     }
 }

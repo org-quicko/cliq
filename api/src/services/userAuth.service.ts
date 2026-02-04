@@ -9,6 +9,8 @@ import { audienceEnum } from 'src/enums/audience.enum';
 
 export interface UserLoginData extends LoginData {
 	user_id: string;
+	first_name: string;
+	last_name: string;
 }
 
 @Injectable()
@@ -65,6 +67,8 @@ export class UserAuthService {
 				logInData = {
 					user_id: entity.userId,
 					email: entity.email,
+					first_name: entity.firstName,
+					last_name: entity.lastName,
 				};
 			}
 		}
@@ -79,6 +83,8 @@ export class UserAuthService {
 		const tokenPayload = {
 			sub: entity.user_id,
 			email: entity.email,
+			firstName: entity.first_name,
+			lastName: entity.last_name,
 			aud: audienceEnum.PROGRAM_USER,
 		};
 

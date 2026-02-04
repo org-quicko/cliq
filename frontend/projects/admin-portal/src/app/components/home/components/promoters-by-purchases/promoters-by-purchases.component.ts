@@ -1,15 +1,16 @@
-import { Component, inject, OnInit, computed, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, computed, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf, NgForOf } from '@angular/common';
 import { NgxSkeletonLoaderModule } from "ngx-skeleton-loader";
 import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { PromoterPurchasesStore } from '../dashboard/store/promoter-purchases.store';
+import { DateRangeFilterComponent } from '../../../layout/range-selector/date-range-filter.component';
+import { DateRangeStore } from '../../../../store/date-range.store';
 
 @Component({
     selector: 'app-promoters-by-purchases',
@@ -20,12 +21,12 @@ import { PromoterPurchasesStore } from '../dashboard/store/promoter-purchases.st
         MatIconModule,
         MatCardModule,
         MatButtonModule,
-        MatMenuModule,
         MatProgressSpinnerModule,
         NgIf,
         NgForOf,
         NgxSkeletonLoaderModule,
         FormatCurrencyPipe,
+        DateRangeFilterComponent,
     ],
     providers: [PromoterPurchasesStore]
 })
@@ -34,6 +35,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
     
     readonly programStore = inject(ProgramStore);
     readonly promoterPurchasesStore = inject(PromoterPurchasesStore);
+    readonly dateRangeStore = inject(DateRangeStore);
     private router = inject(Router);
 
     private scrollListener: (() => void) | null = null;
@@ -41,7 +43,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
 
     labelColumn = 'Promoters';
     valueColumn = 'Commission';
-    alternateValueColumn = 'Revenue by purchases';
+    alternateValueColumn = 'Revenue';
     
     // Toggle state: false = Commission, true = Revenue
     showRevenue = signal(false);
@@ -49,16 +51,20 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
     readonly program = computed(() => this.programStore.program());
     readonly programId = computed(() => this.programStore.program()?.programId);
 
-    readonly periodOptions = [
-        { value: '7days', label: 'Last 7 days' },
-        { value: '30days', label: 'Last 30 days' },
-        { value: '3months', label: 'Last 3 months' },
-        { value: '6months', label: 'Last 6 months' },
-        { value: '1year', label: 'Last 1 year' },
-        { value: 'all', label: 'All time' },
-    ];
+    constructor() {
+        // React to date range changes
+        effect(() => {
+            const programId = this.programId();
+            if (!programId) return;
 
-    selectedPeriod = signal<string>('30days');
+            const activeRange = this.dateRangeStore.activeRange();
+            const start = this.dateRangeStore.start();
+            const end = this.dateRangeStore.end();
+
+            // Fetch data when date range changes
+            this.fetchDataWithDateRange();
+        });
+    }
 
     ngOnInit() {
         this.fetchData();
@@ -116,13 +122,8 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
         this.router.navigate([`/admin/${id}/home/dashboard`]);
     }
 
-    onPeriodChange(period: string) {
-        this.selectedPeriod.set(period);
-        this.fetchData();
-    }
-
-    getPeriodLabel(value: string): string {
-        return this.periodOptions.find(p => p.value === value)?.label || 'Last 30 days';
+    onDateRangeApplied() {
+        this.fetchDataWithDateRange();
     }
 
     getBarWidth(item: any): number {
@@ -167,10 +168,14 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
         if (!programId) return;
 
         const currentCount = this.chartData.length;
+        const start = this.dateRangeStore.start();
+        const end = this.dateRangeStore.end();
         
         this.promoterPurchasesStore.loadMorePromotersByPurchases({
             programId,
-            period: this.selectedPeriod(),
+            period: this.getPeriodValue(),
+            startDate: start ? start.toISOString().split('T')[0] : undefined,
+            endDate: end ? end.toISOString().split('T')[0] : undefined,
             skip: currentCount,
             take: this.PAGE_SIZE,
         });
@@ -182,9 +187,40 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
 
         this.promoterPurchasesStore.fetchPromotersByPurchases({
             programId,
-            period: this.selectedPeriod(),
+            period: this.getPeriodValue(),
             skip: 0,
             take: this.PAGE_SIZE,
         });
+    }
+
+    private fetchDataWithDateRange() {
+        const programId = this.programId();
+        if (!programId) return;
+
+        const start = this.dateRangeStore.start();
+        const end = this.dateRangeStore.end();
+
+        this.promoterPurchasesStore.fetchPromotersByPurchases({
+            programId,
+            period: this.getPeriodValue(),
+            startDate: start ? start.toISOString().split('T')[0] : undefined,
+            endDate: end ? end.toISOString().split('T')[0] : undefined,
+            skip: 0,
+            take: this.PAGE_SIZE,
+        });
+    }
+
+    private getPeriodValue(): string {
+        const type = this.dateRangeStore.activeRange();
+        const periodMap: Record<string, string> = {
+            '7': '7days',
+            '30': '30days',
+            '90': '3months',
+            '180': '6months',
+            '365': '1year',
+            'all': 'all',
+            'custom': 'custom'
+        };
+        return periodMap[type] || '30days';
     }
 }

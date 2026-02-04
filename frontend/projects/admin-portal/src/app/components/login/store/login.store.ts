@@ -1,27 +1,30 @@
 import { signalStore, withMethods, withState } from '@ngrx/signals';
-import { MemberDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { MemberDto, SnackbarService, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 import { AdminService } from '../../../services/admin.service';
 import { EventEmitter, inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { pipe, switchMap } from 'rxjs';
+import { pipe, switchMap, catchError, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Status } from '@org.quicko.cliq/ngx-core';
+import { ProgramService } from '../../../services/program.service';
 
 export interface LogInState {
 	admin: MemberDto | null;
 	status: Status;
+	isSuperAdmin: boolean;
 	error: any;
 }
 
 const initialLogInState: LogInState = {
 	admin: null,
 	status: Status.PENDING,
+	isSuperAdmin: false,
 	error: null,
 };
 
-export const onSignInSuccess: EventEmitter<boolean> = new EventEmitter();
+export const onSignInSuccess: EventEmitter<{ isSuperAdmin: boolean }> = new EventEmitter();
 export const onSignInError: EventEmitter<string> = new EventEmitter();
 
 export const LogInStore = signalStore(
@@ -32,6 +35,7 @@ export const LogInStore = signalStore(
 			store,
 			adminService = inject(AdminService),
 			authService = inject(AuthService),
+			programService = inject(ProgramService),
 			snackBarService = inject(SnackbarService)
 		) => ({
 
@@ -42,7 +46,21 @@ export const LogInStore = signalStore(
 							tapResponse({
 								next: (response) => {
 									authService.setToken(response.data!.access_token);
-									onSignInSuccess.emit(true);
+									
+									// Check if user is super admin by trying to access programs/summary
+									programService.getProgramSummary({ take: 1 }).pipe(
+										catchError(() => of(null))
+									).subscribe({
+										next: (summaryResponse) => {
+											// If we get a response, user is super admin
+											const isSuperAdmin = summaryResponse !== null;
+											onSignInSuccess.emit({ isSuperAdmin });
+										},
+										error: () => {
+											// If we get 403, user is not super admin
+											onSignInSuccess.emit({ isSuperAdmin: false });
+										}
+									});
 								},
 								error: (error: HttpErrorResponse) => {
 									console.error(error.error.message);

@@ -1,0 +1,72 @@
+<div class="flex flex-col gap-8 w-[712px]">
+    <div class="mat-headline-small m-0 text-on-surface">Create a program</div>
+    <form [formGroup]="createProgramForm" class="flex flex-col gap-6">
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Program name</mat-label>
+            <input matInput type="text" formControlName="name" />
+            @if(createProgramForm.get('name')?.hasError('required') && createProgramForm.get('name')?.touched) {
+                <mat-error>Program name is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Website URL</mat-label>
+            <input matInput type="text" formControlName="website" placeholder="https://example.com" />
+            @if(createProgramForm.get('website')?.hasError('required') && createProgramForm.get('website')?.touched) {
+                <mat-error>Website is required</mat-error>
+            }
+        </mat-form-field>
+
+        <div class="flex gap-4">
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Visibility</mat-label>
+                <mat-select formControlName="visibility">
+                    @for(option of visibilityOptions; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                </mat-select>
+                @if(createProgramForm.get('visibility')?.hasError('required') && createProgramForm.get('visibility')?.touched) {
+                    <mat-error>Visibility is required</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Referral key type</mat-label>
+                <mat-select formControlName="referralKeyType">
+                    @for(option of referralKeyTypeOptions; track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                </mat-select>
+                @if(createProgramForm.get('referralKeyType')?.hasError('required') && createProgramForm.get('referralKeyType')?.touched) {
+                    <mat-error>Referral key type is required</mat-error>
+                }
+            </mat-form-field>
+        </div>
+
+        <div class="flex gap-4">
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Currency</mat-label>
+                <mat-select formControlName="currency">
+                    @for(currency of currencyList; track currency.code) {
+                        <mat-option [value]="currency.code">{{ currency.text }}</mat-option>
+                    }
+                </mat-select>
+                @if(createProgramForm.get('currency')?.hasError('required') && createProgramForm.get('currency')?.touched) {
+                    <mat-error>Currency is required</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+                <mat-label>Time Zone</mat-label>
+                <mat-select formControlName="timeZone">
+                    @for(timezone of timezoneList; track timezone.code) {
+                        <mat-option [value]="timezone.code">{{ timezone.text }}</mat-option>
+                    }
+                </mat-select>
+                @if(createProgramForm.get('timeZone')?.hasError('required') && createProgramForm.get('timeZone')?.touched) {
+                    <mat-error>Time zone is required</mat-error>
+                }
+            </mat-form-field>
+        </div>
+    </form>
+</div>

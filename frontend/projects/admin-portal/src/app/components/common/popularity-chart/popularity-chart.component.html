@@ -1,9 +1,21 @@
-<mat-card class="rounded-lg border border-outline-variant flex flex-col">
-    <div class="p-4">
-        <!-- Title -->
-        <div class="mat-body-large text-on-surface mb-4">{{ title }}</div>
+<div class="flex flex-col">
+	<!-- Title outside the card with skeleton loading -->
+	@if (isLoading) {
+		<ngx-skeleton-loader [theme]="{
+			width: '40%',
+			height: '24px',
+			borderRadius: '4px',
+			backgroundColor: '#E9E4F0',
+			marginBottom: '16px'
+		}"></ngx-skeleton-loader>
+	} @else {
+		<div class="mat-body-large text-on-surface mb-4">{{ title }}</div>
+	}
 
-        <div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
+	<!-- Card content -->
+	<mat-card class="rounded-lg border border-outline-variant flex flex-col">
+		<div class="p-4">
+			<div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
             <!-- Header row -->
             <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline px-3">
                 <div>{{ labelColumn }}</div>
@@ -30,8 +42,12 @@
                         <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
                             <span>{{ item.label }}</span>
                             <span class="flex items-center gap-1">
-                                <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
-                                <span *ngIf="showSubValue && item.subValue !== undefined" class="text-outline">({{ item.subValue }})</span>
+                                @if (shouldFormatAsCurrency()) {
+                                    <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
+                                } @else {
+                                    <span>{{ getDisplayValue(item) }}</span>
+                                }
+                                <span *ngIf="showSubValue && item.subValue !== undefined && !useSubValueAsAlternate" class="text-outline">({{ item.subValue }})</span>
                             </span>
                         </div>
                     </div>
@@ -47,11 +63,9 @@
             </ng-template>
         </div>
 
-        <!-- Navigation link -->
-        <div *ngIf="navigationLink " 
-            class="mt-4 text-primary mat-body-medium cursor-pointer hover:underline"
-            (click)="onNavigate()">
-            {{ navigationText }}
-        </div>
-    </div>
-</mat-card>
+		<!-- Navigation link -->
+		<div *ngIf="navigationLink " 
+			class="mt-4 text-primary mat-body-medium cursor-pointer hover:underline p-4"
+			(click)="onNavigate()">
+			{{ navigationText }}
+		</div>

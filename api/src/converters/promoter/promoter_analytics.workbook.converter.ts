@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from '../../services/logger.service';
 import { ConverterException } from '@org-quicko/core';
-import { PromoterWorkbook, PromoterAnalyticsRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
+import { PromotersAnalyticsWorkbook, PromoterAnalyticsRow } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 
 
 export interface IPromoterAnalyticsData {
@@ -36,7 +36,7 @@ export class PromoterAnalyticsConverter {
     try {
         this.logger.info('START: convert function: PromoterAnalyticsConverter');
 
-        const workbook = new PromoterWorkbook();
+        const workbook = new PromotersAnalyticsWorkbook();
 
 
         const sheet = workbook.getPromoterAnalyticsSheet();

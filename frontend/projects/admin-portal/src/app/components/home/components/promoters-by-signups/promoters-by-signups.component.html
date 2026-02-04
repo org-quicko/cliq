@@ -8,26 +8,14 @@
         </div>
     </div>
 
-    <!-- Header with Period Selector -->
+    <!-- Header with Date Range Filter -->
     <div class="flex flex-col gap-3 mb-4">
         <div class="flex items-center justify-between w-full">
             <div class="mat-headline-medium text-on-surface">
                 Top promoters by signups
             </div>
             <div>
-                <button mat-button [matMenuTriggerFor]="periodMenu" class="flex items-center gap-2 border border-outline-variant rounded px-4 py-2">
-                    <mat-icon class="text-outline">calendar_today</mat-icon>
-                    <span class="text-on-surface">{{ getPeriodLabel(selectedPeriod()) }}</span>
-                    <mat-icon class="text-outline">arrow_drop_down</mat-icon>
-                </button>
-                <mat-menu #periodMenu="matMenu">
-                    <button *ngFor="let option of periodOptions" 
-                        mat-menu-item 
-                        (click)="onPeriodChange(option.value)"
-                        [class.bg-surface-container]="selectedPeriod() === option.value">
-                        {{ option.label }}
-                    </button>
-                </mat-menu>
+                <app-date-range-filter (rangeApplied)="onDateRangeApplied()"></app-date-range-filter>
             </div>
         </div>
     </div>
@@ -70,7 +58,8 @@
                                 </div>
                                 <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
                                     <span>{{ item.label }}</span>
-                                    <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
+                                    <span *ngIf="shouldFormatAsCurrency()">{{ getDisplayValue(item) | formatCurrency:currency }}</span>
+                                    <span *ngIf="!shouldFormatAsCurrency()">{{ getDisplayValue(item) }}</span>
                                 </div>
                             </div>
                         </div>

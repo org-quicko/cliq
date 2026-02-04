@@ -58,6 +58,16 @@
 			"import": "./dist/esm/generated/sources/ProgramAnalytics/index.js",
 			"require": "./dist/cjs/generated/sources/ProgramAnalytics/index.cjs",
 			"types": "./dist/types/generated/sources/ProgramAnalytics/index.d.ts"
+		},
+		"./PromoterAnalytics/beans": {
+			"import": "./dist/esm/generated/sources/PromoterAnalytics/index.js",
+			"require": "./dist/cjs/generated/sources/PromoterAnalytics/index.cjs",
+			"types": "./dist/types/generated/sources/PromoterAnalytics/index.d.ts"
+		},
+		"./ProgramSummaryView/beans": {
+			"import": "./dist/esm/generated/sources/ProgramSummaryView/index.js",
+			"require": "./dist/cjs/generated/sources/ProgramSummaryView/index.cjs",
+			"types": "./dist/types/generated/sources/ProgramSummaryView/index.d.ts"
 		}
 	},
 	"typesVersions": {
@@ -82,6 +92,12 @@
 			],
 			"ProgramAnalytics/beans": [
 				"dist/generated/sources/ProgramAnalytics/index.d.ts"
+			],
+			"PromoterAnalytics/beans": [
+				"dist/generated/sources/PromoterAnalytics/index.d.ts"
+			],
+			"ProgramSummaryView/beans": [
+				"dist/generated/sources/ProgramSummaryView/index.d.ts"
 			]
 		}
 	},

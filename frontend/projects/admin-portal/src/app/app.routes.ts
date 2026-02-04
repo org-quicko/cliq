@@ -12,14 +12,27 @@ import { PromotersBySignupsComponent } from './components/home/components/promot
 import { PromotersByPurchasesComponent } from './components/home/components/promoters-by-purchases/promoters-by-purchases.component';
 import { LoginComponent } from './components/login/login.component';
 import { ProgramsListComponent } from './components/programs-list/programs-list.component';
+import { SuperAdminSetupComponent } from './components/super-admin-setup/super-admin-setup.component';
+import { SuperAdminProgramsComponent } from './components/super-admin-programs/super-admin-programs.component';
+import { CreateProgramContainerComponent } from './components/create-program-container/create-program-container.component';
+import { CreateProgramComponent } from './components/create-program-container/create-program/create-program.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
+    { path: 'setup', component: SuperAdminSetupComponent },
     {
         path: 'admin',
         children: [
             { path: 'login', component: LoginComponent },
             { path: 'programs', component: ProgramsListComponent },
+            { path: 'programs/summary', component: SuperAdminProgramsComponent },
+            {
+                path: 'programs/create',
+                component: CreateProgramContainerComponent,
+                children: [
+                    { path: '', component: CreateProgramComponent },
+                ],
+            },
             {
                 resolve: { program: ProgramResolver },
                 path: ':program_id',

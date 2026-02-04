@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { ProgramService } from '../services/program.service';
 import { ProgramDto, Status } from '@org.quicko.cliq/ngx-core';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
-import { pipe, switchMap, tap } from 'rxjs';
+import { catchError, of, pipe, switchMap, tap } from 'rxjs';
 
 export interface ProgramWithRole extends ProgramDto {
 	role?: string;
@@ -14,12 +14,14 @@ export interface ProgramsListStoreState {
 	programs: ProgramWithRole[];
 	error: any | null;
 	status: Status;
+	isSuperAdmin: boolean;
 }
 
 export const initialProgramsListState: ProgramsListStoreState = {
 	programs: [],
 	error: null,
-	status: Status.PENDING
+	status: Status.PENDING,
+	isSuperAdmin: false
 };
 
 export const ProgramsListStore = signalStore(
@@ -38,28 +40,67 @@ export const ProgramsListStore = signalStore(
 						console.log('[ProgramsListStore] Fetching programs...');
 						patchState(store, { status: Status.PENDING });
 					}),
-					switchMap(() => programService.getAllPrograms()),
-					tap({
-						next: (response) => {
-							console.log('[ProgramsListStore] Programs fetched successfully:', response);
-						console.log('[ProgramsListStore] Number of programs:', response.data?.length || 0);
-						console.log('[ProgramsListStore] Raw program data:', response.data);
-						// Use data as-is from backend - don't remap
-						const programs = response.data || [];
-						patchState(store, { 
-							programs,
-							status: Status.SUCCESS 
-						});
-						},
-						error: (error) => {
-							console.error('[ProgramsListStore] Error fetching programs:', error);
-							console.error('[ProgramsListStore] Error details:', error.error);
+					// First try super admin endpoint (programs/summary)
+					switchMap(() => programService.getProgramSummary({ take: 100 }).pipe(
+						switchMap((summaryResponse) => {
+							console.log('[ProgramsListStore] Super admin summary response:', summaryResponse);
+							let superAdminPrograms: ProgramWithRole[] = [];
+							
+							if (summaryResponse.data) {
+								const workbook = summaryResponse.data;
+								const sheet = workbook?.sheets?.[0];
+								const table = sheet?.blocks?.[0];
+								const rows = table?.rows || [];
+								
+								// Map workbook rows to ProgramWithRole
+								superAdminPrograms = rows.map((row: any[]) => ({
+									programId: row[0],
+									name: row[1],
+									role: 'super_admin'
+								} as ProgramWithRole));
+							}
+							
+							console.log('[ProgramsListStore] Setting isSuperAdmin to TRUE, programs:', superAdminPrograms.length);
 							patchState(store, { 
-								error, 
-								status: Status.ERROR,
-								programs: []
+								programs: superAdminPrograms,
+								status: Status.SUCCESS,
+								isSuperAdmin: true
 							});
-						}
+							return of(null);
+						}),
+						catchError((error) => {
+							// Not a super admin (403 Forbidden), fall back to regular programs endpoint
+							console.log('[ProgramsListStore] Not a super admin, falling back to /programs');
+							return programService.getAllPrograms().pipe(
+								tap((response) => {
+									console.log('[ProgramsListStore] Regular programs response:', response);
+									const programs = response.data || [];
+									patchState(store, { 
+										programs,
+										status: Status.SUCCESS,
+										isSuperAdmin: false
+									});
+								}),
+								catchError((innerError) => {
+									console.error('[ProgramsListStore] Error fetching regular programs:', innerError);
+									patchState(store, { 
+										error: innerError, 
+										status: Status.ERROR,
+										programs: []
+									});
+									return of(null);
+								})
+							);
+						})
+					)),
+					catchError((error) => {
+						console.error('[ProgramsListStore] Error fetching programs:', error);
+						patchState(store, { 
+							error, 
+							status: Status.ERROR,
+							programs: []
+						});
+						return of(null);
 					})
 				)
 			),

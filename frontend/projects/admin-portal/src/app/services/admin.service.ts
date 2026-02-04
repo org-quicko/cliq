@@ -27,11 +27,11 @@ export class AdminService {
 	}
 
 	getAdmin(programId: string) {
-		if (!this.authService.getMemberEmailId()) {
+		if (!this.authService.getUserEmail()) {
 			throw new Error('Admin not found');
 		}
 
-		const adminId = this.authService.getMemberId();
+		const adminId = this.authService.getUserId();
 
 		const url = `${this.getEndpoint(programId)}/admins/${adminId}`;
 

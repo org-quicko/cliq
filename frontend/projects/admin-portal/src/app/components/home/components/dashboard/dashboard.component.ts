@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, computed, effect } from '@angular/core';
-import { DatePipe, NgIf, NgForOf } from '@angular/common';
+import { DatePipe, NgIf} from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,7 +24,6 @@ import { Router } from '@angular/router';
 	imports: [
 		DatePipe,
 		NgIf,
-		NgForOf,
 		MatCardModule,
 		MatDividerModule,
 		MatIconModule,

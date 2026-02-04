@@ -1,32 +1,32 @@
 services:
-  cliq-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
-    env_file:
-      - ./.env
-    environment:
-      - PORT=3001
-      - DB_PORT=5432
-      - DB_HOST=cliq-db
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
-      - DB_NAME=cliq
-      - REDIS_HOST=cliq-redis
-      - REDIS_PORT=6379
-      - SALT_ROUNDS=10
-      - NODE_ENV=production
-      - JWT_SECRET
-      - JWT_EXPIRES_IN
-    depends_on:
-      cliq-db:
-        condition: service_healthy
-      cliq-redis:
-        condition: service_healthy
-    networks:
-      - cliq-network
+  # cliq-app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3001:3001"
+  #   env_file:
+  #     - ./.env
+  #   environment:
+  #     - PORT=3001
+  #     - DB_PORT=5432
+  #     - DB_HOST=cliq-db
+  #     - DB_USERNAME=root
+  #     - DB_PASSWORD=root
+  #     - DB_NAME=cliq
+  #     - REDIS_HOST=cliq-redis
+  #     - REDIS_PORT=6379
+  #     - SALT_ROUNDS=10
+  #     - NODE_ENV=production
+  #     - JWT_SECRET
+  #     - JWT_EXPIRES_IN
+  #   depends_on:
+  #     cliq-db:
+  #       condition: service_healthy
+  #     cliq-redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - cliq-network
 
   cliq-db:
     image: postgres:17

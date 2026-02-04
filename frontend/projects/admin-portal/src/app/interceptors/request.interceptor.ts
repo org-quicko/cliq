@@ -19,7 +19,7 @@ export class RequestInterceptor implements HttpInterceptor {
 	): Observable<HttpEvent<any>> {
 
 		if (this.authService.isAuthenticated()) {
-			const userId = this.authService.getMemberId();
+			const userId = this.authService.getUserId();
 			const headers: any = {
 				Authorization: this.authService.getToken(),
 			};

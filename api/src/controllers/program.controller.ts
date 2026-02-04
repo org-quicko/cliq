@@ -88,6 +88,35 @@ export class ProgramController {
   }
 
   /**
+   * Get program summary list (Super Admin Only)
+   */
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Super Admin Only' })
+  @Permissions('read_all', Program)
+  @Get('summary')
+  async getProgramSummaryList(
+    @Headers('user_id') userId: string,
+    @Query('program_id') programId?: string,
+    @Query('skip') skip: number = 0,
+    @Query('take') take: number = 10,
+  ) {
+    this.logger.info('START: getProgramSummaryList controller');
+
+    const result = await this.programService.getProgramSummaryList(
+      userId,
+      programId,
+      skip,
+      take,
+    );
+
+    this.logger.info('END: getProgramSummaryList controller');
+    return {
+      message: 'Successfully fetched program summary list.',
+      result
+    };
+  }
+
+  /**
    * Get program
    */
   @ApiResponse({ status: undefined, description: '' })

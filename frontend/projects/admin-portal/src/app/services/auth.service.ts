@@ -45,18 +45,47 @@ export class AuthService {
 		return this.cookieService.get('CLIQ_ACCESS_TOKEN');
 	}
 
-	public getMemberEmailId(): string | null {
+	public getUserId(): string | null {
 		if (this.getToken() != null && this.getToken() != '') {
 			const jwtToken = this.jwtHelper.decodeToken(this.getToken());
-			return jwtToken['email'];
+			return jwtToken['sub'];
 		}
 		return null;
 	}
 
-	public getMemberId(): string | null {
+	public getUserFirstName(): string | null {
 		if (this.getToken() != null && this.getToken() != '') {
 			const jwtToken = this.jwtHelper.decodeToken(this.getToken());
-			return jwtToken['sub'];
+			return jwtToken['firstName'];
+		}
+		return null;
+	}
+
+	public getUserLastName(): string | null {
+		if (this.getToken() != null && this.getToken() != '') {
+			const jwtToken = this.jwtHelper.decodeToken(this.getToken());
+			return jwtToken['lastName'];
+		}
+		return null;
+	}
+
+	public getUserName(): string | null {
+		const firstName = this.getUserFirstName();
+		const lastName = this.getUserLastName();
+		if (firstName && lastName) {
+			return `${firstName} ${lastName}`;
+		} else if (firstName) {
+			return firstName;
+		} else if (lastName) {
+			return lastName;
+		}
+		return null;
+	}
+
+	public getUserEmail(): string | null {
+		if (this.getToken() != null && this.getToken() != '') {
+			const jwtToken = this.jwtHelper.decodeToken(this.getToken());
+			return jwtToken['email'];
 		}
 		return null;
 	}

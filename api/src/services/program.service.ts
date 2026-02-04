@@ -38,6 +38,8 @@ import { PassThrough, Transform } from 'node:stream';
 import { BadRequestException } from '@org-quicko/core';
 import { ProgramAnalyticsConverter } from '../converters/program/program_analytics.workbook.converter';
 import { PromoterAnalyticsConverter } from '../converters/promoter/promoter_analytics.workbook.converter';
+import { ProgramSummaryViewConverter } from '../converters/program/program_summary_view.workbook.converter';
+import { ProgramSummaryView } from '../entities/programSummaryView.entity';
 
 @Injectable()
 export class ProgramService {
@@ -66,6 +68,9 @@ export class ProgramService {
 		@InjectRepository(PromoterAnalyticsDayWiseView)
 		private readonly promoterAnalyticsDayWiseViewRepository: Repository<PromoterAnalyticsDayWiseView>,
 
+		@InjectRepository(ProgramSummaryView)
+		private readonly programSummaryViewRepository: Repository<ProgramSummaryView>,
+
 		private userService: UserService,
 
 		private programConverter: ProgramConverter,
@@ -77,6 +82,7 @@ export class ProgramService {
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
 		private promoterAnalyticsConverter: PromoterAnalyticsConverter,
+		private programSummaryViewConverter: ProgramSummaryViewConverter,
 
 		private datasource: DataSource,
 
@@ -1056,18 +1062,18 @@ existing.commission += Number(analytics.dailyCommission || 0);
 				select: ['promoterId', 'name'],
 			});
 
-		// const promoterNameMap = new Map(
-		// 	promoters.map(p => [p.promoterId, p.name])
-		// );
+		const promoterNameMap = new Map(
+			promoters.map(p => [p.promoterId, p.name])
+		);
 
-		// const result = paginatedData.map(p => ({
-		// 	promoterId: p.promoterId,
-		// 	promoterName: promoterNameMap.get(p.promoterId) || 'Unknown',
-		// 	signups: p.signups,
-		// 	purchases: p.purchases,
-		// 	revenue: p.revenue,
-		// 	commission: p.commission,
-		// }));
+		const result = paginatedData.map(p => ({
+			promoterId: p.promoterId,
+			promoterName: promoterNameMap.get(p.promoterId) || 'Unknown',
+			signups: p.signups,
+			purchases: p.purchases,
+			revenue: p.revenue,
+			commission: p.commission,
+		}));
 
 		// ===================== TEST DATA - Commented out for future testing =====================
 		const resultTest = [
@@ -1398,15 +1404,15 @@ existing.commission += Number(analytics.dailyCommission || 0);
 
 		this.logger.info('END: getPromoterAnalytics service');
 
-		
+		const testTotalCount = resultTest.length;
 		return this.promoterAnalyticsConverter.convert({
 			programId,
-			promoters: resultTest,
+			promoters: resultTest.slice(skip, skip + take),
 			pagination: {
-				total: totalCount,
+				total: testTotalCount,
 				skip,
 				take,
-				hasMore: skip + take < totalCount,
+				hasMore: skip + take < testTotalCount,
 			},
 			sortBy,
 			period,
@@ -1740,5 +1746,77 @@ existing.commission += Number(analytics.dailyCommission || 0);
 		const start = new Date(startDate);
 		const end = new Date(endDate);
 		return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+	}
+
+	/**
+	 * Get program summary list for super admin
+	 */
+	async getProgramSummaryList(
+		userId: string,
+		programId?: string,
+		skip: number = 0,
+		take: number = 10,
+	) {
+		this.logger.info('START: getProgramSummaryList service');
+
+		// Check if user is super admin by checking the User table's role field
+		const user = await this.userService.getUserEntity(userId);
+
+		if (!user || user.role !== userRoleEnum.SUPER_ADMIN) {
+			this.logger.error(`User ${userId} is not authorized to access program summary. Not a super admin.`);
+			throw new ForbiddenException('Only super admins can access program summary list');
+		}
+
+		// Refresh the materialized views to get latest data
+		try {
+			// Refresh referral_mv first (dependency)
+			await this.datasource.query('REFRESH MATERIALIZED VIEW CONCURRENTLY referral_mv');
+			this.logger.info('Refreshed referral_mv');
+		} catch (error) {
+			this.logger.warn('Failed to refresh referral_mv, trying without CONCURRENTLY:', error);
+			try {
+				await this.datasource.query('REFRESH MATERIALIZED VIEW referral_mv');
+			} catch (innerError) {
+				this.logger.warn('Failed to refresh referral_mv:', innerError);
+			}
+		}
+
+		try {
+			// Then refresh program_summary_mv
+			await this.datasource.query('REFRESH MATERIALIZED VIEW program_summary_mv');
+			this.logger.info('Refreshed program_summary_mv');
+		} catch (error) {
+			this.logger.warn('Failed to refresh program_summary_mv:', error);
+		}
+
+		const whereClause = programId ? { programId } : {};
+
+		const [programSummaries, totalCount] = await this.programSummaryViewRepository.findAndCount({
+			where: whereClause,
+			order: {
+				createdAt: 'DESC',
+			},
+			skip,
+			take,
+		});
+
+		const result = this.programSummaryViewConverter.convert({
+			programs: programSummaries.map(ps => ({
+				programId: ps.programId,
+				programName: ps.programName,
+				totalPromoters: Number(ps.totalPromoters),
+				totalReferrals: Number(ps.totalReferrals),
+				createdAt: ps.createdAt,
+			})),
+			pagination: {
+				total: totalCount,
+				skip,
+				take,
+				hasMore: skip + take < totalCount,
+			},
+		});
+
+		this.logger.info('END: getProgramSummaryList service');
+		return result;
 	}
 }

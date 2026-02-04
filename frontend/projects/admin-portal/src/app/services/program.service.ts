@@ -161,4 +161,41 @@ export class ProgramService {
 
         return this.httpClient.get<ProgramApiResponse>(url, { params });
     }
+
+    /**
+     * Get program summary list for super admin
+     */
+    getProgramSummary(
+        options?: {
+            programId?: string;
+            name?: string;
+            skip?: number;
+            take?: number;
+        }
+    ): Observable<ProgramApiResponse> {
+        const url = `${this.endpoint}/summary`;
+
+        let params = new HttpParams();
+        if (options?.programId) {
+            params = params.set('program_id', options.programId);
+        }
+        if (options?.name) {
+            params = params.set('name', options.name);
+        }
+        if (options?.skip !== undefined) {
+            params = params.set('skip', options.skip.toString());
+        }
+        if (options?.take !== undefined) {
+            params = params.set('take', options.take.toString());
+        }
+
+        return this.httpClient.get<ProgramApiResponse>(url, { params });
+    }
+
+    /**
+     * Create a new program (Super Admin Only)
+     */
+    createProgram(body: any): Observable<ProgramApiResponse> {
+        return this.httpClient.post<ProgramApiResponse>(this.endpoint, body);
+    }
 }
