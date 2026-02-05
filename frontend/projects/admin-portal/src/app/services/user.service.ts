@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiResponse, UserDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, MemberDto, UserDto } from '@org.quicko.cliq/ngx-core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
+import { instanceToPlain } from 'class-transformer';
+import { AuthService } from './auth.service';
 
 @Injectable({
 	providedIn: 'root'
@@ -11,7 +13,18 @@ export class UserService {
 
 	private baseUrl = environment.base_api_url;
 
-	constructor(private httpClient: HttpClient) { }
+	constructor(
+		private httpClient: HttpClient,
+		private authService: AuthService
+	) { }
+
+	/**
+	 * User login - returns access token
+	 */
+	logIn(user: MemberDto) {
+		const url = `${this.baseUrl}/users/login`;
+		return this.httpClient.post<ApiResponse<{ access_token: string }>>(url, instanceToPlain(user));
+	}
 
 	/**
 	 * Create super admin (initial setup) - uses regular signup endpoint
@@ -35,5 +48,19 @@ export class UserService {
 	getUser(userId: string): Observable<ApiResponse<UserDto>> {
 		const url = `${this.baseUrl}/users/${userId}`;
 		return this.httpClient.get<ApiResponse<UserDto>>(url);
+	}
+
+	/**
+	 * Get current logged-in user details for a specific program
+	 */
+	getUserInProgram(programId: string): Observable<ApiResponse<any>> {
+		if (!this.authService.getUserEmail()) {
+			throw new Error('User not found');
+		}
+
+		const userId = this.authService.getUserId();
+		const url = `${this.baseUrl}/programs/${programId}/users/${userId}`;
+
+		return this.httpClient.get<ApiResponse<any>>(url);
 	}
 }

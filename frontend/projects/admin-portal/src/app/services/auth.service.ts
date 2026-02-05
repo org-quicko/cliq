@@ -6,6 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ProgramStore } from '../store/program.store';
 import { environment } from '../../environments/environment';
+import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
 
 @Injectable({
 	providedIn: 'root'
@@ -96,6 +97,18 @@ export class AuthService {
 			return jwtToken['aud'];
 		}
 		return null;
+	}
+
+	public getUserRole(): userRoleEnum | null {
+		if (this.getToken() != null && this.getToken() != '') {
+			const jwtToken = this.jwtHelper.decodeToken(this.getToken());
+			return jwtToken['role'] as userRoleEnum;
+		}
+		return null;
+	}
+
+	public isSuperAdmin(): boolean {
+		return this.getUserRole() === userRoleEnum.SUPER_ADMIN;
 	}
 
 	public isAuthenticated(): boolean {

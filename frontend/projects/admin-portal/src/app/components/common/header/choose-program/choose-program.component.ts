@@ -94,18 +94,18 @@ export class ChooseProgramComponent implements OnInit {
 			window.location.href = `${window.location.origin}${urlParts.join('/')}`;
 		} else {
 			// Fallback: navigate to the program's dashboard
-			window.location.href = `${window.location.origin}/admin/${program.programId}/home/dashboard`;
+			window.location.href = `${window.location.origin}/${program.programId}/home/dashboard`;
 		}
 	}
 
 	onViewAllPrograms() {
 		console.log('[ChooseProgram] isSuperAdmin:', this.isSuperAdmin());
 		if (this.isSuperAdmin()) {
-			console.log('[ChooseProgram] Navigating to /admin/programs/summary');
-			this.router.navigate(['/admin/programs/summary']);
+			console.log('[ChooseProgram] Navigating to /programs/summary');
+			this.router.navigate(['/programs/summary']);
 		} else {
-			console.log('[ChooseProgram] Navigating to /admin/programs');
-			this.router.navigate(['/admin/programs']);
+			console.log('[ChooseProgram] Navigating to /programs');
+			this.router.navigate(['/programs']);
 		}
 	}
 }

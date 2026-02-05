@@ -26,7 +26,7 @@ export class CreateProgramContainerComponent implements OnInit {
     ngOnInit(): void {}
 
     onExit() {
-        this.router.navigate(['/admin/programs/summary']);
+        this.router.navigate(['/programs/summary']);
     }
 
     onContinue() {

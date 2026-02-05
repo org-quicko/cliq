@@ -44,7 +44,7 @@ export class SuperAdminSetupComponent implements OnInit {
 
   ngOnInit() {
     OnSuccess.subscribe(() => {
-      this.router.navigate(['/admin/login']);
+      this.router.navigate(['/login']);
     });
   }
 

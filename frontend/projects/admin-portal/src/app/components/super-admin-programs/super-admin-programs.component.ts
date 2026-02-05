@@ -94,11 +94,11 @@ export class SuperAdminProgramsComponent implements OnInit {
     }
 
     onRowClick(program: ProgramSummaryMvDto) {
-        this.router.navigate([`/admin/${program.programId}/home/dashboard`]);
+        this.router.navigate([`/${program.programId}/home/dashboard`]);
     }
 
     onCreateProgram() {
-        this.router.navigate(['/admin/programs/create']);
+        this.router.navigate(['/programs/create']);
     }
 
     onPageChange(event: PageEvent) {

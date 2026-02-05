@@ -93,12 +93,12 @@ export class ProfileComponent implements OnInit {
 	goToSettings() {
 		const programId = this.programId();
 		if (programId) {
-			this.router.navigate(['/admin', programId, 'home', 'settings']);
+			this.router.navigate(['/', programId, 'home', 'settings']);
 		}
 	}
 
 	logout() {
 		this.authService.deleteToken();
-		window.location.href = `${window.location.origin}/admin/login`;
+		window.location.href = `${window.location.origin}/login`;
 	}
 }

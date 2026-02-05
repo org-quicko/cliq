@@ -119,7 +119,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
 
     onNavigateToDashboard() {
         const id = this.programId();
-        this.router.navigate([`/admin/${id}/home/dashboard`]);
+        this.router.navigate([`/${id}/home/dashboard`]);
     }
 
     onDateRangeApplied() {

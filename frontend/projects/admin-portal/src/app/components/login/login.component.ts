@@ -56,10 +56,10 @@ export class LoginComponent implements OnInit {
 		onSignInSuccess.subscribe(({ isSuperAdmin }) => {
 			if (isSuperAdmin) {
 				// Super admin gets redirected to programs summary
-				this.router.navigate(['/admin/programs/summary']);
+				this.router.navigate(['/programs/summary']);
 			} else {
 				// Regular user gets redirected to programs list
-				this.router.navigate(['/admin/programs']);
+				this.router.navigate(['/programs']);
 			}
 			this.isLoading.set(false);
 		});

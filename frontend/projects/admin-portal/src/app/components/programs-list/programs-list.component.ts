@@ -42,6 +42,6 @@ export class ProgramsListComponent implements OnInit {
 			console.error('[ProgramsListComponent] programId is undefined!');
 			return;
 		}
-		this.router.navigate(['/admin', programId, 'home', 'dashboard']);
+		this.router.navigate(['/', programId, 'home', 'dashboard']);
 	}
 }

@@ -215,11 +215,11 @@ export class DashboardComponent implements OnInit {
 
 	getSignupsPromotersLink(): string {
 		const programId = this.programId();
-		return programId ? `/admin/${programId}/home/promoters-by-signups` : '';
+		return programId ? `/${programId}/home/promoters-by-signups` : '';
 	}
 
 	getPurchasesPromotersLink(): string {
 		const programId = this.programId();
-		return programId ? `/admin/${programId}/home/promoters-by-purchases` : '';
+		return programId ? `/${programId}/home/promoters-by-purchases` : '';
 	}
 }

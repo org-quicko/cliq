@@ -16,47 +16,55 @@ import { SuperAdminSetupComponent } from './components/super-admin-setup/super-a
 import { SuperAdminProgramsComponent } from './components/super-admin-programs/super-admin-programs.component';
 import { CreateProgramContainerComponent } from './components/create-program-container/create-program-container.component';
 import { CreateProgramComponent } from './components/create-program-container/create-program/create-program.component';
+import { IsLoggedIn, IsSuperAdmin } from './guards';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     { path: 'setup', component: SuperAdminSetupComponent },
+    { path: 'login', component: LoginComponent },
+     { 
+        path: 'programs/summary', 
+        component: SuperAdminProgramsComponent,
+        canActivate: [IsLoggedIn, IsSuperAdmin]
+    },
+    { 
+        path: 'programs', 
+        component: ProgramsListComponent,
+        canActivate: [IsLoggedIn]
+    },
+   
     {
-        path: 'admin',
+        path: 'programs/create',
+        component: CreateProgramContainerComponent,
+        canActivate: [IsLoggedIn],
         children: [
-            { path: 'login', component: LoginComponent },
-            { path: 'programs', component: ProgramsListComponent },
-            { path: 'programs/summary', component: SuperAdminProgramsComponent },
+            { path: '', component: CreateProgramComponent },
+        ],
+    },
+    {
+        resolve: { program: ProgramResolver },
+        path: ':program_id',
+        canActivate: [IsLoggedIn],
+        canActivateChild: [IsLoggedIn],
+        children: [
             {
-                path: 'programs/create',
-                component: CreateProgramContainerComponent,
-                children: [
-                    { path: '', component: CreateProgramComponent },
-                ],
+                path: '',
+                pathMatch: 'full',
+                redirectTo: 'home',
             },
             {
-                resolve: { program: ProgramResolver },
-                path: ':program_id',
+                path: 'home',
+                component: LayoutComponent,
                 children: [
-                    {
-                        path: '',
-                        pathMatch: 'full',
-                        redirectTo: 'home',
-                    },
-                    {
-                        path: 'home',
-                        component: LayoutComponent,
-                        children: [
-                            { path: '', component: HomeComponent },
-                            { path: 'dashboard', component: DashboardComponent },
-                            { path: 'referrals', component: ReferralsComponent },
-                            { path: 'reports', component: ReportsComponent },
-                            { path: 'circles', component: CirclesComponent },
-                            { path: 'promoters', component: PromotersComponent },
-                            { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
-                            { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
-                        ]
-                    },
-                ],
+                    { path: '', component: HomeComponent },
+                    { path: 'dashboard', component: DashboardComponent },
+                    { path: 'referrals', component: ReferralsComponent },
+                    { path: 'reports', component: ReportsComponent },
+                    { path: 'circles', component: CirclesComponent },
+                    { path: 'promoters', component: PromotersComponent },
+                    { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
+                    { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
+                ]
             },
         ],
     },

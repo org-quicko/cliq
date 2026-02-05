@@ -1,6 +1,6 @@
 import { signalStore, withMethods, withState } from '@ngrx/signals';
 import { MemberDto, SnackbarService, userRoleEnum } from '@org.quicko.cliq/ngx-core';
-import { AdminService } from '../../../services/admin.service';
+import { UserService } from '../../../services/user.service';
 import { EventEmitter, inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { pipe, switchMap, catchError, of } from 'rxjs';
@@ -8,7 +8,7 @@ import { tapResponse } from '@ngrx/operators';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Status } from '@org.quicko.cliq/ngx-core';
-import { ProgramService } from '../../../services/program.service';
+import { PermissionsService } from '../../../services/permission.service';
 
 export interface LogInState {
 	admin: MemberDto | null;
@@ -33,34 +33,29 @@ export const LogInStore = signalStore(
 	withMethods(
 		(
 			store,
-			adminService = inject(AdminService),
+			userService = inject(UserService),
 			authService = inject(AuthService),
-			programService = inject(ProgramService),
+			permissionsService = inject(PermissionsService),
 			snackBarService = inject(SnackbarService)
 		) => ({
 
 			logIn: rxMethod<{ admin: MemberDto }>(
 				pipe(
 					switchMap(({ admin }) => {
-						return adminService.logIn(admin).pipe(
+						return userService.logIn(admin).pipe(
 							tapResponse({
 								next: (response) => {
 									authService.setToken(response.data!.access_token);
 									
-									// Check if user is super admin by trying to access programs/summary
-									programService.getProgramSummary({ take: 1 }).pipe(
-										catchError(() => of(null))
-									).subscribe({
-										next: (summaryResponse) => {
-											// If we get a response, user is super admin
-											const isSuperAdmin = summaryResponse !== null;
-											onSignInSuccess.emit({ isSuperAdmin });
-										},
-										error: () => {
-											// If we get 403, user is not super admin
-											onSignInSuccess.emit({ isSuperAdmin: false });
-										}
-									});
+									// Get user role from JWT token and set permissions
+									const userRole = authService.getUserRole();
+									if (userRole) {
+										permissionsService.setUserRole(userRole);
+									}
+									
+									// Check if user is super admin from the token
+									const isSuperAdmin = authService.isSuperAdmin();
+									onSignInSuccess.emit({ isSuperAdmin });
 								},
 								error: (error: HttpErrorResponse) => {
 									console.error(error.error.message);

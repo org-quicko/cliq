@@ -81,7 +81,7 @@ export class CreateProgramComponent implements OnInit {
     ngOnInit() {
         OnCreateProgramSuccess.subscribe((success) => {
             if (success) {
-                this.router.navigate(['/admin/programs/summary']);
+                this.router.navigate(['/programs/summary']);
             }
         });
     }

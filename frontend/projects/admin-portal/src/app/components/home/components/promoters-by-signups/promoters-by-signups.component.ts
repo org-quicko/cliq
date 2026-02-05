@@ -124,7 +124,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
     onNavigateToDashboard() {
         const id = this.programId();
-        this.router.navigate([`/admin/${id}/home/dashboard`]);
+        this.router.navigate([`/${id}/home/dashboard`]);
     }
 
     onDateRangeApplied() {
