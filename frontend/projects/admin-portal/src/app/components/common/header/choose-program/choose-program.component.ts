@@ -36,7 +36,6 @@ export class ChooseProgramComponent implements OnInit {
 	program = this.programStore.program;
 	isSuperAdmin = this.programsListStore.isSuperAdmin;
 
-	// Limit dropdown to show at most 5 programs
 	displayedPrograms = computed(() => this.programs().slice(0, 5));
 
 	constructor(
@@ -52,8 +51,6 @@ export class ChooseProgramComponent implements OnInit {
 				this.setCurrentProgram();
 			}
 
-			// Fallback for super admin: if programs loaded but currentProgram not found in list,
-			// use the program from programStore (set by route resolver)
 			if (status === Status.SUCCESS && !this.currentProgram() && currentProgFromStore) {
 				this.currentProgram.set({
 					...currentProgFromStore,
@@ -68,7 +65,7 @@ export class ChooseProgramComponent implements OnInit {
 			this.currentProgramId = params['program_id'];
 		});
 
-		// Fetch programs if not already loaded
+
 		if (this.programsListStore.status() !== Status.SUCCESS) {
 			this.programsListStore.fetchPrograms();
 		}
@@ -83,17 +80,16 @@ export class ChooseProgramComponent implements OnInit {
 	}
 
 	changeProgram(program: ProgramWithRole) {
-		// Navigate to the selected program's dashboard
+
 		const currentUrl = window.location.pathname;
 		const urlParts = currentUrl.split('/');
 		
-		// Find and replace the program_id in the URL
+
 		const programIdIndex = urlParts.findIndex(part => part === this.currentProgramId);
 		if (programIdIndex !== -1) {
 			urlParts[programIdIndex] = program.programId!;
 			window.location.href = `${window.location.origin}${urlParts.join('/')}`;
 		} else {
-			// Fallback: navigate to the program's dashboard
 			window.location.href = `${window.location.origin}/${program.programId}/home/dashboard`;
 		}
 	}

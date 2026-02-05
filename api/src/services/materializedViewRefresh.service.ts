@@ -7,7 +7,6 @@ import { LoggerService } from './logger.service';
 export class MaterializedViewRefreshService implements OnModuleInit {
 	private readonly cronExpression: string;
 
-	// List of materialized views to refresh (in order of dependencies)
 	private readonly materializedViews = [
 		'program_summary_mv',
 	];
@@ -19,9 +18,6 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		this.cronExpression = process.env.REFRESH_MV_CRON || '*/5 * * * * *'; 
 	}
 
-	/**
-	 * Lifecycle hook — called once all dependencies are ready
-	 */
 	onModuleInit() {
 		this.logger.info(
 			`MaterializedViewRefreshService initialized (Cron: ${this.cronExpression})`,
@@ -51,13 +47,13 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		try {
 			this.logger.info(`Refreshing materialized view: ${viewName}...`);
 			
-			// Try concurrent refresh first (non-blocking, requires unique index)
+
 			try {
 				await this.dataSource.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY ${viewName}`);
 				this.logger.info(`Successfully refreshed (CONCURRENTLY): ${viewName}`);
 				return true;
 			} catch (concurrentError) {
-				// If concurrent refresh fails (e.g., no unique index), try regular refresh
+
 				this.logger.warn(`CONCURRENT refresh failed for ${viewName}, trying regular refresh...`);
 				await this.dataSource.query(`REFRESH MATERIALIZED VIEW ${viewName}`);
 				this.logger.info(`Successfully refreshed: ${viewName}`);
@@ -69,10 +65,6 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		}
 	}
 
-	/**
-	 * Manually trigger refresh of all materialized views
-	 * Can be called from other services when immediate refresh is needed
-	 */
 	async refreshAllViews(): Promise<{ success: string[]; failed: string[] }> {
 		this.logger.info('START: Manual refreshAllViews');
 		
@@ -92,10 +84,6 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		return { success, failed };
 	}
 
-	/**
-	 * Refresh specific views by name
-	 * Useful when only certain views need updating
-	 */
 	async refreshSpecificViews(viewNames: string[]): Promise<{ success: string[]; failed: string[] }> {
 		this.logger.info(`START: refreshSpecificViews - ${viewNames.join(', ')}`);
 		

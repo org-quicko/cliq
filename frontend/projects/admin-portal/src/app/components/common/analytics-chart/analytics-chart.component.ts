@@ -58,8 +58,7 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     @Input() graphData: DailyData[] = [];
     @Input() period: string = '30days';
     @Input() currency: string = 'INR';
-    @Input() dataType: string = 'daily'; // 'daily', 'monthly', or 'yearly';
-
+    @Input() dataType: string = 'daily'; 
     @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
     constructor(private cdr: ChangeDetectorRef) {}
@@ -198,7 +197,6 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     tension: 0.03,
     fill: isLineChart,
 
-    // ⭐ THE MAGIC — dynamic gradient
 backgroundColor: isLineChart
   ? (context: any) => {
       const chart = context.chart;
@@ -225,8 +223,8 @@ backgroundColor: isLineChart
     hoverBackgroundColor: isLineChart ? undefined : '#BDC5ED',
     hoverBorderColor: '#BDC5ED',
 
-    pointRadius: 0,          // no dots like your design
-    pointHoverRadius:4,     // dot only on hover
+    pointRadius: 0,        
+    pointHoverRadius:4,     
     pointBackgroundColor: '#BDC5ED',
     pointBorderColor: '#ffffff',
     pointBorderWidth: 2,
@@ -245,10 +243,9 @@ backgroundColor: isLineChart
         const data = this.processedData;
 
         if (period === '7days') {
-            // Show day names (Mon, Tue, Wed, etc.) for last 7 days
+
             data.forEach(p => p.xLabel = p.date.toLocaleDateString('en-US', { weekday: 'short' }));
         } else if (period === '30days') {
-            // Show date with month (e.g., 4 Jan, 1 Jan, 29 Dec) at intervals
             const interval = Math.max(1, Math.floor(data.length / 10));
             data.forEach((p, i) => {
                 if (i % interval === 0 || i === data.length - 1) {
@@ -258,42 +255,36 @@ backgroundColor: isLineChart
                 }
             });
         } else if (period === '3months') {
-            // Show date and month for 7-day intervals
             data.forEach(p => {
                 p.xLabel = p.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
             });
         } else if (period === '6months' || period === '1year') {
-            // Show month name for each bar (data is already aggregated by month from backend)
+
             data.forEach(p => {
                 p.xLabel = p.date.toLocaleDateString('en-US', { month: 'short' });
             });
         } else if (period === 'all') {
-            // Show year for each bar (data is already aggregated by year from backend)
             data.forEach(p => {
                 p.xLabel = p.date.getFullYear().toString();
             });
         } else if (period === 'custom') {
-            // Handle custom period based on dataType
             if (this.dataType === 'yearly') {
-                // Show year for each bar (> 35 months)
+
                 data.forEach(p => {
                     p.xLabel = p.date.getFullYear().toString();
                 });
             } else if (this.dataType === 'monthly') {
-                // Show month and year for each bar (> 3 months, ≤ 35 months)
+        
                 data.forEach(p => {
                     p.xLabel = p.date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
                 });
             } else if (this.dataType === 'weekly') {
-                // Show date with month for weekly intervals (> 30 days, ≤ 3 months)
                 data.forEach(p => {
                     p.xLabel = p.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
                 });
             } else if (this.dataType === 'daily-7') {
-                // Show day names for ≤ 7 days
                 data.forEach(p => p.xLabel = p.date.toLocaleDateString('en-US', { weekday: 'short' }));
             } else if (this.dataType === 'daily-30') {
-                // Show date with month at intervals for ≤ 30 days
                 const interval = Math.max(1, Math.floor(data.length / 10));
                 data.forEach((p, i) => {
                     if (i % interval === 0 || i === data.length - 1) {
@@ -329,7 +320,20 @@ backgroundColor: isLineChart
 
     private getTooltipTitle(index: number): string {
         const d = this.processedData[index]?.date;
-        return d ? d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        if (!d) return '';
+
+        // For yearly data: show only year
+        if (this.period === 'all' || this.dataType === 'yearly') {
+            return d.getFullYear().toString();
+        }
+
+        // For monthly data: show month and year (no day)
+        if (this.period === '6months' || this.period === '1year' || this.dataType === 'monthly') {
+            return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        }
+
+        // For all other cases: show full date
+        return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
     private formatCurrency(value: number): string {

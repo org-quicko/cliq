@@ -2,14 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-// import { ProgressBarComponent } from '../../layouts/progress-bar/progress-bar.component';
 import { CreateProgramStore } from './store/create-program.store';
 
 @Component({
     selector: 'app-create-program-container',
     imports: [
         RouterOutlet,
-        // ProgressBarComponent,
         MatDividerModule,
         MatButtonModule,
     ],

@@ -32,10 +32,10 @@ export class PopularityChartComponent {
     @Input() currency: string = 'INR';
     @Input() showToggle: boolean = false;
     @Input() isLoading: boolean = false;
-    // When true, alternate value is subValue (count) instead of revenue
+
     @Input() useSubValueAsAlternate: boolean = false;
 
-    // Toggle state: false = Commission (value), true = alternate value
+
     showAlternate = signal(false);
 
     toggleValueType() {
@@ -55,7 +55,7 @@ export class PopularityChartComponent {
 
     // Check if we should format as currency
     shouldFormatAsCurrency(): boolean {
-        // When showing alternate value and using subValue (count), don't format as currency
+   
         return !(this.showAlternate() && this.useSubValueAsAlternate);
     }
 

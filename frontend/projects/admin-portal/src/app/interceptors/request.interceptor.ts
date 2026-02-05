@@ -23,8 +23,7 @@ export class RequestInterceptor implements HttpInterceptor {
 			const headers: any = {
 				Authorization: this.authService.getToken(),
 			};
-			
-			// Add user_id header if available
+
 			if (userId) {
 				headers['user_id'] = userId;
 				console.log('[RequestInterceptor] Adding user_id header:', userId, 'for URL:', request.url);

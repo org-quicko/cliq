@@ -40,10 +40,9 @@ export const ProgramsListStore = signalStore(
 						console.log('[ProgramsListStore] Fetching programs...');
 						patchState(store, { status: Status.PENDING });
 					}),
-					// First try super admin endpoint (programs/summary)
+
 					switchMap(() => programService.getProgramSummary({ take: 100 }).pipe(
 						switchMap((summaryResponse) => {
-							console.log('[ProgramsListStore] Super admin summary response:', summaryResponse);
 							let superAdminPrograms: ProgramWithRole[] = [];
 							
 							if (summaryResponse.data) {
@@ -52,7 +51,7 @@ export const ProgramsListStore = signalStore(
 								const table = sheet?.blocks?.[0];
 								const rows = table?.rows || [];
 								
-								// Map workbook rows to ProgramWithRole
+						
 								superAdminPrograms = rows.map((row: any[]) => ({
 									programId: row[0],
 									name: row[1],
@@ -60,7 +59,7 @@ export const ProgramsListStore = signalStore(
 								} as ProgramWithRole));
 							}
 							
-							console.log('[ProgramsListStore] Setting isSuperAdmin to TRUE, programs:', superAdminPrograms.length);
+						
 							patchState(store, { 
 								programs: superAdminPrograms,
 								status: Status.SUCCESS,
@@ -69,11 +68,10 @@ export const ProgramsListStore = signalStore(
 							return of(null);
 						}),
 						catchError((error) => {
-							// Not a super admin (403 Forbidden), fall back to regular programs endpoint
-							console.log('[ProgramsListStore] Not a super admin, falling back to /programs');
+							
+			
 							return programService.getAllPrograms().pipe(
 								tap((response) => {
-									console.log('[ProgramsListStore] Regular programs response:', response);
 									const programs = response.data || [];
 									patchState(store, { 
 										programs,

@@ -3,11 +3,7 @@ import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from
 import { Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-/**
- * Guard to check if user is a Super Admin
- * Used for routes like /programs/summary that require global admin access
- * Redirects to /programs if not a super admin
- */
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -20,7 +16,6 @@ export class IsSuperAdmin implements CanActivate {
 			return true;
 		}
 
-		// Not a super admin, redirect to programs list
 		this.router.navigate(['/programs']);
 		return false;
 	}

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiResponse, MemberDto, UserDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, LoginDto, UserDto } from '@org.quicko.cliq/ngx-core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { instanceToPlain } from 'class-transformer';
@@ -21,7 +21,7 @@ export class UserService {
 	/**
 	 * User login - returns access token
 	 */
-	logIn(user: MemberDto) {
+	logIn(user: LoginDto) {
 		const url = `${this.baseUrl}/users/login`;
 		return this.httpClient.post<ApiResponse<{ access_token: string }>>(url, instanceToPlain(user));
 	}

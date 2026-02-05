@@ -12,7 +12,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LogInStore, onSignInError, onSignInSuccess } from './store/login.store';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
 import { LogoComponent } from '../common/logo/logo.component';
-import { MemberDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { LoginDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-login',
@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
 
 	readonly logInStore = inject(LogInStore);
 
-	admin: MemberDto;
+	admin: LoginDto;
 
 	isLoading = signal<boolean>(false);
 
@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
 		private router: Router,
 		private snackBarService: SnackbarService
 	) {
-		this.admin = new MemberDto();
+		this.admin = new LoginDto();
 		this.loginForm = this.fb.formGroup(this.admin);
 	}
 

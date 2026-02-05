@@ -1,5 +1,5 @@
 import { signalStore, withMethods, withState } from '@ngrx/signals';
-import { MemberDto, SnackbarService, userRoleEnum } from '@org.quicko.cliq/ngx-core';
+import { LoginDto, SnackbarService, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 import { UserService } from '../../../services/user.service';
 import { EventEmitter, inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
@@ -11,7 +11,7 @@ import { Status } from '@org.quicko.cliq/ngx-core';
 import { PermissionsService } from '../../../services/permission.service';
 
 export interface LogInState {
-	admin: MemberDto | null;
+	admin: LoginDto | null;
 	status: Status;
 	isSuperAdmin: boolean;
 	error: any;
@@ -39,7 +39,7 @@ export const LogInStore = signalStore(
 			snackBarService = inject(SnackbarService)
 		) => ({
 
-			logIn: rxMethod<{ admin: MemberDto }>(
+			logIn: rxMethod<{ admin: LoginDto }>(
 				pipe(
 					switchMap(({ admin }) => {
 						return userService.logIn(admin).pipe(

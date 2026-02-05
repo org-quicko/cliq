@@ -5,7 +5,7 @@ import {
 	NotFoundException,
 	UnauthorizedException,
 } from '@nestjs/common';
-import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, Between, ILike } from 'typeorm';
+import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, ILike } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Circle, Commission, Program, Promoter, Purchase, ReferralView, SignUp, User } from '../entities';
 import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
@@ -839,17 +839,16 @@ export class ProgramService {
 					cleanup();
 				});
 
-				// Handle row stream end
+		
 				rowStream.on('end', () => {
 					this.logger.info('Row stream ended');
 				});
 
-				// Handle row stream close
+		
 				rowStream.on('close', () => {
 					this.logger.info('Row stream closed');
 				});
 
-				// Pipe the streams with proper error handling
 				rowStream
 					.pipe(rowToCsv)
 					.on('error', (err) => {
@@ -874,7 +873,7 @@ export class ProgramService {
 			}
 		})();
 
-		// Handle stream cleanup on destroy
+
 		stream.on('close', cleanup);
 		stream.on('error', cleanup);
 
@@ -890,101 +889,26 @@ export class ProgramService {
     ) {
         this.logger.info('START: getProgramAnalytics service');
 
-        let startDate: Date;
-        let endDate = new Date();
+        const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
 
-        switch (period) {
-            case '7days':
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 7);
-                break;
-            case '30days':
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 30);
-                break;
-            case '3months':
-                startDate = new Date();
-                startDate.setMonth(startDate.getMonth() - 3);
-                break;
-            case '6months':
-                startDate = new Date();
-                startDate.setMonth(startDate.getMonth() - 6);
-                break;
-            case '1year':
-                startDate = new Date();
-                startDate.setFullYear(startDate.getFullYear() - 1);
-                break;
-            case 'custom':
-                if (!customStartDate || !customEndDate) {
-                    throw new BadRequestException(
-                        'startDate and endDate are required for custom period',
-                    );
-                }
-                startDate = customStartDate;
-                endDate = customEndDate;
-                break;
-            case 'all':
-                startDate = new Date('1970-01-01'); 
-                break;
-            default:
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 30); 
-        }
-
-        const dayWiseAnalytics = await this.datasource
-            .getRepository(PromoterAnalyticsDayWiseView)
-            .find({
-                where: {
-                    programId,
-                    date: Between(startDate, endDate),
-                },
-            });
-
-        if (!dayWiseAnalytics || dayWiseAnalytics.length === 0) {
-            this.logger.info('END: getProgramAnalytics service - no data found');
-            return this.programAnalyticsConverter.convert({
-                totalRevenue: 0,
-                totalCommissions: 0,
-                totalSignups: 0,
-                totalPurchases: 0,
-                period,
-            });
-        }
-        const totalRevenue = dayWiseAnalytics.reduce(
-            (sum, analytics) => sum + (analytics.dailyRevenue || 0),
-            0,
-        );
-
-        const totalCommissions = dayWiseAnalytics.reduce(
-            (sum, analytics) => sum + (analytics.dailyCommission || 0),
-            0,
-        );
-
-        const totalSignups = dayWiseAnalytics.reduce(
-            (sum, analytics) => sum + (analytics.dailySignups || 0),
-            0,
-        );
-
-        const totalPurchases = dayWiseAnalytics.reduce(
-            (sum, analytics) => sum + (analytics.dailyPurchases || 0),
-            0,
-        );
-
-		/* ===================== TEST DATA - Commented out for future testing =====================
-		const totalRevenue = 125000;
-		const totalCommissions = 25000;
-		const totalSignups = 450;
-		const totalPurchases = 200;
-		===================== END TEST DATA ===================== */
-
+        const result = await this.promoterAnalyticsDayWiseViewRepository
+            .createQueryBuilder('analytics')
+            .select('COALESCE(SUM(analytics.dailyRevenue), 0)', 'totalRevenue')
+            .addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'totalCommissions')
+            .addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'totalSignups')
+            .addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'totalPurchases')
+            .where('analytics.programId = :programId', { programId })
+            .andWhere('analytics.date >= :startDate', { startDate })
+            .andWhere('analytics.date <= :endDate', { endDate })
+            .getRawOne();
 
         this.logger.info('END: getProgramAnalytics service');
 
         return this.programAnalyticsConverter.convert({
-            totalRevenue,
-            totalCommissions,
-            totalSignups,
-            totalPurchases,
+            totalRevenue: Number(result?.totalRevenue) || 0,
+            totalCommissions: Number(result?.totalCommissions) || 0,
+            totalSignups: Number(result?.totalSignups) || 0,
+            totalPurchases: Number(result?.totalPurchases) || 0,
             period,
         });
     }
@@ -1001,10 +925,210 @@ export class ProgramService {
         skip: number = 0,
         take: number = 5,
     ) {
-
-		
 		this.logger.info('START: getPromoterAnalytics service');
 
+		const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
+
+
+		const orderColumn = sortBy === 'signups' ? 'totalSignups' : 'totalPurchases';
+
+		const promoterData = await this.promoterAnalyticsDayWiseViewRepository
+			.createQueryBuilder('analytics')
+			.select('analytics.promoterId', 'promoterId')
+			.addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'totalSignups')
+			.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'totalPurchases')
+			.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'totalRevenue')
+			.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'totalCommission')
+			.where('analytics.programId = :programId', { programId })
+			.andWhere('analytics.date >= :startDate', { startDate })
+			.andWhere('analytics.date <= :endDate', { endDate })
+			.groupBy('analytics.promoterId')
+			.orderBy(`"${orderColumn}"`, 'DESC')
+			.offset(skip)
+			.limit(take)
+			.getRawMany();
+
+		const totalCountResult = await this.promoterAnalyticsDayWiseViewRepository
+			.createQueryBuilder('analytics')
+			.select('COUNT(DISTINCT analytics.promoterId)', 'count')
+			.where('analytics.programId = :programId', { programId })
+			.andWhere('analytics.date >= :startDate', { startDate })
+			.andWhere('analytics.date <= :endDate', { endDate })
+			.getRawOne();
+
+		const totalCount = Number(totalCountResult?.count) || 0;
+
+		const promoterIds = promoterData.map(p => p.promoterId);
+		const promoters = promoterIds.length > 0 
+			? await this.datasource
+				.getRepository(Promoter)
+				.find({
+					where: { promoterId: In(promoterIds) },
+					select: ['promoterId', 'name'],
+				})
+			: [];
+
+		const promoterNameMap = new Map(promoters.map(p => [p.promoterId, p.name]));
+
+		const result = promoterData.map(p => ({
+			promoterId: p.promoterId,
+			promoterName: promoterNameMap.get(p.promoterId) || 'Unknown',
+			signups: Number(p.totalSignups) || 0,
+			purchases: Number(p.totalPurchases) || 0,
+			revenue: Number(p.totalRevenue) || 0,
+			commission: Number(p.totalCommission) || 0,
+		}));
+
+		this.logger.info('END: getPromoterAnalytics service');
+
+		return this.promoterAnalyticsConverter.convert({
+			programId,
+			promoters: result,
+			pagination: {
+				total: totalCount,
+				skip,
+				take,
+				hasMore: skip + take < totalCount,
+			},
+			sortBy,
+			period,
+		});
+    }
+
+
+    async getDayWiseProgramAnalytics(
+        programId: string,
+        period: string = '30days',
+        customStartDate?: Date,
+        customEndDate?: Date,
+    ) {
+        this.logger.info('START: getDayWiseProgramAnalytics service');
+
+        const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
+        const dataType = this.getDataType(period, startDate, endDate);
+
+        let analyticsData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
+
+
+        if (dataType === 'yearly' || (period === 'custom' && customStartDate && customEndDate && this.getMonthDifference(customStartDate, customEndDate) > 35)) {
+            // Aggregate by year 
+            const yearlyData = await this.promoterAnalyticsDayWiseViewRepository
+                .createQueryBuilder('analytics')
+                .select('EXTRACT(YEAR FROM analytics.date)', 'year')
+                .addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+                .addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+                .addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+                .addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+                .where('analytics.programId = :programId', { programId })
+                .andWhere('analytics.date >= :startDate', { startDate })
+                .andWhere('analytics.date <= :endDate', { endDate })
+                .groupBy('EXTRACT(YEAR FROM analytics.date)')
+                .orderBy('year', 'ASC')
+                .getRawMany();
+
+            analyticsData = yearlyData.map(row => ({
+                date: `${row.year}-01-01`,
+                signups: Number(row.signups) || 0,
+                purchases: Number(row.purchases) || 0,
+                revenue: Number(row.revenue) || 0,
+                commission: Number(row.commission) || 0,
+            }));
+
+        } else if (dataType === 'monthly' || (period === 'custom' && customStartDate && customEndDate && this.getDayDifference(customStartDate, customEndDate) > 90)) {
+            
+            const monthlyData = await this.promoterAnalyticsDayWiseViewRepository
+                .createQueryBuilder('analytics')
+                .select("TO_CHAR(analytics.date, 'YYYY-MM')", 'month')
+                .addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+                .addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+                .addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+                .addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+                .where('analytics.programId = :programId', { programId })
+                .andWhere('analytics.date >= :startDate', { startDate })
+                .andWhere('analytics.date <= :endDate', { endDate })
+                .groupBy("TO_CHAR(analytics.date, 'YYYY-MM')")
+                .orderBy('month', 'ASC')
+                .getRawMany();
+
+            analyticsData = monthlyData.map(row => ({
+                date: `${row.month}-01`,
+                signups: Number(row.signups) || 0,
+                purchases: Number(row.purchases) || 0,
+                revenue: Number(row.revenue) || 0,
+                commission: Number(row.commission) || 0,
+            }));
+
+        } else if (period === '3months' || dataType === 'weekly') {
+            const dayDiff = period === '3months' ? 90 : this.getDayDifference(customStartDate!, customEndDate!);
+            const weeksToShow = period === '3months' ? 13 : Math.ceil(dayDiff / 7);
+            
+            const weeklyData = await this.promoterAnalyticsDayWiseViewRepository
+                .createQueryBuilder('analytics')
+                .select("DATE_TRUNC('week', analytics.date)", 'weekStart')
+                .addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+                .addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+                .addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+                .addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+                .where('analytics.programId = :programId', { programId })
+                .andWhere('analytics.date >= :startDate', { startDate })
+                .andWhere('analytics.date <= :endDate', { endDate })
+                .groupBy("DATE_TRUNC('week', analytics.date)")
+                .orderBy('"weekStart"', 'ASC')
+                .limit(weeksToShow)
+                .getRawMany();
+
+            analyticsData = weeklyData.map(row => ({
+                date: row.weekStart instanceof Date ? row.weekStart.toISOString().split('T')[0] : row.weekStart,
+                signups: Number(row.signups) || 0,
+                purchases: Number(row.purchases) || 0,
+                revenue: Number(row.revenue) || 0,
+                commission: Number(row.commission) || 0,
+            }));
+
+        } else {
+            const dailyData = await this.promoterAnalyticsDayWiseViewRepository
+                .createQueryBuilder('analytics')
+                .select('analytics.date', 'date')
+                .addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+                .addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+                .addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+                .addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+                .where('analytics.programId = :programId', { programId })
+                .andWhere('analytics.date >= :startDate', { startDate })
+                .andWhere('analytics.date <= :endDate', { endDate })
+                .groupBy('analytics.date')
+                .orderBy('analytics.date', 'ASC')
+                .getRawMany();
+
+            analyticsData = dailyData.map(row => ({
+                date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : row.date,
+                signups: Number(row.signups) || 0,
+                purchases: Number(row.purchases) || 0,
+                revenue: Number(row.revenue) || 0,
+                commission: Number(row.commission) || 0,
+            }));
+
+
+            if (period === '7days') {
+                analyticsData = analyticsData.slice(-7);
+            }
+        }
+
+        this.logger.info('END: getDayWiseProgramAnalytics service');
+
+        return {
+            period,
+            startDate: startDate.toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0],
+            dailyData: analyticsData,
+            dataType,
+        };
+    }
+
+	/**
+	 * Helper method to get date range based on period
+	 */
+	private getDateRange(period: string, customStartDate?: Date, customEndDate?: Date): { startDate: Date; endDate: Date } {
 		let startDate: Date;
 		let endDate = new Date();
 
@@ -1046,492 +1170,7 @@ export class ProgramService {
 				startDate.setDate(startDate.getDate() - 30);
 		}
 
-		const dayWiseAnalytics = await this.datasource
-			.getRepository(PromoterAnalyticsDayWiseView)
-			.find({
-				where: {
-					programId,
-					date: Between(startDate, endDate),
-				},
-			});
-
-		const promoterMap = new Map<string, {
-			promoterId: string;
-			signups: number;
-			purchases: number;
-			revenue: number;
-			commission: number;
-		}>();
-
-		for (const analytics of dayWiseAnalytics) {
-			const existing = promoterMap.get(String(analytics.promoterId)) || {
-                promoterId: String(analytics.promoterId),
-				signups: 0,
-				purchases: 0,
-				revenue: 0,
-				commission: 0,
-			};
-
-			existing.signups += Number(analytics.dailySignups || 0);
-existing.purchases += Number(analytics.dailyPurchases || 0);
-existing.revenue += Number(analytics.dailyRevenue || 0);
-existing.commission += Number(analytics.dailyCommission || 0);
-
-
-			promoterMap.set(String(analytics.promoterId), existing);
-		}
-
-		let promotersData = Array.from(promoterMap.values());
-
-		if (sortBy === 'signups') {
-			promotersData.sort((a, b) => b.signups - a.signups);
-		} else {
-			promotersData.sort((a, b) => b.purchases - a.purchases);
-		}
-
-		const totalCount = promotersData.length;
-		const paginatedData = promotersData.slice(skip, skip + take);
-
-		const promoterIds = paginatedData.map(p => p.promoterId);
-		const promoters = await this.datasource
-			.getRepository(Promoter)
-			.find({
-				where: {
-					promoterId: In(promoterIds),
-				},
-				select: ['promoterId', 'name'],
-			});
-
-		const promoterNameMap = new Map(
-			promoters.map(p => [p.promoterId, p.name])
-		);
-
-		const result = paginatedData.map(p => ({
-			promoterId: p.promoterId,
-			promoterName: promoterNameMap.get(p.promoterId) || 'Unknown',
-			signups: p.signups,
-			purchases: p.purchases,
-			revenue: p.revenue,
-			commission: p.commission,
-		}));
-
-		// ===================== TEST DATA - Commented out for future testing =====================
-		// const resultTest = [
-		// 	{
-		// 		promoterId: '44444444-4444-4444-4444-444444444444',
-		// 		promoterName: 'Sneha Kapoor',
-		// 		signups: 60,
-		// 		purchases: 25,
-		// 		revenue: 14000,
-		// 		commission: 2800,
-		// 	},
-		// 	{
-		// 		promoterId: '55555555-5555-5555-5555-555555555555',
-		// 		promoterName: 'Vikram Singh',
-		// 		signups: 45,
-		// 		purchases: 18,
-		// 		revenue: 10000,
-		// 		commission: 2000,
-		// 	},
-		// 	{
-		// 		promoterId: '11111111-1111-1111-1111-111111111111',
-		// 		promoterName: 'Aarav Sharma',
-		// 		signups: 120,
-		// 		purchases: 45,
-		// 		revenue: 25000,
-		// 		commission: 5000,
-		// 	},
-		// 	{
-		// 		promoterId: '22222222-2222-2222-2222-222222222222',
-		// 		promoterName: 'Priya Patel',
-		// 		signups: 95,
-		// 		purchases: 38,
-		// 		revenue: 21000,
-		// 		commission: 4200,
-		// 	},
-		// 	{
-		// 		promoterId: '33333333-3333-3333-3333-333333333333',
-		// 		promoterName: 'Rohan Mehta',
-		// 		signups: 80,
-		// 		purchases: 30,
-		// 		revenue: 18000,
-		// 		commission: 3600,
-		// 	},
-		// 	{
-		// 		promoterId: '44444444-4444-4444-4444-444444444444',
-		// 		promoterName: 'Sneha Kapoor',
-		// 		signups: 60,
-		// 		purchases: 25,
-		// 		revenue: 14000,
-		// 		commission: 2800,
-		// 	},
-		// 	{
-		// 		promoterId: '33333333-3333-3333-3333-333333333333',
-		// 		promoterName: 'Rohan Mehta',
-		// 		signups: 80,
-		// 		purchases: 30,
-		// 		revenue: 18000,
-		// 		commission: 3600,
-		// 	},
-		// 	{
-		// 		promoterId: '44444444-4444-4444-4444-444444444444',
-		// 		promoterName: 'Sneha Kapoor',
-		// 		signups: 60,
-		// 		purchases: 25,
-		// 		revenue: 14000,
-		// 		commission: 2800,
-		// 	},
-			
-		// ];
-		// To use test data, replace 'result' with 'resultTest' in the return statement
-		// ===================== END TEST DATA ===================== 
-
-
-		this.logger.info('END: getPromoterAnalytics service');
-
-		const testTotalCount = result.length;
-		return this.promoterAnalyticsConverter.convert({
-			programId,
-			promoters: result.slice(skip, skip + take),
-			pagination: {
-				total: testTotalCount,
-				skip,
-				take,
-				hasMore: skip + take < testTotalCount,
-			},
-			sortBy,
-			period,
-		});
-    }
-
-
-    async getDayWiseProgramAnalytics(
-        programId: string,
-        period: string = '30days',
-        customStartDate?: Date,
-        customEndDate?: Date,
-    ) {
-        this.logger.info('START: getDayWiseProgramAnalytics service');
-
-        let startDate: Date;
-        let endDate = new Date();
-
-        switch (period) {
-            case '7days':
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 7);
-                break;
-            case '30days':
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 30);
-                break;
-            case '3months':
-                startDate = new Date();
-                startDate.setMonth(startDate.getMonth() - 3);
-                break;
-            case '6months':
-                startDate = new Date();
-                startDate.setMonth(startDate.getMonth() - 6);
-                break;
-            case '1year':
-                startDate = new Date();
-                startDate.setFullYear(startDate.getFullYear() - 1);
-                break;
-            case 'custom':
-                if (!customStartDate || !customEndDate) {
-                    throw new BadRequestException(
-                        'startDate and endDate are required for custom period',
-                    );
-                }
-                startDate = customStartDate;
-                endDate = customEndDate;
-                break;
-            case 'all':
-                startDate = new Date('1970-01-01');
-                break;
-            default:
-                startDate = new Date();
-                startDate.setDate(startDate.getDate() - 30);
-        }
-
-		const today = new Date();
-		
-		const dayWiseData = await this.promoterAnalyticsDayWiseViewRepository
-			.createQueryBuilder('analytics')
-			.select('analytics.date', 'date')
-			.addSelect('SUM(analytics.dailySignups)', 'signups')
-			.addSelect('SUM(analytics.dailyPurchases)', 'purchases')
-			.addSelect('SUM(analytics.dailyRevenue)', 'revenue')
-			.addSelect('SUM(analytics.dailyCommission)', 'commission')
-			.where('analytics.programId = :programId', { programId })
-			.andWhere('analytics.date >= :startDate', { startDate })
-			.andWhere('analytics.date <= :endDate', { endDate })
-			.groupBy('analytics.date')
-			.orderBy('analytics.date', 'ASC')
-			.getRawMany();
-
-		const allDailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> = 
-			dayWiseData.map(row => ({
-				date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : row.date,
-				signups: Number(row.signups) || 0,
-				purchases: Number(row.purchases) || 0,
-				revenue: Number(row.revenue) || 0,
-				commission: Number(row.commission) || 0,
-			}));
-
-		let analyticsData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
-
-		if (period === '7days') {
-			analyticsData = allDailyData.slice(-7);
-		} else if (period === '30days') {
-			analyticsData = allDailyData;
-		} else if (period === '3months') {
-			analyticsData = [];
-			const dataMap = new Map(allDailyData.map(d => [d.date, d]));
-			
-			const currentDate = new Date(today);
-			for (let i = 0; i < 13; i++) {
-				const dateStr = currentDate.toISOString().split('T')[0];
-				const dataPoint = dataMap.get(dateStr);
-				if (dataPoint) {
-					analyticsData.unshift(dataPoint);
-				} else {
-					analyticsData.unshift({
-						date: dateStr,
-						signups: 0,
-						purchases: 0,
-						revenue: 0,
-						commission: 0,
-					});
-				}
-				currentDate.setDate(currentDate.getDate() - 7);
-			}
-		} else if (period === '6months') {
-			analyticsData = this.aggregateDataByMonth(allDailyData, 6);
-		} else if (period === '1year') {
-			analyticsData = this.aggregateDataByMonth(allDailyData, 12);
-		} else if (period === 'all') {
-			analyticsData = this.aggregateDataByYear(allDailyData);
-		} else if (period === 'custom' && customStartDate && customEndDate) {
-			// Handle custom period based on date range
-			const dayDiff = this.getDayDifference(customStartDate, customEndDate);
-			const monthDiff = this.getMonthDifference(customStartDate, customEndDate);
-			
-			if (dayDiff <= 7) {
-				// ≤ 7 days: Show daily data
-				analyticsData = allDailyData;
-			} else if (dayDiff <= 30) {
-				// ≤ 30 days: Show daily data
-				analyticsData = allDailyData;
-			} else if (dayDiff <= 90) {
-				// ≤ 3 months: Show weekly intervals
-				analyticsData = [];
-				const dataMap = new Map(allDailyData.map(d => [d.date, d]));
-				const currentDate = new Date(customEndDate);
-				const weeksToShow = Math.ceil(dayDiff / 7);
-				for (let i = 0; i < weeksToShow; i++) {
-					const dateStr = currentDate.toISOString().split('T')[0];
-					const dataPoint = dataMap.get(dateStr);
-					if (dataPoint) {
-						analyticsData.unshift(dataPoint);
-					} else {
-						analyticsData.unshift({
-							date: dateStr,
-							signups: 0,
-							purchases: 0,
-							revenue: 0,
-							commission: 0,
-						});
-					}
-					currentDate.setDate(currentDate.getDate() - 7);
-				}
-			} else if (monthDiff <= 35) {
-				// ≤ 35 months: Show monthly aggregation
-				analyticsData = this.aggregateDataByMonth(allDailyData, monthDiff + 1);
-			} else {
-				// > 35 months: Show yearly aggregation
-				analyticsData = this.aggregateDataByYear(allDailyData);
-			}
-		} else {
-			analyticsData = allDailyData;
-		}
-
-		// ===================== TEST DATA - Commented out for future testing =====================
-		// Generate test data based on period requirements
-		// const allDailyDataTest: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> = [];
-        
-		// // Generate data for up to 4 years back to support 'all' period
-		// const daysToGenerate = period === 'all' ? 365 * 4 : 
-		//                        period === '1year' ? 365 : 
-		//                        period === '6months' ? 180 : 
-		//                        period === '3months' ? 90 : 30;
-		
-		// for (let i = daysToGenerate; i >= 0; i--) {
-		// 	const testDate = new Date(today);
-		// 	testDate.setDate(testDate.getDate() - i);
-		// 	const dateKey = testDate.toISOString().split('T')[0];
-            
-		// 	allDailyDataTest.push({
-		// 		date: dateKey,
-		// 		signups: Math.floor(Math.random() * 50) + 30, // Random 30-80
-		// 		purchases: Math.floor(Math.random() * 30) + 15, // Random 15-45
-		// 		revenue: Math.floor(Math.random() * 5000) + 3000, // Random 3000-8000
-		// 		commission: Math.floor(Math.random() * 1000) + 500, // Random 500-1500
-		// 	});
-		// }
-
-		// // Process test data based on period
-		// let analyticsDataTest: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
-
-		// if (period === '7days') {
-		// 	analyticsDataTest = allDailyDataTest.slice(-7);
-		// } else if (period === '30days') {
-		// 	analyticsDataTest = allDailyDataTest;
-		// } else if (period === '3months') {
-		// 	analyticsDataTest = [];
-		// 	const dataMapTest = new Map(allDailyDataTest.map(d => [d.date, d]));
-		// 	const currentDateTest = new Date(today);
-		// 	for (let i = 0; i < 13; i++) {
-		// 		const dateStr = currentDateTest.toISOString().split('T')[0];
-		// 		const dataPoint = dataMapTest.get(dateStr);
-		// 		if (dataPoint) {
-		// 			analyticsDataTest.unshift(dataPoint);
-		// 		} else {
-		// 			analyticsDataTest.unshift({
-		// 				date: dateStr,
-		// 				signups: Math.floor(Math.random() * 50) + 30,
-		// 				purchases: Math.floor(Math.random() * 30) + 15,
-		// 				revenue: Math.floor(Math.random() * 5000) + 3000,
-		// 				commission: Math.floor(Math.random() * 1000) + 500,
-		// 			});
-		// 		}
-		// 		currentDateTest.setDate(currentDateTest.getDate() - 7);
-		// 	}
-		// } else if (period === '6months') {
-		// 	analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, 6);
-		// } else if (period === '1year') {
-		// 	analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, 12);
-		// } else if (period === 'all') {
-		// 	analyticsDataTest = this.aggregateDataByYear(allDailyDataTest);
-		// } else if (period === 'custom') {
-		// 	// Calculate day and month differences
-		// 	const dayDiff = this.getDayDifference(startDate, endDate);
-		// 	const monthDiff = this.getMonthDifference(startDate, endDate);
-			
-		// 	if (dayDiff <= 7) {
-		// 		// ≤ 7 days: Show daily data like 7days filter
-		// 		analyticsDataTest = allDailyDataTest.slice(-7);
-		// 	} else if (dayDiff <= 30) {
-		// 		// ≤ 30 days: Show daily data like 30days filter
-		// 		analyticsDataTest = allDailyDataTest;
-		// 	} else if (dayDiff <= 90) {
-		// 		// ≤ 3 months: Show weekly intervals like 3months filter
-		// 		analyticsDataTest = [];
-		// 		const dataMapCustom = new Map(allDailyDataTest.map(d => [d.date, d]));
-		// 		const currentDateCustom = new Date(endDate);
-		// 		const weeksToShow = Math.ceil(dayDiff / 7);
-		// 		for (let i = 0; i < weeksToShow; i++) {
-		// 			const dateStr = currentDateCustom.toISOString().split('T')[0];
-		// 			const dataPoint = dataMapCustom.get(dateStr);
-		// 			if (dataPoint) {
-		// 				analyticsDataTest.unshift(dataPoint);
-		// 			} else {
-		// 				analyticsDataTest.unshift({
-		// 					date: dateStr,
-		// 					signups: Math.floor(Math.random() * 50) + 30,
-		// 					purchases: Math.floor(Math.random() * 30) + 15,
-		// 					revenue: Math.floor(Math.random() * 5000) + 3000,
-		// 					commission: Math.floor(Math.random() * 1000) + 500,
-		// 				});
-		// 			}
-		// 			currentDateCustom.setDate(currentDateCustom.getDate() - 7);
-		// 		}
-		// 	} else if (monthDiff <= 35) {
-		// 		// ≤ 35 months: Show monthly aggregation
-		// 		analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, monthDiff + 1);
-		// 	} else {
-		// 		// > 35 months: Show yearly aggregation
-		// 		analyticsDataTest = this.aggregateDataByYear(allDailyDataTest);
-		// 	}
-		// } else {
-		// 	analyticsDataTest = allDailyDataTest;
-		// }
-		// To use test data, replace 'analyticsData' with 'analyticsDataTest' in the return statement
-		//===================== END TEST DATA ===================== */
-
-        this.logger.info('END: getDayWiseProgramAnalytics service');
-
-        return {
-            period,
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0],
-            dailyData: analyticsData,
-            dataType: this.getDataType(period, startDate, endDate), 
-        };
-    }
-
-
-	private aggregateDataByMonth(
-		dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>,
-		numberOfMonths: number,
-	): Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> {
-		const monthlyMap = new Map<string, { signups: number; purchases: number; revenue: number; commission: number }>();
-		
-		dailyData.forEach(day => {
-			const date = new Date(day.date);
-			const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-			
-			if (!monthlyMap.has(monthKey)) {
-				monthlyMap.set(monthKey, { signups: 0, purchases: 0, revenue: 0, commission: 0 });
-			}
-			
-			const monthData = monthlyMap.get(monthKey);
-			if (monthData) {
-				monthData.signups += day.signups;
-				monthData.purchases += day.purchases;
-				monthData.revenue += day.revenue;
-				monthData.commission += day.commission;
-			}
-		});
-		
-		const result = Array.from(monthlyMap.entries())
-			.map(([monthKey, data]) => ({
-				date: monthKey + '-01', 
-				...data,
-			}))
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-		
-		return result.slice(-numberOfMonths);
-	}
-
-
-	private aggregateDataByYear(
-		dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>,
-	): Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> {
-		const yearlyMap = new Map<number, { signups: number; purchases: number; revenue: number; commission: number }>();
-		
-		dailyData.forEach(day => {
-			const year = new Date(day.date).getFullYear();
-			
-			if (!yearlyMap.has(year)) {
-				yearlyMap.set(year, { signups: 0, purchases: 0, revenue: 0, commission: 0 });
-			}
-			
-			const yearData = yearlyMap.get(year);
-			if (yearData) {
-				yearData.signups += day.signups;
-				yearData.purchases += day.purchases;
-				yearData.revenue += day.revenue;
-				yearData.commission += day.commission;
-			}
-		});
-		
-		return Array.from(yearlyMap.entries())
-			.map(([year, data]) => ({
-				date: `${year}-01-01`,
-				...data,
-			}))
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+		return { startDate, endDate };
 	}
 
 	private getDataType(period: string, startDate?: Date, endDate?: Date): string {
@@ -1585,7 +1224,6 @@ existing.commission += Number(analytics.dailyCommission || 0);
 	) {
 		this.logger.info('START: getProgramSummaryList service');
 
-		// Check if user is super admin by checking the User table's role field
 		const user = await this.userService.getUserEntity(userId);
 
 		if (!user || user.role !== userRoleEnum.SUPER_ADMIN) {
@@ -1593,7 +1231,6 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			throw new ForbiddenException('Only super admins can access program summary list');
 		}
 
-		// Note: Materialized views are refreshed by MaterializedViewRefreshService cron job
 
 		const whereClause: FindOptionsWhere<ProgramSummaryView> = {
 			...(programId && { programId }),

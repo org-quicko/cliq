@@ -497,9 +497,7 @@ export class ProgramController {
         };
     }
 
-    /**
-     * Get promoters sorted by signups or purchases
-     */
+   
     @ApiResponse({ status: 200, description: 'OK' })
     @Permissions('read', PromoterAnalyticsView)
     @Get(':program_id/analytics/promoters')
@@ -531,9 +529,6 @@ export class ProgramController {
         };
     }
 
-    /**
-     * Get day-wise program analytics for charts
-     */
     @ApiResponse({ status: 200, description: 'OK' })
     @Permissions('read', Program)
     @Get(':program_id/analytics/daily')
