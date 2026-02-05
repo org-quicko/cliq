@@ -11,6 +11,7 @@ export interface UserLoginData extends LoginData {
 	user_id: string;
 	first_name: string;
 	last_name: string;
+	role: string;
 }
 
 @Injectable()
@@ -69,6 +70,7 @@ export class UserAuthService {
 					email: entity.email,
 					first_name: entity.firstName,
 					last_name: entity.lastName,
+					role: entity.role,
 				};
 			}
 		}
@@ -85,6 +87,7 @@ export class UserAuthService {
 			email: entity.email,
 			firstName: entity.first_name,
 			lastName: entity.last_name,
+			role: entity.role,
 			aud: audienceEnum.PROGRAM_USER,
 		};
 

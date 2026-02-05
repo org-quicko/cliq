@@ -319,6 +319,9 @@ export class AuthorizationService {
         allow('read_all', Program);
 
         for (const [programId, role] of Object.entries(programUserPermissions)) {
+            // All roles can read the program they're part of
+            allow('read', Program, { programId });
+            
             allow(['read', 'read_all'], [ReferralView, PromoterAnalyticsView, ProgramPromoter, Link, Circle, Function, Webhook, ApiKey], { programId });
             allow('read', User, { programUsers: { $elemMatch: { programId } } });
             allow(['read', 'read_all'], LinkAnalyticsView);
@@ -329,8 +332,8 @@ export class AuthorizationService {
 
             if (role === userRoleEnum.ADMIN || role === userRoleEnum.SUPER_ADMIN) {
 
-                // can read, update program or invite other users to the program
-                allow(['read', 'update', 'invite_user'], Program, { programId });
+                // can update program or invite other users to the program
+                allow(['update', 'invite_user'], Program, { programId });
                 allow('manage', Promoter);
 
                 // can only manage the program-promoter relations if you are admin of a program with this program ID

@@ -21,6 +21,7 @@ import { ApiKeyModule } from './modules/apiKey.module';
 import { ReferralModule } from './modules/referral.module';
 import { WebhookModule } from './modules/webhook.module';
 import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
+import { MaterializedViewRefreshModule } from './modules/materializedViewRefresh.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { bullMqConfig, jwtConfig, typeOrmConfig } from './config';
@@ -66,6 +67,7 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		PurchaseModule,
 		ReferralModule,
 		PromoterAnalyticsModule,
+		MaterializedViewRefreshModule,
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,

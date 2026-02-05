@@ -5,7 +5,7 @@ import {
 	NotFoundException,
 	UnauthorizedException,
 } from '@nestjs/common';
-import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, Between } from 'typeorm';
+import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, Between, ILike } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Circle, Commission, Program, Promoter, Purchase, ReferralView, SignUp, User } from '../entities';
 import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
@@ -262,10 +262,24 @@ export class ProgramService {
 	/**
 	 * Add user
 	 */
-	async addUser(programId: string, body: CreateUserDto) {
+	async addUser(programId: string, body: CreateUserDto, requestingUserId?: string) {
 		return this.datasource.transaction(async (manager) => {
 			this.logger.info('START: addUser service');
 			const programResult = await this.getProgramEntity(programId);
+
+			// Validate that only SUPER_ADMINs can assign SUPER_ADMIN role
+			if (body.role === userRoleEnum.SUPER_ADMIN) {
+				if (requestingUserId) {
+					const requestingUser = await this.userService.getUserEntity(requestingUserId);
+					if (requestingUser.role !== userRoleEnum.SUPER_ADMIN) {
+						this.logger.error('Only SUPER_ADMIN can assign SUPER_ADMIN role');
+						throw new ForbiddenException('Only SUPER_ADMIN can assign SUPER_ADMIN role');
+					}
+				} else {
+					this.logger.error('Cannot assign SUPER_ADMIN role without requesting user context');
+					throw new ForbiddenException('Only SUPER_ADMIN can assign SUPER_ADMIN role');
+				}
+			}
 
 			const user = await this.userService.getUserByEmail(body.email);
 
@@ -389,8 +403,23 @@ export class ProgramService {
 		programId: string,
 		userId: string,
 		body: UpdateProgramUserDto,
+		requestingUserId?: string,
 	) {
 		this.logger.info('START: updateRole service');
+
+		// Validate that only SUPER_ADMINs can assign SUPER_ADMIN role
+		if (body.role === userRoleEnum.SUPER_ADMIN) {
+			if (requestingUserId) {
+				const requestingUser = await this.userService.getUserEntity(requestingUserId);
+				if (requestingUser.role !== userRoleEnum.SUPER_ADMIN) {
+					this.logger.error('Only SUPER_ADMIN can assign SUPER_ADMIN role');
+					throw new ForbiddenException('Only SUPER_ADMIN can assign SUPER_ADMIN role');
+				}
+			} else {
+				this.logger.error('Cannot assign SUPER_ADMIN role without requesting user context');
+				throw new ForbiddenException('Only SUPER_ADMIN can assign SUPER_ADMIN role');
+			}
+		}
 
 		const programUserResult = await this.programUserRepository.findOne({
 			where: {
@@ -467,6 +496,17 @@ export class ProgramService {
 
 	async checkIfUserExistsInProgram(userId: string, programId: string, subject: subjectsType) {
 		this.logger.info('START: checkIfUserExistsInProgram service');
+		
+		// Get user to check if they're SUPER_ADMIN
+		const user = await this.userService.getUserEntity(userId);
+		
+		// SUPER_ADMIN can access all programs without being explicitly added
+		if (user && user.role === userRoleEnum.SUPER_ADMIN) {
+			this.logger.info('User is SUPER_ADMIN, granting access without program membership check');
+			this.logger.info('END: checkIfUserExistsInProgram service');
+			return subject;
+		}
+		
 		const programUserResult = await this.programUserRepository.findOne({
 			where: {
 				programId,
@@ -474,7 +514,7 @@ export class ProgramService {
 			},
 		});
 
-		this.logger.info('START: checkIfUserExistsInProgram service');
+		this.logger.info('END: checkIfUserExistsInProgram service');
 		return programUserResult === null ? programUserResult : subject;
 	}
 
@@ -723,10 +763,10 @@ export class ProgramService {
 			SELECT 
 				pa.promoter_id,
 				p.name,
-				SUM(pa.daily_revenue) AS total_revenue,
-				SUM(pa.daily_commission) AS total_commission,
-				SUM(pa.daily_signups) AS total_signups,
-				SUM(pa.daily_purchases) AS total_purchases
+				SUM(pa.revenue) AS total_revenue,
+				SUM(pa.commission) AS total_commission,
+				SUM(pa.signups) AS total_signups,
+				SUM(pa.purchases) AS total_purchases
 			FROM promoter_analytics_day_wise_mv pa
 			INNER JOIN promoter p ON p.promoter_id = pa.promoter_id
 			WHERE pa.program_id = $1
@@ -1754,6 +1794,7 @@ existing.commission += Number(analytics.dailyCommission || 0);
 	async getProgramSummaryList(
 		userId: string,
 		programId?: string,
+		name?: string,
 		skip: number = 0,
 		take: number = 10,
 	) {
@@ -1767,29 +1808,12 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			throw new ForbiddenException('Only super admins can access program summary list');
 		}
 
-		// Refresh the materialized views to get latest data
-		try {
-			// Refresh referral_mv first (dependency)
-			await this.datasource.query('REFRESH MATERIALIZED VIEW CONCURRENTLY referral_mv');
-			this.logger.info('Refreshed referral_mv');
-		} catch (error) {
-			this.logger.warn('Failed to refresh referral_mv, trying without CONCURRENTLY:', error);
-			try {
-				await this.datasource.query('REFRESH MATERIALIZED VIEW referral_mv');
-			} catch (innerError) {
-				this.logger.warn('Failed to refresh referral_mv:', innerError);
-			}
-		}
+		// Note: Materialized views are refreshed by MaterializedViewRefreshService cron job
 
-		try {
-			// Then refresh program_summary_mv
-			await this.datasource.query('REFRESH MATERIALIZED VIEW program_summary_mv');
-			this.logger.info('Refreshed program_summary_mv');
-		} catch (error) {
-			this.logger.warn('Failed to refresh program_summary_mv:', error);
-		}
-
-		const whereClause = programId ? { programId } : {};
+		const whereClause: FindOptionsWhere<ProgramSummaryView> = {
+			...(programId && { programId }),
+			...(name && { programName: ILike(`%${name}%`) }),
+		};
 
 		const [programSummaries, totalCount] = await this.programSummaryViewRepository.findAndCount({
 			where: whereClause,

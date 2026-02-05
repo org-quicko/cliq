@@ -20,6 +20,7 @@ import {
   Program,
   ProgramPromoter,
   ProgramUser,
+  PromoterAnalyticsView,
   Purchase,
   ReferralView,
   SignUp,
@@ -97,6 +98,7 @@ export class ProgramController {
   async getProgramSummaryList(
     @Headers('user_id') userId: string,
     @Query('program_id') programId?: string,
+    @Query('name') name?: string,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
@@ -105,6 +107,7 @@ export class ProgramController {
     const result = await this.programService.getProgramSummaryList(
       userId,
       programId,
+      name,
       skip,
       take,
     );
@@ -120,7 +123,7 @@ export class ProgramController {
    * Get program
    */
   @ApiResponse({ status: undefined, description: '' })
-	@Public()
+  @Public()
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {
     this.logger.info('START: getProgram controller');
@@ -178,12 +181,13 @@ export class ProgramController {
   @Permissions('invite_user', Program)
   @Post(':program_id/invite')
   async addUser(
+    @Headers('user_id') userId: string,
     @Param('program_id') programId: string,
     @Body() body: CreateUserDto,
   ) {
     this.logger.info('START: addUser controller');
 
-    await this.programService.addUser(programId, body);
+    await this.programService.addUser(programId, body, userId);
 
     this.logger.info('END: addUser controller');
     return { message: 'Successfully added user to program.' };
@@ -235,13 +239,14 @@ export class ProgramController {
   @Permissions('change_role', ProgramUser)
   @Patch(':program_id/users/:user_id')
   async updateRole(
+    @Headers('user_id') requestingUserId: string,
     @Param('program_id') programId: string,
     @Param('user_id') userId: string,
     @Body() body: UpdateProgramUserDto,
   ) {
     this.logger.info('START: updateRole controller');
 
-    await this.programService.updateRole(programId, userId, body);
+    await this.programService.updateRole(programId, userId, body, requestingUserId);
 
     this.logger.info('END: updateRole controller');
     return { message: 'Successfully updated role of user.' };
@@ -468,7 +473,7 @@ export class ProgramController {
 
 
     @ApiResponse({ status: 200, description: 'OK' })
-    @Public()
+    @Permissions('read', Program)
     @Get(':program_id/analytics')
     async getProgramAnalytics(
         @Param('program_id') programId: string,
@@ -496,7 +501,7 @@ export class ProgramController {
      * Get promoters sorted by signups or purchases
      */
     @ApiResponse({ status: 200, description: 'OK' })
-    @Public()
+    @Permissions('read', PromoterAnalyticsView)
     @Get(':program_id/analytics/promoters')
     async getPromoterAnalytics(
         @Param('program_id') programId: string,
@@ -530,7 +535,7 @@ export class ProgramController {
      * Get day-wise program analytics for charts
      */
     @ApiResponse({ status: 200, description: 'OK' })
-    @Public()
+    @Permissions('read', Program)
     @Get(':program_id/analytics/daily')
     async getDayWiseProgramAnalytics(
         @Param('program_id') programId: string,
