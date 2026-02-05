@@ -1116,338 +1116,83 @@ existing.commission += Number(analytics.dailyCommission || 0);
 		}));
 
 		// ===================== TEST DATA - Commented out for future testing =====================
-		const resultTest = [
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-			{
-				promoterId: '11111111-1111-1111-1111-111111111111',
-				promoterName: 'Aarav Sharma',
-				signups: 120,
-				purchases: 45,
-				revenue: 25000,
-				commission: 5000,
-			},
-			{
-				promoterId: '22222222-2222-2222-2222-222222222222',
-				promoterName: 'Priya Patel',
-				signups: 95,
-				purchases: 38,
-				revenue: 21000,
-				commission: 4200,
-			},
-			{
-				promoterId: '33333333-3333-3333-3333-333333333333',
-				promoterName: 'Rohan Mehta',
-				signups: 80,
-				purchases: 30,
-				revenue: 18000,
-				commission: 3600,
-			},
-			{
-				promoterId: '44444444-4444-4444-4444-444444444444',
-				promoterName: 'Sneha Kapoor',
-				signups: 60,
-				purchases: 25,
-				revenue: 14000,
-				commission: 2800,
-			},
-			{
-				promoterId: '55555555-5555-5555-5555-555555555555',
-				promoterName: 'Vikram Singh',
-				signups: 45,
-				purchases: 18,
-				revenue: 10000,
-				commission: 2000,
-			},
-		];
+		// const resultTest = [
+		// 	{
+		// 		promoterId: '44444444-4444-4444-4444-444444444444',
+		// 		promoterName: 'Sneha Kapoor',
+		// 		signups: 60,
+		// 		purchases: 25,
+		// 		revenue: 14000,
+		// 		commission: 2800,
+		// 	},
+		// 	{
+		// 		promoterId: '55555555-5555-5555-5555-555555555555',
+		// 		promoterName: 'Vikram Singh',
+		// 		signups: 45,
+		// 		purchases: 18,
+		// 		revenue: 10000,
+		// 		commission: 2000,
+		// 	},
+		// 	{
+		// 		promoterId: '11111111-1111-1111-1111-111111111111',
+		// 		promoterName: 'Aarav Sharma',
+		// 		signups: 120,
+		// 		purchases: 45,
+		// 		revenue: 25000,
+		// 		commission: 5000,
+		// 	},
+		// 	{
+		// 		promoterId: '22222222-2222-2222-2222-222222222222',
+		// 		promoterName: 'Priya Patel',
+		// 		signups: 95,
+		// 		purchases: 38,
+		// 		revenue: 21000,
+		// 		commission: 4200,
+		// 	},
+		// 	{
+		// 		promoterId: '33333333-3333-3333-3333-333333333333',
+		// 		promoterName: 'Rohan Mehta',
+		// 		signups: 80,
+		// 		purchases: 30,
+		// 		revenue: 18000,
+		// 		commission: 3600,
+		// 	},
+		// 	{
+		// 		promoterId: '44444444-4444-4444-4444-444444444444',
+		// 		promoterName: 'Sneha Kapoor',
+		// 		signups: 60,
+		// 		purchases: 25,
+		// 		revenue: 14000,
+		// 		commission: 2800,
+		// 	},
+		// 	{
+		// 		promoterId: '33333333-3333-3333-3333-333333333333',
+		// 		promoterName: 'Rohan Mehta',
+		// 		signups: 80,
+		// 		purchases: 30,
+		// 		revenue: 18000,
+		// 		commission: 3600,
+		// 	},
+		// 	{
+		// 		promoterId: '44444444-4444-4444-4444-444444444444',
+		// 		promoterName: 'Sneha Kapoor',
+		// 		signups: 60,
+		// 		purchases: 25,
+		// 		revenue: 14000,
+		// 		commission: 2800,
+		// 	},
+			
+		// ];
 		// To use test data, replace 'result' with 'resultTest' in the return statement
 		// ===================== END TEST DATA ===================== 
 
 
 		this.logger.info('END: getPromoterAnalytics service');
 
-		const testTotalCount = resultTest.length;
+		const testTotalCount = result.length;
 		return this.promoterAnalyticsConverter.convert({
 			programId,
-			promoters: resultTest.slice(skip, skip + take),
+			promoters: result.slice(skip, skip + take),
 			pagination: {
 				total: testTotalCount,
 				skip,
@@ -1525,152 +1270,192 @@ existing.commission += Number(analytics.dailyCommission || 0);
 			.orderBy('analytics.date', 'ASC')
 			.getRawMany();
 
-		// const allDailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> = 
-		// 	dayWiseData.map(row => ({
-		// 		date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : row.date,
-		// 		signups: Number(row.signups) || 0,
-		// 		purchases: Number(row.purchases) || 0,
-		// 		revenue: Number(row.revenue) || 0,
-		// 		commission: Number(row.commission) || 0,
-		// 	}));
+		const allDailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> = 
+			dayWiseData.map(row => ({
+				date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : row.date,
+				signups: Number(row.signups) || 0,
+				purchases: Number(row.purchases) || 0,
+				revenue: Number(row.revenue) || 0,
+				commission: Number(row.commission) || 0,
+			}));
 
-		// let analyticsData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
-
-		// if (period === '7days') {
-		// 	analyticsData = allDailyData.slice(-7);
-		// } else if (period === '30days') {
-		// 	analyticsData = allDailyData;
-		// } else if (period === '3months') {
-		// 	analyticsData = [];
-		// 	const dataMap = new Map(allDailyData.map(d => [d.date, d]));
-			
-		// 	const currentDate = new Date(today);
-		// 	for (let i = 0; i < 13; i++) {
-		// 		const dateStr = currentDate.toISOString().split('T')[0];
-		// 		const dataPoint = dataMap.get(dateStr);
-		// 		if (dataPoint) {
-		// 			analyticsData.unshift(dataPoint);
-		// 		} else {
-		// 			analyticsData.unshift({
-		// 				date: dateStr,
-		// 				signups: 0,
-		// 				purchases: 0,
-		// 				revenue: 0,
-		// 				commission: 0,
-		// 			});
-		// 		}
-		// 		currentDate.setDate(currentDate.getDate() - 7);
-		// 	}
-		// } else if (period === '6months') {
-		// 	analyticsData = this.aggregateDataByMonth(allDailyData, 6);
-		// } else if (period === '1year') {
-		// 	analyticsData = this.aggregateDataByMonth(allDailyData, 12);
-		// } else if (period === 'all') {
-		// 	analyticsData = this.aggregateDataByYear(allDailyData);
-		// } else {
-		// 	analyticsData = allDailyData;
-		// }
-
-		// ===================== TEST DATA - Commented out for future testing =====================
-		// Generate test data based on period requirements
-		const allDailyDataTest: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> = [];
-        
-		// Generate data for up to 4 years back to support 'all' period
-		const daysToGenerate = period === 'all' ? 365 * 4 : 
-		                       period === '1year' ? 365 : 
-		                       period === '6months' ? 180 : 
-		                       period === '3months' ? 90 : 30;
-		
-		for (let i = daysToGenerate; i >= 0; i--) {
-			const testDate = new Date(today);
-			testDate.setDate(testDate.getDate() - i);
-			const dateKey = testDate.toISOString().split('T')[0];
-            
-			allDailyDataTest.push({
-				date: dateKey,
-				signups: Math.floor(Math.random() * 50) + 30, // Random 30-80
-				purchases: Math.floor(Math.random() * 30) + 15, // Random 15-45
-				revenue: Math.floor(Math.random() * 5000) + 3000, // Random 3000-8000
-				commission: Math.floor(Math.random() * 1000) + 500, // Random 500-1500
-			});
-		}
-
-		// Process test data based on period
-		let analyticsDataTest: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
+		let analyticsData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
 
 		if (period === '7days') {
-			analyticsDataTest = allDailyDataTest.slice(-7);
+			analyticsData = allDailyData.slice(-7);
 		} else if (period === '30days') {
-			analyticsDataTest = allDailyDataTest;
+			analyticsData = allDailyData;
 		} else if (period === '3months') {
-			analyticsDataTest = [];
-			const dataMapTest = new Map(allDailyDataTest.map(d => [d.date, d]));
-			const currentDateTest = new Date(today);
+			analyticsData = [];
+			const dataMap = new Map(allDailyData.map(d => [d.date, d]));
+			
+			const currentDate = new Date(today);
 			for (let i = 0; i < 13; i++) {
-				const dateStr = currentDateTest.toISOString().split('T')[0];
-				const dataPoint = dataMapTest.get(dateStr);
+				const dateStr = currentDate.toISOString().split('T')[0];
+				const dataPoint = dataMap.get(dateStr);
 				if (dataPoint) {
-					analyticsDataTest.unshift(dataPoint);
+					analyticsData.unshift(dataPoint);
 				} else {
-					analyticsDataTest.unshift({
+					analyticsData.unshift({
 						date: dateStr,
-						signups: Math.floor(Math.random() * 50) + 30,
-						purchases: Math.floor(Math.random() * 30) + 15,
-						revenue: Math.floor(Math.random() * 5000) + 3000,
-						commission: Math.floor(Math.random() * 1000) + 500,
+						signups: 0,
+						purchases: 0,
+						revenue: 0,
+						commission: 0,
 					});
 				}
-				currentDateTest.setDate(currentDateTest.getDate() - 7);
+				currentDate.setDate(currentDate.getDate() - 7);
 			}
 		} else if (period === '6months') {
-			analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, 6);
+			analyticsData = this.aggregateDataByMonth(allDailyData, 6);
 		} else if (period === '1year') {
-			analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, 12);
+			analyticsData = this.aggregateDataByMonth(allDailyData, 12);
 		} else if (period === 'all') {
-			analyticsDataTest = this.aggregateDataByYear(allDailyDataTest);
-		} else if (period === 'custom') {
-			// Calculate day and month differences
-			const dayDiff = this.getDayDifference(startDate, endDate);
-			const monthDiff = this.getMonthDifference(startDate, endDate);
+			analyticsData = this.aggregateDataByYear(allDailyData);
+		} else if (period === 'custom' && customStartDate && customEndDate) {
+			// Handle custom period based on date range
+			const dayDiff = this.getDayDifference(customStartDate, customEndDate);
+			const monthDiff = this.getMonthDifference(customStartDate, customEndDate);
 			
 			if (dayDiff <= 7) {
-				// ≤ 7 days: Show daily data like 7days filter
-				analyticsDataTest = allDailyDataTest.slice(-7);
+				// ≤ 7 days: Show daily data
+				analyticsData = allDailyData;
 			} else if (dayDiff <= 30) {
-				// ≤ 30 days: Show daily data like 30days filter
-				analyticsDataTest = allDailyDataTest;
+				// ≤ 30 days: Show daily data
+				analyticsData = allDailyData;
 			} else if (dayDiff <= 90) {
-				// ≤ 3 months: Show weekly intervals like 3months filter
-				analyticsDataTest = [];
-				const dataMapCustom = new Map(allDailyDataTest.map(d => [d.date, d]));
-				const currentDateCustom = new Date(endDate);
+				// ≤ 3 months: Show weekly intervals
+				analyticsData = [];
+				const dataMap = new Map(allDailyData.map(d => [d.date, d]));
+				const currentDate = new Date(customEndDate);
 				const weeksToShow = Math.ceil(dayDiff / 7);
 				for (let i = 0; i < weeksToShow; i++) {
-					const dateStr = currentDateCustom.toISOString().split('T')[0];
-					const dataPoint = dataMapCustom.get(dateStr);
+					const dateStr = currentDate.toISOString().split('T')[0];
+					const dataPoint = dataMap.get(dateStr);
 					if (dataPoint) {
-						analyticsDataTest.unshift(dataPoint);
+						analyticsData.unshift(dataPoint);
 					} else {
-						analyticsDataTest.unshift({
+						analyticsData.unshift({
 							date: dateStr,
-							signups: Math.floor(Math.random() * 50) + 30,
-							purchases: Math.floor(Math.random() * 30) + 15,
-							revenue: Math.floor(Math.random() * 5000) + 3000,
-							commission: Math.floor(Math.random() * 1000) + 500,
+							signups: 0,
+							purchases: 0,
+							revenue: 0,
+							commission: 0,
 						});
 					}
-					currentDateCustom.setDate(currentDateCustom.getDate() - 7);
+					currentDate.setDate(currentDate.getDate() - 7);
 				}
 			} else if (monthDiff <= 35) {
 				// ≤ 35 months: Show monthly aggregation
-				analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, monthDiff + 1);
+				analyticsData = this.aggregateDataByMonth(allDailyData, monthDiff + 1);
 			} else {
 				// > 35 months: Show yearly aggregation
-				analyticsDataTest = this.aggregateDataByYear(allDailyDataTest);
+				analyticsData = this.aggregateDataByYear(allDailyData);
 			}
 		} else {
-			analyticsDataTest = allDailyDataTest;
+			analyticsData = allDailyData;
 		}
+
+		// ===================== TEST DATA - Commented out for future testing =====================
+		// Generate test data based on period requirements
+		// const allDailyDataTest: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }> = [];
+        
+		// // Generate data for up to 4 years back to support 'all' period
+		// const daysToGenerate = period === 'all' ? 365 * 4 : 
+		//                        period === '1year' ? 365 : 
+		//                        period === '6months' ? 180 : 
+		//                        period === '3months' ? 90 : 30;
+		
+		// for (let i = daysToGenerate; i >= 0; i--) {
+		// 	const testDate = new Date(today);
+		// 	testDate.setDate(testDate.getDate() - i);
+		// 	const dateKey = testDate.toISOString().split('T')[0];
+            
+		// 	allDailyDataTest.push({
+		// 		date: dateKey,
+		// 		signups: Math.floor(Math.random() * 50) + 30, // Random 30-80
+		// 		purchases: Math.floor(Math.random() * 30) + 15, // Random 15-45
+		// 		revenue: Math.floor(Math.random() * 5000) + 3000, // Random 3000-8000
+		// 		commission: Math.floor(Math.random() * 1000) + 500, // Random 500-1500
+		// 	});
+		// }
+
+		// // Process test data based on period
+		// let analyticsDataTest: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
+
+		// if (period === '7days') {
+		// 	analyticsDataTest = allDailyDataTest.slice(-7);
+		// } else if (period === '30days') {
+		// 	analyticsDataTest = allDailyDataTest;
+		// } else if (period === '3months') {
+		// 	analyticsDataTest = [];
+		// 	const dataMapTest = new Map(allDailyDataTest.map(d => [d.date, d]));
+		// 	const currentDateTest = new Date(today);
+		// 	for (let i = 0; i < 13; i++) {
+		// 		const dateStr = currentDateTest.toISOString().split('T')[0];
+		// 		const dataPoint = dataMapTest.get(dateStr);
+		// 		if (dataPoint) {
+		// 			analyticsDataTest.unshift(dataPoint);
+		// 		} else {
+		// 			analyticsDataTest.unshift({
+		// 				date: dateStr,
+		// 				signups: Math.floor(Math.random() * 50) + 30,
+		// 				purchases: Math.floor(Math.random() * 30) + 15,
+		// 				revenue: Math.floor(Math.random() * 5000) + 3000,
+		// 				commission: Math.floor(Math.random() * 1000) + 500,
+		// 			});
+		// 		}
+		// 		currentDateTest.setDate(currentDateTest.getDate() - 7);
+		// 	}
+		// } else if (period === '6months') {
+		// 	analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, 6);
+		// } else if (period === '1year') {
+		// 	analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, 12);
+		// } else if (period === 'all') {
+		// 	analyticsDataTest = this.aggregateDataByYear(allDailyDataTest);
+		// } else if (period === 'custom') {
+		// 	// Calculate day and month differences
+		// 	const dayDiff = this.getDayDifference(startDate, endDate);
+		// 	const monthDiff = this.getMonthDifference(startDate, endDate);
+			
+		// 	if (dayDiff <= 7) {
+		// 		// ≤ 7 days: Show daily data like 7days filter
+		// 		analyticsDataTest = allDailyDataTest.slice(-7);
+		// 	} else if (dayDiff <= 30) {
+		// 		// ≤ 30 days: Show daily data like 30days filter
+		// 		analyticsDataTest = allDailyDataTest;
+		// 	} else if (dayDiff <= 90) {
+		// 		// ≤ 3 months: Show weekly intervals like 3months filter
+		// 		analyticsDataTest = [];
+		// 		const dataMapCustom = new Map(allDailyDataTest.map(d => [d.date, d]));
+		// 		const currentDateCustom = new Date(endDate);
+		// 		const weeksToShow = Math.ceil(dayDiff / 7);
+		// 		for (let i = 0; i < weeksToShow; i++) {
+		// 			const dateStr = currentDateCustom.toISOString().split('T')[0];
+		// 			const dataPoint = dataMapCustom.get(dateStr);
+		// 			if (dataPoint) {
+		// 				analyticsDataTest.unshift(dataPoint);
+		// 			} else {
+		// 				analyticsDataTest.unshift({
+		// 					date: dateStr,
+		// 					signups: Math.floor(Math.random() * 50) + 30,
+		// 					purchases: Math.floor(Math.random() * 30) + 15,
+		// 					revenue: Math.floor(Math.random() * 5000) + 3000,
+		// 					commission: Math.floor(Math.random() * 1000) + 500,
+		// 				});
+		// 			}
+		// 			currentDateCustom.setDate(currentDateCustom.getDate() - 7);
+		// 		}
+		// 	} else if (monthDiff <= 35) {
+		// 		// ≤ 35 months: Show monthly aggregation
+		// 		analyticsDataTest = this.aggregateDataByMonth(allDailyDataTest, monthDiff + 1);
+		// 	} else {
+		// 		// > 35 months: Show yearly aggregation
+		// 		analyticsDataTest = this.aggregateDataByYear(allDailyDataTest);
+		// 	}
+		// } else {
+		// 	analyticsDataTest = allDailyDataTest;
+		// }
 		// To use test data, replace 'analyticsData' with 'analyticsDataTest' in the return statement
 		//===================== END TEST DATA ===================== */
 
@@ -1680,7 +1465,7 @@ existing.commission += Number(analytics.dailyCommission || 0);
             period,
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0],
-            dailyData: analyticsDataTest,
+            dailyData: analyticsData,
             dataType: this.getDataType(period, startDate, endDate), 
         };
     }
@@ -1768,7 +1553,7 @@ existing.commission += Number(analytics.dailyCommission || 0);
 				return 'weekly';
 			} else if (monthDiff <= 35) {
 				return 'monthly';
-			} else {
+			} else if(monthDiff > 35) {
 				return 'yearly';
 			}
 		}

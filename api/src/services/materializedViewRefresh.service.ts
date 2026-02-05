@@ -16,7 +16,7 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		private readonly dataSource: DataSource,
 		private readonly logger: LoggerService,
 	) {
-		this.cronExpression = process.env.REFRESH_MV_CRON || '*/30 * * * *'; // Default: every 30 minutes
+		this.cronExpression = process.env.REFRESH_MV_CRON || '*/5 * * * * *'; 
 	}
 
 	/**
@@ -28,11 +28,8 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		);
 	}
 
-	/**
-	 * Cron job to refresh materialized views
-	 * Default: runs every 30 minutes
-	 */
-	@Cron(process.env.REFRESH_MV_CRON || '*/30 * * * *', {
+
+	@Cron(process.env.REFRESH_MV_CRON || '*/5 * * * * *', {
 		name: 'refreshMaterializedViewsJob',
 	})
 	async refreshMaterializedViews() {
@@ -49,10 +46,7 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		}
 	}
 
-	/**
-	 * Refresh a single materialized view
-	 * First tries CONCURRENTLY (non-blocking), falls back to regular refresh
-	 */
+
 	async refreshView(viewName: string): Promise<boolean> {
 		try {
 			this.logger.info(`Refreshing materialized view: ${viewName}...`);
