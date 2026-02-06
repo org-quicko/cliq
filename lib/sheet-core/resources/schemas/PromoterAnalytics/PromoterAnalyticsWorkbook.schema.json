@@ -96,11 +96,23 @@
                               "enum": [
                                 "total_commission"
                               ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission_through_signups"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission_through_purchases"
+                              ]
                             }
                           ],
                           "additionalItems": false,
-                          "minItems": 7,
-                          "maxItems": 7
+                          "minItems": 9,
+                          "maxItems": 9
                         },
                         "rows": {
                           "type": "array",
@@ -127,11 +139,23 @@
                               },
                               {
                                 "type": "number"
+                              },
+                              {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
                               }
                             ],
                             "additionalItems": false,
-                            "minItems": 7,
-                            "maxItems": 7
+                            "minItems": 9,
+                            "maxItems": 9
                           }
                         }
                       },

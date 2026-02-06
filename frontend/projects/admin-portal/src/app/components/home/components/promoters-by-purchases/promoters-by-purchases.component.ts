@@ -111,6 +111,8 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
 
     toggleValueType() {
         this.showRevenue.update(v => !v);
+        // Re-fetch with new sort order
+        this.fetchDataWithDateRange();
     }
 
     getDisplayValue(item: any): number {
@@ -173,6 +175,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
         
         this.promoterPurchasesStore.loadMorePromotersByPurchases({
             programId,
+            sortBy: this.showRevenue() ? 'revenue' : 'commission_through_purchases',
             period: this.getPeriodValue(),
             startDate: start ? start.toISOString().split('T')[0] : undefined,
             endDate: end ? end.toISOString().split('T')[0] : undefined,
@@ -187,6 +190,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
 
         this.promoterPurchasesStore.fetchPromotersByPurchases({
             programId,
+            sortBy: this.showRevenue() ? 'revenue' : 'commission_through_purchases',
             period: this.getPeriodValue(),
             skip: 0,
             take: this.PAGE_SIZE,
@@ -202,6 +206,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
 
         this.promoterPurchasesStore.fetchPromotersByPurchases({
             programId,
+            sortBy: this.showRevenue() ? 'revenue' : 'commission_through_purchases',
             period: this.getPeriodValue(),
             startDate: start ? start.toISOString().split('T')[0] : undefined,
             endDate: end ? end.toISOString().split('T')[0] : undefined,

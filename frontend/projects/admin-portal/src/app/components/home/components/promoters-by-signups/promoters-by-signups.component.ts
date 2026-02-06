@@ -111,6 +111,8 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
     toggleValueType() {
         this.showSignups.update(v => !v);
+        // Re-fetch with new sort order
+        this.fetchDataWithDateRange();
     }
 
     getDisplayValue(item: any): number {
@@ -178,6 +180,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         
         this.promoterSignupsStore.loadMorePromotersBySignups({
             programId,
+            sortBy: this.showSignups() ? 'signups' : 'commission_through_signups',
             period: this.getPeriodValue(),
             startDate: start ? start.toISOString().split('T')[0] : undefined,
             endDate: end ? end.toISOString().split('T')[0] : undefined,
@@ -192,6 +195,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
         this.promoterSignupsStore.fetchPromotersBySignups({
             programId,
+            sortBy: this.showSignups() ? 'signups' : 'commission_through_signups',
             period: this.getPeriodValue(),
             skip: 0,
             take: this.PAGE_SIZE,
@@ -207,6 +211,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
         this.promoterSignupsStore.fetchPromotersBySignups({
             programId,
+            sortBy: this.showSignups() ? 'signups' : 'commission_through_signups',
             period: this.getPeriodValue(),
             startDate: start ? start.toISOString().split('T')[0] : undefined,
             endDate: end ? end.toISOString().split('T')[0] : undefined,

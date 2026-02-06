@@ -175,8 +175,7 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
     private updateChartData(): void {
         const metric = this.selectedMetric();
-        const isLineChart = metric === 'revenue';
-        this.currentChartType = isLineChart ? 'line' : 'bar';
+        this.currentChartType = 'bar';
 
         this.processedData = this.graphData.map(d => {
             const date = new Date(d.date);
@@ -186,55 +185,20 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
         this.assignXLabels();
 
-      this.chartData = {
-  labels: this.processedData.map(p => p.xLabel),
-  datasets: [{
-    label: this.getMetricLabel(metric),
-    data: this.processedData.map(p => p.value),
+        this.chartData = {
+            labels: this.processedData.map(p => p.xLabel),
+            datasets: [{
+                label: this.getMetricLabel(metric),
+                data: this.processedData.map(p => p.value),
+                borderColor: '#DCE1FF',
+                borderWidth: 1,
+                backgroundColor: '#DCE1FF',
+                hoverBackgroundColor: '#BDC5ED',
+                hoverBorderColor: '#BDC5ED',
+                borderRadius: 4,
+            }]
+        };
 
-    borderColor: isLineChart ? '#BDC5ED' : '#DCE1FF',
-    borderWidth: isLineChart ? 2 : 1,
-    tension: 0.03,
-    fill: isLineChart,
-
-backgroundColor: isLineChart
-  ? (context: any) => {
-      const chart = context.chart;
-      const { ctx, chartArea } = chart;
-
-      if (!chartArea) return 'rgba(189,197,237,0.25)';
-
-      const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-
-      // Stronger near the line
-      gradient.addColorStop(0, 'rgba(189,197,237,0.35)');
-
-      // Mid fade
-      gradient.addColorStop(0.5, 'rgba(220,225,255,0.18)');
-
-      // Almost invisible at bottom
-      gradient.addColorStop(1, 'rgba(250,248,255,0.05)');
-
-      return gradient;
-    }
-  : '#DCE1FF',
-
-
-    hoverBackgroundColor: isLineChart ? undefined : '#BDC5ED',
-    hoverBorderColor: '#BDC5ED',
-
-    pointRadius: 0,        
-    pointHoverRadius:4,     
-    pointBackgroundColor: '#BDC5ED',
-    pointBorderColor: '#ffffff',
-    pointBorderWidth: 2,
-
-    borderRadius: isLineChart ? 0 : 4,
-  }]
-};
-
-
-        // Delay ensures gradient renders after layout
         setTimeout(() => this.chart?.update());
     }
 

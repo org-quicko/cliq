@@ -1,6 +1,7 @@
 import { Component, Input, signal, computed, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { NgIf, NgForOf, CurrencyPipe } from '@angular/common';
 import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
@@ -16,7 +17,7 @@ export interface PopularityDataItem {
 @Component({
     selector: 'app-popularity-chart',
     standalone: true,
-    imports: [MatCardModule, MatIconModule, NgIf, NgForOf, FormatCurrencyPipe, NgxSkeletonLoaderModule],
+    imports: [MatCardModule, MatDividerModule, MatIconModule, NgIf, NgForOf, FormatCurrencyPipe, NgxSkeletonLoaderModule],
     templateUrl: './popularity-chart.component.html',
     styleUrls: ['./popularity-chart.component.css'],
 })

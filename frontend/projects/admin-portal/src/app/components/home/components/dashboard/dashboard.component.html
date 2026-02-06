@@ -1,23 +1,17 @@
-<div class="w-full h-auto gap-[26px]">
-	<div class="w-full flex flex-col gap-8">
+<div class="w-full flex flex-col gap-8">
 
-		<!-- Header -->
-		<header class="w-full h-auto flex flex-col gap-5">
-
-			<!-- Dashboard welcome header with date range filter -->
-			<div class="w-full flex justify-between items-center">
-				<div>
-					<span class="text-on-surface mat-title-large">
-						Welcome to your dashboard, {{ program()?.name }}!
-					</span>
-					<div class="text-on-surface-variant mat-body-medium mt-1">
-						Today is {{ today | date:'EEEE, d MMM yyyy' }}
-					</div>
-				</div>
-				<div>
-					<app-date-range-filter></app-date-range-filter>
-				</div>
-			</div>
+  <!-- Welcome Header -->
+  <header class="flex justify-between items-center">
+    <div>
+      <span class="text-on-surface mat-title-large">
+        Welcome to your dashboard, {{ program()?.name }}!
+      </span>
+      <div class="text-on-surface-variant mat-body-medium mt-1">
+        Today is {{ today | date:'EEEE, d MMM yyyy' }}
+      </div>
+    </div>
+    <app-date-range-filter></app-date-range-filter>
+  </header>
 
 			<!-- Statistics info -->
 			<div class="w-full flex flex-row gap-5">
@@ -83,7 +77,7 @@
 									Total Commission
 								</span>
 							</div>
-							<div class="mat-headline-large text-secondary">
+						<div class="mat-headline-large text-on-surface">
 								<span>{{ analytics()?.totalCommissions | formatCurrency:program()?.currency }}</span>
 							</div>
 						</div>
@@ -124,7 +118,6 @@
 					</div>
 				}
 			</div>
-		</header>
 
 		<!-- Top Promoters Section -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
@@ -205,5 +198,5 @@
 		</ng-template>
 	</div>
 
-	</div>
+	
 </div>

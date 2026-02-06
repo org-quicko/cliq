@@ -13,7 +13,7 @@
 	}
 
 	<!-- Card content -->
-	<mat-card class="rounded-lg border border-outline-variant flex flex-col">
+	<mat-card class="rounded-lg border border-outline-variant flex flex-col overflow-hidden">
 		<div class="p-4">
 			<div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
             <!-- Header row -->
@@ -62,10 +62,16 @@
                 </div>
             </ng-template>
         </div>
+        </div>
+
+		<!-- Divider -->
+		<mat-divider *ngIf="navigationLink" class="border-outline-variant"></mat-divider>
 
 		<!-- Navigation link -->
-		<div *ngIf="navigationLink " 
-			class="mt-4 text-primary mat-body-medium cursor-pointer hover:underline p-4"
+		<div *ngIf="navigationLink" 
+			class="text-primary mat-body-medium cursor-pointer hover:underline p-4 bg-white"
 			(click)="onNavigate()">
 			{{ navigationText }}
 		</div>
+	</mat-card>
+</div>

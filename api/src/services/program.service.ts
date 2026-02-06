@@ -918,7 +918,7 @@ export class ProgramService {
 
     async getPromoterAnalytics(
         programId: string,
-        sortBy: 'signups' | 'purchases' = 'signups',
+        sortBy: 'commission_through_signups' | 'signups' | 'commission_through_purchases' | 'revenue' = 'commission_through_signups',
         period: string = '30days',
         customStartDate?: Date,
         customEndDate?: Date,
@@ -929,8 +929,13 @@ export class ProgramService {
 
 		const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
 
-
-		const orderColumn = sortBy === 'signups' ? 'totalSignups' : 'totalPurchases';
+		const orderColumnMap: Record<string, string> = {
+			'commission_through_signups': 'commissionThroughSignups',
+			'signups': 'totalSignups',
+			'commission_through_purchases': 'commissionThroughPurchases',
+			'revenue': 'totalRevenue',
+		};
+		const orderColumn = orderColumnMap[sortBy] || 'commissionThroughSignups';
 
 		const promoterData = await this.promoterAnalyticsDayWiseViewRepository
 			.createQueryBuilder('analytics')
@@ -939,6 +944,8 @@ export class ProgramService {
 			.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'totalPurchases')
 			.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'totalRevenue')
 			.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'totalCommission')
+			.addSelect('COALESCE(SUM(analytics.commissionThroughSignups), 0)', 'commissionThroughSignups')
+			.addSelect('COALESCE(SUM(analytics.commissionThroughPurchases), 0)', 'commissionThroughPurchases')
 			.where('analytics.programId = :programId', { programId })
 			.andWhere('analytics.date >= :startDate', { startDate })
 			.andWhere('analytics.date <= :endDate', { endDate })
@@ -977,6 +984,8 @@ export class ProgramService {
 			purchases: Number(p.totalPurchases) || 0,
 			revenue: Number(p.totalRevenue) || 0,
 			commission: Number(p.totalCommission) || 0,
+			commissionThroughSignups: Number(p.commissionThroughSignups) || 0,
+			commissionThroughPurchases: Number(p.commissionThroughPurchases) || 0,
 		}));
 
 		this.logger.info('END: getPromoterAnalytics service');
@@ -1064,7 +1073,7 @@ export class ProgramService {
             
             const weeklyData = await this.promoterAnalyticsDayWiseViewRepository
                 .createQueryBuilder('analytics')
-                .select("DATE_TRUNC('week', analytics.date)", 'weekStart')
+                .select("TO_CHAR(DATE_TRUNC('week', analytics.date), 'YYYY-MM-DD')", 'weekStart')
                 .addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
                 .addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
                 .addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
@@ -1078,7 +1087,7 @@ export class ProgramService {
                 .getRawMany();
 
             analyticsData = weeklyData.map(row => ({
-                date: row.weekStart instanceof Date ? row.weekStart.toISOString().split('T')[0] : row.weekStart,
+                date: row.weekStart,
                 signups: Number(row.signups) || 0,
                 purchases: Number(row.purchases) || 0,
                 revenue: Number(row.revenue) || 0,
@@ -1088,7 +1097,7 @@ export class ProgramService {
         } else {
             const dailyData = await this.promoterAnalyticsDayWiseViewRepository
                 .createQueryBuilder('analytics')
-                .select('analytics.date', 'date')
+                .select("TO_CHAR(analytics.date, 'YYYY-MM-DD')", 'date')
                 .addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
                 .addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
                 .addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
@@ -1101,7 +1110,7 @@ export class ProgramService {
                 .getRawMany();
 
             analyticsData = dailyData.map(row => ({
-                date: row.date instanceof Date ? row.date.toISOString().split('T')[0] : row.date,
+                date: row.date,
                 signups: Number(row.signups) || 0,
                 purchases: Number(row.purchases) || 0,
                 revenue: Number(row.revenue) || 0,
@@ -1186,7 +1195,7 @@ export class ProgramService {
 			
 			if (dayDiff <= 7) {
 				return 'daily-7';
-			} else if (dayDiff <= 30) {
+			} else if (dayDiff <= 35) {
 				return 'daily-30';
 			} else if (dayDiff <= 90) {
 				return 'weekly';

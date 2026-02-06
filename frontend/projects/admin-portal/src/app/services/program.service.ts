@@ -105,7 +105,7 @@ export class ProgramService {
     getPromoterAnalytics(
         programId: string,
         options?: {
-            sortBy?: 'signups' | 'purchases';
+            sortBy?: 'commission_through_signups' | 'signups' | 'commission_through_purchases' | 'revenue';
             period?: string;
             startDate?: string;
             endDate?: string;

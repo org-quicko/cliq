@@ -503,7 +503,7 @@ export class ProgramController {
     @Get(':program_id/analytics/promoters')
     async getPromoterAnalytics(
         @Param('program_id') programId: string,
-        @Query('sortBy') sortBy: 'signups' | 'purchases' = 'signups',
+        @Query('sortBy') sortBy: 'commission_through_signups' | 'signups' | 'commission_through_purchases' | 'revenue' = 'commission_through_signups',
         @Query('period') period: string = '30days',
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,

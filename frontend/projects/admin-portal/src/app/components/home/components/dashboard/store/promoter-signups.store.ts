@@ -16,6 +16,8 @@ export interface PromoterData {
     purchases: number;
     revenue: number;
     commission: number;
+    commissionThroughSignups: number;
+    commissionThroughPurchases: number;
 }
 
 export interface PromoterSignupsStoreState {
@@ -46,25 +48,23 @@ export const PromoterSignupsStore = signalStore(
         isLoading: computed(() => store.status() === Status.LOADING),
         isLoadingMore: computed(() => store.loadingMore()),
         hasMore: computed(() => store.pagination()?.hasMore ?? false),
-        // Top 5 promoters (for dashboard) - sorted descending by signups
+        // Top 5 promoters (for dashboard) - order preserved from API (already sorted by sortBy)
         topPopularityData: computed(() => {
-            return [...store.promoters()]
-                .sort((a, b) => b.signups - a.signups)
+            return store.promoters()
                 .slice(0, 5)
                 .map(p => ({
                     label: p.promoterName,
-                    value: p.commission,
+                    value: p.commissionThroughSignups,
                     subValue: p.signups,
                     revenue: p.revenue,
                 }));
         }),
-        // Full list (for "View all promoters") - sorted descending by signups
+        // Full list (for "View all promoters") - order preserved from API
         popularityData: computed(() => {
-            return [...store.promoters()]
-                .sort((a, b) => b.signups - a.signups)
+            return store.promoters()
                 .map(p => ({
                     label: p.promoterName,
-                    value: p.commission,
+                    value: p.commissionThroughSignups,
                     subValue: p.signups,
                     revenue: p.revenue,
                 }));
@@ -81,6 +81,7 @@ export const PromoterSignupsStore = signalStore(
             },
             fetchPromotersBySignups: rxMethod<{
                 programId: string;
+                sortBy?: 'commission_through_signups' | 'signups';
                 period?: string;
                 startDate?: string;
                 endDate?: string;
@@ -91,9 +92,9 @@ export const PromoterSignupsStore = signalStore(
                     tap(() => {
                         patchState(store, { status: Status.LOADING, promoters: [] });
                     }),
-                    switchMap(({ programId, period, startDate, endDate, skip = 0, take = 20 }) => {
+                    switchMap(({ programId, sortBy = 'commission_through_signups', period, startDate, endDate, skip = 0, take = 20 }) => {
                         return programService.getPromoterAnalytics(programId, {
-                            sortBy: 'signups',
+                            sortBy,
                             period,
                             startDate,
                             endDate,
@@ -128,6 +129,8 @@ export const PromoterSignupsStore = signalStore(
                                                         purchases: Number(obj.total_purchases ?? 0),
                                                         revenue: Number(obj.total_revenue ?? 0),
                                                         commission: Number(obj.total_commission ?? 0),
+                                                        commissionThroughSignups: Number(obj.commission_through_signups ?? 0),
+                                                        commissionThroughPurchases: Number(obj.commission_through_purchases ?? 0),
                                                     };
                                                 });
                                             }
@@ -160,6 +163,7 @@ export const PromoterSignupsStore = signalStore(
             ),
             loadMorePromotersBySignups: rxMethod<{
                 programId: string;
+                sortBy?: 'commission_through_signups' | 'signups';
                 period?: string;
                 startDate?: string;
                 endDate?: string;
@@ -170,9 +174,9 @@ export const PromoterSignupsStore = signalStore(
                     tap(() => {
                         patchState(store, { loadingMore: true });
                     }),
-                    switchMap(({ programId, period, startDate, endDate, skip = 0, take = 20 }) => {
+                    switchMap(({ programId, sortBy = 'commission_through_signups', period, startDate, endDate, skip = 0, take = 20 }) => {
                         return programService.getPromoterAnalytics(programId, {
-                            sortBy: 'signups',
+                            sortBy,
                             period,
                             startDate,
                             endDate,
@@ -204,6 +208,8 @@ export const PromoterSignupsStore = signalStore(
                                                         purchases: Number(obj.total_purchases ?? 0),
                                                         revenue: Number(obj.total_revenue ?? 0),
                                                         commission: Number(obj.total_commission ?? 0),
+                                                        commissionThroughSignups: Number(obj.commission_through_signups ?? 0),
+                                                        commissionThroughPurchases: Number(obj.commission_through_purchases ?? 0),
                                                     };
                                                 });
                                             }
