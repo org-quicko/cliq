@@ -129,8 +129,8 @@ export const PromoterSignupsStore = signalStore(
                                                         purchases: Number(obj.total_purchases ?? 0),
                                                         revenue: Number(obj.total_revenue ?? 0),
                                                         commission: Number(obj.total_commission ?? 0),
-                                                        commissionThroughSignups: Number(obj.commission_through_signups ?? 0),
-                                                        commissionThroughPurchases: Number(obj.commission_through_purchases ?? 0),
+                                                    commissionThroughSignups: Number(obj.commission_through_signups ?? 0),
+                                                    commissionThroughPurchases: Number(obj.commission_through_purchases ?? 0),
                                                     };
                                                 });
                                             }

@@ -5,14 +5,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormatCurrencyPipe, Status, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ProgramStore } from '../../../../store/program.store';
 import { DateRangeStore } from '../../../../store/date-range.store';
 import { DashboardStore } from './store/dashboard.store';
 import { PromoterSignupsStore } from './store/promoter-signups.store';
 import { PromoterPurchasesStore } from './store/promoter-purchases.store';
-import { DayWiseAnalyticsStore } from './store/day-wise-analytics.store';
 import { PopularityChartComponent } from '../../../common/popularity-chart/popularity-chart.component';
 import { AnalyticsChartComponent } from '../../../common/analytics-chart/analytics-chart.component';
 import { DateRangeFilterComponent } from '../../../layout/range-selector/date-range-filter.component';
@@ -36,7 +35,7 @@ import { Router } from '@angular/router';
 		AnalyticsChartComponent,
 		DateRangeFilterComponent,
 	],
-	providers: [DashboardStore, PromoterSignupsStore, PromoterPurchasesStore, DayWiseAnalyticsStore],
+	providers: [DashboardStore, PromoterSignupsStore, PromoterPurchasesStore],
 	templateUrl: './dashboard.component.html',
 	styleUrl: './dashboard.component.css'
 })
@@ -47,7 +46,6 @@ export class DashboardComponent implements OnInit {
 	readonly dateRangeStore = inject(DateRangeStore);
 	readonly promoterSignupsStore = inject(PromoterSignupsStore);
 	readonly promoterPurchasesStore = inject(PromoterPurchasesStore);
-	readonly dayWiseAnalyticsStore = inject(DayWiseAnalyticsStore);
 	private router = inject(Router);
 
 	// For infinite-loop prevention
@@ -89,22 +87,17 @@ export class DashboardComponent implements OnInit {
 		});
 	}
 
-	readonly isAnalyticsLoading = computed(() => this.dashboardStore.analytics().status === Status.LOADING);
+	readonly isAnalyticsLoading = computed(() => this.dashboardStore.isLoading());
 	readonly isSignupsLoading = computed(() => this.promoterSignupsStore.isLoading());
 	readonly isPurchasesLoading = computed(() => this.promoterPurchasesStore.isLoading());
-	readonly isDayWiseLoading = computed(() => this.dayWiseAnalyticsStore.isLoading());
 
 	readonly program = computed(() => this.programStore.program());
 	readonly programId = computed(() => this.programStore.program()?.programId);
 
 	readonly analytics = computed(() => this.dashboardStore.analytics().data);
 	readonly period = computed(() => this.dashboardStore.analytics().period ?? '30days');
-	readonly dayWiseData = computed(() => {
-		const data = this.dayWiseAnalyticsStore.dailyData();
-		console.log('[Dashboard] Day-wise data received:', data);
-		return data;
-	});
-	readonly dataType = computed(() => this.dayWiseAnalyticsStore.dataType() ?? 'daily');
+	readonly dayWiseData = computed(() => this.dashboardStore.analytics().dailyData);
+	readonly dataType = computed(() => this.dashboardStore.analytics().dataType ?? 'daily');
 
 	readonly signupsPopularityData = computed(() => this.promoterSignupsStore.topPopularityData());
 	readonly purchasesPopularityData = computed(() => this.promoterPurchasesStore.topPopularityData());
@@ -144,7 +137,6 @@ export class DashboardComponent implements OnInit {
 	private loadAllData() {
 		this.loadAnalytics();
 		this.loadPromoterData();
-		this.loadDayWiseAnalytics();
 	}
 
 	loadAnalytics() {
@@ -158,25 +150,6 @@ export class DashboardComponent implements OnInit {
 				programId,
 				period,
 				// Pass custom dates for 'custom' range
-				...(period === 'custom' && start && end ? {
-					startDate: start.toISOString(),
-					endDate: end.toISOString(),
-				} : {}),
-			});
-		}
-	}
-
-	loadDayWiseAnalytics() {
-		const programId = this.programId();
-		if (programId) {
-			const period = this.getPeriodValue();
-			const start = this.dateRangeStore.start();
-			const end = this.dateRangeStore.end();
-			
-			console.log('[Dashboard] Fetching day-wise analytics for programId:', programId, 'period:', period);
-			this.dayWiseAnalyticsStore.fetchDayWiseAnalytics({
-				programId,
-				period,
 				...(period === 'custom' && start && end ? {
 					startDate: start.toISOString(),
 					endDate: end.toISOString(),

@@ -26,6 +26,7 @@ import {
     User,
     Webhook,
     LinkAnalyticsView,
+    ProgramSummaryView,
 } from '../entities';
 import { memberRoleEnum, userRoleEnum, statusEnum } from '../enums';
 import { UserService } from './user.service';
@@ -236,6 +237,10 @@ export class AuthorizationService {
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } else if (subject === LinkAnalyticsView) {
                     return this.checkIfMemberIsPartOfPromoter(request, subject);
+                } else if (subject === ProgramSummaryView) {
+                    // Only super admins can access, return subject itself
+                    if (action === 'read_all') return subject;
+                    return subject;
                 }
                 else {
                     return subject;
@@ -313,6 +318,7 @@ export class AuthorizationService {
         if (user.role === userRoleEnum.SUPER_ADMIN) {
             allow('manage', userResources);
             allow('manage', Promoter);
+            allow('read_all', ProgramSummaryView);
         }
 
         // will only return the programs that the user is part of

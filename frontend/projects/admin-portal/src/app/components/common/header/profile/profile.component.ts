@@ -7,7 +7,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
 import { ProgramStore } from '../../../../store/program.store';
-import { ProgramsListStore, ProgramWithRole } from '../../../../store/programs-list.store';
+import { ProgramUserStore, ProgramWithRole } from '../../../../store/program-user.store';
+import { UserStore } from '../../../../store/user.store';
 
 @Component({
 	selector: 'app-profile',
@@ -24,25 +25,65 @@ import { ProgramsListStore, ProgramWithRole } from '../../../../store/programs-l
 })
 export class ProfileComponent implements OnInit {
 	readonly programStore = inject(ProgramStore);
-	readonly programsListStore = inject(ProgramsListStore);
+	readonly programUserStore = inject(ProgramUserStore);
+	readonly userStore = inject(UserStore);
 
 	readonly programId = computed(() => this.programStore.program()?.programId);
-	readonly programs = this.programsListStore.programs;
+	readonly programs = this.programUserStore.programs;
+
+	// Get user name from UserStore
+	readonly userName = computed(() => {
+		const user = this.userStore.user();
+		if (user?.firstName && user?.lastName) {
+			return `${user.firstName} ${user.lastName}`;
+		} else if (user?.firstName) {
+			return user.firstName;
+		} else if (user?.lastName) {
+			return user.lastName;
+		}
+		// Fallback: extract name from email
+		const email = this.authService.getUserEmail();
+		if (email) {
+			const namePart = email.split('@')[0];
+			return namePart
+				.replace(/[._]/g, ' ')
+				.split(' ')
+				.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+				.join(' ');
+		}
+		return 'Admin';
+	});
+
+	// Get user role from ProgramUserStore
+	readonly userRole = computed(() => {
+		// First try to get role from current program user
+		const roleFromStore = this.programUserStore.role();
+		if (roleFromStore) {
+			return roleFromStore;
+		}
+		// Fallback: get role from programs list
+		const currentProgramId = this.programId();
+		const programs = this.programs();
+		if (currentProgramId && programs.length > 0) {
+			const currentProgram = programs.find(
+				(p: ProgramWithRole) => p.programId === currentProgramId
+			);
+			return currentProgram?.role || null;
+		}
+		return null;
+	});
 
 	userEmail = signal<string | null>(null);
-	userName = signal<string>('Admin');
-	userRole = signal<string | null>(null);
 
 	constructor(
 		private router: Router,
 		private authService: AuthService
 	) {
-		// Set user role when programs are loaded
+		// Update ProgramUserStore when program changes
 		effect(() => {
-			const programs = this.programs();
 			const programId = this.programId();
-			if (programs.length > 0 && programId) {
-				this.setUserRole();
+			if (programId) {
+				this.programUserStore.setRoleFromProgram(programId);
 			}
 		});
 	}
@@ -51,43 +92,6 @@ export class ProfileComponent implements OnInit {
 		// Get user email from JWT token
 		const email = this.authService.getUserEmail();
 		this.userEmail.set(email);
-
-		// Get user name from JWT token
-		this.setUserName();
-	}
-
-	setUserName() {
-		// Get name from JWT token (User entity has firstName and lastName)
-		const name = this.authService.getUserName();
-		if (name) {
-			this.userName.set(name);
-		} else {
-			// Fallback: extract name from email
-			const email = this.userEmail();
-			if (email) {
-				const namePart = email.split('@')[0];
-				const formattedName = namePart
-					.replace(/[._]/g, ' ')
-					.split(' ')
-					.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-					.join(' ');
-				this.userName.set(formattedName);
-			}
-		}
-	}
-
-	setUserRole() {
-		const currentProgramId = this.programId();
-		const programs = this.programs();
-		
-		if (currentProgramId && programs.length > 0) {
-			const currentProgram = programs.find(
-				(p: ProgramWithRole) => p.programId === currentProgramId
-			);
-			if (currentProgram?.role) {
-				this.userRole.set(currentProgram.role);
-			}
-		}
 	}
 
 	goToSettings() {

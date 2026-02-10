@@ -6,36 +6,6 @@ import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 
 Chart.register(...registerables);
 
-const verticalLinePlugin = {
-  id: 'verticalLinePlugin',
-  afterDraw: (chart: any) => {
-   
-    const isLineChart = chart.config.type === 'line';
-    if (!isLineChart) return;
-
-    if (!chart.tooltip?._active?.length) return;
-
-    const ctx = chart.ctx;
-    const activePoint = chart.tooltip._active[0];
-    const x = activePoint.element.x;
-    const topY = chart.scales.y.top;
-    const bottomY = chart.scales.y.bottom;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(x, topY);
-    ctx.lineTo(x, bottomY);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#E6E8F0'; // match design
-    ctx.stroke();
-    ctx.restore();
-  }
-};
-
-
-
-Chart.register(verticalLinePlugin);
-
 
 export interface DailyData {
     date: string;

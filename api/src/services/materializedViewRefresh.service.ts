@@ -15,7 +15,7 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		private readonly dataSource: DataSource,
 		private readonly logger: LoggerService,
 	) {
-		this.cronExpression = process.env.REFRESH_MV_CRON || '*/5 * * * * *'; 
+		this.cronExpression = process.env.REFRESH_MV_CRON || '*/30 * * * * *'; 
 	}
 
 	onModuleInit() {
@@ -49,7 +49,7 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 			
 
 			try {
-				await this.dataSource.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY ${viewName}`);
+				await this.dataSource.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY ${viewName}WITH DATA`);
 				this.logger.info(`Successfully refreshed (CONCURRENTLY): ${viewName}`);
 				return true;
 			} catch (concurrentError) {

@@ -11,6 +11,7 @@ export * from './linkAnalyticsDayWiseView.entity';
 export * from './member.entity';
 export * from './program.entity';
 export * from './programPromoter.entity';
+export * from './programSummaryView.entity';
 export * from './programUser.entity';
 export * from './promoter.entity';
 export * from './promoterAnalyticsView.entity';

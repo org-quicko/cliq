@@ -1,4 +1,4 @@
-import { Column, PrimaryColumn, ViewEntity } from 'typeorm';
+import { ViewColumn, PrimaryColumn, ViewEntity } from 'typeorm';
 
 @ViewEntity({
 	name: 'program_summary_mv',
@@ -25,17 +25,15 @@ export class ProgramSummaryView {
 	@PrimaryColumn({ name: 'program_id' })
 	programId: string;
 
-	@Column('varchar', { name: 'program_name' })
+	@ViewColumn({ name: 'program_name' })
 	programName: string;
 
-	@Column('bigint', { name: 'total_promoters' })
+	@ViewColumn({ name: 'total_promoters' })
 	totalPromoters: number;
 
-	@Column('bigint', { name: 'total_referrals' })
+	@ViewColumn({ name: 'total_referrals' })
 	totalReferrals: number;
 
-	@Column('timestamp with time zone', {
-		name: 'created_at',
-	})
+	@ViewColumn({ name: 'created_at' })
 	createdAt: Date;
 }

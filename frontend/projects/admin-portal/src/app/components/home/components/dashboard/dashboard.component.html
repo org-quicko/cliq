@@ -176,7 +176,7 @@
 
 	<!-- Analytics Chart Section -->
 	<div class="mt-6 rounded-lg overflow-hidden">
-		<ng-container *ngIf="isDayWiseLoading(); else chartContent">
+		<ng-container *ngIf="isAnalyticsLoading(); else chartContent">
 			<ngx-skeleton-loader [theme]="{
 				width: '100%',
 				height: '450px',

@@ -1,42 +1,36 @@
 import { ProgramSummaryViewWorkbook, ProgramSummaryViewRow } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from '../../services/logger.service';
-import { ConverterException } from '@org-quicko/core';
-
-export interface IProgramSummaryData {
-    programId: string;
-    programName: string;
-    totalPromoters: number;
-    totalReferrals: number;
-    createdAt: Date | string;
-}
-
-export interface IProgramSummaryConverterInput {
-    programs: IProgramSummaryData[];
-    pagination?: {
-        total: number;
-        skip: number;
-        take: number;
-        hasMore: boolean;
-    };
-}
+import { ConverterException, JSONObject } from '@org-quicko/core';
 
 @Injectable()
-export class ProgramSummaryViewConverter {
+export class ProgramSummaryViewWorkbookConverter {
     constructor(
         private logger: LoggerService,
     ) { }
 
-    convert(data: IProgramSummaryConverterInput) {
+    convert(
+        programs: Array<{
+            programId: string;
+            programName: string;
+            totalPromoters: number;
+            totalReferrals: number;
+            createdAt: Date | string;
+        }>,
+        pagination: {
+            skip: number;
+            take: number;
+        },
+    ) {
         try {
-            this.logger.info('START: convert function: ProgramSummaryViewConverter');
+            this.logger.info('START: convert function: ProgramSummaryViewWorkbookConverter');
 
             const workbook = new ProgramSummaryViewWorkbook();
 
             const sheet = workbook.getProgramSummaryViewSheet();
             const table = sheet.getProgramSummaryViewTable();
 
-            for (const program of data.programs) {
+            for (const program of programs) {
                 const row = new ProgramSummaryViewRow([]);
 
                 row.setProgramId(String(program.programId));
@@ -52,17 +46,13 @@ export class ProgramSummaryViewConverter {
                 table.addRow(row);
             }
 
-            if (data.pagination) {
-                workbook['metadata'] = {
-                    pagination: data.pagination,
-                };
-            }
+            workbook.setMetadata(new JSONObject({ pagination }));
 
-            this.logger.info('END: convert function: ProgramSummaryViewConverter');
+            this.logger.info('END: convert function: ProgramSummaryViewWorkbookConverter');
             return workbook;
 
         } catch (error) {
-            this.logger.error('Error in ProgramSummaryViewConverter:', error);
+            this.logger.error('Error in ProgramSummaryViewWorkbookConverter:', error);
             throw new ConverterException('Error converting program summary data', error);
         }
     }

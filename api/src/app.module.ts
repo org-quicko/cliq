@@ -23,6 +23,8 @@ import { WebhookModule } from './modules/webhook.module';
 import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
 import { MaterializedViewRefreshModule } from './modules/materializedViewRefresh.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { JwtModule } from '@nestjs/jwt';
 import { bullMqConfig, jwtConfig, typeOrmConfig } from './config';
 import { APP_GUARD } from '@nestjs/core';
@@ -71,6 +73,10 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,
+		ServeStaticModule.forRoot({
+			rootPath: join(__dirname, '..', '..', 'public'),
+			exclude: ['/api'],
+		})
 	],
 	controllers: [AppController],
 	providers: [

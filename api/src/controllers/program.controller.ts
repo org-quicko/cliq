@@ -95,16 +95,16 @@ export class ProgramController {
   @ApiResponse({ status: 403, description: 'Forbidden - Super Admin Only' })
   @Permissions('read_all', Program)
   @Get('summary')
-  async getProgramSummaryList(
+  async getProgramSummary(
     @Headers('user_id') userId: string,
     @Query('program_id') programId?: string,
     @Query('name') name?: string,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
   ) {
-    this.logger.info('START: getProgramSummaryList controller');
+    this.logger.info('START: getProgramSummary controller');
 
-    const result = await this.programService.getProgramSummaryList(
+    const result = await this.programService.getProgramSummary(
       userId,
       programId,
       name,
@@ -112,7 +112,7 @@ export class ProgramController {
       take,
     );
 
-    this.logger.info('END: getProgramSummaryList controller');
+    this.logger.info('END: getProgramSummary controller');
     return {
       message: 'Successfully fetched program summary list.',
       result
@@ -181,13 +181,12 @@ export class ProgramController {
   @Permissions('invite_user', Program)
   @Post(':program_id/invite')
   async addUser(
-    @Headers('user_id') userId: string,
     @Param('program_id') programId: string,
     @Body() body: CreateUserDto,
   ) {
     this.logger.info('START: addUser controller');
 
-    await this.programService.addUser(programId, body, userId);
+    await this.programService.addUser(programId, body);
 
     this.logger.info('END: addUser controller');
     return { message: 'Successfully added user to program.' };
@@ -232,21 +231,20 @@ export class ProgramController {
   }
 
   /**
-   * Update
+   * Update role
    */
   @ApiResponse({ status: 204, description: 'No Content' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @Permissions('change_role', ProgramUser)
   @Patch(':program_id/users/:user_id')
   async updateRole(
-    @Headers('user_id') requestingUserId: string,
     @Param('program_id') programId: string,
     @Param('user_id') userId: string,
     @Body() body: UpdateProgramUserDto,
   ) {
     this.logger.info('START: updateRole controller');
 
-    await this.programService.updateRole(programId, userId, body, requestingUserId);
+    await this.programService.updateRole(programId, userId, body);
 
     this.logger.info('END: updateRole controller');
     return { message: 'Successfully updated role of user.' };
@@ -491,9 +489,9 @@ export class ProgramController {
         );
 
         this.logger.info('END: getProgramAnalytics controller');
-        return { 
-            message: 'Successfully fetched program analytics.', 
-            result 
+        return {
+            message: 'Successfully fetched program analytics.',
+            result
         };
     }
 
@@ -528,32 +526,4 @@ export class ProgramController {
           result: workbook
         };
     }
-
-    @ApiResponse({ status: 200, description: 'OK' })
-    @Permissions('read', Program)
-    @Get(':program_id/analytics/daily')
-    async getDayWiseProgramAnalytics(
-        @Param('program_id') programId: string,
-        @Query('period') period: string = '30days',
-        @Query('startDate') startDate?: string,
-        @Query('endDate') endDate?: string,
-    ) {
-        this.logger.info('START: getDayWiseProgramAnalytics controller');
-
-        const result = await this.programService.getDayWiseProgramAnalytics(
-            programId,
-            period,
-            startDate ? new Date(startDate) : undefined,
-            endDate ? new Date(endDate) : undefined,
-        );
-
-        this.logger.info('END: getDayWiseProgramAnalytics controller');
-        return {
-            message: 'Successfully fetched day-wise program analytics.',
-            result
-        };
-    }
 }
-
-
-
