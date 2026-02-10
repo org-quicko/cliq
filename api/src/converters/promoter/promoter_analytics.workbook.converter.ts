@@ -11,8 +11,8 @@ export interface IPromoterAnalyticsData {
     purchases: number;
     revenue: number;
     commission: number;
-    commissionThroughSignups: number;
-    commissionThroughPurchases: number;
+    signupCommission: number;
+    purchaseCommission: number;
 }
 
 export interface IPromoterAnalyticsConverterInput {
@@ -54,8 +54,8 @@ export class PromoterAnalyticsConverter {
                         row.setTotalPurchases(Number(promoter.purchases ?? 0));
                         row.setTotalRevenue(Number(promoter.revenue ?? 0));
                         row.setTotalCommission(Number(promoter.commission ?? 0));
-                        row.setCommissionThroughSignups(promoter.commissionThroughSignups ?? null);
-                        row.setCommissionThroughPurchases(promoter.commissionThroughPurchases ?? null);
+                        row.setSignupCommission(promoter.signupCommission ?? null);
+                        row.setPurchaseCommission(promoter.purchaseCommission ?? null);
             table.addRow(row);
         }
 

@@ -16,8 +16,8 @@ export interface PromoterData {
     purchases: number;
     revenue: number;
     commission: number;
-    commissionThroughSignups: number;
-    commissionThroughPurchases: number;
+    signupCommission: number;
+    purchaseCommission: number;
 }
 
 export interface PromoterPurchasesStoreState {
@@ -54,7 +54,7 @@ export const PromoterPurchasesStore = signalStore(
                 .slice(0, 5)
                 .map(p => ({
                     label: p.promoterName,
-                    value: p.commissionThroughPurchases,
+                    value: p.purchaseCommission,
                     subValue: p.purchases,
                     revenue: p.revenue,
                 }));
@@ -64,7 +64,7 @@ export const PromoterPurchasesStore = signalStore(
             return store.promoters()
                 .map(p => ({
                     label: p.promoterName,
-                    value: p.commissionThroughPurchases,
+                    value: p.purchaseCommission,
                     subValue: p.purchases,
                     revenue: p.revenue,
                 }));
@@ -81,7 +81,7 @@ export const PromoterPurchasesStore = signalStore(
             },
             fetchPromotersByPurchases: rxMethod<{
                 programId: string;
-                sortBy?: 'commission_through_purchases' | 'revenue';
+                sortBy?: 'purchase_commission' | 'revenue';
                 period?: string;
                 startDate?: string;
                 endDate?: string;
@@ -92,7 +92,7 @@ export const PromoterPurchasesStore = signalStore(
                     tap(() => {
                         patchState(store, { status: Status.LOADING, promoters: [] });
                     }),
-                    switchMap(({ programId, sortBy = 'commission_through_purchases', period, startDate, endDate, skip = 0, take = 20 }) => {
+                    switchMap(({ programId, sortBy = 'purchase_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
                         return programService.getPromoterAnalytics(programId, {
                             sortBy,
                             period,
@@ -128,8 +128,8 @@ export const PromoterPurchasesStore = signalStore(
                                                         purchases: Number(obj.total_purchases ?? 0),
                                                         revenue: Number(obj.total_revenue ?? 0),
                                                         commission: Number(obj.total_commission ?? 0),
-                                                        commissionThroughSignups: Number(obj.commission_through_signups ?? 0),
-                                                        commissionThroughPurchases: Number(obj.commission_through_purchases ?? 0),
+                                                        signupCommission: Number(obj.signup_commission ?? 0),
+                                                        purchaseCommission: Number(obj.purchase_commission ?? 0),
                                                     };
                                                 });
                                             }
@@ -162,7 +162,7 @@ export const PromoterPurchasesStore = signalStore(
             ),
             loadMorePromotersByPurchases: rxMethod<{
                 programId: string;
-                sortBy?: 'commission_through_purchases' | 'revenue';
+                sortBy?: 'purchase_commission' | 'revenue';
                 period?: string;
                 startDate?: string;
                 endDate?: string;
@@ -173,7 +173,7 @@ export const PromoterPurchasesStore = signalStore(
                     tap(() => {
                         patchState(store, { loadingMore: true });
                     }),
-                    switchMap(({ programId, sortBy = 'commission_through_purchases', period, startDate, endDate, skip = 0, take = 20 }) => {
+                    switchMap(({ programId, sortBy = 'purchase_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
                         return programService.getPromoterAnalytics(programId, {
                             sortBy,
                             period,
@@ -207,8 +207,8 @@ export const PromoterPurchasesStore = signalStore(
                                                         purchases: Number(obj.total_purchases ?? 0),
                                                         revenue: Number(obj.total_revenue ?? 0),
                                                         commission: Number(obj.total_commission ?? 0),
-                                                        commissionThroughSignups: Number(obj.commission_through_signups ?? 0),
-                                                        commissionThroughPurchases: Number(obj.commission_through_purchases ?? 0),
+                                                        signupCommission: Number(obj.signup_commission ?? 0),
+                                                        purchaseCommission: Number(obj.purchase_commission ?? 0),
                                                     };
                                                 });
                                             }

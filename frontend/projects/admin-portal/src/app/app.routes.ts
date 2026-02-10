@@ -37,6 +37,10 @@ export const routes: Routes = [
                 },
             },
             {
+                path: 'programs/summary',
+                component: SuperAdminProgramsComponent,
+            },
+            {
                 path: 'programs/create',
                 component: CreateProgramContainerComponent,
                 children: [

@@ -991,7 +991,7 @@ export class ProgramService {
 
     async getPromoterAnalytics(
         programId: string,
-        sortBy: 'commission_through_signups' | 'signups' | 'commission_through_purchases' | 'revenue' = 'commission_through_signups',
+        sortBy: 'signup_commission' | 'signups' | 'purchase_commission' | 'revenue' = 'signup_commission',
         period: string = '30days',
         customStartDate?: Date,
         customEndDate?: Date,
@@ -1003,12 +1003,12 @@ export class ProgramService {
 		const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
 
 		const orderColumnMap: Record<string, string> = {
-			'commission_through_signups': 'commissionThroughSignups',
+			'signup_commission': 'signupCommission',
 			'signups': 'totalSignups',
-			'commission_through_purchases': 'commissionThroughPurchases',
+			'purchase_commission': 'purchaseCommission',
 			'revenue': 'totalRevenue',
 		};
-		const orderColumn = orderColumnMap[sortBy] || 'commissionThroughSignups';
+		const orderColumn = orderColumnMap[sortBy] || 'signupCommission';
 
 		const promoterData = await this.promoterAnalyticsDayWiseViewRepository
 			.createQueryBuilder('analytics')
@@ -1019,8 +1019,8 @@ export class ProgramService {
 			.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'totalPurchases')
 			.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'totalRevenue')
 			.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'totalCommission')
-			.addSelect('COALESCE(SUM(analytics.commissionThroughSignups), 0)', 'commissionThroughSignups')
-			.addSelect('COALESCE(SUM(analytics.commissionThroughPurchases), 0)', 'commissionThroughPurchases')
+			.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+			.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
 			.where('analytics.programId = :programId', { programId })
 			.andWhere('analytics.date >= :startDate', { startDate })
 			.andWhere('analytics.date <= :endDate', { endDate })
@@ -1047,8 +1047,8 @@ export class ProgramService {
 			purchases: Number(p.totalPurchases) || 0,
 			revenue: Number(p.totalRevenue) || 0,
 			commission: Number(p.totalCommission) || 0,
-			commissionThroughSignups: Number(p.commissionThroughSignups) || 0,
-			commissionThroughPurchases: Number(p.commissionThroughPurchases) || 0,
+			signupCommission: Number(p.signupCommission) || 0,
+			purchaseCommission: Number(p.purchaseCommission) || 0,
 		}));
 
 		this.logger.info('END: getPromoterAnalytics service');

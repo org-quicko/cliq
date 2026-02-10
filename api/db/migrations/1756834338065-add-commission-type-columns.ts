@@ -1,24 +1,19 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddCommissionTypeColumns1738886400000 implements MigrationInterface {
+export class AddCommissionTypeColumns1756834338065 implements MigrationInterface {
 	public async up(queryRunner: QueryRunner): Promise<void> {
 		// Add new columns to promoter_analytics_mv
 		await queryRunner.query(`
             ALTER TABLE promoter_analytics_mv 
-            ADD COLUMN commission_through_signups NUMERIC,
-            ADD COLUMN commission_through_purchases NUMERIC;
+            ADD COLUMN signup_commission NUMERIC,
+            ADD COLUMN purchase_commission NUMERIC;
         `);
 
 		// Add new columns to promoter_analytics_day_wise_mv
 		await queryRunner.query(`
             ALTER TABLE promoter_analytics_day_wise_mv 
-            ADD COLUMN commission_through_signups NUMERIC,
-            ADD COLUMN commission_through_purchases NUMERIC;
-        `);
-
-		// Drop existing trigger if exists
-		await queryRunner.query(`
-            DROP TRIGGER IF EXISTS trg_commission_to_promoter_analytics ON commission;
+            ADD COLUMN signup_commission NUMERIC,
+            ADD COLUMN purchase_commission NUMERIC;
         `);
 
 		// Create function to update promoter analytics from commission changes
@@ -77,9 +72,13 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
                 -- First try to update existing record
                 UPDATE promoter_analytics_day_wise_mv 
                 SET 
-                    commission = v_commission_signups + v_commission_purchases,
-                    commission_through_signups = v_commission_signups,
-                    commission_through_purchases = v_commission_purchases,
+                    commission = (SELECT COALESCE(SUM(com.amount), 0) 
+                                  FROM commission com 
+                                  WHERE com.promoter_id = v_promoter_id
+                                    AND com.created_at >= date_start 
+                                    AND com.created_at < date_end),
+                    signup_commission = v_commission_signups,
+                    purchase_commission = v_commission_purchases,
                     updated_at = now()
                 WHERE date = v_date 
                     AND promoter_id = v_promoter_id 
@@ -89,7 +88,7 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
                 IF NOT FOUND THEN
                     INSERT INTO promoter_analytics_day_wise_mv (
                         date, promoter_id, program_id,
-                        revenue, commission, commission_through_signups, commission_through_purchases,
+                        revenue, commission, signup_commission, purchase_commission,
                         signups, purchases,
                         created_at, updated_at
                     )
@@ -98,7 +97,11 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
                         v_promoter_id,
                         v_program_id,
                         0,
-                        v_commission_signups + v_commission_purchases,
+                        (SELECT COALESCE(SUM(com.amount), 0) 
+                         FROM commission com 
+                         WHERE com.promoter_id = v_promoter_id
+                           AND com.created_at >= date_start 
+                           AND com.created_at < date_end),
                         NULLIF(v_commission_signups, 0),
                         NULLIF(v_commission_purchases, 0),
                         0,
@@ -138,7 +141,7 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
                 INSERT INTO promoter_analytics_mv (
                     promoter_id, program_id, 
                     total_revenue, total_commission,
-                    commission_through_signups, commission_through_purchases,
+                    signup_commission, purchase_commission,
                     total_signups, total_purchases, 
                     created_at, updated_at
                 )
@@ -151,10 +154,10 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
                     (SELECT COALESCE(SUM(commission), 0) 
                      FROM promoter_analytics_day_wise_mv 
                      WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id),
-                    (SELECT COALESCE(SUM(commission_through_signups), 0) 
+                    (SELECT COALESCE(SUM(signup_commission), 0) 
                      FROM promoter_analytics_day_wise_mv 
                      WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id),
-                    (SELECT COALESCE(SUM(commission_through_purchases), 0) 
+                    (SELECT COALESCE(SUM(purchase_commission), 0) 
                      FROM promoter_analytics_day_wise_mv 
                      WHERE promoter_id = NEW.promoter_id AND program_id = NEW.program_id),
                     (SELECT COALESCE(SUM(signups), 0) 
@@ -170,8 +173,8 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
                 DO UPDATE SET
                     total_revenue = EXCLUDED.total_revenue,
                     total_commission = EXCLUDED.total_commission,
-                    commission_through_signups = EXCLUDED.commission_through_signups,
-                    commission_through_purchases = EXCLUDED.commission_through_purchases,
+                    signup_commission = EXCLUDED.signup_commission,
+                    purchase_commission = EXCLUDED.purchase_commission,
                     total_signups = EXCLUDED.total_signups,
                     total_purchases = EXCLUDED.total_purchases,
                     updated_at = EXCLUDED.updated_at;
@@ -179,44 +182,6 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
                 RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;
-        `);
-
-		// Backfill existing data with commission breakdown
-		await queryRunner.query(`
-            UPDATE promoter_analytics_day_wise_mv padw
-            SET 
-                commission_through_signups = NULLIF(
-                    (SELECT COALESCE(SUM(c.amount), 0) 
-                     FROM commission c 
-                     WHERE c.promoter_id = padw.promoter_id 
-                       AND DATE(c.created_at) = padw.date
-                       AND c.conversion_type = 'signup'), 0
-                ),
-                commission_through_purchases = NULLIF(
-                    (SELECT COALESCE(SUM(c.amount), 0) 
-                     FROM commission c 
-                     WHERE c.promoter_id = padw.promoter_id 
-                       AND DATE(c.created_at) = padw.date
-                       AND c.conversion_type = 'purchase'), 0
-                );
-        `);
-
-		// Backfill aggregate table
-		await queryRunner.query(`
-            UPDATE promoter_analytics_mv pa
-            SET 
-                commission_through_signups = NULLIF(
-                    (SELECT COALESCE(SUM(commission_through_signups), 0) 
-                     FROM promoter_analytics_day_wise_mv 
-                     WHERE promoter_id = pa.promoter_id 
-                       AND program_id = pa.program_id), 0
-                ),
-                commission_through_purchases = NULLIF(
-                    (SELECT COALESCE(SUM(commission_through_purchases), 0) 
-                     FROM promoter_analytics_day_wise_mv 
-                     WHERE promoter_id = pa.promoter_id 
-                       AND program_id = pa.program_id), 0
-                );
         `);
 	}
 
@@ -272,15 +237,15 @@ export class AddCommissionTypeColumns1738886400000 implements MigrationInterface
 		// Remove columns from promoter_analytics_day_wise_mv
 		await queryRunner.query(`
             ALTER TABLE promoter_analytics_day_wise_mv 
-            DROP COLUMN commission_through_signups,
-            DROP COLUMN commission_through_purchases;
+            DROP COLUMN signup_commission,
+            DROP COLUMN purchase_commission;
         `);
 
 		// Remove columns from promoter_analytics_mv
 		await queryRunner.query(`
             ALTER TABLE promoter_analytics_mv 
-            DROP COLUMN commission_through_signups,
-            DROP COLUMN commission_through_purchases;
+            DROP COLUMN signup_commission,
+            DROP COLUMN purchase_commission;
         `);
 	}
 }

@@ -1740,6 +1740,8 @@ export class PromoterService {
 							totalRevenue: 0,
 							totalSignUps: 0,
 							totalPurchases: 0,
+							signupCommission: 0,
+							purchaseCommission: 0,
 							createdAt: new Date(),
 							updatedAt: new Date(),
 						}

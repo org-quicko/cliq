@@ -1,6 +1,6 @@
 -- ============================================================================
 -- COMPREHENSIVE TEST DATA FOR DASHBOARD
--- Program ID: 727c1da5-2d78-48d5-9492-8488a74333ab (The Jedi)
+-- Program ID: 930433e7-591c-4dda-a300-d3bfe17bd03d (The Jedi)
 -- Date Range: 2021-2026 for comprehensive chart testing
 -- ============================================================================
 
@@ -27,25 +27,16 @@ TRUNCATE webhook CASCADE;
 
 -- ============================================================================
 -- STEP 1: Insert Users
--- Password is 'Test@123' hashed with bcrypt
+-- Using existing users from the database
 -- ============================================================================
--- INSERT INTO "user" (user_id, email, password, first_name, last_name, role, created_at, updated_at)
--- VALUES 
---   ('00000001-0001-0001-0001-000000000001', 'superadmin@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Super', 'Admin', 'super_admin', '2021-01-01', NOW()),
---   ('00000002-0002-0002-0002-000000000002', 'admin@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Program', 'Admin', 'admin', '2021-01-01', NOW()),
---   ('00000003-0003-0003-0003-000000000003', 'editor@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Content', 'Editor', 'editor', '2021-01-01', NOW()),
---   ('00000004-0004-0004-0004-000000000004', 'viewer@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Read', 'Only', 'viewer', '2021-01-01', NOW())
--- ON CONFLICT (user_id) DO NOTHING;
 
 -- ============================================================================
--- STEP 2: Program Users for The Jedi (727c1da5-2d78-48d5-9492-8488a74333ab)
+-- STEP 2: Program Users for The Jedi (930433e7-591c-4dda-a300-d3bfe17bd03d)
 -- ============================================================================
 INSERT INTO program_user (program_id, user_id, status, role, created_at, updated_at)
 VALUES 
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '00000001-0001-0001-0001-000000000001', 'active', 'super_admin', '2021-01-01', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '00000002-0002-0002-0002-000000000002', 'active', 'admin', '2021-01-01', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '00000003-0003-0003-0003-000000000003', 'active', 'editor', '2021-01-01', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '00000004-0004-0004-0004-000000000004', 'active', 'viewer', '2021-01-01', NOW())
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', 'bacea157-5c8c-4d94-8659-e38f63d7d220', 'active', 'super_admin', '2021-01-01', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '9daf8d36-754d-46db-a3f8-f291dcec975f', 'active', 'admin', '2021-01-01', NOW())
 ON CONFLICT (program_id, user_id) DO NOTHING;
 
 -- ============================================================================
@@ -53,7 +44,7 @@ ON CONFLICT (program_id, user_id) DO NOTHING;
 -- ============================================================================
 INSERT INTO api_key (api_key_id, key, secret, status, program_id, created_at, updated_at)
 VALUES 
-  ('00001111-1111-1111-1111-111111111111', 'pk_test_jedi_live_001', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW())
+  ('00001111-1111-1111-1111-111111111111', 'pk_test_jedi_live_001', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW())
 ON CONFLICT (api_key_id) DO NOTHING;
 
 -- ============================================================================
@@ -61,7 +52,7 @@ ON CONFLICT (api_key_id) DO NOTHING;
 -- ============================================================================
 INSERT INTO webhook (webhook_id, url, program_id, secret, events, created_at, updated_at)
 VALUES 
-  ('00002222-2222-2222-2222-222222222222', 'https://thejedi.com/api/webhooks', '727c1da5-2d78-48d5-9492-8488a74333ab', 'whsec_jedi_secret_456', ARRAY['commission.created', 'signup.created', 'purchase.created'], '2021-01-01', NOW())
+  ('00002222-2222-2222-2222-222222222222', 'https://thejedi.com/api/webhooks', '930433e7-591c-4dda-a300-d3bfe17bd03d', 'whsec_jedi_secret_456', ARRAY['commission.created', 'signup.created', 'purchase.created'], '2021-01-01', NOW())
 ON CONFLICT (webhook_id) DO NOTHING;
 
 -- ============================================================================
@@ -106,31 +97,31 @@ ON CONFLICT (promoter_id) DO NOTHING;
 -- ============================================================================
 INSERT INTO program_promoter (program_id, promoter_id, accepted_terms_and_conditions, created_at, updated_at)
 VALUES 
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', true, '2021-01-15', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', true, '2021-03-20', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', 'cccccccc-cccc-cccc-cccc-cccccccccccc', true, '2021-06-10', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', 'dddddddd-dddd-dddd-dddd-dddddddddddd', true, '2021-09-05', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', true, '2021-11-22', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', 'ffffffff-ffff-ffff-ffff-ffffffffffff', true, '2022-02-14', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '10101010-1010-1010-1010-101010101010', true, '2022-04-18', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '12121212-1212-1212-1212-121212121212', true, '2022-07-25', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '13131313-1313-1313-1313-131313131313', true, '2022-10-08', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '14141414-1414-1414-1414-141414141414', true, '2022-12-01', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '15151515-1515-1515-1515-151515151515', true, '2023-01-22', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '16161616-1616-1616-1616-161616161616', true, '2023-04-05', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '17171717-1717-1717-1717-171717171717', true, '2023-06-18', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '18181818-1818-1818-1818-181818181818', true, '2023-09-27', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '19191919-1919-1919-1919-191919191919', true, '2023-11-14', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '20202020-2020-2020-2020-202020202020', true, '2024-02-10', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '21212121-2121-2121-2121-212121212121', true, '2024-05-19', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '22222222-2222-2222-2222-222222222222', true, '2024-07-28', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '23232323-2323-2323-2323-232323232323', false, '2024-09-15', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '24242424-2424-2424-2424-242424242424', true, '2024-11-03', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '25252525-2525-2525-2525-252525252525', true, '2025-01-20', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '26262626-2626-2626-2626-262626262626', true, '2025-04-12', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '27272727-2727-2727-2727-272727272727', true, '2025-07-05', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '28282828-2828-2828-2828-282828282828', true, '2025-10-18', NOW()),
-  ('727c1da5-2d78-48d5-9492-8488a74333ab', '29292929-2929-2929-2929-292929292929', true, '2025-12-01', NOW())
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', true, '2021-01-15', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', true, '2021-03-20', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', 'cccccccc-cccc-cccc-cccc-cccccccccccc', true, '2021-06-10', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', 'dddddddd-dddd-dddd-dddd-dddddddddddd', true, '2021-09-05', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', true, '2021-11-22', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', 'ffffffff-ffff-ffff-ffff-ffffffffffff', true, '2022-02-14', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '10101010-1010-1010-1010-101010101010', true, '2022-04-18', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '12121212-1212-1212-1212-121212121212', true, '2022-07-25', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '13131313-1313-1313-1313-131313131313', true, '2022-10-08', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '14141414-1414-1414-1414-141414141414', true, '2022-12-01', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '15151515-1515-1515-1515-151515151515', true, '2023-01-22', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '16161616-1616-1616-1616-161616161616', true, '2023-04-05', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '17171717-1717-1717-1717-171717171717', true, '2023-06-18', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '18181818-1818-1818-1818-181818181818', true, '2023-09-27', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '19191919-1919-1919-1919-191919191919', true, '2023-11-14', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '20202020-2020-2020-2020-202020202020', true, '2024-02-10', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '21212121-2121-2121-2121-212121212121', true, '2024-05-19', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '22222222-2222-2222-2222-222222222222', true, '2024-07-28', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '23232323-2323-2323-2323-232323232323', false, '2024-09-15', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '24242424-2424-2424-2424-242424242424', true, '2024-11-03', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '25252525-2525-2525-2525-252525252525', true, '2025-01-20', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '26262626-2626-2626-2626-262626262626', true, '2025-04-12', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '27272727-2727-2727-2727-272727272727', true, '2025-07-05', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '28282828-2828-2828-2828-282828282828', true, '2025-10-18', NOW()),
+  ('930433e7-591c-4dda-a300-d3bfe17bd03d', '29292929-2929-2929-2929-292929292929', true, '2025-12-01', NOW())
 ON CONFLICT (program_id, promoter_id) DO NOTHING;
 
 -- ============================================================================
@@ -138,9 +129,9 @@ ON CONFLICT (program_id, promoter_id) DO NOTHING;
 -- ============================================================================
 INSERT INTO circle (circle_id, name, is_default_circle, program_id, created_at, updated_at)
 VALUES 
-  ('00009999-0001-0001-0001-000000000001', 'Default Circle', true, '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW()),
-  ('00009999-0002-0002-0002-000000000002', 'Premium Partners', false, '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW()),
-  ('00009999-0003-0003-0003-000000000003', 'VIP Circle', false, '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW())
+  ('00009999-0001-0001-0001-000000000001', 'Default Circle', true, '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW()),
+  ('00009999-0002-0002-0002-000000000002', 'Premium Partners', false, '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW()),
+  ('00009999-0003-0003-0003-000000000003', 'VIP Circle', false, '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW())
 ON CONFLICT (circle_id) DO NOTHING;
 
 -- ============================================================================
@@ -182,10 +173,10 @@ ON CONFLICT (circle_id, promoter_id) DO NOTHING;
 -- ============================================================================
 INSERT INTO function (function_id, name, trigger, effect_type, effect, status, circle_id, program_id, created_at, updated_at)
 VALUES 
-  ('00016666-0001-0001-0001-000000000001', 'Signup Commission $10', 'signup', 'generate_commission', '{"type": "fixed", "value": 10}', 'active', '00009999-0001-0001-0001-000000000001', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW()),
-  ('00016666-0002-0002-0002-000000000002', 'Default Purchase 10%', 'purchase', 'generate_commission', '{"type": "percentage", "value": 10}', 'active', '00009999-0001-0001-0001-000000000001', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW()),
-  ('00016666-0003-0003-0003-000000000003', 'Premium Purchase 15%', 'purchase', 'generate_commission', '{"type": "percentage", "value": 15}', 'active', '00009999-0002-0002-0002-000000000002', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW()),
-  ('00016666-0004-0004-0004-000000000004', 'VIP Purchase 20%', 'purchase', 'generate_commission', '{"type": "percentage", "value": 20}', 'active', '00009999-0003-0003-0003-000000000003', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-01', NOW())
+  ('00016666-0001-0001-0001-000000000001', 'Signup Commission $10', 'signup', 'generate_commission', '{"type": "fixed", "value": 10}', 'active', '00009999-0001-0001-0001-000000000001', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW()),
+  ('00016666-0002-0002-0002-000000000002', 'Default Purchase 10%', 'purchase', 'generate_commission', '{"type": "percentage", "value": 10}', 'active', '00009999-0001-0001-0001-000000000001', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW()),
+  ('00016666-0003-0003-0003-000000000003', 'Premium Purchase 15%', 'purchase', 'generate_commission', '{"type": "percentage", "value": 15}', 'active', '00009999-0002-0002-0002-000000000002', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW()),
+  ('00016666-0004-0004-0004-000000000004', 'VIP Purchase 20%', 'purchase', 'generate_commission', '{"type": "percentage", "value": 20}', 'active', '00009999-0003-0003-0003-000000000003', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-01', NOW())
 ON CONFLICT (function_id) DO NOTHING;
 
 -- ============================================================================
@@ -193,11 +184,11 @@ ON CONFLICT (function_id) DO NOTHING;
 -- ============================================================================
 INSERT INTO member (member_id, email, password, first_name, last_name, program_id, created_at, updated_at)
 VALUES 
-  ('00022121-0001-0001-0001-000000000001', 'john.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'John', 'Doe', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-01-15', NOW()),
-  ('00022121-0002-0002-0002-000000000002', 'jane.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Jane', 'Smith', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-03-20', NOW()),
-  ('00022121-0003-0003-0003-000000000003', 'mike.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Mike', 'Johnson', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-06-10', NOW()),
-  ('00022121-0004-0004-0004-000000000004', 'sarah.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Sarah', 'Williams', '727c1da5-2d78-48d5-9492-8488a74333ab', '2021-09-05', NOW()),
-  ('00022121-0005-0005-0005-000000000005', 'emma.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Emma', 'Davis', '727c1da5-2d78-48d5-9492-8488a74333ab', '2022-02-14', NOW())
+  ('00022121-0001-0001-0001-000000000001', 'john.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'John', 'Doe', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-01-15', NOW()),
+  ('00022121-0002-0002-0002-000000000002', 'jane.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Jane', 'Smith', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-03-20', NOW()),
+  ('00022121-0003-0003-0003-000000000003', 'mike.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Mike', 'Johnson', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-06-10', NOW()),
+  ('00022121-0004-0004-0004-000000000004', 'sarah.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Sarah', 'Williams', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2021-09-05', NOW()),
+  ('00022121-0005-0005-0005-000000000005', 'emma.member@test.com', '$2b$10$rQnF7yYdZhKxHHC4mONKdOqGqFZYdHPQpFLnJJ0QFHXzRZ3ZR8ZYq', 'Emma', 'Davis', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2022-02-14', NOW())
 ON CONFLICT (member_id) DO NOTHING;
 
 -- ============================================================================
@@ -217,31 +208,31 @@ ON CONFLICT (promoter_id, member_id) DO NOTHING;
 -- ============================================================================
 INSERT INTO link (link_id, name, ref_val, status, program_id, promoter_id, created_at, updated_at)
 VALUES 
-  ('00026565-0001-0001-0001-000000000001', 'John Main Link', 'john-main', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2021-01-15', NOW()),
-  ('00026565-0002-0002-0002-000000000002', 'Jane Social', 'jane-social', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2021-03-20', NOW()),
-  ('00026565-0003-0003-0003-000000000003', 'Mike Blog', 'mike-blog', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', 'cccccccc-cccc-cccc-cccc-cccccccccccc', '2021-06-10', NOW()),
-  ('00026565-0004-0004-0004-000000000004', 'Sarah TikTok', 'sarah-tiktok', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', 'dddddddd-dddd-dddd-dddd-dddddddddddd', '2021-09-05', NOW()),
-  ('00026565-0005-0005-0005-000000000005', 'Alex YouTube', 'alex-yt', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', '2021-11-22', NOW()),
-  ('00026565-0006-0006-0006-000000000006', 'Emma Newsletter', 'emma-news', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', 'ffffffff-ffff-ffff-ffff-ffffffffffff', '2022-02-14', NOW()),
-  ('00026565-0007-0007-0007-000000000007', 'Oliver Podcast', 'oliver-pod', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '10101010-1010-1010-1010-101010101010', '2022-04-18', NOW()),
-  ('00026565-0008-0008-0008-000000000008', 'Sophia Instagram', 'sophia-ig', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '12121212-1212-1212-1212-121212121212', '2022-07-25', NOW()),
-  ('00026565-0009-0009-0009-000000000009', 'Liam Twitter', 'liam-tw', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '13131313-1313-1313-1313-131313131313', '2022-10-08', NOW()),
-  ('00026565-0010-0010-0010-000000000010', 'Isabella Blog', 'isabella-blog', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '14141414-1414-1414-1414-141414141414', '2022-12-01', NOW()),
-  ('00026565-0011-0011-0011-000000000011', 'Noah Landing', 'noah-landing', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '15151515-1515-1515-1515-151515151515', '2023-01-22', NOW()),
-  ('00026565-0012-0012-0012-000000000012', 'Ava Promo', 'ava-promo', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '16161616-1616-1616-1616-161616161616', '2023-04-05', NOW()),
-  ('00026565-0013-0013-0013-000000000013', 'Ethan Review', 'ethan-review', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '17171717-1717-1717-1717-171717171717', '2023-06-18', NOW()),
-  ('00026565-0014-0014-0014-000000000014', 'Mia Collab', 'mia-collab', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '18181818-1818-1818-1818-181818181818', '2023-09-27', NOW()),
-  ('00026565-0015-0015-0015-000000000015', 'James Campaign', 'james-camp', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '19191919-1919-1919-1919-191919191919', '2023-11-14', NOW()),
-  ('00026565-0016-0016-0016-000000000016', 'Charlotte Partner', 'charlotte-ptr', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '20202020-2020-2020-2020-202020202020', '2024-02-10', NOW()),
-  ('00026565-0017-0017-0017-000000000017', 'Benjamin Affiliate', 'ben-aff', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '21212121-2121-2121-2121-212121212121', '2024-05-19', NOW()),
-  ('00026565-0018-0018-0018-000000000018', 'Amelia Brand', 'amelia-brand', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '22222222-2222-2222-2222-222222222222', '2024-07-28', NOW()),
-  ('00026565-0019-0019-0019-000000000019', 'Lucas Holiday', 'lucas-holiday', 'archived', '727c1da5-2d78-48d5-9492-8488a74333ab', '23232323-2323-2323-2323-232323232323', '2024-09-15', NOW()),
-  ('00026565-0020-0020-0020-000000000020', 'Harper Special', 'harper-special', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '24242424-2424-2424-2424-242424242424', '2024-11-03', NOW()),
-  ('00026565-0021-0021-0021-000000000021', 'Mason Launch', 'mason-launch', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '25252525-2525-2525-2525-252525252525', '2025-01-20', NOW()),
-  ('00026565-0022-0022-0022-000000000022', 'Evelyn Summer', 'evelyn-summer', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '26262626-2626-2626-2626-262626262626', '2025-04-12', NOW()),
-  ('00026565-0023-0023-0023-000000000023', 'Logan Fall', 'logan-fall', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '27272727-2727-2727-2727-272727272727', '2025-07-05', NOW()),
-  ('00026565-0024-0024-0024-000000000024', 'Abigail Winter', 'abigail-winter', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '28282828-2828-2828-2828-282828282828', '2025-10-18', NOW()),
-  ('00026565-0025-0025-0025-000000000025', 'Lucas New Year', 'lucas-ny', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '29292929-2929-2929-2929-292929292929', '2025-12-01', NOW())
+  ('00026565-0001-0001-0001-000000000001', 'John Main Link', 'john-main', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2021-01-15', NOW()),
+  ('00026565-0002-0002-0002-000000000002', 'Jane Social', 'jane-social', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '2021-03-20', NOW()),
+  ('00026565-0003-0003-0003-000000000003', 'Mike Blog', 'mike-blog', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', 'cccccccc-cccc-cccc-cccc-cccccccccccc', '2021-06-10', NOW()),
+  ('00026565-0004-0004-0004-000000000004', 'Sarah TikTok', 'sarah-tiktok', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', 'dddddddd-dddd-dddd-dddd-dddddddddddd', '2021-09-05', NOW()),
+  ('00026565-0005-0005-0005-000000000005', 'Alex YouTube', 'alex-yt', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', '2021-11-22', NOW()),
+  ('00026565-0006-0006-0006-000000000006', 'Emma Newsletter', 'emma-news', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', 'ffffffff-ffff-ffff-ffff-ffffffffffff', '2022-02-14', NOW()),
+  ('00026565-0007-0007-0007-000000000007', 'Oliver Podcast', 'oliver-pod', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '10101010-1010-1010-1010-101010101010', '2022-04-18', NOW()),
+  ('00026565-0008-0008-0008-000000000008', 'Sophia Instagram', 'sophia-ig', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '12121212-1212-1212-1212-121212121212', '2022-07-25', NOW()),
+  ('00026565-0009-0009-0009-000000000009', 'Liam Twitter', 'liam-tw', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '13131313-1313-1313-1313-131313131313', '2022-10-08', NOW()),
+  ('00026565-0010-0010-0010-000000000010', 'Isabella Blog', 'isabella-blog', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '14141414-1414-1414-1414-141414141414', '2022-12-01', NOW()),
+  ('00026565-0011-0011-0011-000000000011', 'Noah Landing', 'noah-landing', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '15151515-1515-1515-1515-151515151515', '2023-01-22', NOW()),
+  ('00026565-0012-0012-0012-000000000012', 'Ava Promo', 'ava-promo', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '16161616-1616-1616-1616-161616161616', '2023-04-05', NOW()),
+  ('00026565-0013-0013-0013-000000000013', 'Ethan Review', 'ethan-review', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '17171717-1717-1717-1717-171717171717', '2023-06-18', NOW()),
+  ('00026565-0014-0014-0014-000000000014', 'Mia Collab', 'mia-collab', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '18181818-1818-1818-1818-181818181818', '2023-09-27', NOW()),
+  ('00026565-0015-0015-0015-000000000015', 'James Campaign', 'james-camp', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '19191919-1919-1919-1919-191919191919', '2023-11-14', NOW()),
+  ('00026565-0016-0016-0016-000000000016', 'Charlotte Partner', 'charlotte-ptr', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '20202020-2020-2020-2020-202020202020', '2024-02-10', NOW()),
+  ('00026565-0017-0017-0017-000000000017', 'Benjamin Affiliate', 'ben-aff', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '21212121-2121-2121-2121-212121212121', '2024-05-19', NOW()),
+  ('00026565-0018-0018-0018-000000000018', 'Amelia Brand', 'amelia-brand', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '22222222-2222-2222-2222-222222222222', '2024-07-28', NOW()),
+  ('00026565-0019-0019-0019-000000000019', 'Lucas Holiday', 'lucas-holiday', 'archived', '930433e7-591c-4dda-a300-d3bfe17bd03d', '23232323-2323-2323-2323-232323232323', '2024-09-15', NOW()),
+  ('00026565-0020-0020-0020-000000000020', 'Harper Special', 'harper-special', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '24242424-2424-2424-2424-242424242424', '2024-11-03', NOW()),
+  ('00026565-0021-0021-0021-000000000021', 'Mason Launch', 'mason-launch', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '25252525-2525-2525-2525-252525252525', '2025-01-20', NOW()),
+  ('00026565-0022-0022-0022-000000000022', 'Evelyn Summer', 'evelyn-summer', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '26262626-2626-2626-2626-262626262626', '2025-04-12', NOW()),
+  ('00026565-0023-0023-0023-000000000023', 'Logan Fall', 'logan-fall', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '27272727-2727-2727-2727-272727272727', '2025-07-05', NOW()),
+  ('00026565-0024-0024-0024-000000000024', 'Abigail Winter', 'abigail-winter', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '28282828-2828-2828-2828-282828282828', '2025-10-18', NOW()),
+  ('00026565-0025-0025-0025-000000000025', 'Lucas New Year', 'lucas-ny', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '29292929-2929-2929-2929-292929292929', '2025-12-01', NOW())
 ON CONFLICT (link_id) DO NOTHING;
 
 -- ============================================================================
@@ -250,45 +241,45 @@ ON CONFLICT (link_id) DO NOTHING;
 INSERT INTO contact (contact_id, email, first_name, last_name, external_id, phone, status, program_id, created_at, updated_at)
 VALUES 
   -- Contacts 1-30 distributed across last 30 days (Jan 7 - Feb 5, 2026)
-  ('00030001-0001-0001-0001-000000000001', 'alice.2021@example.com', 'Alice', 'Brown', 'CUS-001', '+1234567001', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-07', NOW()),
-  ('00030002-0002-0002-0002-000000000002', 'bob.2021@example.com', 'Bob', 'Green', 'CUS-002', '+1234567002', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-08', NOW()),
-  ('00030003-0003-0003-0003-000000000003', 'charlie.2021@example.com', 'Charlie', 'White', 'CUS-003', '+1234567003', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-09', NOW()),
-  ('00030004-0004-0004-0004-000000000004', 'diana.2021@example.com', 'Diana', 'Black', 'CUS-004', '+1234567004', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-10', NOW()),
-  ('00030005-0005-0005-0005-000000000005', 'eve.2021@example.com', 'Eve', 'Silver', 'CUS-005', '+1234567005', 'lead', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-11', NOW()),
-  ('00030006-0006-0006-0006-000000000006', 'frank.2022@example.com', 'Frank', 'Gold', 'CUS-006', '+1234567006', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-12', NOW()),
-  ('00030007-0007-0007-0007-000000000007', 'grace.2022@example.com', 'Grace', 'Copper', 'CUS-007', '+1234567007', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-13', NOW()),
-  ('00030008-0008-0008-0008-000000000008', 'henry.2022@example.com', 'Henry', 'Bronze', 'CUS-008', '+1234567008', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-14', NOW()),
-  ('00030009-0009-0009-0009-000000000009', 'ivy.2022@example.com', 'Ivy', 'Platinum', 'CUS-009', '+1234567009', 'lead', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-15', NOW()),
-  ('00030010-0010-0010-0010-000000000010', 'jack.2022@example.com', 'Jack', 'Diamond', 'CUS-010', '+1234567010', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-16', NOW()),
-  ('00030011-0011-0011-0011-000000000011', 'kate.2023@example.com', 'Kate', 'Ruby', 'CUS-011', '+1234567011', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-17', NOW()),
-  ('00030012-0012-0012-0012-000000000012', 'leo.2023@example.com', 'Leo', 'Sapphire', 'CUS-012', '+1234567012', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-18', NOW()),
-  ('00030013-0013-0013-0013-000000000013', 'mia.2023@example.com', 'Mia', 'Emerald', 'CUS-013', '+1234567013', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-19', NOW()),
-  ('00030014-0014-0014-0014-000000000014', 'noah.2023@example.com', 'Noah', 'Topaz', 'CUS-014', '+1234567014', 'lead', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-20', NOW()),
-  ('00030015-0015-0015-0015-000000000015', 'olivia.2023@example.com', 'Olivia', 'Pearl', 'CUS-015', '+1234567015', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-21', NOW()),
-  ('00030016-0016-0016-0016-000000000016', 'peter.2024@example.com', 'Peter', 'Opal', 'CUS-016', '+1234567016', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-22', NOW()),
-  ('00030017-0017-0017-0017-000000000017', 'quinn.2024@example.com', 'Quinn', 'Jade', 'CUS-017', '+1234567017', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-23', NOW()),
-  ('00030018-0018-0018-0018-000000000018', 'rachel.2024@example.com', 'Rachel', 'Amber', 'CUS-018', '+1234567018', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-24', NOW()),
-  ('00030019-0019-0019-0019-000000000019', 'sam.2024@example.com', 'Sam', 'Onyx', 'CUS-019', '+1234567019', 'lead', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-25', NOW()),
-  ('00030020-0020-0020-0020-000000000020', 'tina.2024@example.com', 'Tina', 'Coral', 'CUS-020', '+1234567020', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-26', NOW()),
-  ('00030021-0021-0021-0021-000000000021', 'steve.2024@example.com', 'Steve', 'Iron', 'CUS-021', '+1234567021', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-27', NOW()),
-  ('00030022-0022-0022-0022-000000000022', 'uma.2025@example.com', 'Uma', 'Steel', 'CUS-022', '+1234567022', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-28', NOW()),
-  ('00030023-0023-0023-0023-000000000023', 'victor.2025@example.com', 'Victor', 'Chrome', 'CUS-023', '+1234567023', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-29', NOW()),
-  ('00030024-0024-0024-0024-000000000024', 'wendy.2025@example.com', 'Wendy', 'Zinc', 'CUS-024', '+1234567024', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-30', NOW()),
-  ('00030025-0025-0025-0025-000000000025', 'xavier.2025@example.com', 'Xavier', 'Nickel', 'CUS-025', '+1234567025', 'lead', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-31', NOW()),
-  ('00030026-0026-0026-0026-000000000026', 'yara.2025@example.com', 'Yara', 'Cobalt', 'CUS-026', '+1234567026', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-02-01', NOW()),
-  ('00030027-0027-0027-0027-000000000027', 'zack.2025@example.com', 'Zack', 'Titanium', 'CUS-027', '+1234567027', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-02-02', NOW()),
-  ('00030028-0028-0028-0028-000000000028', 'anna.2025@example.com', 'Anna', 'Magnesium', 'CUS-028', '+1234567028', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-02-03', NOW()),
-  ('00030029-0029-0029-0029-000000000029', 'brian.2025@example.com', 'Brian', 'Aluminum', 'CUS-029', '+1234567029', 'lead', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-02-04', NOW()),
-  ('00030030-0030-0030-0030-000000000030', 'cara.2025@example.com', 'Cara', 'Tin', 'CUS-030', '+1234567030', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-02-05', NOW()),
+  ('00030001-0001-0001-0001-000000000001', 'alice.2021@example.com', 'Alice', 'Brown', 'CUS-001', '+1234567001', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-07', NOW()),
+  ('00030002-0002-0002-0002-000000000002', 'bob.2021@example.com', 'Bob', 'Green', 'CUS-002', '+1234567002', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-08', NOW()),
+  ('00030003-0003-0003-0003-000000000003', 'charlie.2021@example.com', 'Charlie', 'White', 'CUS-003', '+1234567003', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-09', NOW()),
+  ('00030004-0004-0004-0004-000000000004', 'diana.2021@example.com', 'Diana', 'Black', 'CUS-004', '+1234567004', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-10', NOW()),
+  ('00030005-0005-0005-0005-000000000005', 'eve.2021@example.com', 'Eve', 'Silver', 'CUS-005', '+1234567005', 'lead', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-11', NOW()),
+  ('00030006-0006-0006-0006-000000000006', 'frank.2022@example.com', 'Frank', 'Gold', 'CUS-006', '+1234567006', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-12', NOW()),
+  ('00030007-0007-0007-0007-000000000007', 'grace.2022@example.com', 'Grace', 'Copper', 'CUS-007', '+1234567007', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-13', NOW()),
+  ('00030008-0008-0008-0008-000000000008', 'henry.2022@example.com', 'Henry', 'Bronze', 'CUS-008', '+1234567008', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-14', NOW()),
+  ('00030009-0009-0009-0009-000000000009', 'ivy.2022@example.com', 'Ivy', 'Platinum', 'CUS-009', '+1234567009', 'lead', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-15', NOW()),
+  ('00030010-0010-0010-0010-000000000010', 'jack.2022@example.com', 'Jack', 'Diamond', 'CUS-010', '+1234567010', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-16', NOW()),
+  ('00030011-0011-0011-0011-000000000011', 'kate.2023@example.com', 'Kate', 'Ruby', 'CUS-011', '+1234567011', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-17', NOW()),
+  ('00030012-0012-0012-0012-000000000012', 'leo.2023@example.com', 'Leo', 'Sapphire', 'CUS-012', '+1234567012', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-18', NOW()),
+  ('00030013-0013-0013-0013-000000000013', 'mia.2023@example.com', 'Mia', 'Emerald', 'CUS-013', '+1234567013', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-19', NOW()),
+  ('00030014-0014-0014-0014-000000000014', 'noah.2023@example.com', 'Noah', 'Topaz', 'CUS-014', '+1234567014', 'lead', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-20', NOW()),
+  ('00030015-0015-0015-0015-000000000015', 'olivia.2023@example.com', 'Olivia', 'Pearl', 'CUS-015', '+1234567015', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-21', NOW()),
+  ('00030016-0016-0016-0016-000000000016', 'peter.2024@example.com', 'Peter', 'Opal', 'CUS-016', '+1234567016', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-22', NOW()),
+  ('00030017-0017-0017-0017-000000000017', 'quinn.2024@example.com', 'Quinn', 'Jade', 'CUS-017', '+1234567017', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-23', NOW()),
+  ('00030018-0018-0018-0018-000000000018', 'rachel.2024@example.com', 'Rachel', 'Amber', 'CUS-018', '+1234567018', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-24', NOW()),
+  ('00030019-0019-0019-0019-000000000019', 'sam.2024@example.com', 'Sam', 'Onyx', 'CUS-019', '+1234567019', 'lead', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-25', NOW()),
+  ('00030020-0020-0020-0020-000000000020', 'tina.2024@example.com', 'Tina', 'Coral', 'CUS-020', '+1234567020', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-26', NOW()),
+  ('00030021-0021-0021-0021-000000000021', 'steve.2024@example.com', 'Steve', 'Iron', 'CUS-021', '+1234567021', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-27', NOW()),
+  ('00030022-0022-0022-0022-000000000022', 'uma.2025@example.com', 'Uma', 'Steel', 'CUS-022', '+1234567022', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-28', NOW()),
+  ('00030023-0023-0023-0023-000000000023', 'victor.2025@example.com', 'Victor', 'Chrome', 'CUS-023', '+1234567023', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-29', NOW()),
+  ('00030024-0024-0024-0024-000000000024', 'wendy.2025@example.com', 'Wendy', 'Zinc', 'CUS-024', '+1234567024', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-30', NOW()),
+  ('00030025-0025-0025-0025-000000000025', 'xavier.2025@example.com', 'Xavier', 'Nickel', 'CUS-025', '+1234567025', 'lead', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-31', NOW()),
+  ('00030026-0026-0026-0026-000000000026', 'yara.2025@example.com', 'Yara', 'Cobalt', 'CUS-026', '+1234567026', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-02-01', NOW()),
+  ('00030027-0027-0027-0027-000000000027', 'zack.2025@example.com', 'Zack', 'Titanium', 'CUS-027', '+1234567027', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-02-02', NOW()),
+  ('00030028-0028-0028-0028-000000000028', 'anna.2025@example.com', 'Anna', 'Magnesium', 'CUS-028', '+1234567028', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-02-03', NOW()),
+  ('00030029-0029-0029-0029-000000000029', 'brian.2025@example.com', 'Brian', 'Aluminum', 'CUS-029', '+1234567029', 'lead', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-02-04', NOW()),
+  ('00030030-0030-0030-0030-000000000030', 'cara.2025@example.com', 'Cara', 'Tin', 'CUS-030', '+1234567030', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-02-05', NOW()),
   -- Contacts 31-38 (2026, keep beyond 30-day window)
-  ('00030031-0031-0031-0031-000000000031', 'derek.2025@example.com', 'Derek', 'Lead', 'CUS-031', '+1234567031', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2025-10-22', NOW()),
-  ('00030032-0032-0032-0032-000000000032', 'elsa.2025@example.com', 'Elsa', 'Copper', 'CUS-032', '+1234567032', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2025-11-08', NOW()),
-  ('00030033-0033-0033-0033-000000000033', 'fred.2025@example.com', 'Fred', 'Mercury', 'CUS-033', '+1234567033', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2025-12-01', NOW()),
-  ('00030034-0034-0034-0034-000000000034', 'gina.2026@example.com', 'Gina', 'Iridium', 'CUS-034', '+1234567034', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-05', NOW()),
-  ('00030035-0035-0035-0035-000000000035', 'harry.2026@example.com', 'Harry', 'Osmium', 'CUS-035', '+1234567035', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-15', NOW()),
-  ('00030036-0036-0036-0036-000000000036', 'iris.2026@example.com', 'Iris', 'Rhodium', 'CUS-036', '+1234567036', 'lead', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-01-25', NOW()),
-  ('00030037-0037-0037-0037-000000000037', 'jake.2026@example.com', 'Jake', 'Palladium', 'CUS-037', '+1234567037', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-02-01', NOW()),
-  ('00030038-0038-0038-0038-000000000038', 'kelly.2026@example.com', 'Kelly', 'Ruthenium', 'CUS-038', '+1234567038', 'active', '727c1da5-2d78-48d5-9492-8488a74333ab', '2026-02-05', NOW())
+  ('00030031-0031-0031-0031-000000000031', 'derek.2025@example.com', 'Derek', 'Lead', 'CUS-031', '+1234567031', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2025-10-22', NOW()),
+  ('00030032-0032-0032-0032-000000000032', 'elsa.2025@example.com', 'Elsa', 'Copper', 'CUS-032', '+1234567032', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2025-11-08', NOW()),
+  ('00030033-0033-0033-0033-000000000033', 'fred.2025@example.com', 'Fred', 'Mercury', 'CUS-033', '+1234567033', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2025-12-01', NOW()),
+  ('00030034-0034-0034-0034-000000000034', 'gina.2026@example.com', 'Gina', 'Iridium', 'CUS-034', '+1234567034', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-05', NOW()),
+  ('00030035-0035-0035-0035-000000000035', 'harry.2026@example.com', 'Harry', 'Osmium', 'CUS-035', '+1234567035', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-15', NOW()),
+  ('00030036-0036-0036-0036-000000000036', 'iris.2026@example.com', 'Iris', 'Rhodium', 'CUS-036', '+1234567036', 'lead', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-01-25', NOW()),
+  ('00030037-0037-0037-0037-000000000037', 'jake.2026@example.com', 'Jake', 'Palladium', 'CUS-037', '+1234567037', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-02-01', NOW()),
+  ('00030038-0038-0038-0038-000000000038', 'kelly.2026@example.com', 'Kelly', 'Ruthenium', 'CUS-038', '+1234567038', 'active', '930433e7-591c-4dda-a300-d3bfe17bd03d', '2026-02-05', NOW())
 ON CONFLICT (contact_id) DO NOTHING;
 
 -- ============================================================================

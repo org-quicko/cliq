@@ -100,13 +100,13 @@
                             {
                               "type": "string",
                               "enum": [
-                                "commission_through_signups"
+                                "signup_commission"
                               ]
                             },
                             {
                               "type": "string",
                               "enum": [
-                                "commission_through_purchases"
+                                "purchase_commission"
                               ]
                             }
                           ],

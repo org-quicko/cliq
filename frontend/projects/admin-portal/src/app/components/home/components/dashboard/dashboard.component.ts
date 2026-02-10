@@ -167,7 +167,7 @@ export class DashboardComponent implements OnInit {
 			
 			this.promoterSignupsStore.fetchPromotersBySignups({
 				programId,
-				sortBy: 'commission_through_signups',
+				sortBy: 'signup_commission',
 				period,
 				take: 5,
 				...(period === 'custom' && start && end ? {
@@ -177,7 +177,7 @@ export class DashboardComponent implements OnInit {
 			});
 			this.promoterPurchasesStore.fetchPromotersByPurchases({
 				programId,
-				sortBy: 'commission_through_purchases',
+				sortBy: 'purchase_commission',
 				period,
 				take: 5,
 				...(period === 'custom' && start && end ? {
