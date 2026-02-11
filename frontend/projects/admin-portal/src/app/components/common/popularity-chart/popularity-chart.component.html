@@ -1,16 +1,6 @@
 <div class="flex flex-col">
 	<!-- Title outside the card with skeleton loading -->
-	@if (isLoading) {
-		<ngx-skeleton-loader [theme]="{
-			width: '40%',
-			height: '24px',
-			borderRadius: '4px',
-			backgroundColor: '#E9E4F0',
-			marginBottom: '16px'
-		}"></ngx-skeleton-loader>
-	} @else {
-		<div class="mat-body-large text-on-surface mb-4">{{ title }}</div>
-	}
+	<div class="mat-body-large text-on-surface mb-4">{{ title }}</div>
 
 	<!-- Card content -->
     <mat-card class="rounded-lg border border-outline-variant flex flex-col overflow-hidden">
@@ -29,8 +19,25 @@
                 </div>
             </div>
 
-            <!-- Data rows -->
-            <div *ngIf="data.length > 0; else noData" class="space-y-2">
+            <!-- Skeleton loading for data rows -->
+            @if (isLoading) {
+                <div class="space-y-0">
+                    @for (i of [1,2,3,4,5]; track i) {
+                        <div class="mt-2">
+                            <ngx-skeleton-loader [theme]="{
+                                width: '100%',
+                                height: '32px',
+                                borderRadius: '6px',
+                                backgroundColor: '#E9E4F0',
+                                margin: '0',
+                                display: 'block'
+                            }" [count]="1"></ngx-skeleton-loader>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <!-- Data rows -->
+                <div *ngIf="data.length > 0; else noData" class="space-y-2">
                 <div *ngFor="let item of data" class="grid grid-cols-1 items-center relative mt-3 group">
                     <div class="relative w-full h-8 rounded-md flex items-center">
                         <!-- Bar background -->
@@ -61,6 +68,7 @@
                     No data available
                 </div>
             </ng-template>
+            }
         </div>
         </div>
 

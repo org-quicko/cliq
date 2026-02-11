@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed, effect } from '@angular/core';
+import { Component, inject, OnInit, computed, effect, signal } from '@angular/core';
 import { DatePipe, NgIf} from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -102,6 +102,10 @@ export class DashboardComponent implements OnInit {
 	readonly signupsPopularityData = computed(() => this.promoterSignupsStore.topPopularityData());
 	readonly purchasesPopularityData = computed(() => this.promoterPurchasesStore.topPopularityData());
 
+	// Track toggle states to preserve across re-renders
+	showSignupsAlternate = signal(false);
+	showPurchasesAlternate = signal(false);
+
 	readonly today = new Date();
 
 	tooltips = new Map<string, string>([
@@ -186,6 +190,58 @@ export class DashboardComponent implements OnInit {
 				} : {}),
 			});
 		}
+	}
+
+	/**
+	 * Handle toggle for signups chart - re-fetch with new sort order
+	 * @param showAlternate - true = sort by signups count, false = sort by signup_commission
+	 */
+	onSignupsToggle(showAlternate: boolean) {
+		console.log('[Dashboard] onSignupsToggle called with:', showAlternate);
+		this.showSignupsAlternate.set(showAlternate);
+		const programId = this.programId();
+		if (!programId) return;
+
+		const period = this.getPeriodValue();
+		const start = this.dateRangeStore.start();
+		const end = this.dateRangeStore.end();
+
+		this.promoterSignupsStore.fetchPromotersBySignups({
+			programId,
+			sortBy: showAlternate ? 'signups' : 'signup_commission',
+			period,
+			take: 5,
+			...(period === 'custom' && start && end ? {
+				startDate: start.toISOString(),
+				endDate: end.toISOString(),
+			} : {}),
+		});
+	}
+
+	/**
+	 * Handle toggle for purchases chart - re-fetch with new sort order
+	 * @param showAlternate - true = sort by revenue, false = sort by purchase_commission
+	 */
+	onPurchasesToggle(showAlternate: boolean) {
+		console.log('[Dashboard] onPurchasesToggle called with:', showAlternate);
+		this.showPurchasesAlternate.set(showAlternate);
+		const programId = this.programId();
+		if (!programId) return;
+
+		const period = this.getPeriodValue();
+		const start = this.dateRangeStore.start();
+		const end = this.dateRangeStore.end();
+
+		this.promoterPurchasesStore.fetchPromotersByPurchases({
+			programId,
+			sortBy: showAlternate ? 'revenue' : 'purchase_commission',
+			period,
+			take: 5,
+			...(period === 'custom' && start && end ? {
+				startDate: start.toISOString(),
+				endDate: end.toISOString(),
+			} : {}),
+		});
 	}
 
 	getSignupsPromotersLink(): string {

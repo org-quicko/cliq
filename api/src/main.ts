@@ -70,7 +70,7 @@ async function bootstrap() {
 		new TransformInterceptor(app.get(Reflector)),
 	);
 
-	await app.listen(process.env.PORT ?? 3000);
+	await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 
 	process.on('SIGTERM', async () => {
 		console.log('SIGTERM received, shutting down gracefully');

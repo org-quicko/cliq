@@ -4,7 +4,6 @@ FROM node:22 AS frontend-build
 WORKDIR /app/frontend
 
 
-
 COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps
 

@@ -122,15 +122,6 @@
 		<!-- Top Promoters Section -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[0.5px]">
 			<!-- Top promoters by signups -->
-			<ng-container *ngIf="isSignupsLoading(); else signupsContent">
-			<ngx-skeleton-loader [theme]="{
-				width: '100%',
-				height: '280px',
-				borderRadius: '8px',
-				backgroundColor: '#E9E4F0'
-			}"></ngx-skeleton-loader>
-		</ng-container>
-		<ng-template #signupsContent>
 			<app-popularity-chart
 				[title]="'Top promoters by signups'"
 				[labelColumn]="'Promoters'"
@@ -143,20 +134,12 @@
 				[showToggle]="true"
 				[isLoading]="isSignupsLoading()"
 				[useSubValueAsAlternate]="true"
+				[alternateActive]="showSignupsAlternate()"
+				(toggleChanged)="onSignupsToggle($event)"
 			>
 			</app-popularity-chart>
-		</ng-template>
 
-		<!-- Top promoters by purchases -->
-		<ng-container *ngIf="isPurchasesLoading(); else purchasesContent">
-			<ngx-skeleton-loader [theme]="{
-				width: '100%',
-				height: '280px',
-				borderRadius: '8px',
-				backgroundColor: '#E9E4F0'
-			}"></ngx-skeleton-loader>
-		</ng-container>
-		<ng-template #purchasesContent>
+			<!-- Top promoters by purchases -->
 			<app-popularity-chart
 				[title]="'Top promoters by purchases'"
 				[labelColumn]="'Promoters'"
@@ -169,10 +152,11 @@
 				[currency]="program()?.currency || 'INR'"
 				[showToggle]="true"
 				[isLoading]="isPurchasesLoading()"
+				[alternateActive]="showPurchasesAlternate()"
+				(toggleChanged)="onPurchasesToggle($event)"
 			>
 			</app-popularity-chart>
-		</ng-template>
-	</div>
+		</div>
 
 	<!-- Analytics Chart Section -->
 	<div class="mt-[-8px] rounded-lg overflow-hidden">

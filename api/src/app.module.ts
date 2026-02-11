@@ -77,12 +77,12 @@ import { PermissionsGuard } from './guards/permissions.guard';
 			{
 				rootPath: join(__dirname, '..', '..', 'public', 'promoter'),
 				serveRoot: '/promoter',
-				exclude: ['/api/*'],
+				exclude: ['/api'],
 			},
 			{
 				rootPath: join(__dirname, '..', '..', 'public', 'admin'),
 				serveRoot: '/admin',
-				exclude: ['/api/*'],
+				exclude: ['/api'],
 			}
 		)
 	],

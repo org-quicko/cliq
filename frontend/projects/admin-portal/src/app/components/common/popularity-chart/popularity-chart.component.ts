@@ -36,11 +36,25 @@ export class PopularityChartComponent {
 
     @Input() useSubValueAsAlternate: boolean = false;
 
+    // Controlled by parent - when parent needs to maintain state across re-renders
+    @Input() alternateActive: boolean = false;
 
-    showAlternate = signal(false);
+    @Output() toggleChanged = new EventEmitter<boolean>();
+
+    // Internal signal for uncontrolled mode (when alternateActive input is not used)
+    private _showAlternate = signal(false);
+
+    // Use input if provided, otherwise use internal state
+    showAlternate(): boolean {
+        return this.alternateActive || this._showAlternate();
+    }
 
     toggleValueType() {
-        this.showAlternate.update(v => !v);
+        console.log('[PopularityChart] toggleValueType called');
+        const newValue = !this.showAlternate();
+        this._showAlternate.set(newValue);
+        console.log('[PopularityChart] Emitting toggleChanged:', newValue);
+        this.toggleChanged.emit(newValue);
     }
 
     get displayedValueColumn(): string {

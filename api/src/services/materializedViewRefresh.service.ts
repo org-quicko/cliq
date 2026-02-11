@@ -46,19 +46,9 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 	async refreshView(viewName: string): Promise<boolean> {
 		try {
 			this.logger.info(`Refreshing materialized view: ${viewName}...`);
-			
-
-			try {
-				await this.dataSource.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY ${viewName}WITH DATA`);
-				this.logger.info(`Successfully refreshed (CONCURRENTLY): ${viewName}`);
-				return true;
-			} catch (concurrentError) {
-
-				this.logger.warn(`CONCURRENT refresh failed for ${viewName}, trying regular refresh...`);
-				await this.dataSource.query(`REFRESH MATERIALIZED VIEW ${viewName}`);
-				this.logger.info(`Successfully refreshed: ${viewName}`);
-				return true;
-			}
+			await this.dataSource.query(`REFRESH MATERIALIZED VIEW ${viewName} WITH DATA`);
+			this.logger.info(`Successfully refreshed: ${viewName}`);
+			return true;
 		} catch (error) {
 			this.logger.error(`Failed to refresh ${viewName}:`, error);
 			return false;
