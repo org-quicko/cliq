@@ -13,18 +13,18 @@
 	}
 
 	<!-- Card content -->
-	<mat-card class="rounded-lg border border-outline-variant flex flex-col overflow-hidden">
-		<div class="p-4">
-			<div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
+    <mat-card class="rounded-lg border border-outline-variant flex flex-col overflow-hidden">
+        <div class="p-[24px]">
+            <div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
             <!-- Header row -->
-            <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline px-3">
+            <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline px-0">
                 <div>{{ labelColumn }}</div>
                 <div class="flex items-center gap-1">
                     <span>{{ displayedValueColumn }}</span>
                     <button *ngIf="showToggle" 
                         (click)="toggleValueType()" 
                         class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
-                        <img src="assets/icon.svg" alt="toggle" class="w-4 h-4" />
+                        <img [src]="showAlternate() ? 'assets/icon2.svg' : 'assets/icon1.svg'" alt="toggle" class="w-4 h-4" />
                     </button>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                             [style.width.%]="getBarWidth(item)">
                         </div>
                         <!-- Content -->
-                        <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
+                        <div class="relative z-10 flex justify-between items-center w-full px-6 md:px-[24px] text-sm font-medium text-on-surface">
                             <span>{{ item.label }}</span>
                             <span class="flex items-center gap-1">
                                 @if (shouldFormatAsCurrency()) {

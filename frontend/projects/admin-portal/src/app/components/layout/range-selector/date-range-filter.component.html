@@ -19,10 +19,10 @@
     class="popup mt-1 bg-surface-container-lowest border border-outline-variant rounded-md shadow-[0_6px_24px_rgba(0,0,0,0.15)] text-on-surface z-[1000] animate-[fadeIn_0.15s_ease-out]"
     (click)="$event.stopPropagation()"
   >
-    <div class="flex flex-col w-[520px] min-h-[260px] overflow-hidden">
+    <div class="flex flex-col w-[640px] min-h-[260px] overflow-hidden">
       <div class="flex flex-1 border-b border-outline-variant">
         <!-- Sidebar -->
-        <div class="w-40 border-r border-outline-variant flex flex-col">
+        <div class="w-[256px] border-r border-outline-variant flex flex-col">
           <button
             *ngFor="let range of sidebarRanges"
             class="px-4 py-3.5 text-left text-sm text-on-surface transition-colors duration-150 hover:bg-surface-container hover:text-on-surface"
@@ -35,7 +35,7 @@
         </div>
 
         <!-- Content -->
-        <div class="content flex-1 flex flex-col px-6 py-5">
+        <div class="content w-[384px] flex flex-col px-6 py-5">
           <p class="text-sm font-medium text-on-surface mb-3">
             Selected date range
           </p>
@@ -97,14 +97,15 @@
         >
           Cancel
         </button>
-        <button
-          mat-flat-button
-          color="primary"
-          class="bg-primary text-on-primary font-small rounded-3xl px-5 py-1.5"
-          (click)="apply()"
-        >
-          Apply
-        </button>
+          <button
+            mat-flat-button
+            color="primary"
+            class="bg-primary text-on-primary font-small rounded-3xl"
+            style="padding-left:24px;padding-right:24px;padding-top:10px;padding-bottom:10px;"
+            (click)="apply()"
+          >
+            Apply
+          </button>
       </div>
     </div>
   </div>

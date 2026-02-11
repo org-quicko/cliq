@@ -52,15 +52,14 @@ export const routes: Routes = [
                 path: ':program_id',
                 children: [
                     {
-                        path: '',
-                        pathMatch: 'full',
-                        redirectTo: 'home',
-                    },
-                    {
                         path: 'home',
-                        component: LayoutComponent,
+                        component: HomeComponent,
                         children: [
-                            { path: '', component: HomeComponent },
+                            {
+                                path: '',
+                                pathMatch: 'full',
+                                redirectTo: 'dashboard',
+                            },
                             { path: 'dashboard', component: DashboardComponent },
                             { path: 'reports', component: ReportsComponent },
                             { path: 'promoters-by-signups', component: PromotersBySignupsComponent },

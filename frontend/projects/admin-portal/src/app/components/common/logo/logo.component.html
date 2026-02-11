@@ -1,8 +1,4 @@
-<div>
-	@if (programLogoUrl()) {
-	<img [src]="programLogoUrl()" [alt]="programName() + 'logo'" [ngClass]="imgClass ?? 'size-[40px]'">
-	}
-	@else {
-	<h5 class="text-on-surface" [ngClass]="nameClass ?? 'mat-headline-small'">{{ programName() }}</h5>
-	}
+<div class="flex items-center gap-2">
+	<img src="assets/Cliqfavicon.svg" alt="Cliq" style="width:28px;height:29px;" />
+	<img src="assets/Cliq.svg" alt="Cliq" style="width:46px;height:32px;" />
 </div>

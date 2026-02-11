@@ -14,7 +14,7 @@
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'signups'"></div>
 
-      <span class="text-[22px] font-semibold leading-none text-on-surface">
+      <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalSignups | number }}
       </span>
       <span class="text-sm text-on-surface-variant mt-1">Signups</span>
@@ -32,7 +32,7 @@
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'purchases'"></div>
 
-      <span class="text-[22px] font-semibold leading-none text-on-surface">
+      <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalPurchases | number }}
       </span>
       <span class="text-sm text-on-surface-variant mt-1">Purchases</span>
@@ -50,7 +50,7 @@
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'revenue'"></div>
 
-      <span class="text-[22px] font-semibold leading-none text-on-surface">
+      <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalRevenue | formatCurrency: currency }}
       </span>
       <span class="text-sm text-on-surface-variant mt-1">Revenue</span>
@@ -68,7 +68,7 @@
       <div class="absolute top-0 left-0 w-full h-[4px]"
            [class.bg-[#4D5C92]]="selectedMetric() === 'commission'"></div>
 
-      <span class="text-[22px] font-semibold leading-none text-on-surface">
+      <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalCommission | formatCurrency: currency }}
       </span>
       <span class="text-sm text-on-surface-variant mt-1">Commission</span>

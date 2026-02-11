@@ -68,7 +68,14 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
             y: {
                 beginAtZero: true,
                 border: { display: false },
-                ticks: { color: '#767680', font: { size: 11 }, count: 6 },
+                ticks: { 
+                    color: '#767680', 
+                    font: { size: 11 },
+                    stepSize: 1, // Will be dynamically adjusted based on data
+                    callback: function(value: number | string) {
+                        return Number.isInteger(value) ? value : null;
+                    }
+                },
                 grid: { color: '#C1C6D5', lineWidth: 1 },
             },
         },
@@ -155,6 +162,15 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
         this.assignXLabels();
 
+        // Calculate max value and determine appropriate step size
+        const maxValue = Math.max(...this.processedData.map(p => p.value), 0);
+        const stepSize = this.calculateStepSize(maxValue);
+        
+        // Update y-axis stepSize dynamically
+        if (this.chartOptions.scales.y.ticks) {
+            this.chartOptions.scales.y.ticks.stepSize = stepSize;
+        }
+
         this.chartData = {
             labels: this.processedData.map(p => p.xLabel),
             datasets: [{
@@ -170,6 +186,33 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
         };
 
         setTimeout(() => this.chart?.update());
+    }
+
+    private calculateStepSize(maxValue: number): number {
+        if (maxValue === 0) return 1;
+        
+        // Target roughly 5-6 ticks on the y-axis
+        const targetTicks = 5;
+        const rawStep = maxValue / targetTicks;
+        
+        // Find the magnitude (power of 10)
+        const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        
+        // Normalize to 1, 2, or 5 times the magnitude
+        const normalized = rawStep / magnitude;
+        let niceStep;
+        
+        if (normalized <= 1) {
+            niceStep = 1;
+        } else if (normalized <= 2) {
+            niceStep = 2;
+        } else if (normalized <= 5) {
+            niceStep = 5;
+        } else {
+            niceStep = 10;
+        }
+        
+        return Math.max(1, niceStep * magnitude);
     }
 
     private assignXLabels(): void {

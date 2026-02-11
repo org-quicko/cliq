@@ -402,14 +402,14 @@ export class ProgramController {
   @SkipTransform()
   @Permissions('read', Program)
   @Get(':program_id/report')
-  async getProgramReport(
+  async getCommissionsReport(
     @Headers('x-accept-type') acceptType: string,
     @Param('program_id') programId: string,
     @Res() res: Response,
     @Query('start_date') startDate?: string,
     @Query('end_date') endDate?: string,
   ) {
-    this.logger.info('START: getProgramReport controller');
+    this.logger.info('START: getCommissionsReport controller');
 
     if (acceptType !== 'application/json;format=sheet-json') {
       this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
@@ -418,13 +418,13 @@ export class ProgramController {
 
     const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-    const csvStream = (await this.programService.getProgramReport(
+    const csvStream = (await this.programService.getCommissionsReport(
       programId,
       parsedStartDate,
       parsedEndDate,
     )) as Readable;
 
-    const fileName = getReportFileName('Program');
+    const fileName = getReportFileName('Commission');
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
@@ -447,7 +447,7 @@ export class ProgramController {
       }
     }
 
-    this.logger.info('END: getProgramReport controller');
+    this.logger.info('END: getCommissionsReport controller');
   }
 
   /**

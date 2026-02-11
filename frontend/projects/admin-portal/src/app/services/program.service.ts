@@ -28,7 +28,7 @@ export class ProgramService {
         return this.httpClient.get<ProgramApiResponse>(url);  
     }
 
-    getProgramReport(
+    getCommissionsReport(
         programId: string,
         options?: {
             report_period?: string,
@@ -56,7 +56,7 @@ export class ProgramService {
         }).pipe(
             map(response => {
                 const contentDisposition = response.headers.get('Content-Disposition');
-                let fileName = 'program_report.csv';
+                let fileName = 'commission_report.csv';
 
                 if (contentDisposition) {
                     const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);

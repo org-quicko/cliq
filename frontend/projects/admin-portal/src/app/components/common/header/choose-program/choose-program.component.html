@@ -9,10 +9,10 @@
 ></ngx-skeleton-loader>
 } @else {
 <div 
-	class="w-[252px] rounded-[5px] bg-surface-container-low py-0.5 pl-4 flex justify-between items-center gap-2 cursor-pointer" 
+	class="w-[252px] h-[48px] rounded-[5px] bg-surface-container-low flex justify-between items-center gap-[8px] cursor-pointer px-[2px] py-[2px] pl-[16px]" 
 	[mat-menu-trigger-for]="programOptions"
 >
-	<div class="flex flex-col">
+	<div class="flex flex-col justify-center">
 		<div class="mat-body-medium text-on-surface truncate max-w-[170px] block">
 			{{ currentProgram()?.name }}
 		</div>
@@ -22,7 +22,7 @@
 		</div>
 		}
 	</div>
-	<div class="py-2.5 px-2">
+	<div class="flex items-center h-full px-2">
 		<mat-icon class="text-on-surface-variant">unfold_more</mat-icon>
 	</div>
 </div>

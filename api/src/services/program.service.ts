@@ -682,13 +682,13 @@ export class ProgramService {
 		return referralsDto;
 	}
 
-	async getProgramReport(
+	async getCommissionsReport(
 		programId: string,
 		startDate: Date,
 		endDate: Date,
 		cancellationToken?: { isCancelled: boolean }
 	) {
-		this.logger.info(`START: getProgramReport service`);
+		this.logger.info(`START: getCommissionsReport service`);
 
 		// Create a streaming CSV generator that doesn't accumulate data in memory
 		const promotersCSV = this.streamPromoters(programId, startDate, endDate, cancellationToken);
@@ -705,7 +705,7 @@ export class ProgramService {
 			this.logger.info('Promoters CSV stream closed');
 		});
 
-		this.logger.info(`END: getProgramReport service`);
+		this.logger.info(`END: getCommissionsReport service`);
 		return promotersCSV;
 	}
 

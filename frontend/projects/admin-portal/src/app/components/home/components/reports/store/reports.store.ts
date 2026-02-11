@@ -27,7 +27,7 @@ export const ReportsStore = signalStore(
             snackbarService = inject(SnackbarService),
         ) => ({
 
-            getProgramReport: rxMethod<{
+            getCommissionsReport: rxMethod<{
                 reportPeriod?: reportPeriodEnum,
                 startDate?: Date,
                 endDate?: Date,
@@ -37,7 +37,7 @@ export const ReportsStore = signalStore(
                     tap(() => patchState(store, { status: Status.LOADING })),
 
                     switchMap(({ reportPeriod, startDate, endDate, programId }) => {
-                        return programService.getProgramReport(
+                        return programService.getCommissionsReport(
                             programId,
                             {
                                 report_period: reportPeriod,
@@ -56,7 +56,7 @@ export const ReportsStore = signalStore(
                                     document.body.removeChild(a);
 
                                     patchState(store, { status: Status.SUCCESS });
-                                    snackbarService.openSnackBar('Successfully downloaded program report', '');
+                                    snackbarService.openSnackBar('Successfully downloaded commissions report', '');
                                 },
                                 error: (error) => {
                                     if (error instanceof Error) {

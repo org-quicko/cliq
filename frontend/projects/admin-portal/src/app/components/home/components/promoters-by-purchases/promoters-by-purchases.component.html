@@ -23,7 +23,7 @@
     <!-- Content Card -->
     <mat-card class="rounded-lg border border-outline-variant flex flex-col">
         <div class="p-4">
-            <div #scrollContainer class="flex-1 overflow-y-auto min-h-[16rem] max-h-[70vh] p-2">
+            <div #scrollContainer class="flex-1 p-2">
                 <ng-container *ngIf="isLoading; else loadedContent">
                     <div class="space-y-3">
                         <ngx-skeleton-loader count="10" appearance="line" [theme]="{
@@ -43,7 +43,7 @@
                             <button 
                                 (click)="toggleValueType()" 
                                 class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
-                                <img src="assets/icon.svg" alt="toggle" class="w-4 h-4" />
+                                <img [src]="showRevenue() ? 'assets/icon2.svg' : 'assets/icon1.svg'" alt="toggle" class="w-4 h-4" />
                             </button>
                         </div>
                     </div>

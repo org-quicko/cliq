@@ -10,7 +10,7 @@ import { reportEnum, reportPeriodEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 
 export enum adminReportEnum {
-    PROGRAM_REPORT = 'program report'
+    COMMISSION_REPORT = 'commission report'
 }
 
 @Component({
@@ -56,7 +56,7 @@ export class ReportsComponent {
     }
 
     getReport = (reportInfo: { reportPeriod: reportPeriodEnum, startDate: Date, endDate: Date }) => {
-        this.reportsStore.getProgramReport({
+        this.reportsStore.getCommissionsReport({
             ...reportInfo,
             programId: this.programId(),
         });
