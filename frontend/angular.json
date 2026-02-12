@@ -139,7 +139,7 @@
 						"outputPath": "dist/promoter-portal",
 						"index": "projects/promoter-portal/src/index.html",
 						"browser": "projects/promoter-portal/src/main.ts",
-						"baseHref": "/promoter/",
+						"baseHref": "/",
 						"polyfills": [
 							"zone.js"
 						],

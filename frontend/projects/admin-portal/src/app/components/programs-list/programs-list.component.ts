@@ -5,8 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatDividerModule } from '@angular/material/divider';
-import { ProgramsListStore } from '../../store/programs-list.store';
-import { Status } from '@org.quicko.cliq/ngx-core';
+import { ProgramUserStore } from '../../store/program-user.store';
 
 @Component({
 	selector: 'app-programs-list',
@@ -22,20 +21,18 @@ import { Status } from '@org.quicko.cliq/ngx-core';
 	styleUrl: './programs-list.component.css',
 })
 export class ProgramsListComponent implements OnInit {
-	programsListStore = inject(ProgramsListStore);
+	programUserStore = inject(ProgramUserStore);
 
-	programs = this.programsListStore.programs;
-	isLoading = () => this.programsListStore.status() === Status.PENDING;
+	programs = this.programUserStore.programs;
+	isLoading = this.programUserStore.isLoading;
 
 	constructor(private router: Router) {}
 
 	ngOnInit() {
-		this.programsListStore.fetchPrograms();
+		
 	}
 
 	onClick(programId: string) {
-		// Defensive: handle both program_id and programId
-
 		if (!programId) {
 			return;
 		}

@@ -1,14 +1,13 @@
-import { Component, computed, effect, inject, Type, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, Type, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DynamicComponentDirective } from '../../directives/dynamic-component.directive';
-import { UserStore } from '../../store/user.store';
+import { AuthService } from '../../services/auth.service';
 import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-dynamic-component-loader',
 	standalone: true,
-	imports: [MatProgressSpinnerModule, DynamicComponentDirective],
+	imports: [DynamicComponentDirective],
 	templateUrl: './dynamic-component-loader.component.html',
 	styleUrl: './dynamic-component-loader.component.css',
 })
@@ -17,42 +16,24 @@ export class DynamicComponentLoaderComponent implements AfterViewInit {
 	dynamicHost!: DynamicComponentDirective;
 
 	private route = inject(ActivatedRoute);
-	private userStore = inject(UserStore);
-
-	isLoading = computed(() => this.userStore.isLoading());
+	private authService = inject(AuthService);
 
 	private superAdminComponent: Type<any> | null = null;
 	private defaultComponent: Type<any> | null = null;
-	private viewInitialized = false;
 
 	constructor() {
-
 		this.route.data.subscribe((data) => {
 			this.superAdminComponent = data['SuperAdminComponent'] ?? null;
 			this.defaultComponent = data['DefaultComponent'] ?? null;
 		});
-
-
-		effect(() => {
-			const user = this.userStore.user();
-			const isLoading = this.userStore.isLoading();
-
-			if (!isLoading && user && this.viewInitialized && this.dynamicHost) {
-				this.loadComponent(user.role);
-			}
-		});
 	}
 
 	ngAfterViewInit(): void {
-		this.viewInitialized = true;
-		const user = this.userStore.user();
-		const isLoading = this.userStore.isLoading();
-		if (!isLoading && user) {
-			this.loadComponent(user.role);
-		}
+		const role = this.authService.getUserRole();
+		this.loadComponent(role);
 	}
 
-	private loadComponent(role: userRoleEnum): void {
+	private loadComponent(role: userRoleEnum | null): void {
 		let component: Type<any> | null = null;
 
 		if (role === userRoleEnum.SUPER_ADMIN && this.superAdminComponent) {

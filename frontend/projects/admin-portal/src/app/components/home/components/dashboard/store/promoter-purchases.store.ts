@@ -48,7 +48,7 @@ export const PromoterPurchasesStore = signalStore(
         isLoading: computed(() => store.status() === Status.LOADING),
         isLoadingMore: computed(() => store.loadingMore()),
         hasMore: computed(() => store.pagination()?.hasMore ?? false),
-        // Top 5 promoters (for dashboard) - order preserved from API (already sorted by sortBy)
+
         topPopularityData: computed(() => {
             return store.promoters()
                 .slice(0, 5)
@@ -59,7 +59,7 @@ export const PromoterPurchasesStore = signalStore(
                     revenue: p.revenue,
                 }));
         }),
-        // Full list (for "View all promoters") - order preserved from API
+
         popularityData: computed(() => {
             return store.promoters()
                 .map(p => ({

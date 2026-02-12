@@ -7,8 +7,9 @@ import { AvatarModule } from 'ngx-avatars';
 import { MatRippleModule } from '@angular/material/core';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ProgramStore } from '../../../../store/program.store';
-import { ProgramsListStore, ProgramWithRole } from '../../../../store/programs-list.store';
-import { Status } from '@org.quicko.cliq/ngx-core';
+import { ProgramUserStore, ProgramWithRole } from '../../../../store/program-user.store';
+import { PermissionsService } from '../../../../services/permission.service';
+import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-choose-program',
@@ -29,33 +30,22 @@ export class ChooseProgramComponent implements OnInit {
 	currentProgram = signal<ProgramWithRole | null>(null);
 
 	programStore = inject(ProgramStore);
-	programsListStore = inject(ProgramsListStore);
+	programUserStore = inject(ProgramUserStore);
 
-	isLoading = computed(() => this.programsListStore.status() === Status.PENDING);
-	programs = this.programsListStore.programs;
+	isLoading = this.programUserStore.isLoading;
+	programs = this.programUserStore.programs;
 	program = this.programStore.program;
-	isSuperAdmin = this.programsListStore.isSuperAdmin;
 
 	displayedPrograms = computed(() => this.programs().slice(0, 5));
 
 	constructor(
 		private route: ActivatedRoute,
+		private permissionService: PermissionsService,
 		private router: Router
 	) {
 		effect(() => {
-			const programs = this.programs();
-			const status = this.programsListStore.status();
-			const currentProgFromStore = this.program();
-
-			if (programs.length > 0) {
-				this.setCurrentProgram();
-			}
-
-			if (status === Status.SUCCESS && !this.currentProgram() && currentProgFromStore) {
-				this.currentProgram.set({
-					...currentProgFromStore,
-					role: this.isSuperAdmin() ? 'super_admin' : undefined
-				} as ProgramWithRole);
+			if (this.programs().length > 0) {
+				this.getPrograms();
 			}
 		});
 	}
@@ -64,41 +54,24 @@ export class ChooseProgramComponent implements OnInit {
 		this.route.params.subscribe((params: Params) => {
 			this.currentProgramId = params['program_id'];
 		});
-
-
-		if (this.programsListStore.status() !== Status.SUCCESS) {
-			this.programsListStore.fetchPrograms();
-		}
 	}
 
-	setCurrentProgram() {
+	getPrograms() {
 		this.programs().forEach((program: ProgramWithRole) => {
 			if (program.programId === this.currentProgramId) {
 				this.currentProgram.set(program);
+				if (program.role) {
+					this.permissionService.setAbilityForRole(program.role as userRoleEnum);
+				}
 			}
 		});
 	}
 
 	changeProgram(program: ProgramWithRole) {
-
-		const currentUrl = window.location.pathname;
-		const urlParts = currentUrl.split('/');
-		
-
-		const programIdIndex = urlParts.findIndex(part => part === this.currentProgramId);
-		if (programIdIndex !== -1) {
-			urlParts[programIdIndex] = program.programId!;
-			window.location.href = `${window.location.origin}${urlParts.join('/')}`;
-		} else {
-			window.location.href = `${window.location.origin}/${program.programId}/home/dashboard`;
-		}
+		window.location.href = `${window.location.origin}/admin/${program.programId}/home/dashboard`;
 	}
 
 	onViewAllPrograms() {
-		if (this.isSuperAdmin()) {
-			this.router.navigate(['/programs/summary']);
-		} else {
-			this.router.navigate(['/programs']);
-		}
+		this.router.navigate(['/programs']);
 	}
 }

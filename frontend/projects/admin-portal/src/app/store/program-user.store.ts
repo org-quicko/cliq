@@ -1,7 +1,7 @@
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
 import { ProgramService } from '../services/program.service';
-import { PermissionsService } from '../services/permission.service';
+import { AuthService } from '../services/auth.service';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, of, pipe, switchMap, tap } from 'rxjs';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
@@ -42,7 +42,7 @@ export const ProgramUserStore = signalStore(
 	})),
 
 	withMethods(
-		(store, programService = inject(ProgramService), permissionsService = inject(PermissionsService)) => ({
+		(store, programService = inject(ProgramService), authService = inject(AuthService)) => ({
 			fetchPrograms: rxMethod<void>(
 				pipe(
 					tap(() => {
@@ -52,7 +52,8 @@ export const ProgramUserStore = signalStore(
 						});
 					}),
 					switchMap(() => {
-					if (permissionsService.isSuperAdmin()) {
+					const userRole = authService.getUserRole();
+					if (userRole === userRoleEnum.SUPER_ADMIN) {
 							return programService.getProgramSummary({ take: 100 }).pipe(
 								tap((summaryResponse) => {
 									let superAdminPrograms: ProgramWithRole[] = [];

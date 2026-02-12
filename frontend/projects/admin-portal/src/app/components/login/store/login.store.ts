@@ -3,7 +3,7 @@ import { LoginDto, SnackbarService, userRoleEnum } from '@org.quicko.cliq/ngx-co
 import { UserService } from '../../../services/user.service';
 import { EventEmitter, inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { pipe, switchMap, catchError, of } from 'rxjs';
+import { pipe, switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -13,18 +13,16 @@ import { PermissionsService } from '../../../services/permission.service';
 export interface LogInState {
 	admin: LoginDto | null;
 	status: Status;
-	isSuperAdmin: boolean;
 	error: any;
 }
 
 const initialLogInState: LogInState = {
 	admin: null,
 	status: Status.PENDING,
-	isSuperAdmin: false,
 	error: null,
 };
 
-export const onSignInSuccess: EventEmitter<{ isSuperAdmin: boolean }> = new EventEmitter();
+export const onSignInSuccess: EventEmitter<boolean> = new EventEmitter();
 export const onSignInError: EventEmitter<string> = new EventEmitter();
 
 export const LogInStore = signalStore(
@@ -53,9 +51,7 @@ export const LogInStore = signalStore(
 										permissionsService.setUserRole(userRole);
 									}
 									
-									// Check if user is super admin from the token
-									const isSuperAdmin = authService.isSuperAdmin();
-									onSignInSuccess.emit({ isSuperAdmin });
+									onSignInSuccess.emit(true);
 								},
 								error: (error: HttpErrorResponse) => {
 									onSignInError.emit(error.error.message);

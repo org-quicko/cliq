@@ -6,6 +6,12 @@ import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 
 Chart.register(...registerables);
 
+export enum MetricType {
+    SIGNUPS = 'signups',
+    PURCHASES = 'purchases',
+    REVENUE = 'revenue',
+    COMMISSION = 'commission'
+}
 
 export interface DailyData {
     date: string;
@@ -14,8 +20,6 @@ export interface DailyData {
     revenue: number;
     commission: number;
 }
-
-type MetricType = 'signups' | 'purchases' | 'revenue' | 'commission';
 
 @Component({
     selector: 'app-analytics-chart',
@@ -33,8 +37,11 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
     constructor(private cdr: ChangeDetectorRef) { }
 
+    // Expose enum to template
+    readonly MetricType = MetricType;
+
     hasData = false;
-    selectedMetric = signal<MetricType>('signups');
+    selectedMetric = signal<MetricType>(MetricType.SIGNUPS);
     currentChartType: 'bar' | 'line' = 'bar';
 
     totalSignups = 0;
@@ -100,7 +107,7 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
                         label: (ctx: TooltipItem<'bar'>) => {
                             const metric = this.selectedMetric();
                             const value = ctx.parsed.y ?? 0;
-                            return (metric === 'revenue' || metric === 'commission')
+                            return (metric === MetricType.REVENUE || metric === MetricType.COMMISSION)
                                 ? ` ${this.getMetricLabel(metric)}  ${this.formatCurrency(value)}`
                                 : ` ${this.getMetricLabel(metric)}  ${value.toLocaleString()}`;
                         }
@@ -155,11 +162,11 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
         this.assignXLabels();
 
-        // Calculate max value and determine appropriate step size
+
         const maxValue = Math.max(...this.processedData.map(p => p.value), 0);
         const stepSize = this.calculateStepSize(maxValue);
 
-        // Update y-axis stepSize dynamically
+  
         if (this.chartOptions.scales.y.ticks) {
             this.chartOptions.scales.y.ticks.stepSize = stepSize;
         }
@@ -187,14 +194,13 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     private calculateStepSize(maxValue: number): number {
         if (maxValue === 0) return 1;
 
-        // Target roughly 5-6 ticks on the y-axis
+    
         const targetTicks = 5;
         const rawStep = maxValue / targetTicks;
 
-        // Find the magnitude (power of 10)
+
         const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
 
-        // Normalize to 1, 2, or 5 times the magnitude
         const normalized = rawStep / magnitude;
         let niceStep;
 
@@ -267,7 +273,6 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
                     }
                 });
             } else {
-                // Fallback: daily data - show date with month at intervals
                 const interval = Math.max(1, Math.floor(data.length / 10));
                 data.forEach((p, i) => {
                     if (i % interval === 0 || i === data.length - 1) {
@@ -278,7 +283,6 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
                 });
             }
         } else {
-            // Default: show month names
             let lastMonth = '';
             data.forEach(p => {
                 const month = p.date.toLocaleDateString('en-US', { month: 'short' });
@@ -295,17 +299,17 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
         const d = this.processedData[index]?.date;
         if (!d) return '';
 
-        // For yearly data: show only year
+ 
         if (this.period === 'all' || this.dataType === 'yearly') {
             return d.getFullYear().toString();
         }
 
-        // For monthly data: show month and year (no day)
+
         if (this.period === '6months' || this.period === '1year' || this.dataType === 'monthly') {
             return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         }
 
-        // For all other cases: show full date
+ 
         return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 

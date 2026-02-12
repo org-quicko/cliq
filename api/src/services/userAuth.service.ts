@@ -53,6 +53,7 @@ export class UserAuthService {
 			sub: user.userId,
 			email: user.email,
 			aud: audienceEnum.PROGRAM_USER,
+			role: user.role,
 		};
 
 		const accessToken = await this.jwtService.signAsync(tokenPayload);

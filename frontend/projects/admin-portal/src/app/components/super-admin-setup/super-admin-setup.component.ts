@@ -58,7 +58,7 @@ export class SuperAdminSetupComponent implements OnInit {
 
     const formValue = this.createSuperAdminForm.value;
     
-    // Split name into firstName and lastName
+
     const nameParts = formValue.name.trim().split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';

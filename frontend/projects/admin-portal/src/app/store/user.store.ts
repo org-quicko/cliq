@@ -8,6 +8,7 @@ import { Status, UserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 import { plainToInstance } from 'class-transformer';
 import { computed } from '@angular/core';
 import { tapResponse } from '@ngrx/operators';
+import { PermissionsService } from '../services/permission.service';
 
 export interface UserStoreState {
 	user: UserDto | null;
@@ -35,7 +36,8 @@ export const UserStore = signalStore(
 	withMethods(
 		(
 			store,
-			userService = inject(UserService)
+			userService = inject(UserService),
+			permissionsService = inject(PermissionsService)
 		) => ({
 			fetchUser: rxMethod<{ userId: string }>(
 				pipe(
@@ -53,6 +55,10 @@ export const UserStore = signalStore(
 											isLoading: false,
 											error: null,
 										});
+							
+										if (user.role) {
+											permissionsService.setUserRole(user.role);
+										}
 									}
 								},
 								error: (error: any) => {

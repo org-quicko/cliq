@@ -11,7 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LogInStore, onSignInError, onSignInSuccess } from './store/login.store';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
-import { LogoComponent } from '../common/logo/logo.component';
 import { LoginDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 
 @Component({
@@ -26,7 +25,6 @@ import { LoginDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 		MatIconModule,
 		CommonModule,
 		AccountsContainerComponent,
-		LogoComponent,
 	],
 	providers: [LogInStore],
 	templateUrl: './login.component.html',
@@ -53,14 +51,8 @@ export class LoginComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		onSignInSuccess.subscribe(({ isSuperAdmin }) => {
-			if (isSuperAdmin) {
-				// Super admin gets redirected to programs summary
-				this.router.navigate(['/programs/summary']);
-			} else {
-				// Regular user gets redirected to programs list
-				this.router.navigate(['/programs']);
-			}
+		onSignInSuccess.subscribe(() => {
+			this.router.navigate(['/programs']);
 			this.isLoading.set(false);
 		});
 

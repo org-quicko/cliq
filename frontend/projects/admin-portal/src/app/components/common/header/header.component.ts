@@ -2,11 +2,10 @@ import { Component, computed, inject } from '@angular/core';
 import { ProfileComponent } from './profile/profile.component';
 import { ChooseProgramComponent } from './choose-program/choose-program.component';
 import { ProgramStore } from '../../../store/program.store';
-import { LogoComponent } from '../logo/logo.component';
 
 @Component({
 	selector: 'app-header',
-	imports: [LogoComponent, ChooseProgramComponent, ProfileComponent],
+	imports: [ChooseProgramComponent, ProfileComponent],
 	templateUrl: './header.component.html',
 	styleUrl: './header.component.css'
 })

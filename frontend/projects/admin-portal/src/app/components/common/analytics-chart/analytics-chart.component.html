@@ -4,15 +4,15 @@
 
     <!-- Signups -->
     <button
-      (click)="selectMetric('signups')"
+      (click)="selectMetric(MetricType.SIGNUPS)"
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
-      [ngClass]="selectedMetric() === 'signups'
+      [ngClass]="selectedMetric() === MetricType.SIGNUPS
         ? 'bg-surface-container-lowest'
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === 'signups'"></div>
+           [class.bg-primary]="selectedMetric() === MetricType.SIGNUPS"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalSignups | number }}
@@ -22,15 +22,15 @@
 
     <!-- Purchases -->
     <button
-      (click)="selectMetric('purchases')"
+      (click)="selectMetric(MetricType.PURCHASES)"
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
-      [ngClass]="selectedMetric() === 'purchases'
+      [ngClass]="selectedMetric() === MetricType.PURCHASES
         ? 'bg-surface-container-lowest'
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === 'purchases'"></div>
+           [class.bg-primary]="selectedMetric() === MetricType.PURCHASES"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalPurchases | number }}
@@ -40,15 +40,15 @@
 
     <!-- Revenue -->
     <button
-      (click)="selectMetric('revenue')"
+      (click)="selectMetric(MetricType.REVENUE)"
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
-      [ngClass]="selectedMetric() === 'revenue'
+      [ngClass]="selectedMetric() === MetricType.REVENUE
         ? 'bg-surface-container-lowest'
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === 'revenue'"></div>
+           [class.bg-primary]="selectedMetric() === MetricType.REVENUE"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalRevenue | formatCurrency: currency }}
@@ -58,15 +58,15 @@
 
     <!-- Commission -->
     <button
-      (click)="selectMetric('commission')"
+      (click)="selectMetric(MetricType.COMMISSION)"
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
-      [ngClass]="selectedMetric() === 'commission'
+      [ngClass]="selectedMetric() === MetricType.COMMISSION
         ? 'bg-surface-container-lowest'
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === 'commission'"></div>
+           [class.bg-primary]="selectedMetric() === MetricType.COMMISSION"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalCommission | formatCurrency: currency }}

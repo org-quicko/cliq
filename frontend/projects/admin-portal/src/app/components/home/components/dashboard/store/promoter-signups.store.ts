@@ -48,7 +48,6 @@ export const PromoterSignupsStore = signalStore(
         isLoading: computed(() => store.status() === Status.LOADING),
         isLoadingMore: computed(() => store.loadingMore()),
         hasMore: computed(() => store.pagination()?.hasMore ?? false),
-        // Top 5 promoters (for dashboard) - order preserved from API (already sorted by sortBy)
         topPopularityData: computed(() => {
             return store.promoters()
                 .slice(0, 5)
@@ -59,7 +58,7 @@ export const PromoterSignupsStore = signalStore(
                     revenue: p.revenue,
                 }));
         }),
-        // Full list (for "View all promoters") - order preserved from API
+
         popularityData: computed(() => {
             return store.promoters()
                 .map(p => ({
@@ -103,13 +102,13 @@ export const PromoterSignupsStore = signalStore(
                         }).pipe(
                             tapResponse({
                                 next(response) {
-                                    // Debug log
-                                    console.log('[PromoterSignupsStore] Full API response:', response);
-                                    // Parse workbook format
+                    
+                    
+                              
                                     let promoters: PromoterData[] = [];
                                     let pagination = null;
                                     try {
-                                        // Find the promoter_analytics_sheet in response.data.sheets
+                                      
                                         const sheets = response?.data?.sheets || [];
                                         const analyticsSheet = sheets.find((s: any) => s.name === 'promoter_analytics_sheet');
                                         if (analyticsSheet) {
@@ -135,7 +134,7 @@ export const PromoterSignupsStore = signalStore(
                                                 });
                                             }
                                         }
-                                        // Pagination
+                                  
                                         pagination = response?.data?.metadata?.pagination || null;
                                     } catch (e) {
                                         console.error('Error parsing workbook for promoter analytics:', e);
@@ -218,7 +217,7 @@ export const PromoterSignupsStore = signalStore(
                                     } catch (e) {
                                         console.error('Error parsing workbook for promoter analytics:', e);
                                     }
-                                    // Append to existing promoters
+                              
                                     const existingPromoters = store.promoters();
                                     patchState(store, {
                                         promoters: [...existingPromoters, ...newPromoters],

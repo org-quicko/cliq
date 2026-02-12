@@ -51,7 +51,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
     readonly programId = computed(() => this.programStore.program()?.programId);
 
     constructor() {
-        // React to date range changes
+ 
         effect(() => {
             const programId = this.programId();
             if (!programId) return;
@@ -60,7 +60,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
             const start = this.dateRangeStore.start();
             const end = this.dateRangeStore.end();
 
-            // Fetch data when date range changes
+          
             this.fetchDataWithDateRange();
         });
     }
@@ -110,7 +110,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
 
     toggleValueType() {
         this.showSignups.update(v => !v);
-        // Re-fetch with new sort order
+
         this.fetchDataWithDateRange();
     }
 
@@ -118,7 +118,6 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         return this.showSignups() ? (item.subValue ?? 0) : item.value;
     }
 
-    // Check if we should format as currency
     shouldFormatAsCurrency(): boolean {
         return !this.showSignups();
     }

@@ -44,15 +44,13 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
     labelColumn = 'Promoters';
     valueColumn = 'Commission';
     alternateValueColumn = 'Revenue';
-    
-    // Toggle state: false = Commission, true = Revenue
+
     showRevenue = signal(false);
 
     readonly program = computed(() => this.programStore.program());
     readonly programId = computed(() => this.programStore.program()?.programId);
 
     constructor() {
-        // React to date range changes
         effect(() => {
             const programId = this.programId();
             if (!programId) return;
@@ -61,7 +59,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
             const start = this.dateRangeStore.start();
             const end = this.dateRangeStore.end();
 
-            // Fetch data when date range changes
+       
             this.fetchDataWithDateRange();
         });
     }
@@ -154,7 +152,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
         const container = this.scrollContainer?.nativeElement;
         if (!container) return;
 
-        const threshold = 100; // pixels from bottom to trigger load
+        const threshold = 100; 
         const scrollPosition = container.scrollTop + container.clientHeight;
         const scrollHeight = container.scrollHeight;
 
