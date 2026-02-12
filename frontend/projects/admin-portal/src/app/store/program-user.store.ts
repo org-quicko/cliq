@@ -52,9 +52,7 @@ export const ProgramUserStore = signalStore(
 						});
 					}),
 					switchMap(() => {
-						// Check if user is super admin using CASL permissions
-						if (permissionsService.isSuperAdmin()) {
-							// Super admin: fetch program summary
+					if (permissionsService.isSuperAdmin()) {
 							return programService.getProgramSummary({ take: 100 }).pipe(
 								tap((summaryResponse) => {
 									let superAdminPrograms: ProgramWithRole[] = [];
@@ -80,7 +78,7 @@ export const ProgramUserStore = signalStore(
 									});
 								}),
 								catchError((error) => {
-									console.error('[ProgramUserStore] Error fetching program summary:', error);
+
 									patchState(store, { 
 										error: error.message, 
 										status: Status.ERROR,
@@ -91,11 +89,8 @@ export const ProgramUserStore = signalStore(
 								})
 							);
 						} else {
-							// Regular user: fetch programs with role from ProgramUser
-							return programService.getAllPrograms().pipe(
-								tap((response) => {
-									// Backend returns programs with role from ProgramUser
-									// Handle both camelCase (programId) and snake_case (program_id) from backend
+						return programService.getAllPrograms().pipe(
+							tap((response) => {
 									const programsWithRole: ProgramWithRole[] = (response.data || []).map((program: any) => ({
 										programId: program.programId || program.program_id,
 										name: program.name,
@@ -109,7 +104,7 @@ export const ProgramUserStore = signalStore(
 									});
 								}),
 								catchError((error) => {
-									console.error('[ProgramUserStore] Error fetching programs:', error);
+
 									patchState(store, { 
 										error: error.message, 
 										status: Status.ERROR,
@@ -122,7 +117,7 @@ export const ProgramUserStore = signalStore(
 						}
 					}),
 					catchError((error) => {
-						console.error('[ProgramUserStore] Error:', error);
+
 						patchState(store, { 
 							error: error.message, 
 							status: Status.ERROR,

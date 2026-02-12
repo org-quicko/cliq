@@ -18,9 +18,19 @@ body {
 
 	@include overrides.mat-overrides();
 	@include overrides.typography-overrides();
+	@include overrides.on-surface-variant-overrides();
+	@include overrides.outline-variant-overrides();
+	@include overrides.primary-overrides();
+	@include overrides.secondary-90-overrides();
+	@include overrides.secondary-80-overrides();
 
 	.light-theme {
 		@include overrides.typography-overrides();
+		@include overrides.on-surface-variant-overrides();
+		@include overrides.outline-variant-overrides();
+		@include overrides.primary-overrides();
+		@include overrides.secondary-90-overrides();
+		@include overrides.secondary-80-overrides();
 	}
 
 	.dark-theme {
@@ -34,5 +44,10 @@ body {
 		@include overrides.typography-overrides();
 
 		@include overrides.mat-overrides();
+		@include overrides.on-surface-variant-overrides();
+		@include overrides.outline-variant-overrides();
+		@include overrides.primary-overrides();
+		@include overrides.secondary-90-overrides();
+		@include overrides.secondary-80-overrides();
 	}
 }

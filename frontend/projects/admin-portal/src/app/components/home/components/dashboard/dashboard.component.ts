@@ -82,7 +82,6 @@ export class DashboardComponent implements OnInit {
 			this.lastStart = startStr;
 			this.lastEnd = endStr;
 
-			console.log('[Dashboard] Data changed, fetching:', { programId, activeRange, startStr, endStr });
 			this.loadAllData();
 		});
 	}
@@ -116,8 +115,6 @@ export class DashboardComponent implements OnInit {
 	]);
 
 	ngOnInit() {
-		console.log('[Dashboard] Component initialized, programId:', this.programId());
-		// Effect will handle the initial load
 	}
 
 	/**
@@ -197,7 +194,6 @@ export class DashboardComponent implements OnInit {
 	 * @param showAlternate - true = sort by signups count, false = sort by signup_commission
 	 */
 	onSignupsToggle(showAlternate: boolean) {
-		console.log('[Dashboard] onSignupsToggle called with:', showAlternate);
 		this.showSignupsAlternate.set(showAlternate);
 		const programId = this.programId();
 		if (!programId) return;
@@ -223,7 +219,6 @@ export class DashboardComponent implements OnInit {
 	 * @param showAlternate - true = sort by revenue, false = sort by purchase_commission
 	 */
 	onPurchasesToggle(showAlternate: boolean) {
-		console.log('[Dashboard] onPurchasesToggle called with:', showAlternate);
 		this.showPurchasesAlternate.set(showAlternate);
 		const programId = this.programId();
 		if (!programId) return;

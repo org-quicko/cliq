@@ -95,12 +95,9 @@ export class ChooseProgramComponent implements OnInit {
 	}
 
 	onViewAllPrograms() {
-		console.log('[ChooseProgram] isSuperAdmin:', this.isSuperAdmin());
 		if (this.isSuperAdmin()) {
-			console.log('[ChooseProgram] Navigating to /programs/summary');
 			this.router.navigate(['/programs/summary']);
 		} else {
-			console.log('[ChooseProgram] Navigating to /programs');
 			this.router.navigate(['/programs']);
 		}
 	}

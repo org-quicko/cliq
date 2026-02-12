@@ -75,24 +75,16 @@ export const ProgramsSummaryStore = signalStore(
                         }).pipe(
                             tapResponse({
                                 next: (response) => {
-                                    console.log('Program summary response:', response);
-                                    
                                     let programs: ProgramSummaryMvDto[] = [];
                                     let totalCount = 0;
 
                                     if (response.data) {
-                                        // Parse the workbook response
                                         const workbook = response.data;
                                         const sheet = workbook?.sheets?.[0];
                                         const table = sheet?.blocks?.[0];
                                         const rows = table?.rows || [];
                                         const header = table?.header || [];
 
-                                        console.log('Header:', header);
-                                        console.log('Parsed rows:', rows);
-
-                                        // Map array rows to objects based on header indices
-                                        // header: ['program_id', 'program_name', 'total_promoters', 'total_referrals', 'created_at']
                                         programs = rows.map((row: any[]) => ({
                                             programId: row[0],
                                             programName: row[1],
@@ -114,8 +106,6 @@ export const ProgramsSummaryStore = signalStore(
                                     } else {
                                         updatedPrograms = [...currentPrograms, ...programs];
                                     }
-
-                                    console.log('Updated programs:', updatedPrograms);
 
                                     patchState(store, {
                                         programs: updatedPrograms,

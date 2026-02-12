@@ -27,19 +27,16 @@ export class AppComponent implements OnInit {
       });
   
       effect(() => {
-        // const themeColor = this.programStore.program()?.themeColor;
-        // ColorUtil.setThemeFromSeed(themeColor ?? '#4D5C92');
-  
         const programName = this.programStore.program()?.name;
         if (programName) {
           this.titleService.setTitle(`${programName} | Affiliate Program`);
         }
   
-        // After getting program.logoUrl (or whatever the favicon URL is)
+  
         const favicon: HTMLLinkElement | null = document.getElementById('appFavicon') as HTMLLinkElement;
         const logoUrl = this.programStore.program()?.logoUrl;
         if (favicon && logoUrl) {
-          favicon.href = logoUrl; // or the correct favicon URL from your backend
+          favicon.href = logoUrl; 
         }
       })
     }
@@ -47,7 +44,7 @@ export class AppComponent implements OnInit {
     ngOnInit() {
       this.themeService.initializeTheme();
       ColorUtil.setThemeFromSeed(`#4D5C92`);
-  
+      
       this.router.events
         .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe(() => {

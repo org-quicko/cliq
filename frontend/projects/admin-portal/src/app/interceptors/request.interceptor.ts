@@ -26,9 +26,6 @@ export class RequestInterceptor implements HttpInterceptor {
 
 			if (userId) {
 				headers['user_id'] = userId;
-				console.log('[RequestInterceptor] Adding user_id header:', userId, 'for URL:', request.url);
-			} else {
-				console.warn('[RequestInterceptor] No userId found in token for URL:', request.url);
 			}
 
 			request = request.clone({

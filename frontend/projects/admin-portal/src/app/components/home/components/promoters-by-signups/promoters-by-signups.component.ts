@@ -45,7 +45,6 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
     valueColumn = 'Commission';
     alternateValueColumn = 'Signups';
     
-    // Toggle state: false = Commission, true = Signups count
     showSignups = signal(false);
 
     readonly program = computed(() => this.programStore.program());

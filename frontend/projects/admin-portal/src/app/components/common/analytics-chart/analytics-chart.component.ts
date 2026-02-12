@@ -28,10 +28,10 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     @Input() graphData: DailyData[] = [];
     @Input() period: string = '30days';
     @Input() currency: string = 'INR';
-    @Input() dataType: string = 'daily'; 
+    @Input() dataType: string = 'daily';
     @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
-    constructor(private cdr: ChangeDetectorRef) {}
+    constructor(private cdr: ChangeDetectorRef) { }
 
     hasData = false;
     selectedMetric = signal<MetricType>('signups');
@@ -43,76 +43,82 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     totalCommission = 0;
 
     chartData: any = { labels: [], datasets: [] };
+    chartOptions: any;
 
-    chartOptions: any = {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        interaction: {
-  mode: 'index',
-  intersect: false
-},
+    private initChartOptions(): void {
+        const onSurfaceVariant = getComputedStyle(document.documentElement).getPropertyValue('--sys-on-surface-variant').trim();
+        const outlineVariant = getComputedStyle(document.documentElement).getPropertyValue('--sys-outline-variant').trim();
+        const surfaceContainerLowest = getComputedStyle(document.documentElement).getPropertyValue('--sys-surface-container-lowest').trim();
 
-        elements: {
-  line: {
-    capBezierPoints: true
-  }
-},
-
-
-        scales: {
-            x: {
-                ticks: { color: '#45464F', font: { size: 11 }, autoSkip: false, maxRotation: 0 },
-                grid: { display: false },
+        this.chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
             },
-            y: {
-                beginAtZero: true,
-                border: { display: false },
-                ticks: { 
-                    color: '#767680', 
-                    font: { size: 11 },
-                    stepSize: 1, // Will be dynamically adjusted based on data
-                    callback: function(value: number | string) {
-                        return Number.isInteger(value) ? value : null;
-                    }
+
+            elements: {
+                line: {
+                    capBezierPoints: true
+                }
+            },
+
+            scales: {
+                x: {
+                    ticks: { color: onSurfaceVariant, font: { size: 11 }, autoSkip: false, maxRotation: 0 },
+                    grid: { display: false },
                 },
-                grid: { color: '#C1C6D5', lineWidth: 1 },
+                y: {
+                    beginAtZero: true,
+                    border: { display: false },
+                    ticks: {
+                        color: onSurfaceVariant,
+                        font: { size: 11 },
+                        stepSize: 1,
+                        callback: function (value: number | string) {
+                            return Number.isInteger(value) ? value : null;
+                        }
+                    },
+                    grid: { color: outlineVariant, lineWidth: 1 },
+                },
             },
-        },
-        
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                backgroundColor: 'rgba(255,255,255,0.95)',
-                titleColor: '#333',
-                bodyColor: '#666',
-                borderColor: '#ddd',
-                borderWidth: 1,
-                padding: 12,
-                cornerRadius: 8,
-                callbacks: {
-                    title: (items: TooltipItem<'bar'>[]) => this.getTooltipTitle(items[0].dataIndex),
-                    label: (ctx: TooltipItem<'bar'>) => {
-                        const metric = this.selectedMetric();
-                        const value = ctx.parsed.y ?? 0;
-                        return (metric === 'revenue' || metric === 'commission')
-                            ? ` ${this.getMetricLabel(metric)}  ${this.formatCurrency(value)}`
-                            : ` ${this.getMetricLabel(metric)}  ${value.toLocaleString()}`;
+
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: surfaceContainerLowest,
+                    titleColor: onSurfaceVariant,
+                    bodyColor: onSurfaceVariant,
+                    borderColor: outlineVariant,
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        title: (items: TooltipItem<'bar'>[]) => this.getTooltipTitle(items[0].dataIndex),
+                        label: (ctx: TooltipItem<'bar'>) => {
+                            const metric = this.selectedMetric();
+                            const value = ctx.parsed.y ?? 0;
+                            return (metric === 'revenue' || metric === 'commission')
+                                ? ` ${this.getMetricLabel(metric)}  ${this.formatCurrency(value)}`
+                                : ` ${this.getMetricLabel(metric)}  ${value.toLocaleString()}`;
+                        }
                     }
                 }
             }
-        }
-    };
+        };
+    }
 
     private processedData: { date: Date; value: number; xLabel: string }[] = [];
 
-    ngOnInit() {}
+    ngOnInit() { }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['graphData'] || changes['period'] || changes['dataType']) this.updateChart();
     }
 
-    ngOnDestroy(): void {}
+    ngOnDestroy(): void { }
 
     selectMetric(metric: MetricType): void {
         this.selectedMetric.set(metric);
@@ -121,6 +127,10 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private updateChart(): void {
+        if (!this.chartOptions) {
+            this.initChartOptions();
+        }
+        
         if (!this.graphData?.length) {
             this.hasData = false;
             this.clearChartData();
@@ -132,23 +142,6 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
         this.updateChartData();
     }
 
-// private getRevenueGradient(): CanvasGradient | string {
-//     const chartInstance = this.chart?.chart;
-
-//     if (!chartInstance) return '#BDC5ED';
-
-//     const ctx = chartInstance.ctx;
-
-//     // chartArea is undefined on first render
-//     const chartArea = chartInstance.chartArea;
-//     if (!chartArea) return '#BDC5ED';
-
-//     const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-//     gradient.addColorStop(0, '#BDC5ED');   // near the line
-//     gradient.addColorStop(1, '#FFFFFF');   // fade to bottom
-
-//     return gradient;
-// }
 
     private updateChartData(): void {
         const metric = this.selectedMetric();
@@ -165,22 +158,25 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
         // Calculate max value and determine appropriate step size
         const maxValue = Math.max(...this.processedData.map(p => p.value), 0);
         const stepSize = this.calculateStepSize(maxValue);
-        
+
         // Update y-axis stepSize dynamically
         if (this.chartOptions.scales.y.ticks) {
             this.chartOptions.scales.y.ticks.stepSize = stepSize;
         }
 
+        const secondary90 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-90').trim();
+        const secondary80 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-80').trim();
+        
         this.chartData = {
             labels: this.processedData.map(p => p.xLabel),
             datasets: [{
                 label: this.getMetricLabel(metric),
                 data: this.processedData.map(p => p.value),
-                borderColor: '#DCE1FF',
+                borderColor: secondary90,
                 borderWidth: 1,
-                backgroundColor: '#DCE1FF',
-                hoverBackgroundColor: '#BDC5ED',
-                hoverBorderColor: '#BDC5ED',
+                backgroundColor: secondary90,
+                hoverBackgroundColor: secondary80,
+                hoverBorderColor: secondary80,
                 borderRadius: 4,
             }]
         };
@@ -190,18 +186,18 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
     private calculateStepSize(maxValue: number): number {
         if (maxValue === 0) return 1;
-        
+
         // Target roughly 5-6 ticks on the y-axis
         const targetTicks = 5;
         const rawStep = maxValue / targetTicks;
-        
+
         // Find the magnitude (power of 10)
         const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
-        
+
         // Normalize to 1, 2, or 5 times the magnitude
         const normalized = rawStep / magnitude;
         let niceStep;
-        
+
         if (normalized <= 1) {
             niceStep = 1;
         } else if (normalized <= 2) {
@@ -211,7 +207,7 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
         } else {
             niceStep = 10;
         }
-        
+
         return Math.max(1, niceStep * magnitude);
     }
 
@@ -251,7 +247,7 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
                     p.xLabel = p.date.getFullYear().toString();
                 });
             } else if (this.dataType === 'monthly') {
-        
+
                 data.forEach(p => {
                     p.xLabel = p.date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
                 });

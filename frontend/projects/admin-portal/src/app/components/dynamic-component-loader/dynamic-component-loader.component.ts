@@ -26,13 +26,13 @@ export class DynamicComponentLoaderComponent implements AfterViewInit {
 	private viewInitialized = false;
 
 	constructor() {
-		// Get component mappings from route data
+
 		this.route.data.subscribe((data) => {
 			this.superAdminComponent = data['SuperAdminComponent'] ?? null;
 			this.defaultComponent = data['DefaultComponent'] ?? null;
 		});
 
-		// Load component based on user role
+
 		effect(() => {
 			const user = this.userStore.user();
 			const isLoading = this.userStore.isLoading();
@@ -45,7 +45,6 @@ export class DynamicComponentLoaderComponent implements AfterViewInit {
 
 	ngAfterViewInit(): void {
 		this.viewInitialized = true;
-		// Trigger component loading if user is already loaded
 		const user = this.userStore.user();
 		const isLoading = this.userStore.isLoading();
 		if (!isLoading && user) {

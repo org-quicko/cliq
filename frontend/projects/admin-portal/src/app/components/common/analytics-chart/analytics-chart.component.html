@@ -8,11 +8,11 @@
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'signups'
-        ? 'bg-[#FFFFFF]'
-        : 'bg-[#F8F9FA] border-b border-outline-variant'">
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-[#4D5C92]]="selectedMetric() === 'signups'"></div>
+           [class.bg-primary]="selectedMetric() === 'signups'"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalSignups | number }}
@@ -26,11 +26,11 @@
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'purchases'
-        ? 'bg-[#FFFFFF]'
-        : 'bg-[#F8F9FA] border-b border-outline-variant'">
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-[#4D5C92]]="selectedMetric() === 'purchases'"></div>
+           [class.bg-primary]="selectedMetric() === 'purchases'"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalPurchases | number }}
@@ -44,11 +44,11 @@
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'revenue'
-        ? 'bg-[#FFFFFF]'
-        : 'bg-[#F8F9FA] border-b border-outline-variant'">
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-[#4D5C92]]="selectedMetric() === 'revenue'"></div>
+           [class.bg-primary]="selectedMetric() === 'revenue'"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalRevenue | formatCurrency: currency }}
@@ -62,11 +62,11 @@
       class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
              border-r border-outline-variant transition-colors"
       [ngClass]="selectedMetric() === 'commission'
-        ? 'bg-[#FFFFFF]'
-        : 'bg-[#F8F9FA] border-b border-outline-variant'">
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-[#4D5C92]]="selectedMetric() === 'commission'"></div>
+           [class.bg-primary]="selectedMetric() === 'commission'"></div>
 
       <span class="text-[22px] font-titlelarge leading-none text-on-surface">
         {{ totalCommission | formatCurrency: currency }}

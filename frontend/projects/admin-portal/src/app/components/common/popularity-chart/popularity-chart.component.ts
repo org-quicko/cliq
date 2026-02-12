@@ -36,15 +36,13 @@ export class PopularityChartComponent {
 
     @Input() useSubValueAsAlternate: boolean = false;
 
-    // Controlled by parent - when parent needs to maintain state across re-renders
     @Input() alternateActive: boolean = false;
 
     @Output() toggleChanged = new EventEmitter<boolean>();
 
-    // Internal signal for uncontrolled mode (when alternateActive input is not used)
+ 
     private _showAlternate = signal(false);
 
-    // Use input if provided, otherwise use internal state
     showAlternate(): boolean {
         return this.alternateActive || this._showAlternate();
     }
@@ -68,7 +66,6 @@ export class PopularityChartComponent {
         return item.value;
     }
 
-    // Check if we should format as currency
     shouldFormatAsCurrency(): boolean {
    
         return !(this.showAlternate() && this.useSubValueAsAlternate);

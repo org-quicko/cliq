@@ -31,7 +31,6 @@ export class ProfileComponent implements OnInit {
 	readonly programId = computed(() => this.programStore.program()?.programId);
 	readonly programs = this.programUserStore.programs;
 
-	// Get user name from UserStore
 	readonly userName = computed(() => {
 		const user = this.userStore.user();
 		if (user?.firstName && user?.lastName) {
@@ -41,7 +40,6 @@ export class ProfileComponent implements OnInit {
 		} else if (user?.lastName) {
 			return user.lastName;
 		}
-		// Fallback: extract name from email
 		const email = this.authService.getUserEmail();
 		if (email) {
 			const namePart = email.split('@')[0];
@@ -54,14 +52,11 @@ export class ProfileComponent implements OnInit {
 		return 'Admin';
 	});
 
-	// Get user role from ProgramUserStore
 	readonly userRole = computed(() => {
-		// First try to get role from current program user
 		const roleFromStore = this.programUserStore.role();
 		if (roleFromStore) {
 			return roleFromStore;
 		}
-		// Fallback: get role from programs list
 		const currentProgramId = this.programId();
 		const programs = this.programs();
 		if (currentProgramId && programs.length > 0) {
@@ -79,7 +74,6 @@ export class ProfileComponent implements OnInit {
 		private router: Router,
 		private authService: AuthService
 	) {
-		// Update ProgramUserStore when program changes
 		effect(() => {
 			const programId = this.programId();
 			if (programId) {
@@ -89,7 +83,6 @@ export class ProfileComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		// Get user email from JWT token
 		const email = this.authService.getUserEmail();
 		this.userEmail.set(email);
 	}
@@ -103,6 +96,6 @@ export class ProfileComponent implements OnInit {
 
 	logout() {
 		this.authService.deleteToken();
-		window.location.href = `${window.location.origin}/login`;
+		window.location.href = `${window.location.origin}/admin/login`;
 	}
 }

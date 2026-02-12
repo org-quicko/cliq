@@ -58,7 +58,6 @@ export const LogInStore = signalStore(
 									onSignInSuccess.emit({ isSuperAdmin });
 								},
 								error: (error: HttpErrorResponse) => {
-									console.error(error.error.message);
 									onSignInError.emit(error.error.message);
 								}
 							})

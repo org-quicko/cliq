@@ -68,7 +68,6 @@ export const ProgramsListStore = signalStore(
 								});
 							}),
 							catchError((error) => {
-								console.error('[ProgramsListStore] Error fetching program summary:', error);
 								patchState(store, {
 									error: error.message,
 									status: Status.ERROR,
@@ -95,7 +94,7 @@ export const ProgramsListStore = signalStore(
 								});
 							}),
 							catchError((error) => {
-								console.error('[ProgramsListStore] Error fetching programs:', error);
+
 								patchState(store, {
 									error: error.message,
 									status: Status.ERROR,
@@ -107,7 +106,6 @@ export const ProgramsListStore = signalStore(
 					}
 				}),
 				catchError((error) => {
-					console.error('[ProgramsListStore] Error:', error);
 					patchState(store, {
 						error: error.message,
 						status: Status.ERROR,

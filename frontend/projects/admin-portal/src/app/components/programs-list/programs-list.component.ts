@@ -30,8 +30,6 @@ export class ProgramsListComponent implements OnInit {
 	constructor(private router: Router) {}
 
 	ngOnInit() {
-		console.log('[ProgramsListComponent] Component initialized, fetching programs...');
-		console.log('[ProgramsListComponent] Current programs:', this.programs());
 		this.programsListStore.fetchPrograms();
 	}
 
@@ -39,7 +37,6 @@ export class ProgramsListComponent implements OnInit {
 		// Defensive: handle both program_id and programId
 
 		if (!programId) {
-			console.error('[ProgramsListComponent] programId is undefined!');
 			return;
 		}
 		this.router.navigate(['/', programId, 'home', 'dashboard']);
