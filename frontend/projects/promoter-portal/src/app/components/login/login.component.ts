@@ -6,7 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LogInStore, onSignInError, onSignInSuccess } from './store/login.store';
@@ -19,18 +19,17 @@ import { MemberDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 	selector: 'app-login',
 	standalone: true,
 	imports: [
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatButtonModule,
-		MatSnackBarModule,
-		MatIconModule,
-		CommonModule,
-		RouterLinkActive,
-		RouterLink,
-		AccountsContainerComponent,
-		LogoComponent,
-	],
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatIconModule,
+    RouterLinkActive,
+    RouterLink,
+    AccountsContainerComponent,
+    LogoComponent
+],
 	providers: [LogInStore],
 	templateUrl: './login.component.html',
 })

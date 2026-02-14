@@ -1,29 +1,31 @@
 <div class="flex flex-col">
-	<!-- Title outside the card with skeleton loading -->
-	<div class="mat-body-large text-on-surface mb-4">{{ title }}</div>
+  <!-- Title outside the card with skeleton loading -->
+  <div class="mat-body-large text-on-surface mb-4">{{ title }}</div>
 
-	<!-- Card content -->
-    <mat-card class="rounded-lg border border-outline-variant flex flex-col overflow-hidden">
-        <div class="p-[24px]">
-            <div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
-            <!-- Header row -->
-            <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline px-0">
-                <div>{{ labelColumn }}</div>
-                <div class="flex items-center gap-1">
-                    <span>{{ displayedValueColumn }}</span>
-                    <button *ngIf="showToggle" 
-                        (click)="toggleValueType()" 
-                        class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
-                        <img [src]="showAlternate() ? 'assets/icon2.svg' : 'assets/icon1.svg'" alt="toggle" class="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
+  <!-- Card content -->
+  <mat-card class="rounded-lg border border-outline-variant flex flex-col overflow-hidden">
+    <div class="p-[24px]">
+      <div class="flex-1 overflow-y-auto min-h-[16rem] max-h-auto">
+        <!-- Header row -->
+        <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline px-0">
+          <div>{{ labelColumn }}</div>
+          <div class="flex items-center gap-1">
+            <span>{{ displayedValueColumn }}</span>
+            @if (showToggle) {
+              <button
+                (click)="toggleValueType()"
+                class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
+                <img [src]="showAlternate() ? 'assets/icon2.svg' : 'assets/icon1.svg'" alt="toggle" class="w-4 h-4" />
+              </button>
+            }
+          </div>
+        </div>
 
-            <!-- Skeleton loading for data rows -->
-            @if (isLoading) {
-                <div class="space-y-0">
-                    @for (i of [1,2,3,4,5]; track i) {
-                        <div class="mt-2">
+        <!-- Skeleton loading for data rows -->
+        @if (isLoading) {
+          <div class="space-y-0">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="mt-2">
                             <ngx-skeleton-loader [theme]="{
                                 width: '100%',
                                 height: '32px',
@@ -32,54 +34,63 @@
                                 margin: '0',
                                 display: 'block'
                             }" [count]="1"></ngx-skeleton-loader>
-                        </div>
-                    }
-                </div>
-            } @else {
-                <!-- Data rows -->
-                <div *ngIf="data.length > 0; else noData" class="space-y-2">
-                <div *ngFor="let item of data" class="grid grid-cols-1 items-center relative mt-3 group">
-                    <div class="relative w-full h-8 rounded-md flex items-center">
-                        <!-- Bar background -->
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Data rows -->
+          @if (data.length > 0) {
+            <div class="space-y-2">
+              @for (item of data; track item) {
+                <div class="grid grid-cols-1 items-center relative mt-3 group">
+                  <div class="relative w-full h-8 rounded-md flex items-center">
+                    <!-- Bar background -->
                         <div class="absolute left-0 top-0 h-full rounded-md bg-inverse-on-surface 
                             transition-all duration-300 bg-surface-variant"
-                            [style.width.%]="getBarWidth(item)">
-                        </div>
-                        <!-- Content -->
-                        <div class="relative z-10 flex justify-between items-center w-full px-6 md:px-[24px] text-sm font-medium text-on-surface">
-                            <span>{{ item.label }}</span>
-                            <span class="flex items-center gap-1">
-                                @if (shouldFormatAsCurrency()) {
-                                    <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
-                                } @else {
-                                    <span>{{ getDisplayValue(item) }}</span>
-                                }
-                                <span *ngIf="showSubValue && item.subValue !== undefined && !useSubValueAsAlternate" class="text-outline">({{ item.subValue }})</span>
-                            </span>
-                        </div>
+                      [style.width.%]="getBarWidth(item)">
                     </div>
+                    <!-- Content -->
+                    <div class="relative z-10 flex justify-between items-center w-full px-6 md:px-[24px] text-sm font-medium text-on-surface">
+                      <span>{{ item.label }}</span>
+                      <span class="flex items-center gap-1">
+                        @if (shouldFormatAsCurrency()) {
+                          <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
+                        } @else {
+                          <span>{{ getDisplayValue(item) }}</span>
+                        }
+                        @if (showSubValue && item.subValue !== undefined && !useSubValueAsAlternate) {
+                          <span class="text-outline">({{ item.subValue }})</span>
+                        }
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              }
             </div>
-
-            <!-- No data template -->
-            <ng-template #noData>
+          } @else {
                 <div class="flex items-center justify-center h-[15rem] mat-body-medium text-on-surface-variant
                     mt-3 border border-dashed border-outline-variant rounded-md">
-                    No data available
-                </div>
-            </ng-template>
-            }
-        </div>
-        </div>
+              No data available
+            </div>
+          }
 
-		<!-- Divider -->
-		<mat-divider *ngIf="navigationLink" class="border-outline-variant"></mat-divider>
+          <!-- No data template -->
+        }
+      </div>
+    </div>
 
-		<!-- Navigation link -->
-		<div *ngIf="navigationLink" 
-			class="text-primary mat-body-medium cursor-pointer hover:underline p-4 bg-white"
-			(click)="onNavigate()">
-			{{ navigationText }}
-		</div>
-	</mat-card>
+    <!-- Divider -->
+    @if (navigationLink) {
+      <mat-divider class="border-outline-variant"></mat-divider>
+    }
+
+    <!-- Navigation link -->
+    @if (navigationLink) {
+      <div
+        class="text-primary mat-body-medium cursor-pointer hover:underline p-4 bg-white"
+        (click)="onNavigate()">
+        {{ navigationText }}
+      </div>
+    }
+  </mat-card>
 </div>

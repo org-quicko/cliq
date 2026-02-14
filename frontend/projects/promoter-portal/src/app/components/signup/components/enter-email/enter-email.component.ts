@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnInit, Output, Signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,17 +14,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
 	selector: 'app-enter-email',
 	imports: [
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatButtonModule,
-		MatSnackBarModule,
-		MatIconModule,
-		MatProgressSpinnerModule,
-		CommonModule,
-		RouterLinkActive,
-		RouterLink,
-	],
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    RouterLinkActive,
+    RouterLink
+],
 	templateUrl: './enter-email.component.html',
 	styleUrl: './enter-email.component.css'
 })

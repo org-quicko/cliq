@@ -12,7 +12,7 @@
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === MetricType.SIGNUPS"></div>
+      [class.bg-primary]="selectedMetric() === MetricType.SIGNUPS"></div>
 
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalSignups | number }}
@@ -30,7 +30,7 @@
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === MetricType.PURCHASES"></div>
+      [class.bg-primary]="selectedMetric() === MetricType.PURCHASES"></div>
 
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalPurchases | number }}
@@ -48,7 +48,7 @@
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === MetricType.REVENUE"></div>
+      [class.bg-primary]="selectedMetric() === MetricType.REVENUE"></div>
 
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalRevenue | formatCurrency: currency }}
@@ -66,7 +66,7 @@
         : 'bg-surface-container-low border-b border-outline-variant'">
 
       <div class="absolute top-0 left-0 w-full h-[4px]"
-           [class.bg-primary]="selectedMetric() === MetricType.COMMISSION"></div>
+      [class.bg-primary]="selectedMetric() === MetricType.COMMISSION"></div>
 
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalCommission | formatCurrency: currency }}
@@ -88,9 +88,11 @@
     </canvas>
 
     <!-- Empty State -->
-    <div *ngIf="!hasData" class="absolute inset-0 flex items-center justify-center text-center bg-white">
-      <p class="font-medium text-on-surface-variant">No data available</p>
-    </div>
+    @if (!hasData) {
+      <div class="absolute inset-0 flex items-center justify-center text-center bg-white">
+        <p class="font-medium text-on-surface-variant">No data available</p>
+      </div>
+    }
   </div>
 </div>
 <!-- ================= END CHART ================= -->

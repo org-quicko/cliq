@@ -10,7 +10,7 @@ import { AuthService } from '../../../../services/auth.service';
 import { ProgramStore } from '../../../../store/program.store';
 import { MatCardModule } from '@angular/material/card';
 import { ActionableListItemComponent } from './components/actionable-list-item/actionable-list-item.component';
-import { CommonModule } from '@angular/common';
+
 import { PureAbility } from '@casl/ability';
 import { AbilityServiceSignal } from '@casl/angular';
 import { MemberAbility, MemberAbilityTuple } from '../../../../permissions/ability';
@@ -23,17 +23,16 @@ import { ActionableListItemInterface } from '../../../../interfaces/actionableLi
 @Component({
 	selector: 'app-promoter',
 	imports: [
-		MatButtonModule,
-		MatDividerModule,
-		MatIconModule,
-		MatRippleModule,
-		MatDialogModule,
-		MatCardModule,
-		CommonModule,
-		ActionableListItemComponent,
-		EditPromoterDialogBoxComponent,
-		InfoDialogBoxComponent,
-	],
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
+    MatRippleModule,
+    MatDialogModule,
+    MatCardModule,
+    ActionableListItemComponent,
+    EditPromoterDialogBoxComponent,
+    InfoDialogBoxComponent
+],
 	templateUrl: './promoter.component.html',
 	styleUrl: './promoter.component.css'
 })

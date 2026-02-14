@@ -8,7 +8,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,7 +36,6 @@ export const MY_FORMATS = {
   selector: 'app-date-range-filter',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -44,8 +43,8 @@ export const MY_FORMATS = {
     MatButtonModule,
     MatNativeDateModule,
     MatIconModule,
-    PortalModule,
-  ],
+    PortalModule
+],
   templateUrl: './date-range-filter.component.html',
   styleUrls: ['./date-range-filter.component.css'],
   providers: [

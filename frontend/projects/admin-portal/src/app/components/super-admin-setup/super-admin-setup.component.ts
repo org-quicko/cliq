@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { RxFormBuilder, RxReactiveFormsModule } from '@rxweb/reactive-form-validators';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,9 +20,8 @@ import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
     MatButtonModule,
     MatIconModule,
     ReactiveFormsModule,
-    RxReactiveFormsModule,
-    CommonModule,
-  ],
+    RxReactiveFormsModule
+],
   providers: [SetupStore],
   templateUrl: './super-admin-setup.component.html',
   styleUrls: ['./super-admin-setup.component.css']

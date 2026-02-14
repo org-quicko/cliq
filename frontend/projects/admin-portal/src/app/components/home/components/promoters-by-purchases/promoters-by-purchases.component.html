@@ -1,46 +1,47 @@
 <div class="p-2">
-    <!-- Breadcrumb -->
-    <div class="overflow-hidden mb-4">
-        <div class="flex items-center mat-body-medium gap-[4px] text-on-surface">
-            <div class="cursor-pointer hover:underline" (click)="onNavigateToDashboard()">Dashboard</div>
-            <mat-icon class="!text-[20px] !leading-none mt-1">navigate_next</mat-icon>
-            <div>Top promoters by purchases</div>
-        </div>
+  <!-- Breadcrumb -->
+  <div class="overflow-hidden mb-4">
+    <div class="flex items-center mat-body-medium gap-[4px] text-on-surface">
+      <div class="cursor-pointer hover:underline" (click)="onNavigateToDashboard()">Dashboard</div>
+      <mat-icon class="!text-[20px] !leading-none mt-1">navigate_next</mat-icon>
+      <div>Top promoters by purchases</div>
     </div>
+  </div>
 
-    <!-- Header with Date Range Filter -->
-    <div class="flex flex-col gap-3 mb-4">
-        <div class="flex items-center justify-between w-full">
-            <div class="mat-headline-medium text-on-surface">
-                Top promoters by purchases
-            </div>
-            <div>
-                <app-date-range-filter (rangeApplied)="onDateRangeApplied()"></app-date-range-filter>
-            </div>
-        </div>
+  <!-- Header with Date Range Filter -->
+  <div class="flex flex-col gap-3 mb-4">
+    <div class="flex items-center justify-between w-full">
+      <div class="mat-headline-medium text-on-surface">
+        Top promoters by purchases
+      </div>
+      <div>
+        <app-date-range-filter (rangeApplied)="onDateRangeApplied()"></app-date-range-filter>
+      </div>
     </div>
+  </div>
 
-    <!-- Content Card -->
-    <mat-card class="rounded-lg border border-outline-variant flex flex-col">
-        <div class="p-4">
-            <div #scrollContainer class="flex-1 p-2 max-h-[70vh] overflow-y-auto">
-                    <!-- Header Row -->
-                    <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline">
-                        <div>{{ labelColumn }}</div>
-                        <div class="flex items-center gap-1">
-                            <span>{{ displayedValueColumn }}</span>
-                            <button 
-                                (click)="toggleValueType()" 
-                                class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
-                                <img [src]="showRevenue() ? 'assets/icon2.svg' : 'assets/icon1.svg'" alt="toggle" class="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
+  <!-- Content Card -->
+  <mat-card class="rounded-lg border border-outline-variant flex flex-col">
+    <div class="p-4">
+      <div #scrollContainer class="flex-1 p-2 max-h-[70vh] overflow-y-auto">
+        <!-- Header Row -->
+        <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline">
+          <div>{{ labelColumn }}</div>
+          <div class="flex items-center gap-1">
+            <span>{{ displayedValueColumn }}</span>
+            <button
+              (click)="toggleValueType()"
+              class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
+              <img [src]="showRevenue() ? 'assets/icon2.svg' : 'assets/icon1.svg'" alt="toggle" class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-                    <!-- Skeleton loading for data rows -->
-                    <ng-container *ngIf="isLoading; else loadedContent">
-                        <div class="space-y-0">
-                            <div *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" class="mt-2">
+        <!-- Skeleton loading for data rows -->
+        @if (isLoading) {
+          <div class="space-y-0">
+            @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+              <div class="mt-2">
                                 <ngx-skeleton-loader [theme]="{
                                     width: '100%',
                                     height: '32px',
@@ -49,45 +50,48 @@
                                     margin: '0',
                                     display: 'block'
                                 }" [count]="1"></ngx-skeleton-loader>
-                            </div>
-                        </div>
-                    </ng-container>
-                    <ng-template #loadedContent>
-
-                    <!-- Data Rows -->
-                    <div *ngIf="chartData.length > 0; else noData" class="space-y-2">
-                        <div *ngFor="let item of chartData" class="grid grid-cols-1 items-center relative mt-3 group">
-                            <div class="relative w-full h-8 rounded-md flex items-center">
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Data Rows -->
+          @if (chartData.length > 0) {
+            <div class="space-y-2">
+              @for (item of chartData; track item) {
+                <div class="grid grid-cols-1 items-center relative mt-3 group">
+                  <div class="relative w-full h-8 rounded-md flex items-center">
                                 <div class="absolute left-0 top-0 h-full rounded-md bg-inverse-on-surface 
                                     transition-all duration-300 bg-surface-variant"
-                                    [style.width.%]="getBarWidth(item)">
-                                </div>
-                                <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
-                                    <span>{{ item.label }}</span>
-                                    <span class="flex items-center gap-1">
-                                        <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
-                                        <span *ngIf="item.subValue !== undefined" class="text-outline">({{ item.subValue }})</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Loading More Indicator -->
-                        <div *ngIf="isLoadingMore" class="flex justify-center py-4">
-                            <mat-spinner diameter="24"></mat-spinner>
-                        </div>
-                        
-                        <!-- End of List Indicator -->
-
+                      [style.width.%]="getBarWidth(item)">
                     </div>
-                    <ng-template #noData>
+                    <div class="relative z-10 flex justify-between items-center w-full px-3 text-sm font-medium text-on-surface">
+                      <span>{{ item.label }}</span>
+                      <span class="flex items-center gap-1">
+                        <span>{{ getDisplayValue(item) | formatCurrency:currency }}</span>
+                        @if (item.subValue !== undefined) {
+                          <span class="text-outline">({{ item.subValue }})</span>
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+              <!-- Loading More Indicator -->
+              @if (isLoadingMore) {
+                <div class="flex justify-center py-4">
+                  <mat-spinner diameter="24"></mat-spinner>
+                </div>
+              }
+              <!-- End of List Indicator -->
+            </div>
+          } @else {
                         <div class="flex items-center justify-center h-[15rem] mat-body-medium text-on-surface-variant
                             mt-3 border border-dashed border-outline-variant rounded-md">
-                            No data available
-                        </div>
-                    </ng-template>
-                </ng-template>
+              No data available
             </div>
-        </div>
-    </mat-card>
+          }
+        }
+      </div>
+    </div>
+  </mat-card>
 </div>

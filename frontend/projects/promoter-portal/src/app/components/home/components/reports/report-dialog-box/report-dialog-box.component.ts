@@ -12,7 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import * as _moment from 'moment';
 import { default as _rollupMoment } from 'moment';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-dialog-box.component';
 
@@ -33,20 +33,19 @@ export const MY_FORMATS = {
 @Component({
 	selector: 'app-report-dialog-box',
 	imports: [
-		MatDialogModule,
-		MatButtonModule,
-		MatIconModule,
-		FormsModule,
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatSelectModule,
-		MatDatepickerModule,
-		SnakeToCapitalizedPipe,
-		MatDividerModule,
-		MatRippleModule,
-		CommonModule,
-		FormDialogBoxComponent
-	],
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    SnakeToCapitalizedPipe,
+    MatDividerModule,
+    MatRippleModule,
+    FormDialogBoxComponent
+],
 	providers: [provideMomentDateAdapter(MY_FORMATS)],
 	templateUrl: './report-dialog-box.component.html',
 	styleUrl: './report-dialog-box.component.css'

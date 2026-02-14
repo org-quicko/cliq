@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { CreateProgramStore, OnCreateProgramSuccess } from '../store/create-program.store';
 import { CurrencyList } from '../../../utils/currency-list.util';
@@ -14,13 +14,12 @@ import { visibilityEnum, referralKeyTypeEnum } from '@org.quicko.cliq/ngx-core';
 @Component({
     selector: 'app-create-program',
     imports: [
-        MatFormFieldModule,
-        ReactiveFormsModule,
-        MatInputModule,
-        MatIconModule,
-        MatSelectModule,
-        CommonModule,
-    ],
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatIconModule,
+    MatSelectModule
+],
     templateUrl: './create-program.component.html',
     styleUrls: ['./create-program.component.css'],
 })

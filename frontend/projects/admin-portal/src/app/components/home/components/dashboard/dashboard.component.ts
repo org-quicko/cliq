@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, computed, effect, signal } from '@angular/core';
-import { DatePipe, NgIf} from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,20 +21,19 @@ import { Router } from '@angular/router';
 	selector: 'app-dashboard',
 	standalone: true,
 	imports: [
-		DatePipe,
-		NgIf,
-		MatCardModule,
-		MatDividerModule,
-		MatIconModule,
-		MatButtonModule,
-		MatTooltipModule,
-		FormatCurrencyPipe,
-		ZeroToDashPipe,
-		NgxSkeletonLoaderModule,
-		PopularityChartComponent,
-		AnalyticsChartComponent,
-		DateRangeFilterComponent,
-	],
+    DatePipe,
+    MatCardModule,
+    MatDividerModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    FormatCurrencyPipe,
+    ZeroToDashPipe,
+    NgxSkeletonLoaderModule,
+    PopularityChartComponent,
+    AnalyticsChartComponent,
+    DateRangeFilterComponent
+],
 	providers: [DashboardStore, PromoterSignupsStore, PromoterPurchasesStore],
 	templateUrl: './dashboard.component.html',
 	styleUrl: './dashboard.component.css'

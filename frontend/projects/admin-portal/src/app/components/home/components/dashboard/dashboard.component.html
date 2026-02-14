@@ -13,11 +13,11 @@
     <app-date-range-filter></app-date-range-filter>
   </header>
 
-			<!-- Statistics info -->
-			<div class="w-full flex flex-row gap-5">
-				@if (isAnalyticsLoading()) {
-					<!-- Skeleton for Revenue and Commission stats -->
-					<div class="w-1/2 h-[260px] flex flex-col gap-px rounded overflow-hidden">
+  <!-- Statistics info -->
+  <div class="w-full flex flex-row gap-5">
+    @if (isAnalyticsLoading()) {
+      <!-- Skeleton for Revenue and Commission stats -->
+      <div class="w-1/2 h-[260px] flex flex-col gap-px rounded overflow-hidden">
 						<ngx-skeleton-loader [theme]="{
 							width: '100%',
 							height: '130px',
@@ -30,9 +30,9 @@
 							borderRadius: '0px',
 							backgroundColor: 'surface-container-low'
 						}" />
-					</div>
-					<!-- Skeleton for Signups and Purchases Stats -->
-					<div class="w-1/2 h-[260px] flex flex-col gap-4">
+          </div>
+          <!-- Skeleton for Signups and Purchases Stats -->
+          <div class="w-1/2 h-[260px] flex flex-col gap-4">
 						<ngx-skeleton-loader [theme]="{
 							width: '100%',
 							height: '122px',
@@ -45,142 +45,141 @@
 							borderRadius: '8px',
 							backgroundColor: 'surface-container-low'
 						}" />
-					</div>
-				} @else {
-					<!-- Revenue and Commission stats -->
-					<div class="w-1/2 h-[260px] flex flex-col border border-outline-variant rounded px-4">
+              </div>
+            } @else {
+              <!-- Revenue and Commission stats -->
+              <div class="w-1/2 h-[260px] flex flex-col border border-outline-variant rounded px-4">
 
-						<!-- Total Revenue stats -->
-						<div class="w-full flex flex-col h-[130px] px-2 py-6 gap-[24px]">
-							<div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
-								<span
-									[matTooltip]="tooltips.get('revenue')!"
-									matTooltipPosition="above"
-								>
-									Total Revenue
-								</span>
-							</div>
-							<div class="mat-headline-large text-on-surface">
-								<span>{{ analytics()?.totalRevenue | formatCurrency:program()?.currency }}</span>
-							</div>
-						</div>
+                <!-- Total Revenue stats -->
+                <div class="w-full flex flex-col h-[130px] px-2 py-6 gap-[24px]">
+                  <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+                    <span
+                      [matTooltip]="tooltips.get('revenue')!"
+                      matTooltipPosition="above"
+                      >
+                      Total Revenue
+                    </span>
+                  </div>
+                  <div class="mat-headline-large text-on-surface">
+                    <span>{{ analytics()?.totalRevenue | formatCurrency:program()?.currency }}</span>
+                  </div>
+                </div>
 
-						<mat-divider class="border-outline-variant"></mat-divider>
+                <mat-divider class="border-outline-variant"></mat-divider>
 
-						<!-- Total Commission stats -->
-						<div class="w-full flex flex-col h-[130px] px-2 py-6 gap-[24px]">
-							<div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
-								<span
-									[matTooltip]="tooltips.get('commissions')!"
-									matTooltipPosition="above"
-								>
-									Total Commission
-								</span>
-							</div>
-							<div class="mat-headline-large text-on-surface">
-								<span>{{ analytics()?.totalCommissions | formatCurrency:program()?.currency }}</span>
-							</div>
-						</div>
-					</div>
+                <!-- Total Commission stats -->
+                <div class="w-full flex flex-col h-[130px] px-2 py-6 gap-[24px]">
+                  <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+                    <span
+                      [matTooltip]="tooltips.get('commissions')!"
+                      matTooltipPosition="above"
+                      >
+                      Total Commission
+                    </span>
+                  </div>
+                  <div class="mat-headline-large text-on-surface">
+                    <span>{{ analytics()?.totalCommissions | formatCurrency:program()?.currency }}</span>
+                  </div>
+                </div>
+              </div>
 
-					<!-- Signups and Purchases Stats -->
-					<div class="w-1/2 h-[260px] flex flex-col gap-4">
+              <!-- Signups and Purchases Stats -->
+              <div class="w-1/2 h-[260px] flex flex-col gap-4">
 
-						<!-- Signups -->
-						<div class="w-full flex flex-col h-[122px] border border-outline-variant rounded p-6 gap-[24px]">
-							<div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
-								<span
-									[matTooltip]="tooltips.get('signups')!"
-									matTooltipPosition="above"
-								>
-									Signups
-								</span>
-							</div>
-							<div class="mat-title-large text-on-surface">
-								<span>{{ analytics()?.totalSignups | zeroToDash }}</span>
-							</div>
-						</div>
+                <!-- Signups -->
+                <div class="w-full flex flex-col h-[122px] border border-outline-variant rounded p-6 gap-[24px]">
+                  <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+                    <span
+                      [matTooltip]="tooltips.get('signups')!"
+                      matTooltipPosition="above"
+                      >
+                      Signups
+                    </span>
+                  </div>
+                  <div class="mat-title-large text-on-surface">
+                    <span>{{ analytics()?.totalSignups | zeroToDash }}</span>
+                  </div>
+                </div>
 
-						<!-- Purchases -->
-						<div class="w-full flex flex-col h-[122px] border border-outline-variant rounded p-6 gap-[24px]">
-							<div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
-								<span
-									[matTooltip]="tooltips.get('purchases')!"
-									matTooltipPosition="above"
-								>
-									Purchases
-								</span>
-							</div>
-							<div class="mat-title-large text-on-surface">
-								<span>{{ analytics()?.totalPurchases | zeroToDash }}</span>
-							</div>
-						</div>
-					</div>
-				}
-			</div>
+                <!-- Purchases -->
+                <div class="w-full flex flex-col h-[122px] border border-outline-variant rounded p-6 gap-[24px]">
+                  <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+                    <span
+                      [matTooltip]="tooltips.get('purchases')!"
+                      matTooltipPosition="above"
+                      >
+                      Purchases
+                    </span>
+                  </div>
+                  <div class="mat-title-large text-on-surface">
+                    <span>{{ analytics()?.totalPurchases | zeroToDash }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
 
-		<!-- Top Promoters Section -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[0.5px]">
-			<!-- Top promoters by signups -->
-			<app-popularity-chart
-				[title]="'Top promoters by signups'"
-				[labelColumn]="'Promoters'"
-				[valueColumn]="'Commission'"
-				[alternateValueColumn]="'Signups'"
-				[data]="signupsPopularityData()"
-				[navigationText]="'View all promoters'"
-				[navigationLink]="getSignupsPromotersLink()"
-				[currency]="program()?.currency || 'INR'"
-				[showToggle]="true"
-				[isLoading]="isSignupsLoading()"
-				[useSubValueAsAlternate]="true"
-				[alternateActive]="showSignupsAlternate()"
-				(toggleChanged)="onSignupsToggle($event)"
-			>
-			</app-popularity-chart>
+          <!-- Top Promoters Section -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[0.5px]">
+            <!-- Top promoters by signups -->
+            <app-popularity-chart
+              [title]="'Top promoters by signups'"
+              [labelColumn]="'Promoters'"
+              [valueColumn]="'Commission'"
+              [alternateValueColumn]="'Signups'"
+              [data]="signupsPopularityData()"
+              [navigationText]="'View all promoters'"
+              [navigationLink]="getSignupsPromotersLink()"
+              [currency]="program()?.currency || 'INR'"
+              [showToggle]="true"
+              [isLoading]="isSignupsLoading()"
+              [useSubValueAsAlternate]="true"
+              [alternateActive]="showSignupsAlternate()"
+              (toggleChanged)="onSignupsToggle($event)"
+              >
+            </app-popularity-chart>
 
-			<!-- Top promoters by purchases -->
-			<app-popularity-chart
-				[title]="'Top promoters by purchases'"
-				[labelColumn]="'Promoters'"
-				[valueColumn]="'Commission'"
-				[alternateValueColumn]="'Revenue'"
-				[data]="purchasesPopularityData()"
-				[navigationText]="'View all promoters'"
-				[navigationLink]="getPurchasesPromotersLink()"
-				[showSubValue]="true"
-				[currency]="program()?.currency || 'INR'"
-				[showToggle]="true"
-				[isLoading]="isPurchasesLoading()"
-				[alternateActive]="showPurchasesAlternate()"
-				(toggleChanged)="onPurchasesToggle($event)"
-			>
-			</app-popularity-chart>
-		</div>
+            <!-- Top promoters by purchases -->
+            <app-popularity-chart
+              [title]="'Top promoters by purchases'"
+              [labelColumn]="'Promoters'"
+              [valueColumn]="'Commission'"
+              [alternateValueColumn]="'Revenue'"
+              [data]="purchasesPopularityData()"
+              [navigationText]="'View all promoters'"
+              [navigationLink]="getPurchasesPromotersLink()"
+              [showSubValue]="true"
+              [currency]="program()?.currency || 'INR'"
+              [showToggle]="true"
+              [isLoading]="isPurchasesLoading()"
+              [alternateActive]="showPurchasesAlternate()"
+              (toggleChanged)="onPurchasesToggle($event)"
+              >
+            </app-popularity-chart>
+          </div>
 
-	<!-- Analytics Chart Section -->
-	<div class="mt-[-8px] rounded-lg overflow-hidden">
-		<ng-container *ngIf="isAnalyticsLoading(); else chartContent">
+          <!-- Analytics Chart Section -->
+          <div class="mt-[-8px] rounded-lg overflow-hidden">
+            @if (isAnalyticsLoading()) {
 			<ngx-skeleton-loader [theme]="{
 				width: '100%',
 				height: '450px',
 				borderRadius: '8px',
 				backgroundColor: 'surface-container-low'
 			}">
-			</ngx-skeleton-loader>
-		</ng-container>
-		<ng-template #chartContent>
-			<div class="border border-outline-variant rounded-lg overflow-hidden">
-				<app-analytics-chart
-					[graphData]="dayWiseData()"
-					[period]="period()"
-					[dataType]="dataType()"
-					[currency]="program()?.currency || 'INR'"
-				>
-				</app-analytics-chart>
-			</div>
-		</ng-template>
-	</div>
+              </ngx-skeleton-loader>
+            } @else {
+              <div class="border border-outline-variant rounded-lg overflow-hidden">
+                <app-analytics-chart
+                  [graphData]="dayWiseData()"
+                  [period]="period()"
+                  [dataType]="dataType()"
+                  [currency]="program()?.currency || 'INR'"
+                  >
+                </app-analytics-chart>
+              </div>
+            }
+          </div>
 
-	
-</div>
+
+        </div>

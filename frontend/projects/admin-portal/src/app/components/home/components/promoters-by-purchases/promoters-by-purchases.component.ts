@@ -4,7 +4,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgIf, NgForOf } from '@angular/common';
+
 import { NgxSkeletonLoaderModule } from "ngx-skeleton-loader";
 import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
@@ -18,16 +18,14 @@ import { DateRangeStore } from '../../../../store/date-range.store';
     templateUrl: './promoters-by-purchases.component.html',
     styleUrls: ['./promoters-by-purchases.component.css'],
     imports: [
-        MatIconModule,
-        MatCardModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-        NgIf,
-        NgForOf,
-        NgxSkeletonLoaderModule,
-        FormatCurrencyPipe,
-        DateRangeFilterComponent,
-    ],
+    MatIconModule,
+    MatCardModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    NgxSkeletonLoaderModule,
+    FormatCurrencyPipe,
+    DateRangeFilterComponent
+],
     providers: [PromoterPurchasesStore]
 })
 export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnDestroy {

@@ -9,22 +9,21 @@ import { Subject } from 'rxjs';
 import { CreateLinkDto, PaginationOptions } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../../../store/program.store';
 import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/form-dialog-box.component';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
 	selector: 'app-create-link-dialog-box',
 	imports: [
-		FormsModule,
-		ReactiveFormsModule,
-		MatButtonModule,
-		MatFormFieldModule,
-		MatDialogModule,
-		MatIconModule,
-		MatInputModule,
-		MatError,
-		CommonModule,
-		FormDialogBoxComponent
-	],
+    FormsModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatDialogModule,
+    MatIconModule,
+    MatInputModule,
+    MatError,
+    FormDialogBoxComponent
+],
 	templateUrl: './create-link-dialog-box.component.html',
 	styleUrl: './create-link-dialog-box.component.css'
 })
