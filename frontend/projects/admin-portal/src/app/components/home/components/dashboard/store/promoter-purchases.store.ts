@@ -104,8 +104,6 @@ export const PromoterPurchasesStore = signalStore(
                             tapResponse({
                                 next(response) {
                                    
-                                    console.log('[PromoterPurchasesStore] Full API response:', response);
-                                    
                                     let promoters: PromoterData[] = [];
                                     let pagination = null;
                                     try {
@@ -135,9 +133,8 @@ export const PromoterPurchasesStore = signalStore(
                                             }
                                         }
             
-                                        pagination = response?.data?.metadata?.pagination || null;
+                                        pagination = response?.data?.metadata || null;
                                     } catch (e) {
-                                        console.error('Error parsing workbook for promoter analytics:', e);
                                     }
                                     patchState(store, {
                                         promoters,
@@ -184,7 +181,7 @@ export const PromoterPurchasesStore = signalStore(
                         }).pipe(
                             tapResponse({
                                 next(response) {
-                                    console.log('[PromoterPurchasesStore] Load more response:', response);
+                
                                     let newPromoters: PromoterData[] = [];
                                     let pagination = null;
                                     try {
@@ -213,9 +210,8 @@ export const PromoterPurchasesStore = signalStore(
                                                 });
                                             }
                                         }
-                                        pagination = response?.data?.metadata?.pagination || null;
+                                        pagination = response?.data?.metadata || null;
                                     } catch (e) {
-                                        console.error('Error parsing workbook for promoter analytics:', e);
                                     }
                                     // Append to existing promoters
                                     const existingPromoters = store.promoters();

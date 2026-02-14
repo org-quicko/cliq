@@ -119,7 +119,6 @@ export const DashboardStore = signalStore(
                                             }
                                         });
                                     } catch (error) {
-                                        console.error('Workbook parsing failed:', error);
 
                                         patchState(store, {
                                             analytics: {

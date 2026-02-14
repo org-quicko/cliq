@@ -33,9 +33,6 @@ export class ProgramsListComponent implements OnInit {
 	}
 
 	onClick(programId: string) {
-		if (!programId) {
-			return;
-		}
 		this.router.navigate(['/', programId, 'home', 'dashboard']);
 	}
 }

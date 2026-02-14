@@ -18,13 +18,9 @@ export class ProgramResolver implements Resolve<ProgramDto> {
 	readonly router = inject(Router);
 
 	resolve(route: ActivatedRouteSnapshot): Observable<ProgramDto> {
-		const programId = route.paramMap.get('program_id'); // Get program_id from route
-		if (!programId || programId == '') {
-			this.router.navigate(['/404']);
-			throw new Error('Program ID is missing in route');
-		}
+		const programId = route.paramMap.get('program_id'); 
 
-		return this.programService.getProgram(programId).pipe(
+		return this.programService.getProgram(programId!).pipe(
 			tap((response) => {
 				if (response.data) {
 					const program = plainToInstance(ProgramDto, response.data);

@@ -4,7 +4,7 @@ import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
 
 @Injectable()
-export class ProgramAnalyticsConverter {
+export class ProgramAnalyticsWorkbookConverter {
     constructor(
         private logger: LoggerService,
     ) { }
@@ -17,7 +17,7 @@ export class ProgramAnalyticsConverter {
         period: string,
     ) {
         try {
-            this.logger.info('START: convert function: ProgramAnalyticsConverter');
+            this.logger.info('START: convert function: ProgramAnalyticsWorkbookConverter');
             
             const programAnalyticsWorkbook = new ProgramAnalyticsWorkbook();
 
@@ -38,10 +38,10 @@ export class ProgramAnalyticsConverter {
             analyticsSheet.replaceBlock(analyticsTable);
             programAnalyticsWorkbook.replaceSheet(analyticsSheet);
             
-            this.logger.info('END: convert function: ProgramAnalyticsConverter');
+            this.logger.info('END: convert function: ProgramAnalyticsWorkbookConverter');
             return programAnalyticsWorkbook;
         } catch (error) {
-            this.logger.error('Error in ProgramAnalyticsConverter:', error);
+            this.logger.error('Error in ProgramAnalyticsWorkbookConverter:', error);
             throw new ConverterException('Error converting analytics data', error);
         }
     }

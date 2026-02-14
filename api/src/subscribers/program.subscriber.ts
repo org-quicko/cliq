@@ -8,6 +8,7 @@ import { Program } from '../entities/program.entity';
 import { User } from '../entities/user.entity';
 import { userRoleEnum } from '../enums';
 import { ProgramUser } from '../entities/programUser.entity';
+import { identity } from 'rxjs';
 
 @EventSubscriber()
 export class ProgramSubscriber implements EntitySubscriberInterface<Program> {
@@ -28,29 +29,17 @@ export class ProgramSubscriber implements EntitySubscriberInterface<Program> {
           role: userRoleEnum.SUPER_ADMIN,
         },
       });
-
-      if (superAdmin) {
-        // Check if the SUPER_ADMIN already has access to this program
-        const existingProgramUser = await manager.findOne(ProgramUser, {
-          where: {
-            programId: event.entity.programId,
-            userId: superAdmin.userId,
-          },
-        });
-
-        // Only create if not already exists
-        if (!existingProgramUser) {
+      
           const programUserEntity = manager.create(ProgramUser, {
             programId: event.entity.programId,
             user: {
-              userId: superAdmin.userId,
+              userId: superAdmin!.userId,
             },
             role: userRoleEnum.SUPER_ADMIN,
           });
 
           await manager.save(ProgramUser, programUserEntity);
-        }
-      }
+        
     });
   }
 

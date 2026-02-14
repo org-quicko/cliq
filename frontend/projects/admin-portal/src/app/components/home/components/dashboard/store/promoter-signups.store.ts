@@ -135,9 +135,9 @@ export const PromoterSignupsStore = signalStore(
                                             }
                                         }
                                   
-                                        pagination = response?.data?.metadata?.pagination || null;
+                                        pagination = response?.data?.metadata || null;
                                     } catch (e) {
-                                        console.error('Error parsing workbook for promoter analytics:', e);
+
                                     }
                                     patchState(store, {
                                         promoters,
@@ -184,7 +184,7 @@ export const PromoterSignupsStore = signalStore(
                         }).pipe(
                             tapResponse({
                                 next(response) {
-                                    console.log('[PromoterSignupsStore] Load more response:', response);
+
                                     let newPromoters: PromoterData[] = [];
                                     let pagination = null;
                                     try {
@@ -213,9 +213,9 @@ export const PromoterSignupsStore = signalStore(
                                                 });
                                             }
                                         }
-                                        pagination = response?.data?.metadata?.pagination || null;
+                                        pagination = response?.data?.metadata || null;
                                     } catch (e) {
-                                        console.error('Error parsing workbook for promoter analytics:', e);
+
                                     }
                               
                                     const existingPromoters = store.promoters();

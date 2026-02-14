@@ -43,7 +43,6 @@ export class DynamicComponentLoaderComponent implements AfterViewInit {
 		}
 
 		if (!component) {
-			console.warn(`[DynamicComponentLoader] No component found for role: ${role}`);
 			return;
 		}
 
@@ -52,7 +51,6 @@ export class DynamicComponentLoaderComponent implements AfterViewInit {
 
 	private renderComponent(component: Type<any>): void {
 		if (!this.dynamicHost?.viewContainerRef) {
-			console.warn('[DynamicComponentLoader] ViewContainerRef not available yet');
 			return;
 		}
 

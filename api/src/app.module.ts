@@ -75,14 +75,16 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		LoggerModule,
 		ServeStaticModule.forRoot(
 			{
+				rootPath: join(__dirname, '..', '..', 'public', 'promoter'),
+				serveRoot: '/',
+				exclude: ['/api', '/admin*'],
+				
+			},
+			{
 				rootPath: join(__dirname, '..', '..', 'public', 'admin'),
 				serveRoot: '/admin',
 				exclude: ['/api'],
-			},
-			{
-				rootPath: join(__dirname, '..', '..', 'public', 'promoter'),
-				serveRoot: '/',
-				exclude: ['/api'],
+				
 			}
 		)
 	],

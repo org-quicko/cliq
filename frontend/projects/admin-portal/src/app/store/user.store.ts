@@ -62,7 +62,6 @@ export const UserStore = signalStore(
 									}
 								},
 								error: (error: any) => {
-									console.error('[UserStore] Error fetching user:', error);
 									patchState(store, {
 										isLoading: false,
 										error: error.message,

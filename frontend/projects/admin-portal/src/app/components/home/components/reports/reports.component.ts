@@ -35,8 +35,8 @@ export class ReportsComponent {
 
     readonly programId = computed(() => this.programStore.program()!.programId);
 
-    reportsMap: [string, string][] = [
-        [reportEnum.COMMISSIONS, 'assignment']
+    reportsLogoMap: [string, string][] = [
+        [reportEnum.COMMISSIONS, 'flowsheet']
     ];
 
     reportsDesc = new Map<string, string>([

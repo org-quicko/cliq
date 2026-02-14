@@ -1,4 +1,4 @@
-import { Component, Input, signal, computed, Output, EventEmitter } from '@angular/core';
+import { Component, Input, signal,Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -48,10 +48,8 @@ export class PopularityChartComponent {
     }
 
     toggleValueType() {
-        console.log('[PopularityChart] toggleValueType called');
         const newValue = !this.showAlternate();
         this._showAlternate.set(newValue);
-        console.log('[PopularityChart] Emitting toggleChanged:', newValue);
         this.toggleChanged.emit(newValue);
     }
 

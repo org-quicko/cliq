@@ -51,10 +51,6 @@ export class SuperAdminSetupComponent implements OnInit {
   onCreateSuperAdmin() {
     this.createSuperAdminForm.markAllAsTouched();
 
-    if (this.createSuperAdminForm.invalid) {
-      console.error('Form is invalid:', this.createSuperAdminForm.errors);
-      return;
-    }
 
     const formValue = this.createSuperAdminForm.value;
     

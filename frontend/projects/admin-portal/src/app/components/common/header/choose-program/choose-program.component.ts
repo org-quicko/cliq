@@ -1,5 +1,5 @@
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component,effect, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -36,7 +36,7 @@ export class ChooseProgramComponent implements OnInit {
 	programs = this.programUserStore.programs;
 	program = this.programStore.program;
 
-	displayedPrograms = computed(() => this.programs().slice(0, 5));
+	displayedPrograms = this.programs().slice(0, 5);
 
 	constructor(
 		private route: ActivatedRoute,

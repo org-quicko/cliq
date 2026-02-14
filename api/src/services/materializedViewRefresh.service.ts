@@ -15,7 +15,7 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		private readonly dataSource: DataSource,
 		private readonly logger: LoggerService,
 	) {
-		this.cronExpression = process.env.REFRESH_MV_CRON || '*/30 * * * * *'; 
+		this.cronExpression = process.env.REFRESH_MV_CRON || '*/5 * * * * '; 
 	}
 
 	onModuleInit() {
@@ -25,7 +25,7 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 	}
 
 
-	@Cron(process.env.REFRESH_MV_CRON || '*/5 * * * * *', {
+	@Cron(process.env.REFRESH_MV_CRON || '*/5 * * * * ', {
 		name: 'refreshMaterializedViewsJob',
 	})
 	async refreshMaterializedViews() {
@@ -55,46 +55,4 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 		}
 	}
 
-	async refreshAllViews(): Promise<{ success: string[]; failed: string[] }> {
-		this.logger.info('START: Manual refreshAllViews');
-		
-		const success: string[] = [];
-		const failed: string[] = [];
-
-		for (const view of this.materializedViews) {
-			const result = await this.refreshView(view);
-			if (result) {
-				success.push(view);
-			} else {
-				failed.push(view);
-			}
-		}
-
-		this.logger.info(`END: Manual refreshAllViews - Success: ${success.length}, Failed: ${failed.length}`);
-		return { success, failed };
-	}
-
-	async refreshSpecificViews(viewNames: string[]): Promise<{ success: string[]; failed: string[] }> {
-		this.logger.info(`START: refreshSpecificViews - ${viewNames.join(', ')}`);
-		
-		const success: string[] = [];
-		const failed: string[] = [];
-
-		for (const view of viewNames) {
-			if (this.materializedViews.includes(view)) {
-				const result = await this.refreshView(view);
-				if (result) {
-					success.push(view);
-				} else {
-					failed.push(view);
-				}
-			} else {
-				this.logger.warn(`Unknown materialized view: ${view}`);
-				failed.push(view);
-			}
-		}
-
-		this.logger.info(`END: refreshSpecificViews - Success: ${success.length}, Failed: ${failed.length}`);
-		return { success, failed };
-	}
 }

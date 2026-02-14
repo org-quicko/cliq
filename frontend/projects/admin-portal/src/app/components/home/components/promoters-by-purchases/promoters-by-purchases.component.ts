@@ -53,7 +53,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
     constructor() {
         effect(() => {
             const programId = this.programId();
-            if (!programId) return;
+            if (!programId) return; 
 
             const activeRange = this.dateRangeStore.activeRange();
             const start = this.dateRangeStore.start();
@@ -65,7 +65,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
     }
 
     ngOnInit() {
-        this.fetchData();
+        // fetchData is handled by the effect above
     }
 
     ngAfterViewInit() {
@@ -156,12 +156,21 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
         const scrollPosition = container.scrollTop + container.clientHeight;
         const scrollHeight = container.scrollHeight;
 
+        console.log('Scroll event:', { scrollPosition, scrollHeight, diff: scrollHeight - scrollPosition, threshold });
+
         if (scrollHeight - scrollPosition < threshold) {
             this.loadMore();
         }
     }
 
     private loadMore() {
+        console.log('loadMore called', {
+            isLoadingMore: this.isLoadingMore,
+            hasMore: this.hasMore,
+            programId: this.programId(),
+            chartDataLength: this.chartData.length
+        });
+
         if (this.isLoadingMore || !this.hasMore) return;
 
         const programId = this.programId();

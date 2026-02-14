@@ -3,7 +3,7 @@
         <h3>Reports</h3>
     </div>
     <div class="flex flex-col gap-5">
-        @for (report of reportsMap; track report[0]) {
+        @for (report of reportsLogoMap; track report[0]) {
         <mat-card matRipple [appearance]="'outlined'"
             class="w-[800px] h-[108px] flex flex-row bg-surface-container-lowest hover:bg-surface-container items-center gap-2 p-7 cursor-pointer"
             (click)="onClickReport(report[0])">

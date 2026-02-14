@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ProgramStore } from './store/program.store';
 import { ThemeService, ColorUtil } from '@org.quicko.cliq/ngx-core';
@@ -19,11 +19,11 @@ export class AppComponent implements OnInit {
   
     readonly themeService = inject(ThemeService);
   
-    title = computed(() => this.programStore.program()?.name);
+    title = this.programStore.program()?.name;
   
     constructor(private router: Router, private titleService: Title) {
       moment.updateLocale('en', {
-        week: { dow: 1 } // setting monday as the start of the week
+        week: { dow: 1 } 
       });
   
       effect(() => {

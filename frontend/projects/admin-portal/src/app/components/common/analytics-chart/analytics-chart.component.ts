@@ -37,7 +37,6 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
     constructor(private cdr: ChangeDetectorRef) { }
 
-    // Expose enum to template
     readonly MetricType = MetricType;
 
     hasData = false;

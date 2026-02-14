@@ -33,10 +33,6 @@ export const ProgramStore = signalStore(
 
 		setStatus(status: Status, error: any = null) {
 			if (status === Status.ERROR) {
-				if (!error) {
-					console.error('Must pass error object on an error status state.');
-					throw new Error('Must pass error object on an error status state.');
-				}
 
 				patchState(store, { status, error });
 			}

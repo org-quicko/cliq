@@ -102,8 +102,8 @@ export class AddCommissionTypeColumns1756834338065 implements MigrationInterface
                          WHERE com.promoter_id = v_promoter_id
                            AND com.created_at >= date_start 
                            AND com.created_at < date_end),
-                        NULLIF(v_commission_signups, 0),
-                        NULLIF(v_commission_purchases, 0),
+                        v_commission_signups,
+                        v_commission_purchases,
                         0,
                         0,
                         v_created_at,
@@ -116,13 +116,6 @@ export class AddCommissionTypeColumns1756834338065 implements MigrationInterface
             $$ LANGUAGE plpgsql;
         `);
 
-		// Create trigger for commission table
-		await queryRunner.query(`
-            CREATE TRIGGER trg_commission_to_promoter_analytics
-            AFTER INSERT OR UPDATE OR DELETE ON commission
-            FOR EACH ROW
-            EXECUTE FUNCTION update_promoter_analytics_from_commission();
-        `);
 
 		// Update the aggregate function to handle new columns
 		await queryRunner.query(`

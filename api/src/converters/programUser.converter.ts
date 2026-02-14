@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { ProgramUserDto } from '../dtos';
-import { ProgramUser } from '../entities';
+import { ProgramUser, Program } from '../entities';
 import { ConverterException } from '@org-quicko/core';
+import { ProgramConverter } from './program/program.dto.converter';
 
 @Injectable()
 export class ProgramUserConverter {
-	convert(programUser: ProgramUser): ProgramUserDto {
+	constructor(private programConverter: ProgramConverter) {}
+
+	convert(programUser: ProgramUser, program?: Program): ProgramUserDto {
 		try {
 			const programUserDto = new ProgramUserDto();
 
 			programUserDto.programId = programUser.programId;
+
+			if (program) {
+				programUserDto.program = this.programConverter.convert(program);
+			}
 
 			programUserDto.userId = programUser.userId;
 			programUserDto.status = programUser.status;

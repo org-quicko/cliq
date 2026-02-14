@@ -42,7 +42,6 @@ export const CreateProgramStore = signalStore(
                         return programService.createProgram(body).pipe(
                             tapResponse({
                                 next: (response) => {
-                                    console.log('Create program response:', response);
                                     patchState(store, {
                                         createdProgram: response.data,
                                         isLoading: false,
@@ -52,7 +51,6 @@ export const CreateProgramStore = signalStore(
                                     OnCreateProgramSuccess.emit(true);
                                 },
                                 error: (error: HttpErrorResponse) => {
-                                    console.error('Create program error:', error);
                                     patchState(store, {
                                         isLoading: false,
                                         error: error.error?.message || 'Failed to create program',

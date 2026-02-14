@@ -1,4 +1,4 @@
-import { ViewColumn, PrimaryColumn, ViewEntity } from 'typeorm';
+import { ViewColumn, PrimaryColumn, ViewEntity, Index } from 'typeorm';
 
 @ViewEntity({
 	name: 'program_summary_mv',
@@ -22,7 +22,8 @@ import { ViewColumn, PrimaryColumn, ViewEntity } from 'typeorm';
 	materialized: true,
 })
 export class ProgramSummaryView {
-	@PrimaryColumn({ name: 'program_id' })
+	@Index()
+	@ViewColumn({ name: 'program_id' })
 	programId: string;
 
 	@ViewColumn({ name: 'program_name' })

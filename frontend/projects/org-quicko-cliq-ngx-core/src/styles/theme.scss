@@ -23,6 +23,7 @@ body {
 	@include overrides.primary-overrides();
 	@include overrides.secondary-90-overrides();
 	@include overrides.secondary-80-overrides();
+	@include overrides.surface-container-high-overrides();
 
 	.light-theme {
 		@include overrides.typography-overrides();
@@ -31,6 +32,7 @@ body {
 		@include overrides.primary-overrides();
 		@include overrides.secondary-90-overrides();
 		@include overrides.secondary-80-overrides();
+		@include overrides.surface-container-high-overrides();
 	}
 
 	.dark-theme {

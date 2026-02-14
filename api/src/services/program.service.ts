@@ -19,6 +19,7 @@ import {
 import { UserService } from './user.service';
 import { ProgramPromoter } from '../entities/programPromoter.entity';
 import { ProgramConverter } from '../converters/program/program.dto.converter';
+import { ProgramUserConverter } from '../converters/programUser.converter';
 import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
 import { UserConverter } from '../converters/user.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
@@ -36,7 +37,7 @@ import { ReferralConverter } from 'src/converters/referral.converter';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Transform } from 'node:stream';
 import { BadRequestException } from '@org-quicko/core';
-import { ProgramAnalyticsConverter } from '../converters/program/program_analytics.workbook.converter';
+import { ProgramAnalyticsWorkbookConverter } from '../converters/program/program_analytics.workbook.converter';
 import { PromoterAnalyticsConverter } from '../converters/promoter/promoter_analytics.workbook.converter';
 import { ProgramSummaryViewWorkbookConverter } from '../converters/program/program_summary_view.workbook.converter';
 import { ProgramSummaryView } from '../entities/programSummaryView.entity';
@@ -74,7 +75,8 @@ export class ProgramService {
 		private userService: UserService,
 
 		private programConverter: ProgramConverter,
-		private programAnalyticsConverter: ProgramAnalyticsConverter,
+		private programAnalyticsWorkbookConverter: ProgramAnalyticsWorkbookConverter,
+		private programUserConverter: ProgramUserConverter,
 		private promoterConverter: PromoterConverter,
 		private userConverter: UserConverter,
 		private signUpConverter: SignUpConverter,
@@ -145,17 +147,12 @@ export class ProgramService {
 			...queryOptions
 		});
 
-		
-		// Map programs and include the user's role from ProgramUser
+
 		const programsDto = programResult.map(program => {
-			const programDto = this.programConverter.convert(program);
-			// Find the ProgramUser entry for the current user
 			const userProgramUser = program.programUsers?.find(pu => pu.userId === userId);
-			return {
-				...programDto,
-				role: userProgramUser?.role || null
-			};
-		});
+			if (!userProgramUser) return null;
+			return this.programUserConverter.convert(userProgramUser, program);
+		}).filter(Boolean);
 
 		this.logger.info('END: getAllPrograms service');
 		return programsDto;
@@ -969,7 +966,7 @@ export class ProgramService {
 
         this.logger.info('END: getProgramAnalytics service');
 
-        const workbook = this.programAnalyticsConverter.convert(
+        const workbook = this.programAnalyticsWorkbookConverter.convert(
             Number(aggregateResult?.totalRevenue) || 0,
             Number(aggregateResult?.totalCommissions) || 0,
             Number(aggregateResult?.totalSignups) || 0,
@@ -1056,18 +1053,14 @@ export class ProgramService {
 		return this.promoterAnalyticsConverter.convert({
 			programId,
 			promoters: result,
-			pagination: {
-				total: totalCount,
-				skip,
-				take,
-				hasMore: skip + take < totalCount,
-			},
+			total: totalCount,
+			skip,
+			take,
+			hasMore: skip + take < totalCount,
 			sortBy,
 			period,
 		});
     }
-
-
 
 
 	/**

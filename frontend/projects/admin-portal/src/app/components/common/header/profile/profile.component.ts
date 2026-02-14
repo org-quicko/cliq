@@ -87,13 +87,6 @@ export class ProfileComponent implements OnInit {
 		this.userEmail.set(email);
 	}
 
-	goToSettings() {
-		const programId = this.programId();
-		if (programId) {
-			this.router.navigate(['/', programId, 'home', 'settings']);
-		}
-	}
-
 	logout() {
 		this.authService.deleteToken();
 		window.location.href = `${window.location.origin}/admin/login`;

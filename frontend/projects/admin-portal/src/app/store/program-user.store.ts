@@ -54,7 +54,7 @@ export const ProgramUserStore = signalStore(
 					switchMap(() => {
 					const userRole = authService.getUserRole();
 					if (userRole === userRoleEnum.SUPER_ADMIN) {
-							return programService.getProgramSummary({ take: 100 }).pipe(
+							return programService.getProgramSummary().pipe(
 								tap((summaryResponse) => {
 									let superAdminPrograms: ProgramWithRole[] = [];
 									
@@ -92,10 +92,12 @@ export const ProgramUserStore = signalStore(
 						} else {
 						return programService.getAllPrograms().pipe(
 							tap((response) => {
-									const programsWithRole: ProgramWithRole[] = (response.data || []).map((program: any) => ({
-										programId: program.programId || program.program_id,
-										name: program.name,
-										role: program.role || null
+									// Backend returns ProgramUserDto with nested program property
+									const programsWithRole: ProgramWithRole[] = (response.data || []).map((programUser: any) => ({
+										programId: programUser.programId || programUser.program_id,
+										name: programUser.program?.name || programUser.program?.name,
+										role: programUser.role || null,
+										...(programUser.program || {}),
 									}));
 									patchState(store, { 
 										programs: programsWithRole,

@@ -39,10 +39,10 @@ export const ProgramsListStore = signalStore(
 					});
 				}),
 				switchMap(() => {
-					// Check if user is super admin using CASL permissions
+
 					if (permissionsService.isSuperAdmin()) {
-						// Super admin: fetch program summary
-						return programService.getProgramSummary({ take: 100 }).pipe(
+
+						return programService.getProgramSummary().pipe(
 							tap((summaryResponse) => {
 								let superAdminPrograms: ProgramWithRole[] = [];
 
@@ -77,15 +77,15 @@ export const ProgramsListStore = signalStore(
 							})
 						);
 					} else {
-						// Regular user: fetch programs with role from ProgramUser
+		
 						return programService.getAllPrograms().pipe(
 							tap((response) => {
-								// Backend returns programs with role from ProgramUser
-								// Handle both camelCase (programId) and snake_case (program_id) from backend
-								const programsWithRole: ProgramWithRole[] = (response.data || []).map((program: any) => ({
-									programId: program.programId || program.program_id,
-									name: program.name,
-									role: program.role || null,
+							
+								const programsWithRole: ProgramWithRole[] = (response.data || []).map((programUser: any) => ({
+									programId: programUser.programId || programUser.program_id,
+									name: programUser.program?.name || programUser.program?.name,
+									role: programUser.role || null,
+									...(programUser.program || {}),
 								}));
 								patchState(store, {
 									programs: programsWithRole,
