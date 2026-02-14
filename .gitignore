@@ -3,3 +3,4 @@ resources/**/test-results/
 local.postman_environment.json
 data
 redis_data
+.npmrc
