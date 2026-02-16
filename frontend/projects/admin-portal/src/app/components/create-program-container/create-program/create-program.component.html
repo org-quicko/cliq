@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-8 w-[712px]">
+<div class="flex flex-col gap-8 w-[712px] bg-surface-container-lowest">
     <div class="mat-headline-small m-0 text-on-surface">Create a program</div>
     <form [formGroup]="createProgramForm" class="flex flex-col gap-6">
         <mat-form-field appearance="outline" class="w-full">
@@ -46,7 +46,7 @@
         <div class="flex gap-4">
             <mat-form-field appearance="outline" class="flex-1">
                 <mat-label>Currency</mat-label>
-                <mat-select formControlName="currency">
+                <mat-select formControlName="currency" [disableOptionCentering]="true" panelClass="dropdown-below">
                     @for(currency of currencyList; track currency.code) {
                         <mat-option [value]="currency.code">{{ currency.text }}</mat-option>
                     }
@@ -58,7 +58,7 @@
 
             <mat-form-field appearance="outline" class="flex-1">
                 <mat-label>Time Zone</mat-label>
-                <mat-select formControlName="timeZone">
+                <mat-select formControlName="timeZone" [disableOptionCentering]="true" panelClass="dropdown-below">
                     @for(timezone of timezoneList; track timezone.code) {
                         <mat-option [value]="timezone.code">{{ timezone.text }}</mat-option>
                     }

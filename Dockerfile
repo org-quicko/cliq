@@ -37,7 +37,7 @@ WORKDIR /app
 COPY --from=backend-build /app/backend ./
 
 # Copy both frontend builds into separate directories
-COPY --from=frontend-build /app/frontend/dist/promoter-portal/browser ./public
+COPY --from=frontend-build /app/frontend/dist/promoter-portal/browser ./public/promoter
 COPY --from=frontend-build /app/frontend/dist/admin-portal/browser ./public/admin
 RUN chmod +x /app/scripts/db-migrate.sh
 EXPOSE 3001

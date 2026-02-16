@@ -1,4 +1,4 @@
-<div class="w-full flex flex-col gap-8">
+<div class="w-full flex flex-col gap-8 bg-surface-container-lowest">
 
   <!-- Welcome Header -->
   <header class="flex justify-between items-center">
@@ -120,9 +120,10 @@
           </div>
 
           <!-- Top Promoters Section -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[0.5px]">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[0.5px] bg-surface-container-lowest">
             <!-- Top promoters by signups -->
-            <app-popularity-chart
+              <div class="rounded-b-lg overflow-hidden bg-surface-container-lowest">
+                <app-popularity-chart 
               [title]="'Top promoters by signups'"
               [labelColumn]="'Promoters'"
               [valueColumn]="'Commission'"
@@ -138,9 +139,11 @@
               (toggleChanged)="onSignupsToggle($event)"
               >
             </app-popularity-chart>
+              </div>
 
             <!-- Top promoters by purchases -->
-            <app-popularity-chart
+              <div class="rounded-b-lg overflow-hidden bg-surface-container-lowest">
+                <app-popularity-chart
               [title]="'Top promoters by purchases'"
               [labelColumn]="'Promoters'"
               [valueColumn]="'Commission'"
@@ -156,6 +159,7 @@
               (toggleChanged)="onPurchasesToggle($event)"
               >
             </app-popularity-chart>
+              </div>
           </div>
 
           <!-- Analytics Chart Section -->

@@ -73,24 +73,15 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,
-		ServeStaticModule.forRoot(
+	ServeStaticModule.forRoot(
 			{
 		rootPath: join(__dirname, '..', '..', 'public', 'admin'),
 		serveRoot: '/admin',
-		exclude: ['/api(.*)'],
-		serveStaticOptions: {
-			index: 'index.html',
-			redirect: false,
-		}
+		exclude: ['/api']
 	},
 	{
-		rootPath: join(__dirname, '..', '..', 'public'),
-		serveRoot: '/',
-		exclude: ['/api(.*)', '/admin(.*)'],
-		serveStaticOptions: {
-			index: 'index.html',
-			redirect: false,
-		}
+		rootPath: join(__dirname, '..', '..', 'public', 'promoter'),
+		exclude: ['/admin', '/api'],
 	}
 		)
 	],

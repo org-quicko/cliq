@@ -267,38 +267,3 @@
 .tnc-content tbody tr {
 	color: var(--sys-on-surface) !important;
 }
-
-@mixin on-surface-variant-overrides {
-  & {
-    --sys-on-surface-variant: #45464F;
-  }
-}
-
-@mixin outline-variant-overrides {
-  & {
-    --sys-outline-variant: #C1C6D5;
-  }
-}
-
-@mixin primary-overrides {
-  & {
-    --sys-primary: #4D5C92;
-  }
-}
-
-@mixin secondary-90-overrides {
-  & {
-    --sys-secondary-90: #DCE1FF;
-  }
-}
-
-@mixin secondary-80-overrides {
-  & {
-    --sys-secondary-80: #BDC5ED;
-  }
-}
-@mixin surface-container-high-overrides {
-  & {
-    --sys-surface-container-high: #E9E7EF;
-  }
-}

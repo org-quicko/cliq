@@ -18,21 +18,10 @@ body {
 
 	@include overrides.mat-overrides();
 	@include overrides.typography-overrides();
-	@include overrides.on-surface-variant-overrides();
-	@include overrides.outline-variant-overrides();
-	@include overrides.primary-overrides();
-	@include overrides.secondary-90-overrides();
-	@include overrides.secondary-80-overrides();
-	@include overrides.surface-container-high-overrides();
+
 
 	.light-theme {
 		@include overrides.typography-overrides();
-		@include overrides.on-surface-variant-overrides();
-		@include overrides.outline-variant-overrides();
-		@include overrides.primary-overrides();
-		@include overrides.secondary-90-overrides();
-		@include overrides.secondary-80-overrides();
-		@include overrides.surface-container-high-overrides();
 	}
 
 	.dark-theme {
@@ -40,16 +29,9 @@ body {
 		@include mat.system-level-colors(theme.$dark-theme);
 		//component theme
 		@include extendedPalette.extended-dark-theme();
-
 		@include overrides.dark-theme-palette-overrides();
-
 		@include overrides.typography-overrides();
-
 		@include overrides.mat-overrides();
-		@include overrides.on-surface-variant-overrides();
-		@include overrides.outline-variant-overrides();
-		@include overrides.primary-overrides();
-		@include overrides.secondary-90-overrides();
-		@include overrides.secondary-80-overrides();
+
 	}
 }

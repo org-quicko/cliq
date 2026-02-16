@@ -78,7 +78,7 @@
 </div>
 
 <!-- ================= CHART CONTAINER ================= -->
-<div class="border-x border-b border-outline-variant rounded-b-[6px] bg-white pt-6 pr-6 pb-6 pl-4">
+<div class="border-x border-b border-outline-variant rounded-b-[6px] bg-surface-container-lowest pt-6 pr-6 pb-6 pl-4">
   <div class="relative h-[410px]">
     <canvas
       baseChart
@@ -89,7 +89,7 @@
 
     <!-- Empty State -->
     @if (!hasData) {
-      <div class="absolute inset-0 flex items-center justify-center text-center bg-white">
+      <div class="absolute inset-0 flex items-center justify-center text-center bg-surface-container-lowest">
         <p class="font-medium text-on-surface-variant">No data available</p>
       </div>
     }
