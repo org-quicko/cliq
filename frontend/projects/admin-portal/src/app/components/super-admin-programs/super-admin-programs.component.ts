@@ -62,7 +62,7 @@ export class SuperAdminProgramsComponent implements OnInit {
             const { pageIndex, pageSize } = this.paginationOptions();
 
             const start = pageIndex * pageSize;
-            const end = Math.min(start + pageSize, programs.length);
+            const end = start + pageSize;
 
             this.datasource.data = programs.slice(start, end);
         });
@@ -71,7 +71,10 @@ export class SuperAdminProgramsComponent implements OnInit {
     ngOnInit() {
         this.programsStore.resetLoadedPages();
 
-        this.programsStore.fetchProgramsSummary({});
+        this.programsStore.fetchProgramsSummary({
+            skip: 0,
+            take: 10
+        });
 
         this.searchControl.valueChanges
             .pipe(debounceTime(500), distinctUntilChanged())
@@ -109,7 +112,7 @@ export class SuperAdminProgramsComponent implements OnInit {
 
         this.programsStore.fetchProgramsSummary({
             skip: event.pageIndex * event.pageSize,
-            take: this.paginationOptions().pageSize,
+            take: event.pageSize,
         });
     }
 

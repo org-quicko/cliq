@@ -1,0 +1,72 @@
+::ng-deep .mat-mdc-paginator {
+    background-color: transparent !important;
+}
+
+::ng-deep .mat-mdc-paginator-container {
+    justify-content: flex-end !important;
+    padding: 16px 0 !important;
+}
+
+::ng-deep .mat-mdc-paginator-page-size {
+    align-items: center !important;
+}
+
+::ng-deep .mat-mdc-paginator-page-size-label {
+    margin-right: 8px !important;
+}
+
+::ng-deep .mat-mdc-paginator-page-size-select {
+    margin: 0 8px !important;
+}
+
+::ng-deep .mat-mdc-form-field-infix {
+    min-height: 40px !important;
+    padding: 0 !important;
+}
+
+::ng-deep .mat-mdc-text-field-wrapper {
+    padding: 0 !important;
+}
+
+::ng-deep .mat-mdc-select-value {
+    padding: 8px 12px !important;
+    border: 1px solid var(--sys-outline-variant) !important;
+    border-radius: 4px !important;
+    min-width: 48px !important;
+    text-align: center !important;
+}
+
+::ng-deep .mat-mdc-paginator-range-label {
+    margin: 0 24px !important;
+}
+
+/* Center sort header content */
+::ng-deep .mat-sort-header-container {
+    justify-content: center !important;
+}
+
+::ng-deep th.text-center .mat-sort-header-container {
+    justify-content: center !important;
+}
+
+/* Hide page size selector */
+::ng-deep .mat-mdc-paginator-page-size {
+    display: none !important;
+}
+
+/* Style range label */
+::ng-deep .mat-mdc-paginator-range-label {
+    color: var(--sys-on-surface-variant) !important;
+    width: 72px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+}
+
+/* Ensure paginator container is properly aligned */
+::ng-deep .mat-mdc-paginator-container {
+    justify-content: flex-end !important;
+    padding: 16px 0 !important;
+}

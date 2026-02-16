@@ -13,6 +13,7 @@ import {
   statusEnum,
   userRoleEnum,
   conversionTypeEnum,
+  SortByEnum,
 } from '../enums';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
@@ -501,7 +502,7 @@ export class ProgramController {
     @Get(':program_id/analytics/promoters')
     async getPromoterAnalytics(
         @Param('program_id') programId: string,
-        @Query('sortBy') sortBy: 'signup_commission' | 'signups' | 'purchase_commission' | 'revenue' = 'signup_commission',
+        @Query('sortBy') sortBy: SortByEnum = SortByEnum.SIGNUP_COMMISSION,
         @Query('period') period: string = '30days',
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,

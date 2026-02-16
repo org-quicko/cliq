@@ -1,6 +1,6 @@
-<div class="py-10 px-12">
-  <div class="flex flex-col gap-6">
-    <div class="flex justify-between">
+<div class="py-10 flex justify-center min-h-screen">
+  <div class="flex flex-col gap-6 w-full max-w-[1920px] px-12">
+    <div class="flex justify-between items-center">
       <div class="mat-headline-medium m-0 text-on-surface">
         @if(count()! > 0) { Programs ({{ count() }}) } @else {
         Programs }
@@ -52,8 +52,9 @@
         </div>
       </div>
     } @else {
+      <div class="flex flex-col gap-6 flex-1">
       <div
-        class="flex flex-1 items-center gap-[10px] w-full border rounded-[4px] h-[56px] border-outline-variant"
+        class="flex items-center gap-[10px] w-full border rounded-[4px] h-[56px] border-outline-variant"
       >
         <div class="h-[48px] w-[48px] flex justify-center items-center">
           <mat-icon class="text-on-surface-variant">search</mat-icon>
@@ -83,14 +84,14 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6 w-[900px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[28%] align-middle"
             >
               Name
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[900px]"
+              class="mat-body-medium text-on-surface-variant truncate py-4 px-6 w-[28%]"
             >
               {{ program.programName }}
             </td>
@@ -100,14 +101,14 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[20%] text-center align-middle"
             >
               Total promoters
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface-variant truncate py-4 px-6 w-[20%] text-center"
             >
               {{ program.totalPromoters | number }}
             </td>
@@ -117,14 +118,14 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[25%] text-center align-middle"
             >
               Total referrals
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface-variant truncate py-4 px-6 w-[25%] text-center"
             >
               {{ program.totalReferrals | number }}
             </td>
@@ -135,14 +136,14 @@
               mat-header-cell
               *matHeaderCellDef
               mat-sort-header
-              class="mat-body-medium text-on-surface py-3 px-6 w-[382px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[25%] text-center align-middle"
             >
               Created at
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[382px]"
+              class="mat-body-medium text-on-surface-variant truncate py-4 px-6 w-[25%] text-center"
             >
               {{ program.createdAt | ordinalDate }}
             </td>
@@ -152,16 +153,16 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[5%]"
             >
               &nbsp;
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6"
+              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[5%]"
             >
-              <mat-icon class="text-on-surface">chevron_right</mat-icon>
+              <mat-icon class="text-on-surface-variant">chevron_right</mat-icon>
             </td>
           </ng-container>
   
@@ -207,14 +208,14 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6 w-[900px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[28%] align-middle"
             >
               Name
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[900px]"
+              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[28%]"
             >
               <ngx-skeleton-loader
                 [theme]="{
@@ -231,23 +232,25 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[20%] text-center align-middle"
             >
               Total promoters
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[20%] text-center"
             >
-              <ngx-skeleton-loader
-                [theme]="{
-                  height: '24px',
-                  width: '100px',
-                  margin: '0px',
-                  padding: '0px'
-                }"
-              ></ngx-skeleton-loader>
+              <div class="flex justify-center">
+                <ngx-skeleton-loader
+                  [theme]="{
+                    height: '24px',
+                    width: '60px',
+                    margin: '0px',
+                    padding: '0px'
+                  }"
+                ></ngx-skeleton-loader>
+              </div>
             </td>
           </ng-container>
   
@@ -255,23 +258,25 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[20%] text-center align-middle"
             >
               Total referrals
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[260px]"
+              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[20%] text-center"
             >
-              <ngx-skeleton-loader
-                [theme]="{
-                  height: '24px',
-                  width: '100px',
-                  margin: '0px',
-                  padding: '0px'
-                }"
-              ></ngx-skeleton-loader>
+              <div class="flex justify-center">
+                <ngx-skeleton-loader
+                  [theme]="{
+                    height: '24px',
+                    width: '60px',
+                    margin: '0px',
+                    padding: '0px'
+                  }"
+                ></ngx-skeleton-loader>
+              </div>
             </td>
           </ng-container>
   
@@ -279,23 +284,25 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6 w-[382px]"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[25%] text-center align-middle"
             >
               Created at
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[382px]"
+              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[25%] text-center"
             >
-              <ngx-skeleton-loader
-                [theme]="{
-                  height: '24px',
-                  width: '100px',
-                  margin: '0px',
-                  padding: '0px'
-                }"
-              ></ngx-skeleton-loader>
+              <div class="flex justify-center">
+                <ngx-skeleton-loader
+                  [theme]="{
+                    height: '24px',
+                    width: '120px',
+                    margin: '0px',
+                    padding: '0px'
+                  }"
+                ></ngx-skeleton-loader>
+              </div>
             </td>
           </ng-container>
   
@@ -303,19 +310,19 @@
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="mat-body-medium text-on-surface py-3 px-6"
+              class="mat-body-medium text-on-surface py-3 px-6 w-[5%]"
             >
               &nbsp;
             </th>
             <td
               mat-cell
               *matCellDef="let program"
-              class="mat-body-medium text-on-surface truncate py-4 px-6"
+              class="mat-body-medium text-on-surface truncate py-4 px-6 w-[5%]"
             >
               <ngx-skeleton-loader
                 [theme]="{
                   height: '24px',
-                  width: '100px',
+                  width: '24px',
                   margin: '0px',
                   padding: '0px'
                 }"
@@ -328,12 +335,16 @@
         </mat-table>
         }
       </div>
-      <mat-paginator
-        [length]="count()"
-        [pageIndex]="paginationOptions().pageIndex"
-        [pageSize]="paginationOptions().pageSize"
-        (page)="onPageChange($event)"
-      ></mat-paginator>
+      <div class="mt-auto pt-4">
+        <mat-paginator
+          [length]="count()"
+          [pageIndex]="paginationOptions().pageIndex"
+          [pageSize]="paginationOptions().pageSize"
+          [pageSizeOptions]="[10, 25, 50, 100]"
+          (page)="onPageChange($event)"
+        ></mat-paginator>
+      </div>
+      </div>
     }
   </div>
 </div>

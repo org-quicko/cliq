@@ -8,7 +8,6 @@ export * from './link.dto';
 export * from './login.dto';
 export * from './member.dto';
 export * from './program.dto';
-export * from './programSummaryMv.dto';
 export * from './programUser.dto';
 export * from './promoter.dto';
 export * from './promoterMember.dto';

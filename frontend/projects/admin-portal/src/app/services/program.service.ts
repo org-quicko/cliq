@@ -30,20 +30,17 @@ export class ProgramService {
 
     getCommissionsReport(
         programId: string,
-        options?: {
-            report_period?: string,
-            start_date?: string,
-            end_date?: string
-        }
+        startDate?: string,
+        endDate?: string
     ): Observable<{ blob: Blob, fileName: string }> {
         const url = `${this.endpoint}/${programId}/report`;
 
         let params = new HttpParams();
-        if (options?.start_date) {
-            params = params.set('start_date', options.start_date);
+        if (startDate) {
+            params = params.set('start_date', startDate);
         }
-        if (options?.end_date) {
-            params = params.set('end_date', options.end_date);
+        if (endDate) {
+            params = params.set('end_date', endDate);
         }
 
         return this.httpClient.get(url, {
@@ -75,23 +72,21 @@ export class ProgramService {
 
     getProgramAnalytics(
         programId: string,
-        options?: {
-            period?: string;
-            startDate?: string;
-            endDate?: string;
-        }
+        period?: string,
+        startDate?: string,
+        endDate?: string
     ): Observable<ProgramApiResponse> {
         const url = `${this.endpoint}/${programId}/analytics`;
 
         let params = new HttpParams();
-        if (options?.period) {
-            params = params.set('period', options.period);
+        if (period) {
+            params = params.set('period', period);
         }
-        if (options?.startDate) {
-            params = params.set('startDate', options.startDate);
+        if (startDate) {
+            params = params.set('startDate', startDate);
         }
-        if (options?.endDate) {
-            params = params.set('endDate', options.endDate);
+        if (endDate) {
+            params = params.set('endDate', endDate);
         }
 
         return this.httpClient.get<ProgramApiResponse>(url, {
@@ -104,35 +99,33 @@ export class ProgramService {
 
     getPromoterAnalytics(
         programId: string,
-        options?: {
-            sortBy?: 'signup_commission' | 'signups' | 'purchase_commission' | 'revenue';
-            period?: string;
-            startDate?: string;
-            endDate?: string;
-            skip?: number;
-            take?: number;
-        }
+        sortBy?: 'signup_commission' | 'signups' | 'purchase_commission' | 'revenue',
+        period?: string,
+        startDate?: string,
+        endDate?: string,
+        skip?: number,
+        take?: number
     ): Observable<ProgramApiResponse> {
         const url = `${this.endpoint}/${programId}/analytics/promoters`;
 
         let params = new HttpParams();
-        if (options?.sortBy) {
-            params = params.set('sortBy', options.sortBy);
+        if (sortBy) {
+            params = params.set('sortBy', sortBy);
         }
-        if (options?.period) {
-            params = params.set('period', options.period);
+        if (period) {
+            params = params.set('period', period);
         }
-        if (options?.startDate) {
-            params = params.set('startDate', options.startDate);
+        if (startDate) {
+            params = params.set('startDate', startDate);
         }
-        if (options?.endDate) {
-            params = params.set('endDate', options.endDate);
+        if (endDate) {
+            params = params.set('endDate', endDate);
         }
-        if (options?.skip !== undefined) {
-            params = params.set('skip', options.skip.toString());
+        if (skip !== undefined) {
+            params = params.set('skip', skip.toString());
         }
-        if (options?.take !== undefined) {
-            params = params.set('take', options.take.toString());
+        if (take !== undefined) {
+            params = params.set('take', take.toString());
         }
 
         return this.httpClient.get<ProgramApiResponse>(url, { params });
@@ -144,27 +137,25 @@ export class ProgramService {
      * Get program summary list for super admin
      */
     getProgramSummary(
-        options?: {
-            programId?: string;
-            name?: string;
-            skip?: number;
-            take?: number;
-        }
+        programId?: string,
+        name?: string,
+        skip?: number,
+        take?: number
     ): Observable<ProgramApiResponse> {
         const url = `${this.endpoint}/summary`;
 
         let params = new HttpParams();
-        if (options?.programId) {
-            params = params.set('program_id', options.programId);
+        if (programId) {
+            params = params.set('program_id', programId);
         }
-        if (options?.name) {
-            params = params.set('name', options.name);
+        if (name) {
+            params = params.set('name', name);
         }
-        if (options?.skip !== undefined) {
-            params = params.set('skip', options.skip.toString());
+        if (skip !== undefined) {
+            params = params.set('skip', skip.toString());
         }
-        if (options?.take !== undefined) {
-            params = params.set('take', options.take.toString());
+        if (take !== undefined) {
+            params = params.set('take', take.toString());
         }
 
         return this.httpClient.get<ProgramApiResponse>(url, { params });

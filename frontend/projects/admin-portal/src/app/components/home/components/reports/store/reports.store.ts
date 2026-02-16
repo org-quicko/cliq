@@ -39,11 +39,9 @@ export const ReportsStore = signalStore(
                     switchMap(({ reportPeriod, startDate, endDate, programId }) => {
                         return programService.getCommissionsReport(
                             programId,
-                            {
-                                report_period: reportPeriod,
-                                start_date: startDate?.toISOString(),
-                                end_date: endDate?.toISOString()
-                            }).pipe(
+                            startDate?.toISOString(),
+                            endDate?.toISOString()
+                        ).pipe(
                             tapResponse({
                                 next: ({ blob, fileName }) => {
                                     const a = document.createElement('a');

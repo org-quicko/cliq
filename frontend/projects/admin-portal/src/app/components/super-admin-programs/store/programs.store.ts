@@ -68,11 +68,12 @@ export const ProgramsSummaryStore = signalStore(
                             return of(store.programs());
                         }
 
-                        return programService.getProgramSummary({
-                            name: filter?.name,
+                        return programService.getProgramSummary(
+                            undefined,
+                            filter?.name,
                             skip,
                             take
-                        }).pipe(
+                        ).pipe(
                             tapResponse({
                                 next: (response) => {
                                     let programs: ProgramSummaryMvDto[] = [];

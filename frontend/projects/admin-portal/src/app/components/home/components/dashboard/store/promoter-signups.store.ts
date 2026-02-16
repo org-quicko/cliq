@@ -92,14 +92,15 @@ export const PromoterSignupsStore = signalStore(
                         patchState(store, { status: Status.LOADING, promoters: [] });
                     }),
                     switchMap(({ programId, sortBy = 'signup_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
-                        return programService.getPromoterAnalytics(programId, {
+                        return programService.getPromoterAnalytics(
+                            programId,
                             sortBy,
                             period,
                             startDate,
                             endDate,
                             skip,
-                            take,
-                        }).pipe(
+                            take
+                        ).pipe(
                             tapResponse({
                                 next(response) {
                     
@@ -174,14 +175,15 @@ export const PromoterSignupsStore = signalStore(
                         patchState(store, { loadingMore: true });
                     }),
                     switchMap(({ programId, sortBy = 'signup_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
-                        return programService.getPromoterAnalytics(programId, {
+                        return programService.getPromoterAnalytics(
+                            programId,
                             sortBy,
                             period,
                             startDate,
                             endDate,
                             skip,
-                            take,
-                        }).pipe(
+                            take
+                        ).pipe(
                             tapResponse({
                                 next(response) {
 

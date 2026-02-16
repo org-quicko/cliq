@@ -9,7 +9,7 @@
           Programs you're in
         </div>
         <div
-          class="border border-outline-variant rounded-[5px] p-[8px] divide-y divide-outline-variant h-[316px] overflow-y-auto"
+          class="border border-outline-variant rounded-[5px] p-[8px] divide-y divide-outline-variant max-h-[316px] overflow-y-auto"
         >
         @if(!isLoading()) {
           @for(program of programs(); track program) {
@@ -17,7 +17,7 @@
               <div class="py-4 px-6 flex items-center justify-between gap-8">
                 <div class="flex flex-col gap-2 w-full">
                   <div class="mat-body-large text-on-surface">{{ program.name }}</div>
-                  <div class="mat-body-small text-on-surface-variant">You're an {{ program.role?.replace('_', ' ')}}</div>
+                  <div class="mat-body-small text-on-surface-variant">You're the {{ program.role?.replace('_', ' ')}}</div>
                 </div>
                 <mat-icon class="material-symbols-outlined text-on-surface"
                 >chevron_right</mat-icon>

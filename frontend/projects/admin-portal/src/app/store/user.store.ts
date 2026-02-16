@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { pipe, switchMap, tap } from 'rxjs';
 import { UserService } from '../services/user.service';
-import { Status, UserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
+import { SnackbarService, Status, UserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 import { plainToInstance } from 'class-transformer';
 import { computed } from '@angular/core';
 import { tapResponse } from '@ngrx/operators';
@@ -37,7 +37,8 @@ export const UserStore = signalStore(
 		(
 			store,
 			userService = inject(UserService),
-			permissionsService = inject(PermissionsService)
+			permissionsService = inject(PermissionsService),
+			snackbarService = inject(SnackbarService),
 		) => ({
 			fetchUser: rxMethod<{ userId: string }>(
 				pipe(
@@ -62,6 +63,7 @@ export const UserStore = signalStore(
 									}
 								},
 								error: (error: any) => {
+									snackbarService.openSnackBar('Failed to fetch user data', 'Close');
 									patchState(store, {
 										isLoading: false,
 										error: error.message,

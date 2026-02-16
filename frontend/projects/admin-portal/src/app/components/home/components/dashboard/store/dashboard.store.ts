@@ -85,7 +85,7 @@ export const DashboardStore = signalStore(
                     }),
 
                     switchMap(({ programId, period, startDate, endDate }) =>
-                        programService.getProgramAnalytics(programId, { period, startDate, endDate }).pipe(
+                        programService.getProgramAnalytics(programId, period, startDate, endDate).pipe(
                             tapResponse({
 
                                 next: (response) => {

@@ -93,17 +93,17 @@ export const PromoterPurchasesStore = signalStore(
                         patchState(store, { status: Status.LOADING, promoters: [] });
                     }),
                     switchMap(({ programId, sortBy = 'purchase_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
-                        return programService.getPromoterAnalytics(programId, {
+                        return programService.getPromoterAnalytics(
+                            programId,
                             sortBy,
                             period,
                             startDate,
                             endDate,
                             skip,
-                            take,
-                        }).pipe(
+                            take
+                        ).pipe(
                             tapResponse({
                                 next(response) {
-                                   
                                     let promoters: PromoterData[] = [];
                                     let pagination = null;
                                     try {
@@ -171,14 +171,15 @@ export const PromoterPurchasesStore = signalStore(
                         patchState(store, { loadingMore: true });
                     }),
                     switchMap(({ programId, sortBy = 'purchase_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
-                        return programService.getPromoterAnalytics(programId, {
+                        return programService.getPromoterAnalytics(
+                            programId,
                             sortBy,
                             period,
                             startDate,
                             endDate,
                             skip,
-                            take,
-                        }).pipe(
+                            take
+                        ).pipe(
                             tapResponse({
                                 next(response) {
                 

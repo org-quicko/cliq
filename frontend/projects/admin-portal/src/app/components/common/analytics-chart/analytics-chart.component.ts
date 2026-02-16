@@ -2,16 +2,9 @@ import { Component, Input, OnChanges, SimpleChanges, ViewChild, OnDestroy, OnIni
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, registerables, TooltipItem } from 'chart.js';
-import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, MetricType } from '@org.quicko.cliq/ngx-core';
 
 Chart.register(...registerables);
-
-export enum MetricType {
-    SIGNUPS = 'signups',
-    PURCHASES = 'purchases',
-    REVENUE = 'revenue',
-    COMMISSION = 'commission'
-}
 
 export interface DailyData {
     date: string;
