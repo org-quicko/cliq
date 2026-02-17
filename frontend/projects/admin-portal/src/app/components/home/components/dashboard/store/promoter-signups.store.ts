@@ -22,12 +22,10 @@ export interface PromoterData {
 
 export interface PromoterSignupsStoreState {
     promoters: PromoterData[];
-    pagination: {
-        total: number;
-        skip: number;
-        take: number;
-        hasMore: boolean;
-    } | null;
+    total: number;
+    skip: number;
+    take: number;
+    hasMore: boolean;
     error: any | null;
     status: Status;
     loadingMore: boolean;
@@ -35,7 +33,10 @@ export interface PromoterSignupsStoreState {
 
 export const initialPromoterSignupsState: PromoterSignupsStoreState = {
     promoters: [],
-    pagination: null,
+    total: 0,
+    skip: 0,
+    take: 20,
+    hasMore: false,
     error: null,
     status: Status.PENDING,
     loadingMore: false,
@@ -47,7 +48,6 @@ export const PromoterSignupsStore = signalStore(
     withComputed((store) => ({
         isLoading: computed(() => store.status() === Status.LOADING),
         isLoadingMore: computed(() => store.loadingMore()),
-        hasMore: computed(() => store.pagination()?.hasMore ?? false),
         topPopularityData: computed(() => {
             return store.promoters()
                 .slice(0, 5)
@@ -107,7 +107,6 @@ export const PromoterSignupsStore = signalStore(
                     
                               
                                     let promoters: PromoterData[] = [];
-                                    let pagination = null;
                                     try {
                                       
                                         const sheets = response?.data?.sheets || [];
@@ -135,14 +134,15 @@ export const PromoterSignupsStore = signalStore(
                                                 });
                                             }
                                         }
-                                  
-                                        pagination = response?.data?.metadata || null;
                                     } catch (e) {
 
                                     }
                                     patchState(store, {
                                         promoters,
-                                        pagination,
+                                        total: response?.data?.metadata?.total ?? 0,
+                                        hasMore: response?.data?.metadata?.hasMore ?? false,
+                                        skip,
+                                        take,
                                         error: null,
                                         status: Status.SUCCESS,
                                     });
@@ -150,7 +150,8 @@ export const PromoterSignupsStore = signalStore(
                                 error(error: HttpErrorResponse) {
                                     patchState(store, {
                                         promoters: [],
-                                        pagination: null,
+                                        total: 0,
+                                        hasMore: false,
                                         status: Status.ERROR,
                                         error,
                                     });
@@ -188,7 +189,6 @@ export const PromoterSignupsStore = signalStore(
                                 next(response) {
 
                                     let newPromoters: PromoterData[] = [];
-                                    let pagination = null;
                                     try {
                                         const sheets = response?.data?.sheets || [];
                                         const analyticsSheet = sheets.find((s: any) => s.name === 'promoter_analytics_sheet');
@@ -215,7 +215,6 @@ export const PromoterSignupsStore = signalStore(
                                                 });
                                             }
                                         }
-                                        pagination = response?.data?.metadata || null;
                                     } catch (e) {
 
                                     }
@@ -223,7 +222,10 @@ export const PromoterSignupsStore = signalStore(
                                     const existingPromoters = store.promoters();
                                     patchState(store, {
                                         promoters: [...existingPromoters, ...newPromoters],
-                                        pagination,
+                                        total: response?.data?.metadata?.total ?? 0,
+                                        hasMore: response?.data?.metadata?.hasMore ?? false,
+                                        skip,
+                                        take,
                                         loadingMore: false,
                                     });
                                 },

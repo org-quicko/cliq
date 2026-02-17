@@ -19,10 +19,6 @@ export class ProgramSubscriber implements EntitySubscriberInterface<Program> {
   async afterInsert(event: InsertEvent<Program>) {
     await event.queryRunner.connect();
 
-    await event.queryRunner.query(`    
-            REFRESH MATERIALIZED VIEW program_summary_mv WITH DATA; 
-    `);
-
     await event.manager.transaction(async (manager) => {
       const superAdmin = await manager.findOne(User, {
         where: {

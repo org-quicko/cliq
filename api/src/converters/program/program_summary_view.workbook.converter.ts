@@ -9,7 +9,7 @@ export class ProgramSummaryViewWorkbookConverter {
         private logger: LoggerService,
     ) { }
 
-    convert(
+   convert(
         programs: Array<{
             programId: string;
             programName: string;
@@ -17,10 +17,8 @@ export class ProgramSummaryViewWorkbookConverter {
             totalReferrals: number;
             createdAt: Date | string;
         }>,
-        pagination: {
-            skip: number;
-            take: number;
-        },
+        skip: number,
+        take: number,
     ) {
         try {
             this.logger.info('START: convert function: ProgramSummaryViewWorkbookConverter');
@@ -46,7 +44,7 @@ export class ProgramSummaryViewWorkbookConverter {
                 table.addRow(row);
             }
 
-            workbook.setMetadata(new JSONObject({ pagination }));
+            workbook.setMetadata(new JSONObject({ skip, take }));
 
             this.logger.info('END: convert function: ProgramSummaryViewWorkbookConverter');
             return workbook;

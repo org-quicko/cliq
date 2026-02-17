@@ -53,10 +53,10 @@ export const CreateProgramStore = signalStore(
                                 error: (error: HttpErrorResponse) => {
                                     patchState(store, {
                                         isLoading: false,
-                                        error: error.error?.message || 'Failed to create program',
+
                                     });
                                     snackbarService.openSnackBar(
-                                        error.error?.message || 'Failed to create program',
+                                        'Failed to create program',
                                         ''
                                     );
                                     OnCreateProgramSuccess.emit(false);

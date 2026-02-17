@@ -41,6 +41,7 @@ import { ProgramAnalyticsWorkbookConverter } from '../converters/program/program
 import { PromoterAnalyticsConverter } from '../converters/promoter/promoter_analytics.workbook.converter';
 import { ProgramSummaryViewWorkbookConverter } from '../converters/program/program_summary_view.workbook.converter';
 import { ProgramSummaryView } from '../entities/programSummaryView.entity';
+import { SortByEnum } from '../enums';
 
 @Injectable()
 export class ProgramService {
@@ -986,24 +987,24 @@ export class ProgramService {
 
 	
 
-    async getPromoterAnalytics(
-        programId: string,
-        sortBy: 'signup_commission' | 'signups' | 'purchase_commission' | 'revenue' = 'signup_commission',
-        period: string = '30days',
-        customStartDate?: Date,
-        customEndDate?: Date,
-        skip: number = 0,
-        take: number = 5,
-    ) {
+	async getPromoterAnalytics(
+		programId: string,
+		sortBy: SortByEnum = SortByEnum.SIGNUP_COMMISSION,
+		period: string = '30days',
+		customStartDate?: Date,
+		customEndDate?: Date,
+		skip: number = 0,
+		take: number = 5,
+	) {
 		this.logger.info('START: getPromoterAnalytics service');
 
 		const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
 
-		const orderColumnMap: Record<string, string> = {
-			'signup_commission': 'signupCommission',
-			'signups': 'totalSignups',
-			'purchase_commission': 'purchaseCommission',
-			'revenue': 'totalRevenue',
+		const orderColumnMap: Record<SortByEnum, string> = {
+			[SortByEnum.SIGNUP_COMMISSION]: 'signupCommission',
+			[SortByEnum.SIGNUPS]: 'totalSignups',
+			[SortByEnum.PURCHASE_COMMISSION]: 'purchaseCommission',
+			[SortByEnum.REVENUE]: 'totalRevenue',
 		};
 		const orderColumn = orderColumnMap[sortBy] || 'signupCommission';
 
@@ -1176,19 +1177,17 @@ export class ProgramService {
 			take,
 		});
 
-		const result = this.programSummaryViewConverter.convert(
-			programSummaries.map(ps => ({
-				programId: ps.programId,
-				programName: ps.programName,
-				totalPromoters: Number(ps.totalPromoters),
-				totalReferrals: Number(ps.totalReferrals),
-				createdAt: ps.createdAt,
-			})),
-			{
-				skip,
-				take,
-			},
-		);
+const result = this.programSummaryViewConverter.convert(
+    programSummaries.map(ps => ({
+        programId: ps.programId,
+        programName: ps.programName,
+        totalPromoters: Number(ps.totalPromoters),
+        totalReferrals: Number(ps.totalReferrals),
+        createdAt: ps.createdAt,
+    })),
+    skip,
+    take,
+);
 
 		this.logger.info('END: getProgramSummary service');
 		return result;

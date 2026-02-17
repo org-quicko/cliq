@@ -84,14 +84,11 @@ export class UserService {
 			throw new EntityNotFoundError(User, userId);
 		}
 
-		// Check if user has SUPER_ADMIN role in any program
-		const superAdminProgramUser = userResult.programUsers?.find(
-			(pu) => pu.role === userRoleEnum.SUPER_ADMIN
-		);
+	
 
 		this.logger.info('END: getUser service');
-		// Pass the SUPER_ADMIN programUser if found, so converter can set the role
-		return this.userConverter.convert(userResult, superAdminProgramUser);
+
+		return this.userConverter.convert(userResult);
 	}
 
 	async getUserEntity(userId: string) {
