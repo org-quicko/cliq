@@ -28,7 +28,7 @@ import { DateRangeStore } from '../../../../store/date-range.store';
 ],
     providers: [PromoterSignupsStore]
 })
-export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PromotersBySignupsComponent implements AfterViewInit, OnDestroy {
     @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
     
     readonly programStore = inject(ProgramStore);
@@ -61,10 +61,6 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
           
             this.fetchDataWithDateRange();
         });
-    }
-
-    ngOnInit() {
-        
     }
 
     ngAfterViewInit() {
@@ -159,7 +155,6 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         const scrollPosition = container.scrollTop + container.clientHeight;
         const scrollHeight = container.scrollHeight;
 
-        console.log('Scroll event:', { scrollPosition, scrollHeight, diff: scrollHeight - scrollPosition, threshold });
 
         if (scrollHeight - scrollPosition < threshold) {
             this.loadMore();
@@ -167,12 +162,6 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
     }
 
     private loadMore() {
-        console.log('loadMore called', {
-            isLoadingMore: this.isLoadingMore,
-            hasMore: this.hasMore,
-            programId: this.programId(),
-            chartDataLength: this.chartData.length
-        });
 
         if (this.isLoadingMore || !this.hasMore) return;
 

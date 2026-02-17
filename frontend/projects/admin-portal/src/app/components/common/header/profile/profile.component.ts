@@ -7,8 +7,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
 import { ProgramStore } from '../../../../store/program.store';
-import { ProgramUserStore, ProgramWithRole } from '../../../../store/program-user.store';
+import { ProgramUserStore } from '../../../../store/program-user.store';
 import { UserStore } from '../../../../store/user.store';
+import { ProgramUserDto } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-profile',
@@ -61,7 +62,7 @@ export class ProfileComponent implements OnInit {
 		const programs = this.programs();
 		if (currentProgramId && programs.length > 0) {
 			const currentProgram = programs.find(
-				(p: ProgramWithRole) => p.programId === currentProgramId
+				(p: ProgramUserDto) => p.programId === currentProgramId
 			);
 			return currentProgram?.role || null;
 		}

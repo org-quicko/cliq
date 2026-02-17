@@ -90,7 +90,7 @@ export const DashboardStore = signalStore(
 
                                 next: (response) => {
                                     try {
-                                        const resultData = response?.result || response?.data || {};
+                                        const resultData = response?.data || {};
 
                                    
                                         const workbook = plainToInstance(ProgramAnalyticsWorkbook, resultData);

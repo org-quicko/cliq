@@ -7,9 +7,9 @@ import { AvatarModule } from 'ngx-avatars';
 import { MatRippleModule } from '@angular/material/core';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ProgramStore } from '../../../../store/program.store';
-import { ProgramUserStore, ProgramWithRole } from '../../../../store/program-user.store';
+import { ProgramUserStore } from '../../../../store/program-user.store';
 import { PermissionsService } from '../../../../services/permission.service';
-import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
+import { ProgramUserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-choose-program',
@@ -27,7 +27,7 @@ import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
 })
 export class ChooseProgramComponent implements OnInit {
 	currentProgramId = signal<string>('');
-	currentProgram = signal<ProgramWithRole | null>(null);
+	currentProgram = signal<ProgramUserDto | null>(null);
 
 	programStore = inject(ProgramStore);
 	programUserStore = inject(ProgramUserStore);
@@ -59,7 +59,7 @@ export class ChooseProgramComponent implements OnInit {
 	}
 
 	getPrograms() {
-		this.programs().forEach((program: ProgramWithRole) => {
+		this.programs().forEach((program: ProgramUserDto) => {
 			if (program.programId === this.currentProgramId()) {
 				this.currentProgram.set(program);
 				if (program.role) {
@@ -69,7 +69,7 @@ export class ChooseProgramComponent implements OnInit {
 		});
 	}
 
-	changeProgram(program: ProgramWithRole) {
+	changeProgram(program: ProgramUserDto) {
 		this.router.navigate(['/', program.programId, 'home', 'dashboard']);
 	}
 

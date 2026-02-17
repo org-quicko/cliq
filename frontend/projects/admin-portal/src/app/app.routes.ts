@@ -4,7 +4,7 @@ import { HomeComponent } from './components/home/home.component';
 import { ProgramResolver } from '../app/resolver/program.resolver';
 import { UserResolver } from '../app/resolver/user.resolver';
 import { ProgramUserResolver } from '../app/resolver/program-user.resolver';
-import { NotFoundComponent } from '../../../org-quicko-cliq-ngx-core/src/lib/components/not-found/not-found.component';
+import { NotFoundComponent } from '@org.quicko.cliq/ngx-core';
 import { ReportsComponent } from './components/home/components/reports/reports.component';
 import { DashboardComponent } from './components/home/components/dashboard/dashboard.component';
 import { PromotersBySignupsComponent } from './components/home/components/promoters-by-signups/promoters-by-signups.component';

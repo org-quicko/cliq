@@ -114,10 +114,7 @@ export class DashboardComponent implements OnInit {
 	ngOnInit() {
 	}
 
-	/**
-	 * Convert DateRangeStore type to backend period format
-	 * Backend expects: '7days', '30days', '3months', '6months', '1year', 'all'
-	 */
+
 	private getPeriodValue(): string {
 		const type = this.dateRangeStore.activeRange();
 		const periodMap: Record<string, string> = {

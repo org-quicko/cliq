@@ -27,7 +27,6 @@ export class IsLoggedIn implements CanActivate, CanActivateChild {
 		}
 
 
-		sessionStorage.setItem('redirectUrl', url);
 		this.router.navigate(['/login']);
 		return false;
 	}

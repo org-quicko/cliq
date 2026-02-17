@@ -19,7 +19,7 @@ import { ProgramUserStore } from '../../store/program-user.store';
 	templateUrl: './programs-list.component.html',
 	styleUrl: './programs-list.component.css',
 })
-export class ProgramsListComponent implements OnInit {
+export class ProgramsListComponent  {
 	programUserStore = inject(ProgramUserStore);
 
 	programs = this.programUserStore.programs;
@@ -27,9 +27,6 @@ export class ProgramsListComponent implements OnInit {
 
 	constructor(private router: Router) {}
 
-	ngOnInit() {
-		
-	}
 
 	onClick(programId: string) {
 		this.router.navigate(['/', programId, 'home', 'dashboard']);

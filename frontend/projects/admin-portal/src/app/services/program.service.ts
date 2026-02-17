@@ -3,12 +3,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment.development';
-
-export interface ProgramApiResponse {
-    message: string;
-    data?: any;
-    result?: any;
-}
+import { ApiResponse } from '@org.quicko.cliq/ngx-core';
 
 @Injectable({
     providedIn: 'root'
@@ -19,13 +14,13 @@ export class ProgramService {
 
     private endpoint = `${environment.base_api_url}/programs`;
 
-    getAllPrograms(): Observable<ProgramApiResponse> {
-        return this.httpClient.get<ProgramApiResponse>(this.endpoint);
+    getAllPrograms(): Observable<ApiResponse<any>> {
+        return this.httpClient.get<ApiResponse<any>>(this.endpoint);
     }
 
-    getProgram(programId: string): Observable<ProgramApiResponse> {
+    getProgram(programId: string): Observable<ApiResponse<any>> {
         const url = `${this.endpoint}/${programId}`;
-        return this.httpClient.get<ProgramApiResponse>(url);  
+        return this.httpClient.get<ApiResponse<any>>(url);  
     }
 
     getCommissionsReport(
@@ -75,7 +70,7 @@ export class ProgramService {
         period?: string,
         startDate?: string,
         endDate?: string
-    ): Observable<ProgramApiResponse> {
+    ): Observable<ApiResponse<any>> {
         const url = `${this.endpoint}/${programId}/analytics`;
 
         let params = new HttpParams();
@@ -89,7 +84,7 @@ export class ProgramService {
             params = params.set('endDate', endDate);
         }
 
-        return this.httpClient.get<ProgramApiResponse>(url, {
+        return this.httpClient.get<ApiResponse<any>>(url, {
             params,
             headers: {
                 'x-accept-type': 'application/json;format=sheet-json'
@@ -105,7 +100,7 @@ export class ProgramService {
         endDate?: string,
         skip?: number,
         take?: number
-    ): Observable<ProgramApiResponse> {
+    ): Observable<ApiResponse<any>> {
         const url = `${this.endpoint}/${programId}/analytics/promoters`;
 
         let params = new HttpParams();
@@ -128,7 +123,7 @@ export class ProgramService {
             params = params.set('take', take.toString());
         }
 
-        return this.httpClient.get<ProgramApiResponse>(url, { params });
+        return this.httpClient.get<ApiResponse<any>>(url, { params });
     }
 
 
@@ -141,7 +136,7 @@ export class ProgramService {
         name?: string,
         skip?: number,
         take?: number
-    ): Observable<ProgramApiResponse> {
+    ): Observable<ApiResponse<any>> {
         const url = `${this.endpoint}/summary`;
 
         let params = new HttpParams();
@@ -158,13 +153,13 @@ export class ProgramService {
             params = params.set('take', take.toString());
         }
 
-        return this.httpClient.get<ProgramApiResponse>(url, { params });
+        return this.httpClient.get<ApiResponse<any>>(url, { params });
     }
 
     /**
      * Create a new program (Super Admin Only)
      */
-    createProgram(body: any): Observable<ProgramApiResponse> {
-        return this.httpClient.post<ProgramApiResponse>(this.endpoint, body);
+    createProgram(body: any): Observable<ApiResponse<any>> {
+        return this.httpClient.post<ApiResponse<any>>(this.endpoint, body);
     }
 }
