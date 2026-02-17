@@ -1,7 +1,7 @@
 import { Component, inject, Type, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DynamicComponentDirective } from '../../directives/dynamic-component.directive';
-import { AuthService } from '../../services/auth.service';
+import { PermissionsService } from '../../services/permission.service';
 import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
 
 @Component({
@@ -16,7 +16,7 @@ export class DynamicComponentLoaderComponent implements AfterViewInit {
 	dynamicHost!: DynamicComponentDirective;
 
 	private route = inject(ActivatedRoute);
-	private authService = inject(AuthService);
+	private permissionsService = inject(PermissionsService);
 
 	private superAdminComponent: Type<any> | null = null;
 	private defaultComponent: Type<any> | null = null;
@@ -29,7 +29,7 @@ export class DynamicComponentLoaderComponent implements AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		const role = this.authService.getUserRole();
+		const role = this.permissionsService.userRole();
 		this.loadComponent(role);
 	}
 

@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit {
 	readonly promoterPurchasesStore = inject(PromoterPurchasesStore);
 	private router = inject(Router);
 
-	// For infinite-loop prevention
+
 	private lastProgramId: string | null = null;
 	private lastActiveRange: string | null = null;
 	private lastStart: string | null = null;
@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit {
 			const startStr = start ? start.toISOString().split('T')[0] : null;
 			const endStr = end ? end.toISOString().split('T')[0] : null;
 
-			// Prevent infinite loops - only fetch if something actually changed
+
 			if (
 				this.lastProgramId === programId &&
 				this.lastActiveRange === activeRange &&
@@ -75,7 +75,6 @@ export class DashboardComponent implements OnInit {
 				return;
 			}
 
-			// Update references
 			this.lastProgramId = programId;
 			this.lastActiveRange = activeRange;
 			this.lastStart = startStr;
@@ -100,7 +99,6 @@ export class DashboardComponent implements OnInit {
 	readonly signupsPopularityData = computed(() => this.promoterSignupsStore.topPopularityData());
 	readonly purchasesPopularityData = computed(() => this.promoterPurchasesStore.topPopularityData());
 
-	// Track toggle states to preserve across re-renders
 	showSignupsAlternate = signal(false);
 	showPurchasesAlternate = signal(false);
 
@@ -149,7 +147,7 @@ export class DashboardComponent implements OnInit {
 			this.dashboardStore.getProgramAnalytics({
 				programId,
 				period,
-				// Pass custom dates for 'custom' range
+	
 				...(period === 'custom' && start && end ? {
 					startDate: start.toISOString(),
 					endDate: end.toISOString(),

@@ -24,12 +24,13 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     {
         path: '',
-        resolve: { user: UserResolver, programs: ProgramUserResolver },
+        resolve: { user: UserResolver },
         canActivate: [IsLoggedIn],
         children: [
             { path: '', pathMatch: 'full', redirectTo: 'programs' },
             {
                 path: 'programs',
+                resolve: { programs: ProgramUserResolver },
                 component: DynamicComponentLoaderComponent,
                 data: {
                     SuperAdminComponent: SuperAdminProgramsComponent,

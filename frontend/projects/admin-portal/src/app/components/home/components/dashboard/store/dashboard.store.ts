@@ -92,7 +92,7 @@ export const DashboardStore = signalStore(
                                     try {
                                         const resultData = response?.result || response?.data || {};
 
-                                        // Parse workbook format
+                                   
                                         const workbook = plainToInstance(ProgramAnalyticsWorkbook, resultData);
                                         const table = workbook
                                             .getProgramAnalyticsSheet()

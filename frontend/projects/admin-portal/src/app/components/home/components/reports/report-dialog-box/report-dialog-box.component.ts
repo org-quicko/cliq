@@ -20,10 +20,10 @@ const moment = _rollupMoment || _moment;
 
 export const MY_FORMATS = {
 	parse: {
-		dateInput: 'LL', // Standard parsing
+		dateInput: 'LL', 
 	},
 	display: {
-		dateInput: 'Do MMM, YYYY', // <-- Adds ordinal suffix (1st, 2nd, 3rd...)
+		dateInput: 'Do MMM, YYYY', 
 		monthYearLabel: 'MMM YYYY',
 		dateA11yLabel: 'LL',
 		monthYearA11yLabel: 'MMMM YYYY',
@@ -93,7 +93,6 @@ export class ReportDialogBoxComponent implements OnInit, OnDestroy {
 			const { parsedStartDate, parsedEndDate } = getStartEndDate(undefined, undefined, value);
 			this.reportForm.controls.start.disable();
 			this.reportForm.controls.end.disable();
-			// Update start and end dates only for predefined periods
 			this.reportForm.controls.start.setValue(moment(parsedStartDate));
 			this.reportForm.controls.end.setValue(moment(parsedEndDate));
 		});

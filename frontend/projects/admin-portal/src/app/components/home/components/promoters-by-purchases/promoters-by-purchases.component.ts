@@ -63,7 +63,7 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
     }
 
     ngOnInit() {
-        // fetchData is handled by the effect above
+       
     }
 
     ngAfterViewInit() {
@@ -107,7 +107,6 @@ export class PromotersByPurchasesComponent implements OnInit, AfterViewInit, OnD
 
     toggleValueType() {
         this.showRevenue.update(v => !v);
-        // Re-fetch with new sort order
         this.fetchDataWithDateRange();
     }
 

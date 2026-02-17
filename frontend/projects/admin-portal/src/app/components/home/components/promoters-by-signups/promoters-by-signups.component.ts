@@ -155,7 +155,7 @@ export class PromotersBySignupsComponent implements OnInit, AfterViewInit, OnDes
         const container = this.scrollContainer?.nativeElement;
         if (!container) return;
 
-        const threshold = 100; // pixels from bottom to trigger load
+        const threshold = 100; 
         const scrollPosition = container.scrollTop + container.clientHeight;
         const scrollHeight = container.scrollHeight;
 

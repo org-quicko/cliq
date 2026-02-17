@@ -26,7 +26,7 @@ import { userRoleEnum } from '@org.quicko.cliq/ngx-core';
 	styleUrl: './choose-program.component.css',
 })
 export class ChooseProgramComponent implements OnInit {
-	currentProgramId: string = '';
+	currentProgramId = signal<string>('');
 	currentProgram = signal<ProgramWithRole | null>(null);
 
 	programStore = inject(ProgramStore);
@@ -44,7 +44,9 @@ export class ChooseProgramComponent implements OnInit {
 		private router: Router
 	) {
 		effect(() => {
-			if (this.programs().length > 0) {
+			const programId = this.currentProgramId();
+			const programs = this.programs();
+			if (programId && programs.length > 0) {
 				this.getPrograms();
 			}
 		});
@@ -52,13 +54,13 @@ export class ChooseProgramComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.route.params.subscribe((params: Params) => {
-			this.currentProgramId = params['program_id'];
+			this.currentProgramId.set(params['program_id']);
 		});
 	}
 
 	getPrograms() {
 		this.programs().forEach((program: ProgramWithRole) => {
-			if (program.programId === this.currentProgramId) {
+			if (program.programId === this.currentProgramId()) {
 				this.currentProgram.set(program);
 				if (program.role) {
 					this.permissionService.setAbilityForRole(program.role as userRoleEnum);
@@ -68,7 +70,7 @@ export class ChooseProgramComponent implements OnInit {
 	}
 
 	changeProgram(program: ProgramWithRole) {
-		window.location.href = `${window.location.origin}/admin/${program.programId}/home/dashboard`;
+		this.router.navigate(['/', program.programId, 'home', 'dashboard']);
 	}
 
 	onViewAllPrograms() {

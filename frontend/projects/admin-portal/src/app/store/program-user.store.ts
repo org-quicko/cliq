@@ -2,6 +2,7 @@ import { patchState, signalStore, withComputed, withMethods, withState } from '@
 import { computed, inject } from '@angular/core';
 import { ProgramService } from '../services/program.service';
 import { AuthService } from '../services/auth.service';
+import { PermissionsService } from '../services/permission.service';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, of, pipe, switchMap, tap } from 'rxjs';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
@@ -42,17 +43,19 @@ export const ProgramUserStore = signalStore(
 	})),
 
 	withMethods(
-		(store, programService = inject(ProgramService), authService = inject(AuthService)) => ({
+		(store, programService = inject(ProgramService), authService = inject(AuthService), permissionsService = inject(PermissionsService)) => ({
 			fetchPrograms: rxMethod<void>(
 				pipe(
 					tap(() => {
-						patchState(store, {
-							status: Status.PENDING,
-							isLoading: true,
-						});
+						
+							patchState(store, {
+								status: Status.PENDING,
+								isLoading: true,
+							});
+						
 					}),
 					switchMap(() => {
-					const userRole = authService.getUserRole();
+					const userRole = permissionsService.userRole();
 					if (userRole === userRoleEnum.SUPER_ADMIN) {
 							return programService.getProgramSummary().pipe(
 								tap((summaryResponse) => {
@@ -92,7 +95,7 @@ export const ProgramUserStore = signalStore(
 						} else {
 						return programService.getAllPrograms().pipe(
 							tap((response) => {
-									// Backend returns ProgramUserDto with nested program property
+
 									const programsWithRole: ProgramWithRole[] = (response.data || []).map((programUser: any) => ({
 										programId: programUser.programId || programUser.program_id,
 										name: programUser.program?.name || programUser.program?.name,

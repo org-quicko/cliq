@@ -10,6 +10,6 @@ export class ProgramUserResolver {
 	private programUserStore = inject(ProgramUserStore);
 
 	resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-		this.programUserStore.fetchPrograms();
+			this.programUserStore.fetchPrograms();		
 	}
 }

@@ -213,7 +213,7 @@ export const PromoterPurchasesStore = signalStore(
                                         }
                                     } catch (e) {
                                     }
-                                    // Append to existing promoters
+
                                     const existingPromoters = store.promoters();
                                     patchState(store, {
                                         promoters: [...existingPromoters, ...newPromoters],

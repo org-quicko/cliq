@@ -80,12 +80,12 @@ export class DateRangeFilterComponent implements OnInit, OnDestroy {
     { label: 'Custom', value: 'custom' },
   ];
 
-  // Signals from store
+
   activeRange = this.dateRangeStore.activeRange;
   label = this.dateRangeStore.label;
   selectedDateRangeText = this.dateRangeStore.formattedRange;
 
-  // Local temp selection before Apply
+
   tempRangeType: DateRangeType = this.dateRangeStore.activeRange();
   tempStart: Date | null = this.dateRangeStore.start();
   tempEnd: Date | null = this.dateRangeStore.end();
