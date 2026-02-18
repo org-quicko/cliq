@@ -3,7 +3,7 @@ import { patchState, signalStore, withComputed, withMethods, withState } from "@
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { Status, SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { Status, SnackbarService, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProgramService } from '../../../../../services/program.service';
@@ -82,7 +82,7 @@ export const PromoterSignupsStore = signalStore(
             },
             fetchPromotersBySignups: rxMethod<{
                 programId: string;
-                sortBy?: 'signup_commission' | 'signups';
+                sortBy?: SortByEnum;
                 period?: string;
                 startDate?: string;
                 endDate?: string;
@@ -93,7 +93,7 @@ export const PromoterSignupsStore = signalStore(
                     tap(() => {
                         patchState(store, { status: Status.LOADING, promoters: [] });
                     }),
-                    switchMap(({ programId, sortBy = 'signup_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
+                    switchMap(({ programId, sortBy = SortByEnum.SIGNUP_COMMISSION, period, startDate, endDate, skip = 0, take = 20 }) => {
                         return programService.getPromoterAnalytics(
                             programId,
                             sortBy,
@@ -154,7 +154,7 @@ export const PromoterSignupsStore = signalStore(
             ),
             loadMorePromotersBySignups: rxMethod<{
                 programId: string;
-                sortBy?: 'signup_commission' | 'signups';
+                sortBy?: SortByEnum;
                 period?: string;
                 startDate?: string;
                 endDate?: string;
@@ -165,7 +165,7 @@ export const PromoterSignupsStore = signalStore(
                     tap(() => {
                         patchState(store, { loadingMore: true });
                     }),
-                    switchMap(({ programId, sortBy = 'signup_commission', period, startDate, endDate, skip = 0, take = 20 }) => {
+                    switchMap(({ programId, sortBy = SortByEnum.SIGNUP_COMMISSION, period, startDate, endDate, skip = 0, take = 20 }) => {
                         return programService.getPromoterAnalytics(
                             programId,
                             sortBy,

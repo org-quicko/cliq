@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { NgxSkeletonLoaderModule } from "ngx-skeleton-loader";
-import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { PromoterPurchasesStore } from '../dashboard/store/promoter-purchases.store';
 import { DateRangeFilterComponent } from '../../../layout/range-selector/date-range-filter.component';
@@ -171,7 +171,7 @@ export class PromotersByPurchasesComponent implements AfterViewInit, OnDestroy {
         
         this.promoterPurchasesStore.loadMorePromotersByPurchases({
             programId,
-            sortBy: this.showRevenue() ? 'revenue' : 'purchase_commission',
+            sortBy: this.showRevenue() ? SortByEnum.REVENUE : SortByEnum.PURCHASE_COMMISSION,
             period: this.getPeriodValue(),
             startDate: start ? start.toISOString().split('T')[0] : undefined,
             endDate: end ? end.toISOString().split('T')[0] : undefined,
@@ -186,7 +186,7 @@ export class PromotersByPurchasesComponent implements AfterViewInit, OnDestroy {
 
         this.promoterPurchasesStore.fetchPromotersByPurchases({
             programId,
-            sortBy: this.showRevenue() ? 'revenue' : 'purchase_commission',
+            sortBy: this.showRevenue() ? SortByEnum.REVENUE : SortByEnum.PURCHASE_COMMISSION,
             period: this.getPeriodValue(),
             skip: 0,
             take: this.PAGE_SIZE,
@@ -202,7 +202,7 @@ export class PromotersByPurchasesComponent implements AfterViewInit, OnDestroy {
 
         this.promoterPurchasesStore.fetchPromotersByPurchases({
             programId,
-            sortBy: this.showRevenue() ? 'revenue' : 'purchase_commission',
+            sortBy: this.showRevenue() ? SortByEnum.REVENUE : SortByEnum.PURCHASE_COMMISSION,
             period: this.getPeriodValue(),
             startDate: start ? start.toISOString().split('T')[0] : undefined,
             endDate: end ? end.toISOString().split('T')[0] : undefined,

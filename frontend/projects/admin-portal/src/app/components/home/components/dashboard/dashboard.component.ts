@@ -5,7 +5,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormatCurrencyPipe, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, ZeroToDashPipe, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { ProgramStore } from '../../../../store/program.store';
 import { DateRangeStore } from '../../../../store/date-range.store';
@@ -162,7 +162,7 @@ export class DashboardComponent implements OnInit {
 			
 			this.promoterSignupsStore.fetchPromotersBySignups({
 				programId,
-				sortBy: 'signup_commission',
+				sortBy: SortByEnum.SIGNUP_COMMISSION,
 				period,
 				take: 5,
 				...(period === 'custom' && start && end ? {
@@ -172,7 +172,7 @@ export class DashboardComponent implements OnInit {
 			});
 			this.promoterPurchasesStore.fetchPromotersByPurchases({
 				programId,
-				sortBy: 'purchase_commission',
+				sortBy: SortByEnum.PURCHASE_COMMISSION,
 				period,
 				take: 5,
 				...(period === 'custom' && start && end ? {
@@ -198,7 +198,7 @@ export class DashboardComponent implements OnInit {
 
 		this.promoterSignupsStore.fetchPromotersBySignups({
 			programId,
-			sortBy: showAlternate ? 'signups' : 'signup_commission',
+			sortBy: showAlternate ? SortByEnum.SIGNUPS : SortByEnum.SIGNUP_COMMISSION,
 			period,
 			take: 5,
 			...(period === 'custom' && start && end ? {
@@ -223,7 +223,7 @@ export class DashboardComponent implements OnInit {
 
 		this.promoterPurchasesStore.fetchPromotersByPurchases({
 			programId,
-			sortBy: showAlternate ? 'revenue' : 'purchase_commission',
+			sortBy: showAlternate ? SortByEnum.REVENUE : SortByEnum.PURCHASE_COMMISSION,
 			period,
 			take: 5,
 			...(period === 'custom' && start && end ? {

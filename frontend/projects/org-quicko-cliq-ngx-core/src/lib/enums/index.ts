@@ -23,3 +23,4 @@ export * from './trigger.enum';
 export * from './userRole.enum';
 export * from './visibility.enum';
 export * from './metricType.enum';
+export * from './SortBy.enum'

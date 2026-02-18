@@ -4,8 +4,12 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
 import { User } from '../entities';
 import { LoggerService } from './logger.service';
-import { AuthInput, AuthResult } from '../interfaces/auth.interface';
+import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
 import { audienceEnum } from 'src/enums/audience.enum';
+
+export interface UserLoginData extends LoginData {
+	user_id: string;
+}
 
 @Injectable()
 export class UserAuthService {
@@ -18,40 +22,63 @@ export class UserAuthService {
 
 	async authenticateUser(input: AuthInput): Promise<AuthResult> {
 		this.logger.info(`START: authenticateUser service`);
+		const [entity, errorMessage] = await this.validateUser(input);
 
-		const user = await this.validateUser(input);
-		const authResult = await this.loginUser(user);
+		if (!entity) {
+			throw new UnauthorizedException({
+				error: errorMessage,
+				code: 401,
+			});
+		}
+
+		const authResult = await this.loginUser(entity);
 
 		this.logger.info(`END: authenticateUser service`);
 		return authResult;
 	}
 
-	async validateUser(input: AuthInput): Promise<User> {
+	async validateUser(input: AuthInput): Promise<[UserLoginData | null, string]> {
 		this.logger.info(`START: validateUser service`);
 
-		const user = await this.userService.getUserByEmail(
+		const entity: User | null = await this.userService.getUserByEmail(
 			input.email.toLowerCase().trim(),
 		);
 
-		if (!user) {
-			throw new UnauthorizedException(`Invalid Credentials!`);
-		}
+		let logInData: UserLoginData | null;
+		let errorMessage: string = '';
 
-		const isPasswordValid = await this.comparePasswords(input.password, user.password);
-		if (!isPasswordValid) {
-			throw new UnauthorizedException(`Invalid Credentials!`);
+	
+		if (!entity) {
+			logInData = null;
+			errorMessage = `User email isn't registered!`;
+			throw new UnauthorizedException(errorMessage);
+
+		} else {
+		
+			if (!(await this.comparePasswords(input.password, entity.password))) {
+				logInData = null;
+				errorMessage = `Invalid password! Please try again!`;
+				throw new UnauthorizedException(errorMessage);
+			} else {
+
+		
+				logInData = {
+					user_id: entity.userId,
+					email: entity.email,
+				};
+			}
 		}
 
 		this.logger.info(`END: validateUser service`);
-		return user;
+		return [logInData, errorMessage];
 	}
 
-	async loginUser(user: User): Promise<AuthResult> {
+	async loginUser(entity: UserLoginData): Promise<AuthResult> {
 		this.logger.info(`START: loginUser service`);
 
 		const tokenPayload = {
-			sub: user.userId,
-			email: user.email,
+			sub: entity.user_id,
+			email: entity.email,
 			aud: audienceEnum.PROGRAM_USER,
 		};
 

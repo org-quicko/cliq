@@ -6,6 +6,8 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, of, pipe, switchMap, tap } from 'rxjs';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { ProgramUserDto, Status, userRoleEnum, statusEnum } from '@org.quicko.cliq/ngx-core';
+import { plainToInstance } from 'class-transformer';
+import { ProgramSummaryViewWorkbook } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
 
 type ProgramsListStoreState = {
 	programs: ProgramUserDto[];
@@ -40,30 +42,34 @@ export const ProgramsListStore = signalStore(
 
 						return programService.getProgramSummary().pipe(
 							tap((summaryResponse) => {
-							let superAdminPrograms: ProgramUserDto[] = [];
+								let superAdminPrograms: ProgramUserDto[] = [];
 
-							if (summaryResponse.data) {
-								const workbook = summaryResponse.data;
-								const sheet = workbook?.sheets?.[0];
-								const table = sheet?.blocks?.[0];
-								const rows = table?.rows || [];
-
-								superAdminPrograms = rows.map((row: any[]) => ({
-									programId: row[0],
-									userId: '',
-									name: row[1],
-									role: userRoleEnum.SUPER_ADMIN,
-									status: statusEnum.ACTIVE,
-									createdAt: new Date(),
-									updatedAt: new Date()
-								} as ProgramUserDto));
-							}
-							patchState(store, {
-								programs: superAdminPrograms,
-								status: Status.SUCCESS,
-								isSuperAdmin: true,
-							});
-						}),
+								if (summaryResponse.data) {
+									const workbook = plainToInstance(ProgramSummaryViewWorkbook, summaryResponse.data);
+									const sheet = workbook.getProgramSummaryViewSheet();
+									const table = sheet.getProgramSummaryViewTable();
+									const rows = table.getRows();
+									
+									for (let i = 0; i < rows.length; i++) {
+										const row = table.getRow(i);
+										superAdminPrograms.push({
+											programId: row.getProgramId(),
+											userId: '',
+											name: row.getProgramName(),
+											role: userRoleEnum.SUPER_ADMIN,
+											status: statusEnum.ACTIVE,
+											createdAt: new Date(),
+											updatedAt: new Date()
+										} as ProgramUserDto);
+									}
+								}
+								
+								patchState(store, {
+									programs: superAdminPrograms,
+									status: Status.SUCCESS,
+									isSuperAdmin: true,
+								});
+							}),
 							catchError((error) => {
 								patchState(store, {
 									error: error.message,

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment.development';
-import { ApiResponse, ProgramDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, ProgramDto, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 import { ProgramSummaryViewWorkbook } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
@@ -97,7 +97,7 @@ export class ProgramService {
 
     getPromoterAnalytics(
         programId: string,
-        sortBy?: 'signup_commission' | 'signups' | 'purchase_commission' | 'revenue',
+        sortBy?: SortByEnum,
         period?: string,
         startDate?: string,
         endDate?: string,

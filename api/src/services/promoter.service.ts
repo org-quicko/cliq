@@ -484,8 +484,8 @@ export class PromoterService {
 
 			// If member doesn't exist, create new member and promoter-member relationship
 			if (await this.memberService.memberExistsInProgram(body.email, programId)) {
-				this.logger.error(`Error. Email is already part of Program ${programId}`);
-				throw new BadRequestException(`Error. Email is already part of Program ${programId}`);
+				this.logger.error(`Error. Email is already part of Program`);
+				throw new BadRequestException(`Error. Email is already part of Program`);
 			}
 
 			const newMember = memberRepository.create({
