@@ -20,7 +20,6 @@ type ProgramsSummaryState = {
     programs: ProgramSummaryMvDto[] | null;
     isLoading: boolean;
     count: number | null;
-    loadedPages: Set<number>;
     filter?: { name: string };
     error: string | null;
 };
@@ -29,7 +28,6 @@ const initialState: ProgramsSummaryState = {
     programs: null,
     isLoading: false,
     count: null,
-    loadedPages: new Set(),
     error: null,
 };
 
@@ -61,12 +59,7 @@ export const ProgramsSummaryStore = signalStore(
                         }
                     }),
                     switchMap(({ filter, skip, take, isSortOperation }) => {
-                        const page = Math.floor((skip ?? 0) / (take ?? 10));
-
-                        if (store.loadedPages().has(page) && !filter && !isSortOperation) {
-                            patchState(store, { isLoading: false });
-                            return of(store.programs());
-                        }
+                        patchState(store, { isLoading: true });
 
                         return programService.getProgramSummary(
                             undefined,
@@ -95,24 +88,13 @@ export const ProgramsSummaryStore = signalStore(
                                         }));
 
                                         const metadata = workbook?.metadata;
-                                        totalCount = metadata?.pagination?.total ?? programs.length;
-                                    }
-
-                                    const currentPrograms = store.programs() ?? [];
-                                    let updatedPrograms: ProgramSummaryMvDto[] = [];
-                                    const updatedPages = store.loadedPages().add(page);
-
-                                    if (filter) {
-                                        updatedPrograms = [...programs];
-                                    } else {
-                                        updatedPrograms = [...currentPrograms, ...programs];
+                                        totalCount = metadata?.total ?? programs.length;
                                     }
 
                                     patchState(store, {
-                                        programs: updatedPrograms,
+                                        programs: programs,
                                         count: totalCount,
                                         isLoading: false,
-                                        loadedPages: updatedPages,
                                         error: null,
                                     });
                                 },
@@ -151,12 +133,6 @@ export const ProgramsSummaryStore = signalStore(
                     })
                 )
             ),
-
-            resetLoadedPages() {
-                patchState(store, {
-                    loadedPages: new Set(),
-                });
-            },
 
             resetPrograms() {
                 patchState(store, {

@@ -107,7 +107,6 @@ export class PromotersByPurchasesComponent implements AfterViewInit, OnDestroy {
 
     toggleValueType() {
         this.showRevenue.update(v => !v);
-        this.fetchDataWithDateRange();
     }
 
     getDisplayValue(item: any): number {
@@ -120,7 +119,6 @@ export class PromotersByPurchasesComponent implements AfterViewInit, OnDestroy {
     }
 
     onDateRangeApplied() {
-        this.fetchDataWithDateRange();
     }
 
     getBarWidth(item: any): number {

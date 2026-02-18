@@ -1187,6 +1187,7 @@ const result = this.programSummaryViewConverter.convert(
     })),
     skip,
     take,
+    totalCount,
 );
 
 		this.logger.info('END: getProgramSummary service');

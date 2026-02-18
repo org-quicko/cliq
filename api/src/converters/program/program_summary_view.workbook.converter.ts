@@ -19,6 +19,7 @@ export class ProgramSummaryViewWorkbookConverter {
         }>,
         skip: number,
         take: number,
+        totalCount: number,
     ) {
         try {
             this.logger.info('START: convert function: ProgramSummaryViewWorkbookConverter');
@@ -44,7 +45,11 @@ export class ProgramSummaryViewWorkbookConverter {
                 table.addRow(row);
             }
 
-            workbook.setMetadata(new JSONObject({ skip, take }));
+            workbook.setMetadata(new JSONObject({ 
+                skip, 
+                take,
+                total: totalCount
+            }));
 
             this.logger.info('END: convert function: ProgramSummaryViewWorkbookConverter');
             return workbook;

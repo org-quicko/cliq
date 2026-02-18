@@ -104,8 +104,6 @@ export class PromotersBySignupsComponent implements AfterViewInit, OnDestroy {
 
     toggleValueType() {
         this.showSignups.update(v => !v);
-
-        this.fetchDataWithDateRange();
     }
 
     getDisplayValue(item: any): number {
@@ -122,7 +120,6 @@ export class PromotersBySignupsComponent implements AfterViewInit, OnDestroy {
     }
 
     onDateRangeApplied() {
-        this.fetchDataWithDateRange();
     }
 
     getBarWidth(item: any): number {

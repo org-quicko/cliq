@@ -59,18 +59,11 @@ export class SuperAdminProgramsComponent implements OnInit {
 
         effect(() => {
             const programs = this.programs() ?? [];
-            const { pageIndex, pageSize } = this.paginationOptions();
-
-            const start = pageIndex * pageSize;
-            const end = start + pageSize;
-
-            this.datasource.data = programs.slice(start, end);
+            this.datasource.data = programs;
         });
     }
 
     ngOnInit() {
-        this.programsStore.resetLoadedPages();
-
         this.programsStore.fetchProgramsSummary({
             skip: 0,
             take: 10
@@ -85,8 +78,6 @@ export class SuperAdminProgramsComponent implements OnInit {
                     pageIndex: 0,
                     pageSize: 10,
                 });
-
-                this.programsStore.resetLoadedPages();
 
                 this.programsStore.fetchProgramsSummary({
                     filter: {
@@ -121,8 +112,6 @@ export class SuperAdminProgramsComponent implements OnInit {
             pageIndex: 0,
             pageSize: 10
         });
-
-        this.programsStore.resetLoadedPages();
 
         this.programsStore.resetPrograms();
 
