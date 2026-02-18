@@ -49,8 +49,11 @@ export const routes: Routes = [
                 ],
             },
             {
-                resolve: { program: ProgramResolver },
                 path: ':program_id',
+                resolve: { 
+                    program: ProgramResolver,
+                    programs: ProgramUserResolver
+                 },
                 children: [
                     {
                         path: 'home',
