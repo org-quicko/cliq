@@ -35,16 +35,27 @@ export class UserService {
 		return isFirstUser;
 	}
 
-	/**
-	 * User sign up
-	 */
+	async superAdminExists(): Promise<boolean> {
+		const superAdmin = await this.userRepository.findOne({
+			where: { role: userRoleEnum.SUPER_ADMIN },
+		});
+		return !!superAdmin;
+	}
+
+	
 	async userSignUp(body: SignUpUserDto) {
 		try {
 			this.logger.info('START: userSignUp service');
 
+
+			if (await this.superAdminExists()) {
+				this.logger.error(`Error. Super admin already exists!`);
+				throw new ConflictException(`Error. Super admin already exists!`);
+			}
+
 			if (await this.getUserByEmail(body.email)) {
-				this.logger.error(`Error. Email ${body.email} already exists!`);
-				throw new ConflictException(`Error. Email ${body.email} already exists!`);
+				this.logger.error(`Error. Email already exists!`);
+				throw new ConflictException(`Error. Email already exists!`);
 			}
 
 			body.email = body.email.toLowerCase().trim();
@@ -55,7 +66,6 @@ export class UserService {
 				userEntity.role = userRoleEnum.SUPER_ADMIN;
 			}
 
-			// has to be saved as an entity otherwise password hashing won't be triggered
 			const newUser = await this.userRepository.save(userEntity);
 
 			this.logger.info('END: userSignUp service');

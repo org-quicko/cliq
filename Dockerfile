@@ -3,8 +3,6 @@ FROM node:22 AS frontend-build
 
 WORKDIR /app/frontend
 
-COPY .npmrc ./
-
 
 COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps
@@ -19,8 +17,6 @@ FROM node:22 AS backend-build
 
 WORKDIR /app/backend
 
-
-COPY .npmrc ./
 
 COPY api/package*.json ./
 RUN npm install

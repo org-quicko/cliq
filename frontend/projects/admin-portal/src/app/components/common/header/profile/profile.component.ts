@@ -1,6 +1,9 @@
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { AvatarModule } from 'ngx-avatars';
 import { CommonModule, TitleCasePipe } from '@angular/common';
+import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { Theme, ThemeService } from '@org.quicko.cliq/ngx-core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -20,6 +23,7 @@ import { ProgramUserDto } from '@org.quicko.cliq/ngx-core';
 		MatDividerModule,
 		CommonModule,
 		TitleCasePipe,
+		MatButtonToggleModule,
 	],
 	templateUrl: './profile.component.html',
 	styleUrl: './profile.component.css'
@@ -71,9 +75,20 @@ export class ProfileComponent implements OnInit {
 
 	userEmail = signal<string | null>(null);
 
+	// Theme toggle additions
+	selectedThemePreference: Theme = Theme.SYSTEM;
+	theme$!: Observable<Theme>;
+	themeIconMap = new Map<Theme, string>([
+		[Theme.SYSTEM, 'laptop_windows'],
+		[Theme.LIGHT, 'clear_day'],
+		[Theme.DARK, 'dark_mode'],
+	]);
+	destroy$ = new Subject<void>();
+
 	constructor(
 		private router: Router,
-		private authService: AuthService
+		private authService: AuthService,
+		private themeService: ThemeService
 	) {
 		effect(() => {
 			const programId = this.programId();
@@ -81,11 +96,20 @@ export class ProfileComponent implements OnInit {
 				this.programUserStore.setRoleFromProgram(programId);
 			}
 		});
+		this.selectedThemePreference = Theme.SYSTEM;
 	}
 
 	ngOnInit() {
 		const email = this.authService.getUserEmail();
 		this.userEmail.set(email);
+		this.theme$ = this.themeService.theme$;
+		this.theme$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
+			this.selectedThemePreference = res;
+		});
+	}
+
+	changeTheme(event: MatButtonToggleChange) {
+		this.themeService.setTheme(event.value);
 	}
 
 	logout() {

@@ -54,6 +54,7 @@
     "class-validator": "^0.14.1",
     "lodash-es": "^4.17.21",
     "moment": "^2.30.1",
+    "moment-timezone": "^0.6.0",
     "ng2-charts": "^8.0.0",
     "ngx-avatars": "~1.7.0",
     "ngx-cookie-service": "^19.1.2",

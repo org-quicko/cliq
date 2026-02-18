@@ -34,12 +34,12 @@ export class UserAuthService {
 		);
 
 		if (!user) {
-			throw new UnauthorizedException(`User email isn't registered!`);
+			throw new UnauthorizedException(`Invalid Credentials!`);
 		}
 
 		const isPasswordValid = await this.comparePasswords(input.password, user.password);
 		if (!isPasswordValid) {
-			throw new UnauthorizedException(`Invalid password! Please try again!`);
+			throw new UnauthorizedException(`Invalid Credentials!`);
 		}
 
 		this.logger.info(`END: validateUser service`);

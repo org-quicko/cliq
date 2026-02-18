@@ -35,6 +35,20 @@
 						<div class="mat-body-medium text-outline">{{ userEmail() }}</div>
 					</div>
 				</div>
+				<!-- Theme toggle -->
+				<div class="flex flex-col py-[4px] mat-body-large text-on-surface-variant mt-4">
+					<mat-button-toggle-group (change)="changeTheme($event)" (click)="$event.stopPropagation()"
+						[hideSingleSelectionIndicator]="true" class="flex items-center rounded-full"
+						appearance="standard" [value]="selectedThemePreference">
+						@for (theme of themeIconMap; track theme[0]) {
+						<mat-button-toggle [value]="theme[0]" class="w-full items-center justify-center">
+							<mat-icon class="material-symbols-outlined text-[20px] items-center justify-center">
+								{{ theme[1] }}
+							</mat-icon>
+						</mat-button-toggle>
+						}
+					</mat-button-toggle-group>
+				</div>
 			</div>
 
 
