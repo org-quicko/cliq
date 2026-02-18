@@ -47,21 +47,21 @@ export class UserAuthService {
 		let logInData: UserLoginData | null;
 		let errorMessage: string = '';
 
-		// user isn't part of the program
+	
 		if (!entity) {
 			logInData = null;
 			errorMessage = `User email isn't registered!`;
 			throw new UnauthorizedException(errorMessage);
 
 		} else {
-			// incorrect password
+		
 			if (!(await this.comparePasswords(input.password, entity.password))) {
 				logInData = null;
 				errorMessage = `Invalid password! Please try again!`;
 				throw new UnauthorizedException(errorMessage);
 			} else {
 
-				// valid member, allow login
+		
 				logInData = {
 					user_id: entity.userId,
 					email: entity.email,

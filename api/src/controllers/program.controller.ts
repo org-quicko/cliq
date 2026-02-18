@@ -13,6 +13,7 @@ import {
   statusEnum,
   userRoleEnum,
   conversionTypeEnum,
+  SortByEnum,
 } from '../enums';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
@@ -20,6 +21,7 @@ import {
   Program,
   ProgramPromoter,
   ProgramUser,
+  PromoterAnalyticsView,
   Purchase,
   ReferralView,
   SignUp,
@@ -88,10 +90,41 @@ export class ProgramController {
   }
 
   /**
+   * Get program summary list (Super Admin Only)
+   */
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Super Admin Only' })
+  @Permissions('read_all', Program)
+  @Get('summary')
+  async getProgramSummary(
+    @Headers('user_id') userId: string,
+    @Query('program_id') programId?: string,
+    @Query('name') name?: string,
+    @Query('skip') skip: number = 0,
+    @Query('take') take: number = 10,
+  ) {
+    this.logger.info('START: getProgramSummary controller');
+
+    const result = await this.programService.getProgramSummary(
+      userId,
+      programId,
+      name,
+      skip,
+      take,
+    );
+
+    this.logger.info('END: getProgramSummary controller');
+    return {
+      message: 'Successfully fetched program summary list.',
+      result
+    };
+  }
+
+  /**
    * Get program
    */
   @ApiResponse({ status: undefined, description: '' })
-	@Public()
+  @Public()
   @Get(':program_id')
   async getProgram(@Param('program_id') programId: string) {
     this.logger.info('START: getProgram controller');
@@ -199,7 +232,7 @@ export class ProgramController {
   }
 
   /**
-   * Update
+   * Update role
    */
   @ApiResponse({ status: 204, description: 'No Content' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
@@ -370,14 +403,14 @@ export class ProgramController {
   @SkipTransform()
   @Permissions('read', Program)
   @Get(':program_id/report')
-  async getProgramReport(
+  async getCommissionsReport(
     @Headers('x-accept-type') acceptType: string,
     @Param('program_id') programId: string,
     @Res() res: Response,
     @Query('start_date') startDate?: string,
     @Query('end_date') endDate?: string,
   ) {
-    this.logger.info('START: getProgramReport controller');
+    this.logger.info('START: getCommissionsReport controller');
 
     if (acceptType !== 'application/json;format=sheet-json') {
       this.logger.error(`Header accept type must be set to application/json;format=sheet-json`);
@@ -386,13 +419,13 @@ export class ProgramController {
 
     const { parsedStartDate, parsedEndDate } = getStartEndDate(startDate, endDate);
 
-    const csvStream = (await this.programService.getProgramReport(
+    const csvStream = (await this.programService.getCommissionsReport(
       programId,
       parsedStartDate,
       parsedEndDate,
     )) as Readable;
 
-    const fileName = getReportFileName('Program');
+    const fileName = getReportFileName('Commission');
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
@@ -415,7 +448,7 @@ export class ProgramController {
       }
     }
 
-    this.logger.info('END: getProgramReport controller');
+    this.logger.info('END: getCommissionsReport controller');
   }
 
   /**
@@ -436,4 +469,62 @@ export class ProgramController {
     this.logger.info('END: getAllProgramReferrals controller');
     return { message: 'Successfully got program referrals.', result };
   }
+
+
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Permissions('read', Program)
+    @Get(':program_id/analytics')
+    async getProgramAnalytics(
+        @Param('program_id') programId: string,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        this.logger.info('START: getProgramAnalytics controller');
+
+        const result = await this.programService.getProgramAnalytics(
+            programId,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+        );
+
+        this.logger.info('END: getProgramAnalytics controller');
+        return {
+            message: 'Successfully fetched program analytics.',
+            result
+        };
+    }
+
+   
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Permissions('read', PromoterAnalyticsView)
+    @Get(':program_id/analytics/promoters')
+    async getPromoterAnalytics(
+        @Param('program_id') programId: string,
+        @Query('sortBy') sortBy: SortByEnum = SortByEnum.SIGNUP_COMMISSION,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('skip') skip: number = 0,
+        @Query('take') take: number = 5,
+    ) {
+        this.logger.info('START: getPromoterAnalytics controller');
+
+        const workbook = await this.programService.getPromoterAnalytics(
+          programId,
+          sortBy,
+          period,
+          startDate ? new Date(startDate) : undefined,
+          endDate ? new Date(endDate) : undefined,
+          skip,
+          take,
+        );
+
+        this.logger.info('END: getPromoterAnalytics controller');
+        return {
+          message: `Successfully fetched promoters sorted by ${sortBy}.`,
+          result: workbook
+        };
+    }
 }

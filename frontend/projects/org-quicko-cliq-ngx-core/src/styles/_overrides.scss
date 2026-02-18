@@ -1,4 +1,32 @@
 @use "@angular/material" as mat;
+// Super Admin Programs Table & Paginator overrides
+.super-admin-programs {
+  th.text-center .mat-sort-header-container {
+    justify-content: center !important;
+  }
+
+  /* Hide page size selector */
+  .mat-mdc-paginator-page-size {
+    display: none !important;
+  }
+
+  /* Style range label */
+  .mat-mdc-paginator-range-label {
+    color: var(--sys-on-surface-variant) !important;
+    width: 72px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure paginator container is properly aligned */
+  .mat-mdc-paginator-container {
+    justify-content: flex-end !important;
+    padding: 16px 0 !important;
+  }
+}
 
 @mixin mat-overrides {
   @include mat.expansion-overrides(

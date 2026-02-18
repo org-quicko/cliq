@@ -38,7 +38,7 @@ export class FormatCurrencyPipe extends CurrencyPipe implements PipeTransform {
 		digitsInfo?: string,
 		locale?: string
 	): string | null {
-		if (!value) {
+		if (value === null || value === undefined) {
 			return '-';
 		}
 		return super.transform(value, currencyCode, display, digitsInfo, locale);

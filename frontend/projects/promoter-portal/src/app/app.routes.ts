@@ -8,7 +8,7 @@ import { SignUpComponent } from './components/signup/signup.component';
 import { DashboardComponent } from './components/home/components/dashboard/dashboard.component';
 import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
 import { ReportsComponent } from './components/home/components/reports/reports.component';
-import { NotFoundComponent } from './components/not-found/not-found.component';
+import { NotFoundComponent } from '@org.quicko.cliq/ngx-core';
 import { PromoterResolver } from './resolver/promoter.resolver';
 import { LinkCommissionsComponent } from './components/home/components/dashboard/components/link-commissions/link-commissions.component';
 import { ReferralCommissionsComponent } from './components/home/components/referrals/referral-commissions/referral-commissions.component';

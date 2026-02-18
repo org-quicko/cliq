@@ -19,6 +19,7 @@ body {
 	@include overrides.mat-overrides();
 	@include overrides.typography-overrides();
 
+
 	.light-theme {
 		@include overrides.typography-overrides();
 	}
@@ -28,11 +29,9 @@ body {
 		@include mat.system-level-colors(theme.$dark-theme);
 		//component theme
 		@include extendedPalette.extended-dark-theme();
-
 		@include overrides.dark-theme-palette-overrides();
-
 		@include overrides.typography-overrides();
-
 		@include overrides.mat-overrides();
+
 	}
 }

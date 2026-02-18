@@ -1,0 +1,30 @@
+<div>
+    <div class="!w-[272px] bg-surface-container-lowest" disableClose>
+   <div class="pt-[32px] pr-[16px] pl-[16px]">
+    <mat-nav-list class="cursor-pointer">
+        <a routerLink="dashboard" routerLinkActive #dashboard="routerLinkActive" class="block mb-2">
+            <mat-list-item [activated]="dashboard.isActive" class="px-4 py-1">
+                <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">
+                    browse
+                </mat-icon>
+                <div matListItemTitle
+                    [class]="`font-sans leading-[20px] ${dashboard.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
+                    Dashboard
+                </div>
+            </mat-list-item>
+        </a>
+        <a routerLink="reports" routerLinkActive #reports="routerLinkActive" class="block mb-2">
+            <mat-list-item [activated]="reports.isActive" class="px-4 py-1">
+                <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">
+                    description
+                </mat-icon>
+                <div matListItemTitle
+                    [class]="`font-sans leading-[20px] ${reports.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
+                    Reports
+                </div>
+            </mat-list-item>
+        </a>
+    </mat-nav-list>
+ </div>
+ </div>
+</div>

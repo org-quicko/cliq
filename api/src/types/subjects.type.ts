@@ -1,5 +1,5 @@
 import { InferSubjects } from "@casl/ability";
-import { ApiKey, Circle, Commission, Condition, Link, Member, Program, Function, ProgramUser, Promoter, PromoterMember, ProgramPromoter, Purchase, ReferralView, PromoterAnalyticsView, SignUp, User, Webhook, LinkAnalyticsView, Contact } from "src/entities";
+import { ApiKey, Circle, Commission, Condition, Link, Member, Program, Function, ProgramUser, Promoter, PromoterMember, ProgramPromoter, Purchase, ReferralView, PromoterAnalyticsView, SignUp, User, Webhook, LinkAnalyticsView, Contact, ProgramSummaryView } from "src/entities";
 
 export type subjectsType =
     InferSubjects<
@@ -23,5 +23,6 @@ export type subjectsType =
         | typeof User
         | typeof Webhook
         | typeof LinkAnalyticsView
+        | typeof ProgramSummaryView
     >
     | 'all';

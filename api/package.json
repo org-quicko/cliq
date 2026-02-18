@@ -38,10 +38,11 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.1.1",
     "@nestjs/serve-static": "^5.0.3",
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/typeorm": "^11.0.0",
-    "@org-quicko/cliq-sheet-core": "^1.0.0",
+    "@org-quicko/cliq-sheet-core": "^1.1.0",
     "@org-quicko/core": "^1.1.0",
     "@org-quicko/sheet": "^1.0.4",
     "axios": "^1.9.0",
@@ -93,7 +94,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "8.54.0"
   },
   "jest": {
     "moduleFileExtensions": [

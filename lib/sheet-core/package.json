@@ -1,6 +1,6 @@
 {
 	"name": "@org-quicko/cliq-sheet-core",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A library in typescript for common sheet entities of Cliq",
 	"author": "Quicko <developer@quicko.org.in>",
 	"type": "module",
@@ -12,9 +12,7 @@
 		"build-release": "rollup -c && npm ci --omit=dev",
 		"prebuild": "rm -rf dist && npm run clean && npm run generate",
 		"build": "rollup -c",
-		"generate": "npm run generateSchema && npm run generateObjects",
-		"generateSchema": "excel-to-schema --input ./resources/excel/ --output ./generated/schemas/",
-		"generateObjects": "schema-to-objects --input ./generated/schemas/ --output ./generated/sources"
+		"generate": "schema-to-objects --input ./resources/schemas/ --output ./generated/sources"
 	},
 	"license": "ISC",
 	"files": [
@@ -55,6 +53,21 @@
 			"import": "./dist/esm/generated/sources/SignUp/index.js",
 			"require": "./dist/cjs/generated/sources/SignUp/index.cjs",
 			"types": "./dist/types/generated/sources/SignUp/index.d.ts"
+		},
+		"./ProgramAnalytics/beans": {
+			"import": "./dist/esm/generated/sources/ProgramAnalytics/index.js",
+			"require": "./dist/cjs/generated/sources/ProgramAnalytics/index.cjs",
+			"types": "./dist/types/generated/sources/ProgramAnalytics/index.d.ts"
+		},
+		"./PromoterAnalytics/beans": {
+			"import": "./dist/esm/generated/sources/PromoterAnalytics/index.js",
+			"require": "./dist/cjs/generated/sources/PromoterAnalytics/index.cjs",
+			"types": "./dist/types/generated/sources/PromoterAnalytics/index.d.ts"
+		},
+		"./ProgramSummaryView/beans": {
+			"import": "./dist/esm/generated/sources/ProgramSummaryView/index.js",
+			"require": "./dist/cjs/generated/sources/ProgramSummaryView/index.cjs",
+			"types": "./dist/types/generated/sources/ProgramSummaryView/index.d.ts"
 		}
 	},
 	"typesVersions": {
@@ -76,6 +89,15 @@
 			],
 			"SignUp/beans": [
 				"dist/generated/sources/SignUp/index.d.ts"
+			],
+			"ProgramAnalytics/beans": [
+				"dist/generated/sources/ProgramAnalytics/index.d.ts"
+			],
+			"PromoterAnalytics/beans": [
+				"dist/generated/sources/PromoterAnalytics/index.d.ts"
+			],
+			"ProgramSummaryView/beans": [
+				"dist/generated/sources/ProgramSummaryView/index.d.ts"
 			]
 		}
 	},

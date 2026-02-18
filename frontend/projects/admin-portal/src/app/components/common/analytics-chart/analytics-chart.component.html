@@ -1,0 +1,98 @@
+<!-- ================= TABS BAR ================= -->
+<div class="border border-b-0 border-outline-variant rounded-t-[6px] overflow-hidden">
+  <div class="flex">
+
+    <!-- Signups -->
+    <button
+      (click)="selectMetric(MetricType.SIGNUPS)"
+      class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
+             border-r border-outline-variant transition-colors"
+      [ngClass]="selectedMetric() === MetricType.SIGNUPS
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
+
+      <div class="absolute top-0 left-0 w-full h-[4px]"
+      [class.bg-primary]="selectedMetric() === MetricType.SIGNUPS"></div>
+
+      <span class="text-[22px] font-title-large leading-none text-on-surface">
+        {{ totalSignups | number }}
+      </span>
+      <span class="text-sm text-on-surface-variant mt-1">Signups</span>
+    </button>
+
+    <!-- Purchases -->
+    <button
+      (click)="selectMetric(MetricType.PURCHASES)"
+      class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
+             border-r border-outline-variant transition-colors"
+      [ngClass]="selectedMetric() === MetricType.PURCHASES
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
+
+      <div class="absolute top-0 left-0 w-full h-[4px]"
+      [class.bg-primary]="selectedMetric() === MetricType.PURCHASES"></div>
+
+      <span class="text-[22px] font-title-large leading-none text-on-surface">
+        {{ totalPurchases | number }}
+      </span>
+      <span class="text-sm text-on-surface-variant mt-1">Purchases</span>
+    </button>
+
+    <!-- Revenue -->
+    <button
+      (click)="selectMetric(MetricType.REVENUE)"
+      class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
+             border-r border-outline-variant transition-colors"
+      [ngClass]="selectedMetric() === MetricType.REVENUE
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
+
+      <div class="absolute top-0 left-0 w-full h-[4px]"
+      [class.bg-primary]="selectedMetric() === MetricType.REVENUE"></div>
+
+      <span class="text-[22px] font-title-large leading-none text-on-surface">
+        {{ totalRevenue | formatCurrency: currency }}
+      </span>
+      <span class="text-sm text-on-surface-variant mt-1">Revenue</span>
+    </button>
+
+    <!-- Commission -->
+    <button
+      (click)="selectMetric(MetricType.COMMISSION)"
+      class="relative flex flex-col items-start justify-center w-[200px] h-[88px] px-6
+             border-r border-outline-variant transition-colors"
+      [ngClass]="selectedMetric() === MetricType.COMMISSION
+        ? 'bg-surface-container-lowest'
+        : 'bg-surface-container-low border-b border-outline-variant'">
+
+      <div class="absolute top-0 left-0 w-full h-[4px]"
+      [class.bg-primary]="selectedMetric() === MetricType.COMMISSION"></div>
+
+      <span class="text-[22px] font-title-large leading-none text-on-surface">
+        {{ totalCommission | formatCurrency: currency }}
+      </span>
+      <span class="text-sm text-on-surface-variant mt-1">Commission</span>
+    </button>
+
+  </div>
+</div>
+
+<!-- ================= CHART CONTAINER ================= -->
+<div class="border-x border-b border-outline-variant rounded-b-[6px] bg-surface-container-lowest pt-6 pr-6 pb-6 pl-4">
+  <div class="relative h-[410px]">
+    <canvas
+      baseChart
+      [data]="chartData"
+      [options]="chartOptions"
+      [type]="currentChartType">
+    </canvas>
+
+    <!-- Empty State -->
+    @if (!hasData) {
+      <div class="absolute inset-0 flex items-center justify-center text-center bg-surface-container-lowest">
+        <p class="font-medium text-on-surface-variant">No data available</p>
+      </div>
+    }
+  </div>
+</div>
+<!-- ================= END CHART ================= -->

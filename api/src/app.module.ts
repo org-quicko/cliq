@@ -21,11 +21,12 @@ import { ApiKeyModule } from './modules/apiKey.module';
 import { ReferralModule } from './modules/referral.module';
 import { WebhookModule } from './modules/webhook.module';
 import { PromoterAnalyticsModule } from './modules/promoterAnalytics.module';
+import { MaterializedViewRefreshModule } from './modules/materializedViewRefresh.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import { bullMqConfig, jwtConfig, typeOrmConfig } from './config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { JwtModule } from '@nestjs/jwt';
+import { bullMqConfig, jwtConfig, typeOrmConfig } from './config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
@@ -68,13 +69,21 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		PurchaseModule,
 		ReferralModule,
 		PromoterAnalyticsModule,
+		MaterializedViewRefreshModule,
 		SignUpModule,
 		WebhookModule,
 		LoggerModule,
-		ServeStaticModule.forRoot({
-			rootPath: join(__dirname, '..', '..', 'public'),
-			exclude: ['/api'],
-		}),
+	ServeStaticModule.forRoot(
+			{
+		rootPath: join(__dirname, '..', '..', 'public', 'admin'),
+		serveRoot: '/admin',
+		exclude: ['/api']
+	},
+	{
+		rootPath: join(__dirname, '..', '..', 'public', 'promoter'),
+		exclude: ['/admin', '/api'],
+	}
+		)
 	],
 	controllers: [AppController],
 	providers: [

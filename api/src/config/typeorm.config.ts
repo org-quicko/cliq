@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { ProgramSubscriber } from '../subscribers/program.subscriber';
 
 export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
     type: 'postgres',
@@ -9,6 +10,7 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
     password: configService.get('DB_PASSWORD'),
     database: configService.get('DB_NAME'),
     autoLoadEntities: true,
+    subscribers: [ProgramSubscriber],
     synchronize: configService.get('NODE_ENV') !== 'production',
     logging: configService.get('NODE_ENV') === 'production' ? ['info'] : true,
     poolSize: 20,

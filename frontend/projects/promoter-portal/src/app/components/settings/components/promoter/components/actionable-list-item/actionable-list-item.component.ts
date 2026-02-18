@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,12 +9,11 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
 	selector: 'app-actionable-list-item',
 	imports: [
-		MatCardModule,
-		MatRippleModule,
-		MatIconModule,
-		CommonModule,
-		MatDivider,
-	],
+    MatCardModule,
+    MatRippleModule,
+    MatIconModule,
+    MatDivider
+],
 	templateUrl: './actionable-list-item.component.html',
 	styleUrl: './actionable-list-item.component.css'
 })

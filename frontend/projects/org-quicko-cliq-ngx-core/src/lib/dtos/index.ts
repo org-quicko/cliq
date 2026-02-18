@@ -5,6 +5,7 @@ export * from './condition.dto';
 export * from './contact.dto';
 export * from './function.dto';
 export * from './link.dto';
+export * from './login.dto';
 export * from './member.dto';
 export * from './program.dto';
 export * from './programUser.dto';

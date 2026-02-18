@@ -12,8 +12,14 @@ import {
 	PromoterAnalyticsView,
 	SignUp,
 } from '../entities';
+import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
 import { PromoterModule } from './promoter.module';
 import { ProgramConverter } from 'src/converters/program/program.dto.converter';
+import { ProgramUserConverter } from 'src/converters/programUser.converter';
+import {  ProgramAnalyticsWorkbookConverter } from 'src/converters/program/program_analytics.workbook.converter';
+import { ProgramSummaryViewWorkbookConverter } from 'src/converters/program/program_summary_view.workbook.converter';
+import { PromoterAnalyticsConverter } from 'src/converters/promoter/promoter_analytics.workbook.converter';
+import { ProgramSummaryView } from '../entities/programSummaryView.entity';
 import { ProgramPromoterService } from '../services/programPromoter.service';
 import { ContactModule } from './contact.module';
 import { PurchaseModule } from './purchase.module';
@@ -33,7 +39,9 @@ import { PromoterAnalyticsModule } from './promoterAnalytics.module';
 			Purchase,
 			Commission,
 			PromoterAnalyticsView,
+			PromoterAnalyticsDayWiseView,
 			ReferralView,
+			ProgramSummaryView,
 		]),
 		CommissionModule,
 		PromoterModule,
@@ -45,7 +53,7 @@ import { PromoterAnalyticsModule } from './promoterAnalytics.module';
 		forwardRef(() => SignUpModule),
 	],
 	controllers: [ProgramController],
-	providers: [ProgramService, ProgramConverter, ProgramPromoterService],
+	providers: [ProgramService, ProgramConverter, ProgramUserConverter, ProgramAnalyticsWorkbookConverter, ProgramSummaryViewWorkbookConverter, PromoterAnalyticsConverter, ProgramPromoterService],
 	exports: [ProgramService, ProgramConverter, ProgramPromoterService],
 })
 export class ProgramModule { }

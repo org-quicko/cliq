@@ -3,17 +3,20 @@ FROM node:22 AS frontend-build
 
 WORKDIR /app/frontend
 
+
 COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY frontend .
 RUN npm run build:org-quicko-cliq-ngx-core
 RUN npm run build -- --project=promoter-portal
+RUN npm run build -- --project=admin-portal
 
 # building the backend
 FROM node:22 AS backend-build
 
 WORKDIR /app/backend
+
 
 COPY api/package*.json ./
 RUN npm install
@@ -29,8 +32,9 @@ WORKDIR /app
 # Copy backend code
 COPY --from=backend-build /app/backend ./
 
-# Copy frontend build into a public directory
-COPY --from=frontend-build /app/frontend/dist/promoter-portal/browser ./public
+# Copy both frontend builds into separate directories
+COPY --from=frontend-build /app/frontend/dist/promoter-portal/browser ./public/promoter
+COPY --from=frontend-build /app/frontend/dist/admin-portal/browser ./public/admin
 RUN chmod +x /app/scripts/db-migrate.sh
 EXPOSE 3001
 

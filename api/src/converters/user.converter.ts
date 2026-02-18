@@ -15,11 +15,13 @@ export class UserConverter {
 			//  not sending the password
 			userDto.firstName = user.firstName;
 			userDto.lastName = user.lastName;
-			// userDto.role = programUser?.role;
-
+			
+			// Set role from ProgramUser if provided, otherwise from User entity
 			if (programUser) {
 				userDto.status = programUser.status;
 				userDto.role = programUser.role;
+			} else {
+				userDto.role = user.role;
 			}
 
 			userDto.createdAt = new Date(user.createdAt);

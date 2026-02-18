@@ -1,5 +1,5 @@
 import { IsString, IsEnum, IsOptional, IsUUID, IsDate, IsUrl } from 'class-validator';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
 

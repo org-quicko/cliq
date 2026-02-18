@@ -1,34 +1,36 @@
 @if (isLoading()) {
-<div class="w-[400px] h-[212px] max-w-md space-y-4 flex justify-center">
-	<mat-spinner></mat-spinner>
-</div>
+  <div class="w-[400px] h-[212px] max-w-md space-y-4 flex justify-center">
+    <mat-spinner></mat-spinner>
+  </div>
 }
 @else {
 <form [formGroup]="signUpForm" class="w-[400px] h-auto max-h-[212px] max-w-md space-y-4">
-	<div class="flex flex-col gap-4">
-		<!-- Email Field -->
-		<mat-form-field [appearance]="'outline'" class="w-full">
-			<mat-label>Email</mat-label>
-			<input matInput formControlName="email" type="email" required>
+  <div class="flex flex-col gap-4">
+    <!-- Email Field -->
+    <mat-form-field [appearance]="'outline'" class="w-full">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" required>
 
-			<mat-error *ngIf="signUpForm.get('email')?.hasError('required') && signUpForm.get('email')?.touched">
-				Email is required
-			</mat-error>
-		</mat-form-field>
-	</div>
+      @if (signUpForm.get('email')?.hasError('required') && signUpForm.get('email')?.touched) {
+        <mat-error>
+          Email is required
+        </mat-error>
+      }
+    </mat-form-field>
+  </div>
 
-	<div>
-		<!-- Login Button -->
-		<button mat-flat-button color="primary" class="w-full h-12 mat-label-large text-on-primary rounded-full"
-			type="button" (click)="onClickContinue()">
-			Continue
-		</button>
+  <div>
+    <!-- Login Button -->
+    <button mat-flat-button color="primary" class="w-full h-12 mat-label-large text-on-primary rounded-full"
+      type="button" (click)="onClickContinue()">
+      Continue
+    </button>
 
-		<!-- Sign Up Link -->
-		<p class="text-center text-on-surface mt-4">
-			Already have an account? <a routerLink="../login" routerLinkActive #signup="routerLinkActive"
-				class="text-primary font-semibold"> Login</a>
-		</p>
-	</div>
+    <!-- Sign Up Link -->
+    <p class="text-center text-on-surface mt-4">
+      Already have an account? <a routerLink="../login" routerLinkActive #signup="routerLinkActive"
+    class="text-primary font-semibold"> Login</a>
+  </p>
+</div>
 </form>
 }

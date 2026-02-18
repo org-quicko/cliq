@@ -1,4 +1,4 @@
-import { IsDate, IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { IsDate, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { statusEnum, userRoleEnum } from '../enums';
 
@@ -10,6 +10,10 @@ export class ProgramUserDto {
 	@Expose({ name: 'user_id' })
 	@IsUUID()
 	userId: string;
+
+	
+	@IsString()
+	name: string;
 
 	@IsEnum(statusEnum)
 	status: statusEnum;

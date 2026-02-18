@@ -45,8 +45,8 @@ export class MemberService {
 		this.logger.info('START: memberSignUp service');
 
 		if (await this.memberExistsInProgram(body.email, programId)) {
-			this.logger.error(`Error. Email ${body.email} is already part of Program ${programId}`);
-			throw new BadRequestException(`Error. Email ${body.email} is already part of Program ${programId}`);
+			this.logger.error(`Error. Email is already part of Program ${programId}`);
+			throw new BadRequestException(`Error. Email is already part of Program ${programId}`);
 		}
 
 		body.email = body.email.toLowerCase().trim();

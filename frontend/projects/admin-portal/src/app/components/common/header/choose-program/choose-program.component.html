@@ -1,0 +1,138 @@
+@if(isLoading() || !currentProgram()) {
+<ngx-skeleton-loader
+	[theme]="{
+		height: '48px',
+		width: '252px',
+		margin: '0px',
+		padding: '0px'
+	}"
+></ngx-skeleton-loader>
+} @else {
+<div 
+	class="w-[252px] h-[48px] rounded-[5px] bg-surface-container-low flex justify-between items-center gap-[8px] cursor-pointer px-[2px] py-[2px] pl-[16px]" 
+	[mat-menu-trigger-for]="programOptions"
+>
+	<div class="flex flex-col justify-center">
+		<div class="mat-body-medium text-on-surface truncate max-w-[170px] block">
+			{{ currentProgram()?.name }}
+		</div>
+		@if(currentProgram()?.role) {
+		<div class="mat-body-small text-on-surface-variant">
+			You're the {{ currentProgram()?.role?.replace('_', ' ') | titlecase }}
+		</div>
+		}
+	</div>
+	<div class="flex items-center h-full px-2">
+		<mat-icon class="text-on-surface-variant">unfold_more</mat-icon>
+	</div>
+</div>
+}
+
+<mat-menu
+	class="w-[252px] mt-[16px] rounded-[5px] header-mat-menu"
+	#programOptions="matMenu"
+	yPosition="below"
+	xPosition="before"
+>
+	<div class="max-h-[480px] overflow-auto">
+		@if(programs().length <= 5) {
+			@for(option of programs(); track option.programId) {
+				<div class="p-0">
+					<button
+						mat-menu-item
+						class="h-[55px] py-2 px-4"
+						(click)="changeProgram(option)"
+					>
+						<div class="flex justify-between w-[220px]">
+							<div class="flex gap-[12px]">
+								<div class="flex flex-col justify-center items-center font-sans">
+									<ngx-avatars 
+										size="30" 
+										[round]="true" 
+										[name]="option?.name"
+										bgColor="var(--sys-primary-fixed)"
+										fgColor="var(--sys-on-primary-fixed-variant)"
+									>
+									</ngx-avatars>
+								</div>
+								<div class="flex flex-col">
+									<div class="text-on-surface mat-body-medium font-sans w-[142px] truncate">
+										{{ option?.name }}
+									</div>
+									@if(option?.role) {
+									<div class="flex gap-[4px] font-sans">
+										<div class="mat-body-small text-on-surface-variant">
+											{{ option?.role?.replace("_", " ") | titlecase }}
+										</div>
+									</div>
+									}
+								</div>
+							</div>
+							@if(program()?.programId === option?.programId) {
+								<div class="flex items-center">
+									<mat-icon class="material-symbols-outlined w-[21px] h-[21px] text-[21px] flex items-center">
+										done
+									</mat-icon>
+								</div>
+							}
+						</div>
+					</button>
+				</div>
+			}
+			<button mat-menu-item (click)="onViewAllPrograms()">
+				<div class="mat-body-medium text-primary">
+					View all programs
+				</div>
+			</button>
+		} @else {
+			@for(option of programs().slice(0, 5); track option.programId) {
+				<div>
+					<button
+						mat-menu-item
+						class="h-[55px] py-2 px-4"
+						(click)="changeProgram(option)"
+					>
+						<div class="flex justify-between w-[220px]">
+							<div class="flex gap-[12px]">
+								<div class="flex flex-col justify-center items-center font-sans">
+									<ngx-avatars 
+										size="30" 
+										[round]="true" 
+										[name]="option?.name"
+										bgColor="var(--sys-primary-fixed)"
+										fgColor="var(--sys-on-primary-fixed-variant)"
+									>
+									</ngx-avatars>
+								</div>
+								<div class="flex flex-col">
+									<div class="text-on-surface mat-body-medium font-sans w-[142px] truncate">
+										{{ option?.name }}
+									</div>
+									@if(option?.role) {
+									<div class="flex gap-[4px] font-sans">
+										<div class="mat-body-small text-on-surface-variant">
+											{{ option?.role?.replace("_", " ") | titlecase }}
+										</div>
+									</div>
+									}
+								</div>
+							</div>
+							@if(program()?.programId === option?.programId) {
+								<div class="flex items-center">
+									<mat-icon class="material-symbols-outlined w-[21px] h-[21px] text-[21px] flex items-center">
+										done
+									</mat-icon>
+								</div>
+							}
+						</div>
+					</button>
+				</div>
+			}
+			<button mat-menu-item (click)="onViewAllPrograms()">
+				<div class="mat-body-medium text-primary">
+					View all programs
+				</div>
+			</button>
+		}
+	</div>
+</mat-menu>

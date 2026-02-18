@@ -15,6 +15,12 @@ export class PromoterAnalyticsView {
     @Column({ type: 'numeric', default: 0, name: 'total_commission', transformer: NumericToNumber })
     totalCommission: number;
 
+    @Column({ type: 'numeric', nullable: true, name: 'signup_commission', transformer: NumericToNumber })
+    signupCommission: number;
+
+    @Column({ type: 'numeric', nullable: true, name: 'purchase_commission', transformer: NumericToNumber })
+    purchaseCommission: number;
+
     @Column({ type: 'numeric', default: 0, name: 'total_signups', transformer: NumericToNumber })
     totalSignUps: number;
 

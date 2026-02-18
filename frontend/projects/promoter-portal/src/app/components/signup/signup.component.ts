@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AccountsContainerComponent } from "../../components/accounts-container/accounts-container.component";
-import { CommonModule } from '@angular/common';
+
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatError, MatFormFieldModule } from '@angular/material/form-field';
@@ -24,19 +24,18 @@ export enum signUpScreens {
 @Component({
 	selector: 'app-signup',
 	imports: [
-		ReactiveFormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatButtonModule,
-		MatSnackBarModule,
-		MatIconModule,
-		MatError,
-		CommonModule,
-		AccountsContainerComponent,
-		EnterEmailComponent,
-		EnterPersonalAndPromoterDetailsComponent,
-		LogoComponent,
-	],
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatIconModule,
+    MatError,
+    AccountsContainerComponent,
+    EnterEmailComponent,
+    EnterPersonalAndPromoterDetailsComponent,
+    LogoComponent
+],
 	providers: [SignUpStore],
 	templateUrl: './signup.component.html',
 	styleUrl: './signup.component.css'

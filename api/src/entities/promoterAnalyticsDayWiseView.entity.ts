@@ -12,16 +12,22 @@ export class PromoterAnalyticsDayWiseView {
     @PrimaryColumn('uuid', { name: 'program_id' })
     programId: string;
 
-    @Column({ type: 'numeric', default: 0, name: 'daily_revenue', transformer: NumericToNumber })
+    @Column({ type: 'numeric', default: 0, name: 'revenue', transformer: NumericToNumber })
     dailyRevenue: number;
 
-    @Column({ type: 'numeric', default: 0, name: 'daily_commission', transformer: NumericToNumber })
+    @Column({ type: 'numeric', default: 0, name: 'commission', transformer: NumericToNumber })
     dailyCommission: number;
 
-    @Column({ type: 'numeric', default: 0, name: 'daily_signups', transformer: NumericToNumber })
+    @Column({ type: 'numeric', nullable: true, name: 'signup_commission', transformer: NumericToNumber })
+    signupCommission: number;
+
+    @Column({ type: 'numeric', nullable: true, name: 'purchase_commission', transformer: NumericToNumber })
+    purchaseCommission: number;
+
+    @Column({ type: 'numeric', default: 0, name: 'signups', transformer: NumericToNumber })
     dailySignups: number;
 
-    @Column({ type: 'numeric', default: 0, name: 'daily_purchases', transformer: NumericToNumber })
+    @Column({ type: 'numeric', default: 0, name: 'purchases', transformer: NumericToNumber })
     dailyPurchases: number;
 
     @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })

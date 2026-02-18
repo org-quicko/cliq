@@ -59,7 +59,6 @@ export class ProgramWorkbookConverter {
 			);
 			promoterSheet.replaceBlock(promoterTable);
 	
-	   		// Replace existing blank sheets 
 			   programWorkbook.replaceSheet(programSummarySheet);
 			programWorkbook.replaceSheet(promoterSheet);
 
