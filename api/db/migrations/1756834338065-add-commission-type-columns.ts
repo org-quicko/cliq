@@ -179,10 +179,6 @@ export class AddCommissionTypeColumns1756834338065 implements MigrationInterface
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
-		// Drop trigger
-		await queryRunner.query(`
-            DROP TRIGGER IF EXISTS trg_commission_to_promoter_analytics ON commission;
-        `);
 
 		// Drop function
 		await queryRunner.query(`
