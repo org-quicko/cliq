@@ -975,13 +975,16 @@ export class ProgramService {
             period,
         );
 
-        return {
-            ...workbook,
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0],
-            dailyData,
-            dataType,
-        };
+
+		workbook.setMetadata({
+			startDate: startDate.toISOString().split('T')[0],
+			endDate: endDate.toISOString().split('T')[0],
+			dailyData: JSON.stringify(dailyData),
+			dataType,
+			period,
+		} as any);
+
+        return workbook;
     }
 
 

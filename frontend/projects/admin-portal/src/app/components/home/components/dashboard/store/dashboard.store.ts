@@ -8,7 +8,7 @@ import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProgramService } from '../../../../../services/program.service';
 import { plainToInstance } from 'class-transformer';
-import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
+import { ProgramAnalyticsSheet, ProgramAnalyticsTable, ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import 'reflect-metadata';
 import { computed } from '@angular/core';
 
@@ -90,30 +90,30 @@ export const DashboardStore = signalStore(
 
                                 next: (response) => {
                                     try {
-                                        const resultData = response?.data || {};
-
-                                   
-                                        const workbook = plainToInstance(ProgramAnalyticsWorkbook, resultData);
-                                        const table = workbook
-                                            .getProgramAnalyticsSheet()
-                                            .getProgramAnalyticsTable();
+                                        const workbook = plainToInstance(ProgramAnalyticsWorkbook, response?.data);
+                                        const sheet = workbook.getProgramAnalyticsSheet() as ProgramAnalyticsSheet;
+                                        const table = sheet.getProgramAnalyticsTable() as ProgramAnalyticsTable;
                                         const row = table.getRow(0);
 
                                         const analyticsData: ProgramAnalyticsData = {
-                                            totalRevenue: Number(row.getTotalRevenue()) || 0,
-                                            totalCommissions: Number(row.getTotalCommissions()) || 0,
-                                            totalSignups: Number(row.getTotalSignups()) || 0,
-                                            totalPurchases: Number(row.getTotalPurchases()) || 0,
+                                            totalRevenue: row.getTotalRevenue() || 0,
+                                            totalCommissions: row.getTotalCommissions() || 0,
+                                            totalSignups: row.getTotalSignups() || 0,
+                                            totalPurchases: row.getTotalPurchases() || 0,
                                         };
+
+                                        const metadata = workbook.getMetadata();
+                                        const dailyDataStr = metadata?.get('dailyData') as string;
+                                        const dailyData = dailyDataStr ? JSON.parse(dailyDataStr) : [];
 
                                         patchState(store, {
                                             analytics: {
                                                 data: analyticsData,
-                                                dailyData: resultData.dailyData || [],
-                                                dataType: resultData.dataType || 'daily',
-                                                period: resultData.period || period || '30days',
-                                                startDate: resultData.startDate || null,
-                                                endDate: resultData.endDate || null,
+                                                dailyData: dailyData || [],
+                                                dataType: (metadata?.get('dataType') as string) || 'daily',
+                                                period: (metadata?.get('period') as string) || period || '30days',
+                                                startDate: (metadata?.get('startDate') as string) || null,
+                                                endDate: (metadata?.get('endDate') as string) || null,
                                                 error: null,
                                                 status: Status.SUCCESS,
                                             }

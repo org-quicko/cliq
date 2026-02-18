@@ -7,6 +7,8 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { of, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { HttpErrorResponse } from '@angular/common/http';
+import { plainToInstance } from 'class-transformer';
+import { ProgramSummaryViewWorkbook, ProgramSummaryViewRow, ProgramSummaryViewSheet, ProgramSummaryViewTable } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
 
 export interface ProgramSummaryMvDto {
     programId: string;
@@ -73,22 +75,24 @@ export const ProgramsSummaryStore = signalStore(
                                     let totalCount = 0;
 
                                     if (response.data) {
-                                        const workbook = response.data;
-                                        const sheet = workbook?.sheets?.[0];
-                                        const table = sheet?.blocks?.[0];
-                                        const rows = table?.rows || [];
-                                        const header = table?.header || [];
+                                        const workbook = plainToInstance(ProgramSummaryViewWorkbook, response.data);
+                                        const sheet = workbook.getProgramSummaryViewSheet();
+                                        const table = sheet.getProgramSummaryViewTable();
+                                        const rows = table.getRows();
 
-                                        programs = rows.map((row: any[]) => ({
-                                            programId: row[0],
-                                            programName: row[1],
-                                            totalPromoters: Number(row[2] ?? 0),
-                                            totalReferrals: Number(row[3] ?? 0),
-                                            createdAt: new Date(row[4]),
-                                        }));
+                                        for (let i = 0; i < rows.length; i++) {
+                                            const row = table.getRow(i);
+                                            programs.push({
+                                                programId: row.getProgramId(),
+                                                programName: row.getProgramName(),
+                                                totalPromoters: Number(row.getTotalPromoters() ?? 0),
+                                                totalReferrals: Number(row.getTotalReferrals() ?? 0),
+                                                createdAt: new Date(row.getCreatedAt()),
+                                            });
+                                        }
 
-                                        const metadata = workbook?.metadata;
-                                        totalCount = metadata?.total ?? programs.length;
+                                        const metadata = workbook.getMetadata();
+                                        totalCount = (metadata?.get('total') as number) ?? programs.length;
                                     }
 
                                     patchState(store, {

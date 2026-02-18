@@ -8,6 +8,8 @@ import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProgramService } from '../../../../../services/program.service';
 import { computed } from '@angular/core';
+import { plainToInstance } from 'class-transformer';
+import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 
 export interface PromoterData {
     promoterId: string;
@@ -103,44 +105,32 @@ export const PromoterSignupsStore = signalStore(
                         ).pipe(
                             tapResponse({
                                 next(response) {
-                    
-                    
-                              
                                     let promoters: PromoterData[] = [];
-                                    try {
-                                      
-                                        const sheets = response?.data?.sheets || [];
-                                        const analyticsSheet = sheets.find((s: any) => s.name === 'promoter_analytics_sheet');
-                                        if (analyticsSheet) {
-                                            const tableBlock = analyticsSheet.blocks.find((b: any) => b.name === 'promoter_analytics_table');
-                                            if (tableBlock) {
-                                                const header = tableBlock.header;
-                                                const rows = tableBlock.rows || [];
-                                                promoters = rows.map((row: any[]) => {
-                                                    const obj: any = {};
-                                                    header.forEach((key: string, idx: number) => {
-                                                        obj[key] = row[idx];
-                                                    });
-                                                    return {
-                                                        promoterId: obj.promoter_id,
-                                                        promoterName: obj.promoter_name, 
-                                                        signups: Number(obj.total_signups ?? 0),
-                                                        purchases: Number(obj.total_purchases ?? 0),
-                                                        revenue: Number(obj.total_revenue ?? 0),
-                                                        commission: Number(obj.total_commission ?? 0),
-                                                    signupCommission: Number(obj.signup_commission ?? 0),
-                                                    purchaseCommission: Number(obj.purchase_commission ?? 0),
-                                                    };
+                                        const workbook = plainToInstance(PromotersAnalyticsWorkbook, response?.data) as PromotersAnalyticsWorkbook;                    
+                                            const sheet = workbook.getPromoterAnalyticsSheet();
+                                            const table = sheet.getPromoterAnalyticsTable();
+                                            const rows = table.getRows();
+                                            
+                                            for (let i = 0; i < rows.length; i++) {
+                                                const row = table.getRow(i);
+                                                promoters.push({
+                                                    promoterId: row.getPromoterId(),
+                                                    promoterName: row.getPromoterName(),
+                                                    signups: Number(row.getTotalSignups() ?? 0),
+                                                    purchases: Number(row.getTotalPurchases() ?? 0),
+                                                    revenue: Number(row.getTotalRevenue() ?? 0),
+                                                    commission: Number(row.getTotalCommission() ?? 0),
+                                                    signupCommission: Number(row.getSignupCommission() ?? 0),
+                                                    purchaseCommission: Number(row.getPurchaseCommission() ?? 0),
                                                 });
                                             }
-                                        }
-                                    } catch (e) {
-
-                                    }
+                                        
+                                    
+                                    const metadata = workbook.getMetadata();
                                     patchState(store, {
                                         promoters,
-                                        total: response?.data?.metadata?.total ?? 0,
-                                        hasMore: response?.data?.metadata?.hasMore ?? false,
+                                        total: (metadata?.get('total') as number) ?? 0,
+                                        hasMore: (metadata?.get('hasMore') as boolean) ?? false,
                                         skip,
                                         take,
                                         error: null,
@@ -189,41 +179,34 @@ export const PromoterSignupsStore = signalStore(
                                 next(response) {
 
                                     let newPromoters: PromoterData[] = [];
-                                    try {
-                                        const sheets = response?.data?.sheets || [];
-                                        const analyticsSheet = sheets.find((s: any) => s.name === 'promoter_analytics_sheet');
-                                        if (analyticsSheet) {
-                                            const tableBlock = analyticsSheet.blocks.find((b: any) => b.name === 'promoter_analytics_table');
-                                            if (tableBlock) {
-                                                const header = tableBlock.header;
-                                                const rows = tableBlock.rows || [];
-                                                newPromoters = rows.map((row: any[]) => {
-                                                    const obj: any = {};
-                                                    header.forEach((key: string, idx: number) => {
-                                                        obj[key] = row[idx];
-                                                    });
-                                                    return {
-                                                        promoterId: obj.promoter_id,
-                                                        promoterName: obj.promoter_name,
-                                                        signups: Number(obj.total_signups ?? 0),
-                                                        purchases: Number(obj.total_purchases ?? 0),
-                                                        revenue: Number(obj.total_revenue ?? 0),
-                                                        commission: Number(obj.total_commission ?? 0),
-                                                        signupCommission: Number(obj.signup_commission ?? 0),
-                                                        purchaseCommission: Number(obj.purchase_commission ?? 0),
-                                                    };
+                               
+                                        const workbook = plainToInstance(PromotersAnalyticsWorkbook, response?.data) as PromotersAnalyticsWorkbook;
+                                        
+                                            const sheet = workbook.getPromoterAnalyticsSheet();
+                                            const table = sheet.getPromoterAnalyticsTable();
+                                            const rows = table.getRows();
+                                            
+                                            for (let i = 0; i < rows.length; i++) {
+                                                const row = table.getRow(i);
+                                                newPromoters.push({
+                                                    promoterId: row.getPromoterId(),
+                                                    promoterName: row.getPromoterName(),
+                                                    signups: Number(row.getTotalSignups() ?? 0),
+                                                    purchases: Number(row.getTotalPurchases() ?? 0),
+                                                    revenue: Number(row.getTotalRevenue() ?? 0),
+                                                    commission: Number(row.getTotalCommission() ?? 0),
+                                                    signupCommission: Number(row.getSignupCommission() ?? 0),
+                                                    purchaseCommission: Number(row.getPurchaseCommission() ?? 0),
                                                 });
                                             }
-                                        }
-                                    } catch (e) {
-
-                                    }
+                                  
                               
                                     const existingPromoters = store.promoters();
+                                    const metadata = workbook.getMetadata();
                                     patchState(store, {
                                         promoters: [...existingPromoters, ...newPromoters],
-                                        total: response?.data?.metadata?.total ?? 0,
-                                        hasMore: response?.data?.metadata?.hasMore ?? false,
+                                        total: (metadata?.get('total') as number) ?? 0,
+                                        hasMore: (metadata?.get('hasMore') as boolean) ?? false,
                                         skip,
                                         take,
                                         loadingMore: false,

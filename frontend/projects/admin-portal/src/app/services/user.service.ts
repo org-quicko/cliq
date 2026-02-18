@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiResponse, LoginDto, UserDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, LoginDto, UserDto, ProgramUserDto } from '@org.quicko.cliq/ngx-core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { instanceToPlain } from 'class-transformer';
@@ -53,7 +53,7 @@ export class UserService {
 	/**
 	 * Get current logged-in user details for a specific program
 	 */
-	getUserInProgram(programId: string): Observable<ApiResponse<any>> {
+	getUserInProgram(programId: string): Observable<ApiResponse<ProgramUserDto>> {
 		if (!this.authService.getUserEmail()) {
 			throw new Error('User not found');
 		}
@@ -61,6 +61,6 @@ export class UserService {
 		const userId = this.authService.getUserId();
 		const url = `${this.baseUrl}/programs/${programId}/users/${userId}`;
 
-		return this.httpClient.get<ApiResponse<any>>(url);
+		return this.httpClient.get<ApiResponse<ProgramUserDto>>(url);
 	}
 }

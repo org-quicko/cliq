@@ -27,7 +27,7 @@ export class ProgramResolver implements Resolve<ProgramDto> {
 					this.programStore.setProgram(program);
 				}
 			}),
-			map((response) => plainToInstance(ProgramDto, response.data?.promoter) ?? new ProgramDto()),
+			map((response) => plainToInstance(ProgramDto, response.data)),
 			catchError((error) => {
 				this.snackBarService.openSnackBar('Failed to get program', '');
 				this.programStore.setStatus(Status.ERROR, error);
