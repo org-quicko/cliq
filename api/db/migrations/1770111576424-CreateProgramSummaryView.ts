@@ -24,7 +24,7 @@ export class CreateProgramSummaryView1770111576424 implements MigrationInterface
 		LEFT JOIN (
 			SELECT 
 				program_id,
-				COUNT(promoter_id) AS total_promoters,
+				COUNT(DISTINCT promoter_id) AS total_promoters,
 				COUNT(contact_id) AS total_referrals
 			FROM referral_mv
 			GROUP BY program_id
