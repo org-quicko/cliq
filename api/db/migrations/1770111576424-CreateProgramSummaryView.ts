@@ -24,13 +24,13 @@ export class CreateProgramSummaryView1770111576424 implements MigrationInterface
 		LEFT JOIN (
 			SELECT 
 				program_id,
-				COUNT(promoter_id) AS total_promoters,
+				COUNT(DISTINCT promoter_id) AS total_promoters,
 				COUNT(contact_id) AS total_referrals
 			FROM referral_mv
 			GROUP BY program_id
 		) r ON p.program_id = r.program_id;
 	`);
-        await queryRunner.query(`INSERT INTO "typeorm_metadata"("database", "schema", "table", "type", "name", "value") VALUES (DEFAULT, $1, DEFAULT, $2, $3, $4)`, ["public","MATERIALIZED_VIEW","program_summary_mv","SELECT \n\t\t\tp.program_id,\n\t\t\tp.name AS program_name,\n\t\t\tCOALESCE(r.total_promoters, 0) AS total_promoters,\n\t\t\tCOALESCE(r.total_referrals, 0) AS total_referrals,\n\t\t\tp.created_at\n\t\tFROM program p\n\t\tLEFT JOIN (\n\t\t\tSELECT \n\t\t\t\tprogram_id,\n\t\t\t\tCOUNT(promoter_id) AS total_promoters,\n\t\t\t\tCOUNT(contact_id) AS total_referrals\n\t\t\tFROM referral_mv\n\t\t\tGROUP BY program_id\n\t\t) r ON p.program_id = r.program_id;"]);
+        await queryRunner.query(`INSERT INTO "typeorm_metadata"("database", "schema", "table", "type", "name", "value") VALUES (DEFAULT, $1, DEFAULT, $2, $3, $4)`, ["public","MATERIALIZED_VIEW","program_summary_mv","SELECT \n\t\t\tp.program_id,\n\t\t\tp.name AS program_name,\n\t\t\tCOALESCE(r.total_promoters, 0) AS total_promoters,\n\t\t\tCOALESCE(r.total_referrals, 0) AS total_referrals,\n\t\t\tp.created_at\n\t\tFROM program p\n\t\tLEFT JOIN (\n\t\t\tSELECT \n\t\t\t\tprogram_id,\n\t\t\t\tCOUNT(DISTINCT promoter_id) AS total_promoters,\n\t\t\t\tCOUNT(contact_id) AS total_referrals\n\t\t\tFROM referral_mv\n\t\t\tGROUP BY program_id\n\t\t) r ON p.program_id = r.program_id;"]);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
