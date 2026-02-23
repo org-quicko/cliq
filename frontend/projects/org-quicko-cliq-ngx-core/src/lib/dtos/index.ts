@@ -15,3 +15,4 @@ export * from './purchase.dto';
 export * from './referral.dto';
 export * from './signUp.dto';
 export * from './user.dto';
+export * from './paginated-list.dto';

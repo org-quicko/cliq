@@ -17,6 +17,7 @@ import { CreateProgramContainerComponent } from './components/create-program-con
 import { CreateProgramComponent } from './components/create-program-container/create-program/create-program.component';
 import { DynamicComponentLoaderComponent } from './components/dynamic-component-loader/dynamic-component-loader.component';
 import { IsLoggedIn } from './guards';
+import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
@@ -65,6 +66,7 @@ export const routes: Routes = [
                                 redirectTo: 'dashboard',
                             },
                             { path: 'dashboard', component: DashboardComponent },
+                            { path: 'referrals' , component: ReferralsComponent},
                             { path: 'reports', component: ReportsComponent },
                             { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
                             { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
