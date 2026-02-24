@@ -1,15 +1,15 @@
-<div class="super-admin-programs flex flex-col gap-[26px] w-full min-h-screen">
+<div class="super-admin-programs flex flex-col gap-6 w-full ">
 
-  <!--Heading -->
+  <!-- Heading -->
   <div>
     <p class="mat-headline-medium text-on-surface m-0">
       Referrals ({{ count() ?? 0 }})
     </p>
   </div>
 
-  <!--Search Bar -->
+  <!-- Search Bar -->
   <div
-    class="w-full h-[56px] border border-outline-variant rounded-[4px] flex items-center px-4"
+    class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3"
   >
     <mat-icon class="text-on-surface-variant mr-3">search</mat-icon>
     <input
@@ -20,139 +20,136 @@
     />
   </div>
 
-  <!--Table Wrapper -->
+  <!-- Table Wrapper -->
   <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
 
-    <!--Header Row -->
+    <!-- Header Row -->
     <div
-  class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center h-[44px] bg-surface-container-lowest px-6"
->
-  <div class="mat-body-medium text-on-surface-variant text-left">
-    Referral
-  </div>
-
-  <div class="mat-body-medium text-on-surface-variant text-center">
-    Commission
-  </div>
-
-  <div class="mat-body-medium text-on-surface-variant text-center">
-    Revenue
-  </div>
-
-  <div
-    class="mat-body-medium text-on-surface-variant text-center cursor-pointer flex items-center justify-center gap-1"
-    style="align-items: center;"
-    (click)="onSortChange({ active: 'updatedAt', direction: 'desc' })"
-  >
-    <span style="display: flex; align-items: center; gap: 4px;">
-      Updated at
-      <mat-icon class="text-[18px]" style="vertical-align: middle; display: flex; align-items: center;">arrow_downward</mat-icon>
-    </span>
-  </div>
-
-  <div class="mat-body-medium text-on-surface-variant text-center pr-1">
-    Status
-  </div>
-</div>
-    <!--Loading Skeleton -->
-@if (isLoading()) {
-
-  @for (item of [].constructor(10); track $index) {
-    <div
-      class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center min-h-[56px] px-6 border-t border-outline-variant"
+      class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center bg-surface-container-lowest px-4 py-4"
     >
-
-      <!-- Referral (Left aligned) -->
-      <div>
-        <ngx-skeleton-loader
-          [theme]="{ height: '20px', width: '50%' }">
-        </ngx-skeleton-loader>
+      <div class="mat-body-medium text-on-surface-variant text-left">
+        Referral
       </div>
 
-      <!-- Commission (Centered) -->
-      <div class="flex justify-center">
-        <ngx-skeleton-loader
-          [theme]="{ height: '20px', width: '40px' }">
-        </ngx-skeleton-loader>
+      <div class="mat-body-medium text-on-surface-variant text-center">
+        Commission
       </div>
 
-      <!-- Revenue (Centered) -->
-      <div class="flex justify-center">
-        <ngx-skeleton-loader
-          [theme]="{ height: '20px', width: '50px' }">
-        </ngx-skeleton-loader>
+      <div class="mat-body-medium text-on-surface-variant text-center">
+        Revenue
       </div>
-
-      <!-- Updated At (Centered) -->
-      <div class="flex justify-center">
-        <ngx-skeleton-loader
-          [theme]="{ height: '20px', width: '120px' }">
-        </ngx-skeleton-loader>
-      </div>
-
-      <!-- Status (Centered) -->
-      <div class="flex justify-center">
-        <ngx-skeleton-loader
-          [theme]="{ height: '24px', width: '48px', 'border-radius': '6px' }">
-        </ngx-skeleton-loader>
-      </div>
-
-    </div>
-  }
-
-} @else {
-
-      <!--Data Rows -->
-      @for (referral of referrals(); track referral.contactId) {
 
       <div
-  class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center min-h-[56px] px-6 border-t border-outline-variant hover:bg-surface-container-low transition-colors"
->
+        class="mat-body-medium text-on-surface-variant text-center cursor-pointer flex items-center justify-center gap-1"
+        (click)="onSortChange({ active: 'updatedAt', direction: currentSort?.direction || 'desc' })"
+      >
+        <span class="flex items-center gap-1">
+          Updated at
+          <mat-icon class="text-[18px]">
+            {{ currentSort?.direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+          </mat-icon>
+        </span>
+      </div>
 
-  <!-- Referral (Left aligned) -->
-  <div class="mat-body-large text-on-surface text-left truncate">
-    {{ referral.contactInfo }}
-  </div>
+      <div class="mat-body-medium text-on-surface-variant text-center">
+        Status
+      </div>
+    </div>
 
-  <!-- Commission (Centered) -->
-  <div class="mat-body-large text-on-surface text-center">
-    ₹{{ referral.totalCommission || 0 }}
-  </div>
+    <!-- Loading Skeleton -->
+    @if (isLoading()) {
 
-  <!--Revenue (Centered) -->
-  <div class="mat-body-large text-on-surface text-center">
-    @if (referral.totalRevenue) {
-      ₹{{ referral.totalRevenue }}
+      @for (item of [].constructor(10); track $index) {
+        <div
+          class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center px-6 py-4 border-t border-outline-variant"
+        >
+
+          <div>
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '50%' }">
+            </ngx-skeleton-loader>
+          </div>
+
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '40px' }">
+            </ngx-skeleton-loader>
+          </div>
+
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '50px' }">
+            </ngx-skeleton-loader>
+          </div>
+
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '120px' }">
+            </ngx-skeleton-loader>
+          </div>
+
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '24px', width: '48px', 'border-radius': '6px' }">
+            </ngx-skeleton-loader>
+          </div>
+
+        </div>
+      }
+
     } @else {
-      -
-    }
-  </div>
 
-  <!--Updated At (Centered) -->
-  <div class="mat-body-large text-on-surface text-center">
-    {{ referral.updatedAt | date:'short' }}
-  </div>
+      <!-- Data Rows -->
+      @for (referral of referrals(); track referral.contactId) {
 
-  <!--Status (Centered) -->
-  <div class="flex justify-center">
-    <span
-      class="mat-label-small px-2 flex items-center justify-center rounded-sm h-[24px] min-w-[41px]"
-      [ngClass]="{
-        'bg-surface-container text-on-surface': referral.status === 'lead',
-        'bg-secondary-container text-on-secondary-container': referral.status === 'active'
-      }"
-    >
-      {{ referral.status | titlecase }}
-    </span>
-  </div>
+        <div
+          class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors"
+        >
 
-</div>
+          <!-- Referral -->
+          <div class="mat-body-large text-on-surface-variant text-left truncate">
+            {{ referral.contactInfo }}
+          </div>
+
+          <!-- Commission -->
+          <div class="mat-body-large text-on-surface text-center">
+            ₹{{ referral.totalCommission || 0 }}
+          </div>
+
+          <!-- Revenue -->
+          <div class="mat-body-large text-on-surface text-center">
+            @if (referral.totalRevenue) {
+              ₹{{ referral.totalRevenue }}
+            } @else {
+              -
+            }
+          </div>
+
+          <!-- Updated At -->
+          <div class="mat-body-large text-on-surface text-center">
+            {{ referral.updatedAt | date:'short' }}
+          </div>
+
+          <!-- Status -->
+          <div class="flex justify-center">
+            <span
+              class="mat-label-small px-2 py-1 flex items-center justify-center rounded-sm min-w-[41px]"
+              [ngClass]="{
+                'bg-surface-container text-on-surface': referral.status === 'lead',
+                'bg-secondary-container text-on-secondary-container': referral.status === 'active'
+              }"
+            >
+              {{ referral.status | titlecase }}
+            </span>
+          </div>
+
+        </div>
 
       }
 
-      <!--Empty State -->
+      <!-- Empty State -->
       @if (!isLoading() && referrals().length === 0) {
-        <div class="flex justify-center items-center h-[200px] border-t border-outline-variant">
+        <div class="flex justify-center items-center py-16 border-t border-outline-variant">
           <p class="mat-body-large text-on-surface-variant">
             No referrals to show
           </p>
@@ -163,24 +160,24 @@
 
   </div>
 
-  <!--Error State -->
+  <!-- Error State -->
   @if (error()) {
     <div class="w-full text-error mat-body-medium">
       {{ error() }}
     </div>
   }
 
-  <!--Paginator -->
+  <!-- Paginator -->
   @if ((count() ?? 0) > 0) {
-  <div class="mt-auto pt-4">
-        <mat-paginator
-          [length]="count()"
-          [pageIndex]="paginationOptions().pageIndex"
-          [pageSize]="paginationOptions().pageSize"
-          [pageSizeOptions]="[10, 25, 50, 100]"
-          (page)="onPageChange($event)"
-        ></mat-paginator>
-      </div>
+    <div class = "mt-auto">
+      <mat-paginator
+        [length]="count()"
+        [pageIndex]="paginationOptions().pageIndex"
+        [pageSize]="paginationOptions().pageSize"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        (page)="onPageChange($event)"
+      ></mat-paginator>
+    </div>
   }
 
 </div>

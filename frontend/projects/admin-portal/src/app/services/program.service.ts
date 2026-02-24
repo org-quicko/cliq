@@ -190,7 +190,7 @@ export class ProgramService {
        }
 
         if (order) {
-            params = params.set('order', order);
+            params = params.set('sort_order', order);
         }
 
         if (skip !== undefined) {

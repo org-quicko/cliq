@@ -67,8 +67,9 @@ export class ReferralsComponent implements OnInit {
 
   programId!: string;
 
+  currentSort: { active: string; direction: 'asc' | 'desc' } = { active: 'updatedAt', direction: 'desc' };
+
   constructor() {
-    // Sync datasource automatically
     effect(() => {
       const referrals = this.referrals();
       this.referralDatasource.data = referrals ?? [];
@@ -107,13 +108,21 @@ export class ReferralsComponent implements OnInit {
       });
   }
 
-  fetchReferrals() {
-    this.referralStore.fetchReferrals({
-      programId: this.programId,
-      skip: this.paginationOptions().pageIndex * this.paginationOptions().pageSize,
-      take: this.paginationOptions().pageSize,
-    });
-  }
+fetchReferrals() {
+  const sortFieldMap: Record<string, referralSortByEnum> = {
+    updatedAt: referralSortByEnum.UPDATED_AT,
+  };
+
+  this.referralStore.fetchReferrals({
+    programId: this.programId,
+    skip: this.paginationOptions().pageIndex * this.paginationOptions().pageSize,
+    take: this.paginationOptions().pageSize,
+    sortOptions: {
+      sortBy: sortFieldMap[this.currentSort.active],
+      sortOrder: this.currentSort.direction === 'asc' ? 'ASC' : 'DESC',
+    },
+  });
+}
 
   onPageChange(event: PageEvent) {
     this.paginationOptions.set({
@@ -121,35 +130,24 @@ export class ReferralsComponent implements OnInit {
       pageSize: event.pageSize
     });
 
-    this.referralStore.fetchReferrals({
-      programId: this.programId,
-      skip: event.pageIndex * event.pageSize,
-      take: event.pageSize,
-    });
+    this.fetchReferrals();
   }
 
   onSortChange(event: Sort) {
+  if (event.active !== 'updatedAt') return;
 
-    if (!event.direction) return;
-
-    const sortFieldMap: Record<string, referralSortByEnum> = {
-      updatedAt: referralSortByEnum.UPDATED_AT,
-    };
-
-    this.paginationOptions.set({
-      pageIndex: 0,
-      pageSize: 10
-    });
-
-    this.referralStore.fetchReferrals({
-      programId: this.programId,
-      skip: 0,
-      take: 10,
-      sortOptions: {
-        sortBy: sortFieldMap[event.active],
-        sortOrder: event.direction === 'asc' ? 'ASC' : 'DESC',
-      },
-      isSortOperation: true,
-    });
+  if (this.currentSort.active === event.active) {
+    this.currentSort.direction =
+      this.currentSort.direction === 'desc' ? 'asc' : 'desc';
+  } else {
+    this.currentSort = { active: event.active, direction: 'desc' };
   }
+
+  this.paginationOptions.set({
+    pageIndex: 0,
+    pageSize: 10
+  });
+
+  this.fetchReferrals();   
+}
 }
