@@ -18,16 +18,20 @@ export class ReferralDto {
     @IsUUID()
     promoterId: string;
 
+    @Expose({ name: 'promoter_name' })
+    @IsString()
+    promoterName: string;
+
     @Expose({ name: 'contact_info' })
     @IsString()
     contactInfo: string;
 
-    @Expose({ name: 'total_revenue'})
+    @Expose({ name: 'total_revenue' })
     @IsNumber()
     @Min(0)
     totalRevenue: number;
 
-    @Expose({ name: 'total_commission'})
+    @Expose({ name: 'total_commission' })
     @IsNumber()
     @Min(0)
     totalCommission: number;

@@ -8,16 +8,10 @@
   </div>
 
   <!-- Search Bar -->
-  <div
-    class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3"
-  >
+  <div class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3">
     <mat-icon class="text-on-surface-variant mr-3">search</mat-icon>
-    <input
-      matInput
-      [formControl]="searchControl"
-      placeholder="Search Referrals by Email"
-      class="w-full mat-body-large text-on-surface placeholder:text-outline focus:outline-none bg-transparent"
-    />
+    <input matInput [formControl]="searchControl" placeholder="Search Referrals by Email"
+      class="w-full mat-body-large text-on-surface placeholder:text-outline focus:outline-none bg-transparent" />
   </div>
 
   <!-- Table Wrapper -->
@@ -25,24 +19,22 @@
 
     <!-- Header Row -->
     <div
-      class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center bg-surface-container-lowest px-4 py-4"
-    >
+      class="grid grid-cols-[2.2fr_1.8fr_1fr_1.5fr_0.8fr] items-center text-center bg-surface-container-lowest px-4 py-4">
+
       <div class="mat-body-medium text-on-surface-variant text-left">
         Referral
       </div>
 
-      <div class="mat-body-medium text-on-surface-variant text-center">
+      <div class="mat-body-medium text-on-surface-variant">
+        Promoter
+      </div>
+
+      <div class="mat-body-medium text-on-surface-variant">
         Commission
       </div>
 
-      <div class="mat-body-medium text-on-surface-variant text-center">
-        Revenue
-      </div>
-
-      <div
-        class="mat-body-medium text-on-surface-variant text-center cursor-pointer flex items-center justify-center gap-1"
-        (click)="onSortChange({ active: 'updatedAt', direction: currentSort?.direction || 'desc' })"
-      >
+      <div class="mat-body-medium text-on-surface-variant cursor-pointer flex items-center justify-center gap-1"
+        (click)="onSortChange({ active: 'updatedAt', direction: currentSort?.direction || 'desc' })">
         <span class="flex items-center gap-1">
           Updated at
           <mat-icon class="text-[18px]">
@@ -51,110 +43,95 @@
         </span>
       </div>
 
-      <div class="mat-body-medium text-on-surface-variant text-center">
+      <div class="mat-body-medium text-on-surface-variant">
         Status
       </div>
+
     </div>
 
     <!-- Loading Skeleton -->
     @if (isLoading()) {
 
-      @for (item of [].constructor(10); track $index) {
-        <div
-          class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center px-6 py-4 border-t border-outline-variant"
-        >
+    @for (item of [].constructor(10); track $index) {
+    <div class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center px-6 py-4 border-t border-outline-variant">
 
-          <div>
-            <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '50%' }">
-            </ngx-skeleton-loader>
-          </div>
+      <div>
+        <ngx-skeleton-loader [theme]="{ height: '20px', width: '50%' }">
+        </ngx-skeleton-loader>
+      </div>
 
-          <div class="flex justify-center">
-            <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '40px' }">
-            </ngx-skeleton-loader>
-          </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '20px', width: '60px' }">
+        </ngx-skeleton-loader>
+      </div>
 
-          <div class="flex justify-center">
-            <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '50px' }">
-            </ngx-skeleton-loader>
-          </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '20px', width: '70px' }">
+        </ngx-skeleton-loader>
+      </div>
 
-          <div class="flex justify-center">
-            <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '120px' }">
-            </ngx-skeleton-loader>
-          </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '20px', width: '120px' }">
+        </ngx-skeleton-loader>
+      </div>
 
-          <div class="flex justify-center">
-            <ngx-skeleton-loader
-              [theme]="{ height: '24px', width: '48px', 'border-radius': '6px' }">
-            </ngx-skeleton-loader>
-          </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '24px', width: '48px', 'border-radius': '6px' }">
+        </ngx-skeleton-loader>
+      </div>
 
-        </div>
-      }
+    </div>
+    }
 
     } @else {
 
-      <!-- Data Rows -->
-      @for (referral of referrals(); track referral.contactId) {
+    <!-- Data Rows -->
+    @for (referral of referrals(); track referral.contactId) {
 
-        <div
-          class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors"
-        >
+    <div
+      class="grid grid-cols-[2.2fr_1.8fr_1fr_1.5fr_0.8fr] items-center text-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
 
-          <!-- Referral -->
-          <div class="mat-body-large text-on-surface-variant text-left truncate">
-            {{ referral.contactInfo }}
-          </div>
+      <!-- Referral -->
+      <div class="mat-body-large text-on-surface-variant text-left truncate">
+        {{ referral.contactInfo }}
+      </div>
 
-          <!-- Commission -->
-          <div class="mat-body-large text-on-surface text-center">
-            ₹{{ referral.totalCommission || 0 }}
-          </div>
+      <!-- Promoter -->
+      <div class="mat-body-large text-on-surface truncate">
+        {{ referral.promoterName || '-' }}
+      </div>
 
-          <!-- Revenue -->
-          <div class="mat-body-large text-on-surface text-center">
-            @if (referral.totalRevenue) {
-              ₹{{ referral.totalRevenue }}
-            } @else {
-              -
-            }
-          </div>
+      <!-- Commission -->
+      <div class="mat-body-large text-on-surface">
+        ₹{{ referral.totalCommission || 0 }}
+      </div>
 
-          <!-- Updated At -->
-          <div class="mat-body-large text-on-surface text-center">
-            {{ referral.updatedAt | date:'short' }}
-          </div>
+      <!-- Updated At -->
+      <div class="mat-body-large text-on-surface">
+        {{ referral.updatedAt | date:'short' }}
+      </div>
 
-          <!-- Status -->
-          <div class="flex justify-center">
-            <span
-              class="mat-label-small px-2 py-1 flex items-center justify-center rounded-sm min-w-[41px]"
-              [ngClass]="{
-                'bg-surface-container text-on-surface': referral.status === 'lead',
-                'bg-secondary-container text-on-secondary-container': referral.status === 'active'
-              }"
-            >
-              {{ referral.status | titlecase }}
-            </span>
-          </div>
+      <!-- Status -->
+      <div class="flex justify-center">
+        <span class="mat-label-small px-2 py-1 rounded-sm min-w-[41px]" [ngClass]="{
+        'bg-surface-container text-on-surface': referral.status === 'lead',
+        'bg-secondary-container text-on-secondary-container': referral.status === 'active'
+      }">
+          {{ referral.status | titlecase }}
+        </span>
+      </div>
 
-        </div>
+    </div>
+    }
 
-      }
-
-      <!-- Empty State -->
-      @if (!isLoading() && referrals().length === 0) {
-        <div class="flex justify-center items-center py-16 border-t border-outline-variant">
-          <p class="mat-body-large text-on-surface-variant">
-            No referrals to show
-          </p>
-        </div>
-      }
+    <!-- Empty State -->
+    @if (!isLoading() && referrals().length === 0) {
+    <div class="flex justify-center items-center py-16 border-t border-outline-variant">
+      <p class="mat-body-large text-on-surface-variant">
+        No referrals to show
+      </p>
+    </div>
+    }
 
     }
 
@@ -162,22 +139,18 @@
 
   <!-- Error State -->
   @if (error()) {
-    <div class="w-full text-error mat-body-medium">
-      {{ error() }}
-    </div>
+  <div class="w-full text-error mat-body-medium">
+    {{ error() }}
+  </div>
   }
 
   <!-- Paginator -->
   @if ((count() ?? 0) > 0) {
-    <div class = "mt-auto">
-      <mat-paginator
-        [length]="count()"
-        [pageIndex]="paginationOptions().pageIndex"
-        [pageSize]="paginationOptions().pageSize"
-        [pageSizeOptions]="[10, 25, 50, 100]"
-        (page)="onPageChange($event)"
-      ></mat-paginator>
-    </div>
+  <div class="mt-auto">
+    <mat-paginator [length]="count()" [pageIndex]="paginationOptions().pageIndex"
+      [pageSize]="paginationOptions().pageSize" [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"></mat-paginator>
+  </div>
   }
 
 </div>

@@ -41,6 +41,7 @@ export class ReferralsComponent implements OnInit {
 
   columns = [
     'contactInfo',
+    'promoterName',
     'status',
     'totalCommission',
     'totalRevenue',

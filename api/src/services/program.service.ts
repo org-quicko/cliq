@@ -677,6 +677,7 @@ export class ProgramService {
 		await this.getProgramEntity(programId);
 		const query = this.referralViewRepository
 			.createQueryBuilder('referral')
+			.leftJoinAndSelect('referral.promoter', 'promoter')
 			.where('referral.programId = :programId', { programId });
 
 		if (search?.trim()) {
