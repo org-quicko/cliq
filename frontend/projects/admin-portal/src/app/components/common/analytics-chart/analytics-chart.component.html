@@ -16,7 +16,8 @@
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalSignups | number }}
       </span>
-      <span class="text-sm text-on-surface-variant mt-1">Signups</span>
+        <span class="text-sm mt-1"
+          [ngClass]="selectedMetric() === MetricType.SIGNUPS ? 'text-on-surface' : 'text-on-surface-variant'">Signups</span>
     </button>
 
     <!-- Purchases -->
@@ -33,7 +34,8 @@
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalPurchases | number }}
       </span>
-      <span class="text-sm text-on-surface-variant mt-1">Purchases</span>
+        <span class="text-sm mt-1"
+          [ngClass]="selectedMetric() === MetricType.PURCHASES ? 'text-on-surface' : 'text-on-surface-variant'">Purchases</span>
     </button>
 
     <!-- Revenue -->
@@ -50,7 +52,8 @@
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalRevenue | formatCurrency: currency }}
       </span>
-      <span class="text-sm text-on-surface-variant mt-1">Revenue</span>
+        <span class="text-sm mt-1"
+          [ngClass]="selectedMetric() === MetricType.REVENUE ? 'text-on-surface' : 'text-on-surface-variant'">Revenue</span>
     </button>
 
     <!-- Commission -->
@@ -67,7 +70,8 @@
       <span class="text-[22px] font-title-large leading-none text-on-surface">
         {{ totalCommission | formatCurrency: currency }}
       </span>
-      <span class="text-sm text-on-surface-variant mt-1">Commission</span>
+        <span class="text-sm mt-1"
+          [ngClass]="selectedMetric() === MetricType.COMMISSION ? 'text-on-surface' : 'text-on-surface-variant'">Commission</span>
     </button>
 
   </div>
