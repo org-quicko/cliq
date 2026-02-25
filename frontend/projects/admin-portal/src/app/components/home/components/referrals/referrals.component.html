@@ -52,36 +52,43 @@
     <!-- Loading Skeleton -->
     @if (isLoading()) {
 
-    @for (item of [].constructor(10); track $index) {
-    <div class="grid grid-cols-[2.5fr_1fr_1fr_1.5fr_0.8fr] items-center px-6 py-4 border-t border-outline-variant">
+   @for (item of [].constructor(10); track $index) {
+        <div
+          class="grid grid-cols-[2.2fr_1.8fr_1fr_1.5fr_0.8fr] items-center px-4 py-4 border-t border-outline-variant"
+        >
 
-      <div>
-        <ngx-skeleton-loader [theme]="{ height: '20px', width: '50%' }">
-        </ngx-skeleton-loader>
-      </div>
+          <div class="flex items-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '150px', margin: '0' }">
+            </ngx-skeleton-loader>
+          </div>
 
-      <div class="flex justify-center">
-        <ngx-skeleton-loader [theme]="{ height: '20px', width: '60px' }">
-        </ngx-skeleton-loader>
-      </div>
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '40px', margin: '0' }">
+            </ngx-skeleton-loader>
+          </div>
 
-      <div class="flex justify-center">
-        <ngx-skeleton-loader [theme]="{ height: '20px', width: '70px' }">
-        </ngx-skeleton-loader>
-      </div>
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '50px', margin: '0' }">
+            </ngx-skeleton-loader>
+          </div>
 
-      <div class="flex justify-center">
-        <ngx-skeleton-loader [theme]="{ height: '20px', width: '120px' }">
-        </ngx-skeleton-loader>
-      </div>
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '120px', margin: '0' }">
+            </ngx-skeleton-loader>
+          </div>
 
-      <div class="flex justify-center">
-        <ngx-skeleton-loader [theme]="{ height: '24px', width: '48px', 'border-radius': '6px' }">
-        </ngx-skeleton-loader>
-      </div>
+          <div class="flex justify-center">
+            <ngx-skeleton-loader
+              [theme]="{ height: '20px', width: '48px', 'border-radius': '6px', margin: '0' }">
+            </ngx-skeleton-loader>
+          </div>
 
-    </div>
-    }
+        </div>
+      }
 
     } @else {
 
