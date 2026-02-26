@@ -44,7 +44,6 @@ export const ReferralStore = signalStore(
   { providedIn: 'root' },
   withDevtools('referrals'),
   withState(initialState),
-
   withMethods((store, programService = inject(ProgramService)) => ({
 
     fetchReferrals: rxMethod<{
@@ -61,20 +60,17 @@ export const ReferralStore = signalStore(
     }>(
       pipe(
         tap(({ isSortOperation, isSearchOperation }) => {
-
           if (isSortOperation) {
             patchState(store, {
               isSorting: true,
               referrals: [],
             });
           }
-
           if (isSearchOperation) {
             patchState(store, {
               referrals: [],
             });
           }
-
           patchState(store, {
             isLoading: true,
             error: null,
@@ -82,7 +78,6 @@ export const ReferralStore = signalStore(
         }),
 
         switchMap(({ programId, skip, take, search, sortOptions }) => {
-
           return programService
             .getProgramReferrals(
               programId,
@@ -94,14 +89,11 @@ export const ReferralStore = signalStore(
             )
             .pipe(
               tapResponse({
-
                 next: (response) => {
-
                   const referralList = plainToInstance(
                     PaginatedList<ReferralDto>,
                     response.data
                   );
-
                   const referrals =
                     referralList
                       .getItems()
@@ -119,9 +111,7 @@ export const ReferralStore = signalStore(
                     error: null,
                   });
                 },
-
                 error: (error: HttpErrorResponse) => {
-
                   if (error.status === 404) {
                     patchState(store, {
                       referrals: [],

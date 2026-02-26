@@ -170,7 +170,7 @@ export class ProgramService {
 
     getProgramReferrals(
         programId: string,
-        search?: string,
+        query?: string,
         sortBy: referralSortByEnum = referralSortByEnum.UPDATED_AT,
         order?: 'ASC' | 'DESC',
         skip?: number,
@@ -181,8 +181,8 @@ export class ProgramService {
 
         let params = new HttpParams();
 
-        if (search) {
-            params = params.set('search', search);
+        if (query) {
+            params = params.set('query', query);
         }
 
          if (sortBy) {

@@ -666,7 +666,7 @@ export class ProgramService {
 	async getAllProgramReferrals(
 		programId: string,
 		search?: string,
-        sortBy: referralSortByEnum = referralSortByEnum.UPDATED_AT,
+		sortBy?: referralSortByEnum,
 		order: 'ASC' | 'DESC' = 'DESC',
 		skip: number = 0,
 		take: number = 10,
@@ -677,7 +677,8 @@ export class ProgramService {
 		await this.getProgramEntity(programId);
 		const query = this.referralViewRepository
 			.createQueryBuilder('referral')
-			.leftJoinAndSelect('referral.promoter', 'promoter')
+			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = referral.promoterId')
+			.addSelect('promoter.name')
 			.where('referral.programId = :programId', { programId });
 
 		if (search?.trim()) {
@@ -686,17 +687,26 @@ export class ProgramService {
 				{ search: `%${search.trim()}%` }
 			);
 		}
-		
+		const total = await query.getCount();
 
-		query
-			.orderBy(`referral.${sortBy}`, order)
+		query.orderBy(`referral.${sortBy}`, order)
 			.offset(skip)
 			.limit(take);
 
-		const [referralsResult, total] = await query.getManyAndCount();
+		const { entities: referralsResult, raw } = await query.getRawAndEntities();
+		referralsResult.forEach((referral: any, i: number) => {
+			referral.promoterName = raw[i]?.promoter_name;
+		});
 
-		const referralsDto = referralsResult.map(referral => this.referralUserConverter.convertTo(referral));
+		const promoterNameMap = new Map<string, string>();
+		raw.forEach((row, index) => {
+			const contactId = referralsResult[index].contactId;
+			promoterNameMap.set(contactId, row.promoter_name);
+		});
 
+		const referralsDto = referralsResult.map(referral =>
+			this.referralUserConverter.convertTo(referral, promoterNameMap)
+		);
 		this.logger.info(`END: getAllProgramReferrals service`);
 		return PaginatedList.Builder.build(
 			referralsDto,
@@ -1160,7 +1170,7 @@ export class ProgramService {
 				return 'weekly';
 			} else if (monthDiff <= 35) {
 				return 'monthly';
-			} else if(monthDiff > 35) {
+			} else if (monthDiff > 35) {
 				return 'yearly';
 			}
 		}

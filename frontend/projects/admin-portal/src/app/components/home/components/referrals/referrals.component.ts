@@ -49,9 +49,7 @@ export class ReferralsComponent implements OnInit {
   ];
 
   searchControl = new FormControl('');
-
   referralDatasource = new MatTableDataSource<ReferralDto>();
-
   paginationOptions = signal({
     pageIndex: 0,
     pageSize: 10,
@@ -59,7 +57,6 @@ export class ReferralsComponent implements OnInit {
 
   referralStore = inject(ReferralStore);
   private route = inject(ActivatedRoute);
-
   referrals = this.referralStore.referrals;
   count = this.referralStore.count;
   isLoading = this.referralStore.isLoading;
@@ -67,7 +64,6 @@ export class ReferralsComponent implements OnInit {
   error = this.referralStore.error;
 
   programId!: string;
-
   currentSort: { active: string; direction: 'asc' | 'desc' } = { active: 'updatedAt', direction: 'desc' };
 
   constructor() {
@@ -76,17 +72,13 @@ export class ReferralsComponent implements OnInit {
       this.referralDatasource.data = referrals ?? [];
     });
   }
-
   ngOnInit(): void {
-
     this.route.parent?.parent?.params.subscribe((params: Params) => {
       this.programId = params['program_id'];
-
       this.paginationOptions.set({
         pageIndex: 0,
         pageSize: 10
       });
-
       this.fetchReferrals();
     });
 
@@ -113,7 +105,6 @@ fetchReferrals() {
   const sortFieldMap: Record<string, referralSortByEnum> = {
     updatedAt: referralSortByEnum.UPDATED_AT,
   };
-
   this.referralStore.fetchReferrals({
     programId: this.programId,
     skip: this.paginationOptions().pageIndex * this.paginationOptions().pageSize,
@@ -130,13 +121,11 @@ fetchReferrals() {
       pageIndex: event.pageIndex,
       pageSize: event.pageSize
     });
-
     this.fetchReferrals();
   }
 
   onSortChange(event: Sort) {
   if (event.active !== 'updatedAt') return;
-
   if (this.currentSort.active === event.active) {
     this.currentSort.direction =
       this.currentSort.direction === 'desc' ? 'asc' : 'desc';
@@ -148,7 +137,6 @@ fetchReferrals() {
     pageIndex: 0,
     pageSize: 10
   });
-
   this.fetchReferrals();   
 }
 }

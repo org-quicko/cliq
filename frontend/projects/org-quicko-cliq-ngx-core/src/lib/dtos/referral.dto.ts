@@ -19,6 +19,7 @@ export class ReferralDto {
     promoterId: string;
 
     @Expose({ name: 'promoter_name' })
+    @IsOptional()
     @IsString()
     promoterName: string;
 

@@ -1,17 +1,17 @@
 import { Injectable } from "@nestjs/common";
-import { ReferralDto } from "../dtos";
-import { ReferralView } from "../entities";
+import { ReferralDto, PromoterDto } from "../dtos";
+import { Promoter, ReferralView } from "../entities";
 import { ConverterException } from '@org-quicko/core';
 
 @Injectable()
 export class ReferralUserConverter {
-    convertTo(referral: ReferralView): ReferralDto {
+    convertTo(referral: ReferralView, promoterNameMap?: Map<string, string>): ReferralDto {
         try {
             const referralDto = new ReferralDto();
             referralDto.contactId = referral.contactId;
             referralDto.programId = referral.programId;
             referralDto.promoterId = referral.promoterId;
-            referralDto.promoterName = referral.promoter?.name;
+            referralDto.promoterName = promoterNameMap?.get(referral.contactId)!;
             referralDto.contactInfo = referral.contactInfo;
             referralDto.status = referral.status;
             referralDto.totalCommission = referral.totalCommission;

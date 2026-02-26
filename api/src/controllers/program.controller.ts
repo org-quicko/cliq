@@ -13,7 +13,7 @@ import {
   statusEnum,
   userRoleEnum,
   conversionTypeEnum,
-  SortByEnum, referralSortByEnum
+  SortByEnum, referralSortByEnum,
 } from '../enums';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
@@ -460,8 +460,8 @@ export class ProgramController {
   @Get(':program_id/referrals')
   async getAllProgramReferrals(
     @Param('program_id') programId: string,
-    @Query('search') search?: string,
-    @Query('sort_by') sortBy: referralSortByEnum = referralSortByEnum.UPDATED_AT,
+    @Query('query') query?: string,
+    @Query('sort_by') sortBy?: referralSortByEnum,
     @Query('sort_order') order: 'ASC' | 'DESC' = 'DESC',
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 10,
@@ -470,7 +470,7 @@ export class ProgramController {
 
     const result = await this.programService.getAllProgramReferrals(
       programId,
-      search,
+      query,
       sortBy,
       order,
       skip,

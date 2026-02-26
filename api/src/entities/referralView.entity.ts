@@ -3,14 +3,10 @@ import { NumericToNumber } from '../utils/numericToNumber.util';
 import {
 	Entity,
 	Column,
-	Index,
 	CreateDateColumn,
 	UpdateDateColumn,
 	PrimaryColumn,
-	JoinColumn,
-	ManyToOne,
 } from 'typeorm';
-import { Promoter } from './promoter.entity';
 
 @Entity('referral_mv')
 export class ReferralView {
@@ -19,10 +15,6 @@ export class ReferralView {
 
 	@PrimaryColumn({ name: 'promoter_id', type: 'uuid' })
 	promoterId: string;
-
-	@ManyToOne(() => Promoter)
-	@JoinColumn({ name: 'promoter_id' })
-	promoter: Promoter;
 
 	@PrimaryColumn({ name: 'contact_id', type: 'uuid' })
 	contactId: string;
