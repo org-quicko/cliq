@@ -43,7 +43,7 @@ import { PromoterAnalyticsConverter } from '../converters/promoter/promoter_anal
 import { ProgramSummaryViewWorkbookConverter } from '../converters/program/program_summary_view.workbook.converter';
 import { ProgramSummaryView } from '../entities/programSummaryView.entity';
 import { SortByEnum } from '../enums';
-import { PaginatedList } from 'src/dtos/paginated-list.dto';
+import { ReferralPaginatedConverter } from '../converters/referralpaginated.converter';
 
 @Injectable()
 export class ProgramService {
@@ -89,6 +89,7 @@ export class ProgramService {
 		private referralUserConverter: ReferralUserConverter,
 		private promoterAnalyticsConverter: PromoterAnalyticsConverter,
 		private programSummaryViewConverter: ProgramSummaryViewWorkbookConverter,
+		private referralPaginatedConverter: ReferralPaginatedConverter,
 
 		private datasource: DataSource,
 
@@ -704,15 +705,14 @@ export class ProgramService {
 			promoterNameMap.set(contactId, row.promoter_name);
 		});
 
-		const referralsDto = referralsResult.map(referral =>
-			this.referralUserConverter.convertTo(referral, promoterNameMap)
-		);
+
 		this.logger.info(`END: getAllProgramReferrals service`);
-		return PaginatedList.Builder.build(
-			referralsDto,
+		return this.referralPaginatedConverter.convert(
+			referralsResult,
 			skip,
 			take,
 			total,
+			promoterNameMap
 		);
 	}
 

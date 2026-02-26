@@ -1,7 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsDate, IsEnum, IsOptional, IsString, IsUUID, IsNumber, IsPositive, Min } from 'class-validator';
 import { contactStatusEnum } from '../enums';
-import { maskInfo } from 'src/utils';
 
 export class ReferralDto {
     @Expose({ name: 'contact_id' })
