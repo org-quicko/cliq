@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CurrencyPipe } from '@angular/common';
 import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { CommonModule } from '@angular/common';
 
 export interface PopularityDataItem {
     label: string;
@@ -17,7 +18,7 @@ export interface PopularityDataItem {
 @Component({
     selector: 'app-popularity-chart',
     standalone: true,
-    imports: [MatCardModule, MatDividerModule, MatIconModule, FormatCurrencyPipe, NgxSkeletonLoaderModule],
+    imports: [MatCardModule, MatDividerModule, MatIconModule, FormatCurrencyPipe, NgxSkeletonLoaderModule, CommonModule],
     templateUrl: './popularity-chart.component.html',
     styleUrls: ['./popularity-chart.component.css'],
 })

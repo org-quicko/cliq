@@ -13,7 +13,7 @@ import {
   statusEnum,
   userRoleEnum,
   conversionTypeEnum,
-  SortByEnum,
+  SortByEnum, referralSortByEnum,
 } from '../enums';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
@@ -459,12 +459,23 @@ export class ProgramController {
   @Permissions('read_all', ReferralView)
   @Get(':program_id/referrals')
   async getAllProgramReferrals(
-    @Headers('user_id') userId: string,
-    @Param('program_id') programId: string
+    @Param('program_id') programId: string,
+    @Query('query') query?: string,
+    @Query('sort_by') sortBy?: referralSortByEnum,
+    @Query('sort_order') order: 'ASC' | 'DESC' = 'DESC',
+    @Query('skip') skip: number = 0,
+    @Query('take') take: number = 10,
   ) {
     this.logger.info('START: getAllProgramReferrals controller');
 
-    const result = await this.programService.getAllProgramReferrals(userId, programId);
+    const result = await this.programService.getAllProgramReferrals(
+      programId,
+      query,
+      sortBy,
+      order,
+      skip,
+      take,
+    );
 
     this.logger.info('END: getAllProgramReferrals controller');
     return { message: 'Successfully got program referrals.', result };

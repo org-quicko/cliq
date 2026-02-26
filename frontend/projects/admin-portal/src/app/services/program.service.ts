@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, ProgramDto, SortByEnum } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, ProgramDto,ReferralDto,PaginatedList, referralSortByEnum, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 import { ProgramSummaryViewWorkbook } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
@@ -23,7 +23,7 @@ export class ProgramService {
 
     getProgram(programId: string): Observable<ApiResponse<ProgramDto>> {
         const url = `${this.endpoint}/${programId}`;
-        return this.httpClient.get<ApiResponse<ProgramDto>>(url);  
+        return this.httpClient.get<ApiResponse<ProgramDto>>(url);
     }
 
     getCommissionsReport(
@@ -164,5 +164,43 @@ export class ProgramService {
      */
     createProgram(body: any): Observable<ApiResponse<ProgramDto>> {
         return this.httpClient.post<ApiResponse<ProgramDto>>(this.endpoint, body);
+    }
+
+
+
+    getProgramReferrals(
+        programId: string,
+        query?: string,
+        sortBy: referralSortByEnum = referralSortByEnum.UPDATED_AT,
+        order?: 'ASC' | 'DESC',
+        skip?: number,
+        take?: number
+    ): Observable<ApiResponse<PaginatedList<ReferralDto>>> {
+
+        const url = `${this.endpoint}/${programId}/referrals`;
+
+        let params = new HttpParams();
+
+        if (query) {
+            params = params.set('query', query);
+        }
+
+         if (sortBy) {
+        params = params.set('sort_by', sortBy);
+       }
+
+        if (order) {
+            params = params.set('sort_order', order);
+        }
+
+        if (skip !== undefined) {
+            params = params.set('skip', skip.toString());
+        }
+
+        if (take !== undefined) {
+            params = params.set('take', take.toString());
+        }
+
+        return this.httpClient.get<ApiResponse<PaginatedList<ReferralDto>>>(url, { params });
     }
 }

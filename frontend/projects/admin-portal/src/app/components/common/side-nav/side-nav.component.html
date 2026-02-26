@@ -13,6 +13,17 @@
                 </div>
             </mat-list-item>
         </a>
+        <a routerLink="referrals" routerLinkActive #referrals="routerLinkActive" class="block mb-2">
+            <mat-list-item [activated]="referrals.isActive" class="px-4 py-1">
+                <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">
+                    supervised_user_circle
+                </mat-icon>
+                <div matListItemTitle
+                    [class]="`font-sans leading-[20px] ${referrals.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
+                    Referrals
+                </div>
+            </mat-list-item>
+        </a>
         <a routerLink="reports" routerLinkActive #reports="routerLinkActive" class="block mb-2">
             <mat-list-item [activated]="reports.isActive" class="px-4 py-1">
                 <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">

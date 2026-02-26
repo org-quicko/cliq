@@ -28,10 +28,13 @@
         <div class="grid grid-cols-[1fr_auto] text-sm font-medium mb-2 mt-1 text-outline">
           <div>{{ labelColumn }}</div>
           <div class="flex items-center gap-1">
-            <span>{{ displayedValueColumn }}</span>
+            <span
+              (click)="toggleValueType()"
+              class="cursor-pointer hover:underline hover:cursor-pointer select-none"
+              >{{ displayedValueColumn }}</span>
             <button
               (click)="toggleValueType()"
-              class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors">
+              class="flex items-center justify-center w-5 h-5 hover:bg-surface-variant rounded transition-colors cursor-pointer hover:cursor-pointer">
               <img [src]="showSignups() ? 'assets/icon2.svg' : 'assets/icon1.svg'" alt="toggle" class="w-4 h-4" />
             </button>
           </div>

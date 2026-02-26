@@ -3,7 +3,6 @@ import { NumericToNumber } from '../utils/numericToNumber.util';
 import {
 	Entity,
 	Column,
-	Index,
 	CreateDateColumn,
 	UpdateDateColumn,
 	PrimaryColumn,
