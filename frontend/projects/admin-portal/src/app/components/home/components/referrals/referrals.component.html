@@ -59,31 +59,32 @@
 
           <div class="flex items-center">
             <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '150px', margin: '0' }">
+            appearance="line"
+              [theme]="{ height: '1em', width: '150px', margin: '0' }">
             </ngx-skeleton-loader>
           </div>
 
           <div class="flex justify-center">
             <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '40px', margin: '0' }">
+              [theme]="{ height: '1em', width: '40px', margin: '0'}">
             </ngx-skeleton-loader>
           </div>
 
           <div class="flex justify-center">
             <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '50px', margin: '0' }">
+              [theme]="{ height: '1em', width: '50px', margin: '0'}">
             </ngx-skeleton-loader>
           </div>
 
           <div class="flex justify-center">
             <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '120px', margin: '0' }">
+              [theme]="{ height: '1em', width: '120px', margin: '0'}">
             </ngx-skeleton-loader>
           </div>
 
           <div class="flex justify-center">
             <ngx-skeleton-loader
-              [theme]="{ height: '20px', width: '48px', 'border-radius': '6px', margin: '0' }">
+              [theme]="{ height: '1em', width: '48px', 'border-radius': '6px', margin: '0'}">
             </ngx-skeleton-loader>
           </div>
 
@@ -115,7 +116,7 @@
 
       <!-- Updated At -->
       <div class="mat-body-large text-on-surface">
-        {{ referral.updatedAt | date:"h:mm a, d MMM y" }}
+        {{ referral.updatedAt | ordinalDate }}
       </div>
 
       <!-- Status -->

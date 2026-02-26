@@ -19,7 +19,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { ReferralStore } from './store/referrals.store';
-import { ReferralDto, referralSortByEnum } from '@org.quicko.cliq/ngx-core';
+import { ReferralDto, referralSortByEnum, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
 
 @Component({
   selector: 'app-referrals',
@@ -34,6 +34,7 @@ import { ReferralDto, referralSortByEnum } from '@org.quicko.cliq/ngx-core';
     MatIconModule,
     MatButtonModule,
     NgxSkeletonLoaderModule,
+    OrdinalDatePipe
   ],
   templateUrl: './referrals.component.html',
 })
