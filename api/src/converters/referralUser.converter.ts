@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { ReferralDto, PromoterDto } from "../dtos";
-import { Promoter, ReferralView } from "../entities";
+import { ReferralDto} from "../dtos";
+import { ReferralView } from "../entities";
 import { ConverterException } from '@org-quicko/core';
 
 @Injectable()
