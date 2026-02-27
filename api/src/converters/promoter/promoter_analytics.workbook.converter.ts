@@ -1,7 +1,8 @@
+
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
-import { PromotersAnalyticsWorkbook, PromoterAnalyticsRow } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import { PromotersAnalyticsWorkbook, PromoterAnalyticsRow, PromoterAnalyticsList } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 
 
 export interface IPromoterAnalyticsData {
@@ -13,6 +14,7 @@ export interface IPromoterAnalyticsData {
     commission: number;
     signupCommission: number;
     purchaseCommission: number;
+    status?: string;
 }
 
 export interface IPromoterAnalyticsConverterInput {
@@ -24,6 +26,9 @@ export interface IPromoterAnalyticsConverterInput {
     hasMore: boolean;
     sortBy: string;
     period: string;
+    totalPromoters?: number;
+    activePromoters?: number;
+    archivedPromoters?: number;
 }
 
 @Injectable()
@@ -54,10 +59,15 @@ export class PromoterAnalyticsConverter {
                 row.setTotalCommission(Number(promoter.commission ?? 0));
                 row.setSignupCommission(promoter.signupCommission ?? null);
                 row.setPurchaseCommission(promoter.purchaseCommission ?? null);
+                row.setStatus(String(promoter.status ?? ''));
                 table.addRow(row);
             }
 
-
+            const list = new PromoterAnalyticsList();
+            list.addTotalPromoters(data.totalPromoters?? 0);
+            list.addActivePromoters(data.activePromoters?? 0);
+            list.addArchivedPromoters(data.archivedPromoters?? 0);
+            sheet.replaceBlock(list);
 
             workbook.setMetadata(new JSONObject({
                 sortBy: data.sortBy,

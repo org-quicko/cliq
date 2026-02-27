@@ -8,7 +8,8 @@ import {
 import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, ILike } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Circle, Commission, Program, Promoter, Purchase, ReferralView, SignUp, User } from '../entities';
-import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
+import { PromoterAnalyticsDayWiseView} from '../entities/promoterAnalyticsDayWiseView.entity';
+import { PromoterAnalyticsView } from '../entities';
 import { CreateUserDto } from '../dtos';
 import { ProgramUser } from '../entities/programUser.entity';
 import {
@@ -71,6 +72,9 @@ export class ProgramService {
 
 		@InjectRepository(PromoterAnalyticsDayWiseView)
 		private readonly promoterAnalyticsDayWiseViewRepository: Repository<PromoterAnalyticsDayWiseView>,
+
+		@InjectRepository(PromoterAnalyticsView)
+		private readonly promoterAnalyticsViewRepository: Repository<PromoterAnalyticsView>,
 
 		@InjectRepository(ProgramSummaryView)
 		private readonly programSummaryViewRepository: Repository<ProgramSummaryView>,
@@ -480,38 +484,87 @@ export class ProgramService {
 	}
 
 	/**
-	 * Get all promoters
+	 * Get all promoters with analytics for a program
 	 */
 	async getAllPromoters(
 		programId: string,
-		whereOptions: FindOptionsWhere<Promoter> = {},
-		queryOptions: QueryOptionsInterface = defaultQueryOptions,
+		search?: string,
+		skip: number = 0,
+		take: number = 5,
+		order: 'ASC' | 'DESC' = 'ASC',
 	) {
 		this.logger.info(`START: getAllPromoters service`);
 
-		const programPromotersResult =
-			await this.programPromoterRepository.find({
-				where: {
-					programId,
-					...whereOptions
-				},
-				relations: { promoter: true },
-				...queryOptions,
-			});
+		const baseQuery = this.promoterAnalyticsViewRepository
+			.createQueryBuilder('pav')
+			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = pav.promoterId')
+			.where('pav.programId = :programId', { programId });
 
-		if (!programPromotersResult) {
-			throw new NotFoundException(
-				`Error. Promoters of Program ${programId} not found.`,
-			);
+		if (search?.trim()) {
+			baseQuery.andWhere('promoter.name ILIKE :search', {
+				search: `%${search.trim()}%`,
+			});
 		}
 
-		const programPromotersDto = programPromotersResult.map((programPromoter) =>
-			this.promoterConverter.convert(programPromoter.promoter, programPromoter.acceptedTermsAndConditions),
-		);
+		baseQuery.orderBy('promoter.name', order);
+
+		const total = await baseQuery.getCount();
+
+		const promotersAnalytics = await baseQuery
+			.select('pav.promoterId', 'promoterId')
+			.addSelect('pav.totalRevenue', 'totalRevenue')
+			.addSelect('pav.totalCommission', 'totalCommission')
+			.addSelect('pav.signupCommission', 'signupCommission')
+			.addSelect('pav.purchaseCommission', 'purchaseCommission')
+			.addSelect('pav.totalSignUps', 'totalSignUps')
+			.addSelect('pav.totalPurchases', 'totalPurchases')
+			.addSelect('promoter.name', 'promoterName')
+			.addSelect('promoter.status', 'status')
+			.offset(skip)
+			.limit(take)
+			.getRawMany();
+
+		const statusCounts = await this.promoterAnalyticsViewRepository
+			.createQueryBuilder('pav')
+			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = pav.promoterId')
+			.select('promoter.status', 'status')
+			.addSelect('COUNT(*)', 'count')
+			.where('pav.programId = :programId', { programId })
+			.groupBy('promoter.status')
+			.getRawMany();
+
+		const totalPromoters = statusCounts.reduce((sum, s) => sum + Number(s.count), 0);
+		const activePromoters = Number(statusCounts.find(s => s.status === 'active')?.count ?? 0);
+		const archivedPromoters = Number(statusCounts.find(s => s.status === 'archived')?.count ?? 0);
+
+		const promotersData = promotersAnalytics.map((record) => ({
+			promoterId: record.promoterId,
+			promoterName: record.promoterName,
+			signups: Number(record.totalSignUps) || 0,
+			purchases: Number(record.totalPurchases) || 0,
+			revenue: Number(record.totalRevenue) || 0,
+			commission: Number(record.totalCommission) || 0,
+			signupCommission: Number(record.signupCommission) || 0,
+			purchaseCommission: Number(record.purchaseCommission) || 0,
+			status: record.status,
+		}));
 
 		this.logger.info(`END: getAllPromoters service`);
-		return programPromotersDto;
+		return this.promoterAnalyticsConverter.convert({
+			programId,
+			promoters: promotersData,
+			total,
+			skip,
+			take,
+			hasMore: skip + take < total,
+			sortBy: 'name',
+			period: 'all',
+			totalPromoters,
+			activePromoters,
+			archivedPromoters,
+		});
 	}
+
 
 	/**
 	 * Get signups in workspace

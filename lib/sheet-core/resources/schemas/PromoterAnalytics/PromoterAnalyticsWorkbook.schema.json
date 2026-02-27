@@ -108,11 +108,17 @@
                               "enum": [
                                 "purchase_commission"
                               ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "status"
+                              ]
                             }
                           ],
                           "additionalItems": false,
-                          "minItems": 9,
-                          "maxItems": 9
+                          "minItems": 10,
+                          "maxItems": 10
                         },
                         "rows": {
                           "type": "array",
@@ -151,11 +157,14 @@
                                   "number",
                                   "null"
                                 ]
+                              },
+                              {
+                                "type": "string"
                               }
                             ],
                             "additionalItems": false,
-                            "minItems": 9,
-                            "maxItems": 9
+                            "minItems": 10,
+                            "maxItems": 10
                           }
                         }
                       },
@@ -164,6 +173,46 @@
                         "@entity",
                         "header",
                         "rows"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "promoter_analytics_list"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "list"
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "total_promoters": {
+                                "type": "number"
+                              },
+                              "active_promoters": {
+                                "type": "number"
+                              },
+                              "archived_promoters": {
+                                "type": "number"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "items"
                       ]
                     }
                   ]

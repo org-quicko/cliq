@@ -18,6 +18,7 @@ import { CreateProgramComponent } from './components/create-program-container/cr
 import { DynamicComponentLoaderComponent } from './components/dynamic-component-loader/dynamic-component-loader.component';
 import { IsLoggedIn } from './guards';
 import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
+import { PromotersComponent } from './components/home/components/promoters/promoters.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
@@ -67,6 +68,7 @@ export const routes: Routes = [
                             },
                             { path: 'dashboard', component: DashboardComponent },
                             { path: 'referrals' , component: ReferralsComponent},
+                            {path: 'promoters', component: PromotersComponent},
                             { path: 'reports', component: ReportsComponent },
                             { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
                             { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },

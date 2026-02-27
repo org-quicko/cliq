@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, ProgramDto,ReferralDto,PaginatedList, referralSortByEnum, SortByEnum } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, ProgramDto, ReferralDto, PaginatedList, referralSortByEnum, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 import { ProgramSummaryViewWorkbook } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
@@ -185,9 +185,9 @@ export class ProgramService {
             params = params.set('query', query);
         }
 
-         if (sortBy) {
-        params = params.set('sort_by', sortBy);
-       }
+        if (sortBy) {
+            params = params.set('sort_by', sortBy);
+        }
 
         if (order) {
             params = params.set('sort_order', order);
@@ -203,4 +203,31 @@ export class ProgramService {
 
         return this.httpClient.get<ApiResponse<PaginatedList<ReferralDto>>>(url, { params });
     }
+
+    getAllPromoters(
+        programId: string,
+        search?: string,
+        skip?: number,
+        take?: number,
+        order?: 'ASC' | 'DESC',
+    ): Observable<ApiResponse<PromotersAnalyticsWorkbook>> {
+        const url = `${this.endpoint}/${programId}/promoters`;
+
+        let params = new HttpParams();
+        if (search) {
+            params = params.set('search', search);
+        }
+        if (skip !== undefined) {
+            params = params.set('skip', skip.toString());
+        }
+        if (take !== undefined) {
+            params = params.set('take', take.toString());
+        }
+        if (order) {
+            params = params.set('order', order);
+        }
+
+        return this.httpClient.get<ApiResponse<PromotersAnalyticsWorkbook>>(url, { params });
+    }
 }
+

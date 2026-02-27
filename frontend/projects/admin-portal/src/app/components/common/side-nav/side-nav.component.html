@@ -13,6 +13,17 @@
                 </div>
             </mat-list-item>
         </a>
+        <a routerLink="promoters" routerLinkActive #promoters="routerLinkActive" class="block mb-2">
+            <mat-list-item [activated]="promoters.isActive" class="px-4 py-1">
+                <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">
+                    account_circle
+                </mat-icon>
+                <div matListItemTitle
+                    [class]="`font-sans leading-[20px] ${promoters.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
+                    Promoters
+                </div>
+            </mat-list-item>
+        </a>
         <a routerLink="referrals" routerLinkActive #referrals="routerLinkActive" class="block mb-2">
             <mat-list-item [activated]="referrals.isActive" class="px-4 py-1">
                 <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">

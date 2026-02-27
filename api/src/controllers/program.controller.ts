@@ -276,20 +276,18 @@ export class ProgramController {
   @Get(':program_id/promoters')
   async getAllPromoters(
     @Param('program_id') programId: string,
-    @Query('name') name?: string,
+    @Query('search') search?: string,
     @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
+    @Query('take') take: number = 5,
+    @Query('order') order: 'ASC' | 'DESC' = 'ASC',
   ) {
     this.logger.info('START: getAllPromoters controller');
     const result = await this.programService.getAllPromoters(
       programId,
-      {
-        name,
-      },
-      {
-        skip,
-        take,
-      }
+      search,
+      skip,
+      take,
+      order,
     );
     this.logger.info('END: getAllPromoters controller');
     return {
@@ -297,6 +295,7 @@ export class ProgramController {
       result,
     };
   }
+
 
   /**
    * Get signups in program
