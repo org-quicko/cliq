@@ -15,6 +15,7 @@ export interface IPromoterAnalyticsData {
     signupCommission: number;
     purchaseCommission: number;
     status?: string;
+    memberEmail?: string | null;
 }
 
 export interface IPromoterAnalyticsConverterInput {
@@ -60,6 +61,7 @@ export class PromoterAnalyticsConverter {
                 row.setSignupCommission(promoter.signupCommission ?? null);
                 row.setPurchaseCommission(promoter.purchaseCommission ?? null);
                 row.setStatus(String(promoter.status ?? ''));
+                row.setMemberEmail(promoter.memberEmail ?? '');
                 table.addRow(row);
             }
 
@@ -75,7 +77,7 @@ export class PromoterAnalyticsConverter {
                 total: data.total,
                 skip: data.skip,
                 take: data.take,
-                hasMore: data.hasMore
+                hasMore: data.hasMore,
             }));
 
             this.logger.info('END: convert function: PromoterAnalyticsConverter');

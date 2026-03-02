@@ -15,6 +15,7 @@ import { Status } from '@org.quicko.cliq/ngx-core';
 export interface PromoterListItem {
     promoterId: string;
     promoterName: string;
+    memberEmail: string;
     signups: number;
     purchases: number;
     revenue: number;
@@ -102,6 +103,7 @@ export const PromotersStore = signalStore(
                                         promoters.push({
                                             promoterId: row.getPromoterId(),
                                             promoterName: row.getPromoterName(),
+                                            memberEmail: row.getMemberEmail() ?? '',
                                             signups: Number(row.getTotalSignups() ?? 0),
                                             purchases: Number(row.getTotalPurchases() ?? 0),
                                             revenue: Number(row.getTotalRevenue() ?? 0),

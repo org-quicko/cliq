@@ -104,10 +104,12 @@
     <!-- Data Rows -->
     @for (promoter of promoters(); track promoter.promoterId) {
     <div
-      class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_0.2fr] items-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
+      class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_0.2fr] items-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer"
+      (click)="viewPromoterSummary(promoter.promoterId)">
 
-      <div class="mat-body-large text-on-surface text-left truncate">
-        {{ promoter.promoterName }}
+      <div class="flex flex-col text-left truncate">
+        <span class="mat-body-large text-on-surface truncate">{{ promoter.promoterName }}</span>
+        <span class="mat-body-large text-on-surface-variant truncate">{{ promoter.memberEmail }}</span>
       </div>
 
       <div class="mat-body-large text-on-surface text-center">
@@ -136,7 +138,7 @@
       </div>
 
       <div class="flex justify-center">
-        <button mat-icon-button>
+        <button mat-icon-button (click)="viewPromoterSummary(promoter.promoterId); $event.stopPropagation()">
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>

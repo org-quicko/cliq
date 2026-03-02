@@ -1,17 +1,14 @@
-import { inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withMethods, withState } from "@ngrx/signals";
+import { inject, computed } from '@angular/core';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { Status, SnackbarService } from '@org.quicko.cliq/ngx-core';
-import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ProgramService } from '../../../../../services/program.service';
+import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { plainToInstance } from 'class-transformer';
-import { ProgramAnalyticsSheet, ProgramAnalyticsTable, ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
-import 'reflect-metadata';
-import { computed } from '@angular/core';
-
+import { ProgramService } from '../../../../../services/program.service';
+import { Status, SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 
 export interface DailyData {
     date: string;
@@ -23,16 +20,19 @@ export interface DailyData {
     purchaseCommission: number;
 }
 
-export interface ProgramAnalyticsData {
+export interface PromoterSummaryData {
     totalRevenue: number;
     totalCommissions: number;
+    signupCommission: number;
+    purchaseCommission: number;
     totalSignups: number;
     totalPurchases: number;
 }
 
-export interface DashboardStoreState {
+export interface PromoterSummaryStoreState {
+    promoterName: string;
     analytics: {
-        data: ProgramAnalyticsData | null;
+        data: PromoterSummaryData | null;
         dailyData: DailyData[];
         dataType: string | null;
         period: string | null;
@@ -43,7 +43,8 @@ export interface DashboardStoreState {
     };
 }
 
-export const initialDashboardState: DashboardStoreState = {
+const initialState: PromoterSummaryStoreState = {
+    promoterName: '',
     analytics: {
         data: null,
         dailyData: [],
@@ -56,9 +57,9 @@ export const initialDashboardState: DashboardStoreState = {
     },
 };
 
-export const DashboardStore = signalStore(
-    withState(initialDashboardState),
-    withDevtools('admin-dashboard'),
+export const PromoterSummaryStore = signalStore(
+    withState(initialState),
+    withDevtools('promoter-summary'),
     withComputed((store) => ({
         isLoading: computed(() => store.analytics().status === Status.LOADING),
     })),
@@ -68,9 +69,9 @@ export const DashboardStore = signalStore(
             programService = inject(ProgramService),
             snackbarService = inject(SnackbarService),
         ) => ({
-
-            getProgramAnalytics: rxMethod<{
+            getPromoterSummaryAnalytics: rxMethod<{
                 programId: string;
+                promoterId: string;
                 period?: string;
                 startDate?: string;
                 endDate?: string;
@@ -81,47 +82,51 @@ export const DashboardStore = signalStore(
                             analytics: {
                                 ...store.analytics(),
                                 status: Status.LOADING,
-                                error: null
-                            }
+                                error: null,
+                            },
                         });
                     }),
-
-                    switchMap(({ programId, period, startDate, endDate }) =>
-                        programService.getProgramAnalytics(programId, period, startDate, endDate).pipe(
+                    switchMap(({ programId, promoterId, period, startDate, endDate }) =>
+                        programService.getPromoterSummaryAnalytics(programId, promoterId, period, startDate, endDate).pipe(
                             tapResponse({
-
                                 next: (response) => {
                                     try {
-                                        const workbook = plainToInstance(ProgramAnalyticsWorkbook, response?.data);
-                                        const sheet = workbook.getProgramAnalyticsSheet() as ProgramAnalyticsSheet;
-                                        const table = sheet.getProgramAnalyticsTable() as ProgramAnalyticsTable;
-                                        const row = table.getRow(0);
+                                        const workbook = plainToInstance(
+                                            PromotersAnalyticsWorkbook,
+                                            response?.data
+                                        );
 
-                                        const analyticsData: ProgramAnalyticsData = {
-                                            totalRevenue: row.getTotalRevenue() || 0,
-                                            totalCommissions: row.getTotalCommissions() || 0,
-                                            totalSignups: row.getTotalSignups() || 0,
-                                            totalPurchases: row.getTotalPurchases() || 0,
+                                        const sheet = workbook.getPromoterAnalyticsSheet();
+                                        const table = sheet.getPromoterAnalyticsTable();
+                                        const row = table.getRow(0);
+                                        const metadata = workbook.getMetadata();
+
+                                        const dailyDataStr = metadata?.get('dailyData') as string;
+                                        const dailyData: DailyData[] = dailyDataStr ? JSON.parse(dailyDataStr) : [];
+
+                                        const analyticsData: PromoterSummaryData = {
+                                            totalRevenue: Number(row.getTotalRevenue() ?? 0),
+                                            totalCommissions: Number(row.getTotalCommission() ?? 0),
+                                            signupCommission: Number(row.getSignupCommission() ?? 0),
+                                            purchaseCommission: Number(row.getPurchaseCommission() ?? 0),
+                                            totalSignups: Number(row.getTotalSignups() ?? 0),
+                                            totalPurchases: Number(row.getTotalPurchases() ?? 0),
                                         };
 
-                                        const metadata = workbook.getMetadata();
-                                        const dailyDataStr = metadata?.get('dailyData') as string;
-                                        const dailyData = dailyDataStr ? JSON.parse(dailyDataStr) : [];
-
                                         patchState(store, {
+                                            promoterName: row.getPromoterName() || '',
                                             analytics: {
                                                 data: analyticsData,
-                                                dailyData: dailyData || [],
+                                                dailyData,
                                                 dataType: (metadata?.get('dataType') as string) || 'daily',
                                                 period: (metadata?.get('period') as string) || period || '30days',
                                                 startDate: (metadata?.get('startDate') as string) || null,
                                                 endDate: (metadata?.get('endDate') as string) || null,
                                                 error: null,
                                                 status: Status.SUCCESS,
-                                            }
+                                            },
                                         });
                                     } catch (error) {
-
                                         patchState(store, {
                                             analytics: {
                                                 data: null,
@@ -132,13 +137,11 @@ export const DashboardStore = signalStore(
                                                 endDate: null,
                                                 error,
                                                 status: Status.ERROR,
-                                            }
+                                            },
                                         });
-
-                                        snackbarService.openSnackBar('Error parsing analytics data', '');
+                                        snackbarService.openSnackBar('Error parsing promoter analytics data', '');
                                     }
                                 },
-
                                 error: (error: HttpErrorResponse) => {
                                     if (error.status === 404) {
                                         patchState(store, {
@@ -151,7 +154,7 @@ export const DashboardStore = signalStore(
                                                 endDate: null,
                                                 error: null,
                                                 status: Status.SUCCESS,
-                                            }
+                                            },
                                         });
                                         return;
                                     }
@@ -166,27 +169,15 @@ export const DashboardStore = signalStore(
                                             endDate: null,
                                             error,
                                             status: Status.ERROR,
-                                        }
+                                        },
                                     });
-
-                                    snackbarService.openSnackBar('Error fetching program analytics', '');
-                                }
-
+                                    snackbarService.openSnackBar('Error fetching promoter analytics', '');
+                                },
                             })
                         )
                     ),
                 )
             ),
-
-            setPeriod(period: string) {
-                patchState(store, {
-                    analytics: {
-                        ...store.analytics(),
-                        period,
-                    }
-                });
-            },
-
         })
     ),
 );

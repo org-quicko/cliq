@@ -229,5 +229,58 @@ export class ProgramService {
 
         return this.httpClient.get<ApiResponse<PromotersAnalyticsWorkbook>>(url, { params });
     }
-}
 
+    getPromoterSummaryAnalytics(
+        programId: string,
+        promoterId: string,
+        period?: string,
+        startDate?: string,
+        endDate?: string,
+    ): Observable<ApiResponse<PromotersAnalyticsWorkbook>> {
+        const url = `${this.endpoint}/${programId}/promoters/${promoterId}/summary`;
+
+        let params = new HttpParams();
+        if (period) {
+            params = params.set('period', period);
+        }
+        if (startDate) {
+            params = params.set('startDate', startDate);
+        }
+        if (endDate) {
+            params = params.set('endDate', endDate);
+        }
+
+        return this.httpClient.get<ApiResponse<PromotersAnalyticsWorkbook>>(url, { params });
+    }
+
+    getPromoterLinksSummary(
+        programId: string,
+        promoterId: string,
+        period?: string,
+        startDate?: string,
+        endDate?: string,
+        skip?: number,
+        take?: number,
+    ): Observable<ApiResponse<any>> {
+        const url = `${this.endpoint}/${programId}/promoters/${promoterId}/links-summary`;
+
+        let params = new HttpParams();
+        if (period) {
+            params = params.set('period', period);
+        }
+        if (startDate) {
+            params = params.set('startDate', startDate);
+        }
+        if (endDate) {
+            params = params.set('endDate', endDate);
+        }
+        if (skip !== undefined) {
+            params = params.set('skip', skip.toString());
+        }
+        if (take !== undefined) {
+            params = params.set('take', take.toString());
+        }
+
+        return this.httpClient.get<ApiResponse<any>>(url, { params });
+    }
+}

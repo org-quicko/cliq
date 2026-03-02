@@ -114,11 +114,17 @@
                               "enum": [
                                 "status"
                               ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "member_email"
+                              ]
                             }
                           ],
                           "additionalItems": false,
-                          "minItems": 10,
-                          "maxItems": 10
+                          "minItems": 11,
+                          "maxItems": 11
                         },
                         "rows": {
                           "type": "array",
@@ -160,11 +166,14 @@
                               },
                               {
                                 "type": "string"
+                              },
+                              {
+                                "type": "string"
                               }
                             ],
                             "additionalItems": false,
-                            "minItems": 10,
-                            "maxItems": 10
+                            "minItems": 11,
+                            "maxItems": 11
                           }
                         }
                       },

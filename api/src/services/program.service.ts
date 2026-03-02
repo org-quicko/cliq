@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, ILike } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Circle, Commission, Program, Promoter, Purchase, ReferralView, SignUp, User } from '../entities';
-import { PromoterAnalyticsDayWiseView} from '../entities/promoterAnalyticsDayWiseView.entity';
+import { Circle, Commission, Member, Program, Promoter, PromoterMember, Purchase, ReferralView, SignUp, User, LinkAnalyticsDayWiseView } from '../entities';
+import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
 import { PromoterAnalyticsView } from '../entities';
 import { CreateUserDto } from '../dtos';
 import { ProgramUser } from '../entities/programUser.entity';
@@ -26,7 +26,7 @@ import { UserConverter } from '../converters/user.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
 import { CommissionConverter } from '../converters/commission/commission.dto.converter';
-import { userRoleEnum, statusEnum, visibilityEnum, referralSortByEnum } from '../enums';
+import { userRoleEnum, statusEnum, visibilityEnum, referralSortByEnum, memberRoleEnum } from '../enums';
 import { LoggerService } from './logger.service';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
@@ -38,7 +38,7 @@ import { ReferralConverter } from 'src/converters/referral.converter';
 import { ReferralUserConverter } from 'src/converters/referralUser.converter';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Transform } from 'node:stream';
-import { BadRequestException } from '@org-quicko/core';
+import { BadRequestException, JSONObject } from '@org-quicko/core';
 import { ProgramAnalyticsWorkbookConverter } from '../converters/program/program_analytics.workbook.converter';
 import { PromoterAnalyticsConverter } from '../converters/promoter/promoter_analytics.workbook.converter';
 import { ProgramSummaryViewWorkbookConverter } from '../converters/program/program_summary_view.workbook.converter';
@@ -78,6 +78,9 @@ export class ProgramService {
 
 		@InjectRepository(ProgramSummaryView)
 		private readonly programSummaryViewRepository: Repository<ProgramSummaryView>,
+
+		@InjectRepository(LinkAnalyticsDayWiseView)
+		private readonly linkAnalyticsDayWiseViewRepository: Repository<LinkAnalyticsDayWiseView>,
 
 		private userService: UserService,
 
@@ -498,6 +501,8 @@ export class ProgramService {
 		const baseQuery = this.promoterAnalyticsViewRepository
 			.createQueryBuilder('pav')
 			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = pav.promoterId')
+			.leftJoin(PromoterMember, 'pm', 'pm.promoterId = pav.promoterId AND pm.role = :adminRole', { adminRole: memberRoleEnum.ADMIN })
+			.leftJoin(Member, 'adminMember', 'adminMember.memberId = pm.memberId')
 			.where('pav.programId = :programId', { programId });
 
 		if (search?.trim()) {
@@ -520,6 +525,7 @@ export class ProgramService {
 			.addSelect('pav.totalPurchases', 'totalPurchases')
 			.addSelect('promoter.name', 'promoterName')
 			.addSelect('promoter.status', 'status')
+			.addSelect('adminMember.email', 'memberEmail')
 			.offset(skip)
 			.limit(take)
 			.getRawMany();
@@ -547,6 +553,7 @@ export class ProgramService {
 			signupCommission: Number(record.signupCommission) || 0,
 			purchaseCommission: Number(record.purchaseCommission) || 0,
 			status: record.status,
+			memberEmail: record.memberEmail ?? null,
 		}));
 
 		this.logger.info(`END: getAllPromoters service`);
@@ -564,6 +571,9 @@ export class ProgramService {
 			archivedPromoters,
 		});
 	}
+
+
+
 
 
 	/**
@@ -951,7 +961,7 @@ export class ProgramService {
 			.getRawOne();
 
 		// Get breakdown data for chart
-		let dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number }>;
+		let dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number; signupCommission: number; purchaseCommission: number }>;
 
 		if (dataType === 'yearly' || (period === 'custom' && customStartDate && customEndDate && this.getMonthDifference(customStartDate, customEndDate) > 35)) {
 			const yearlyData = await this.promoterAnalyticsDayWiseViewRepository
@@ -961,6 +971,8 @@ export class ProgramService {
 				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
 				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
 				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
 				.where('analytics.programId = :programId', { programId })
 				.andWhere('analytics.date >= :startDate', { startDate })
 				.andWhere('analytics.date <= :endDate', { endDate })
@@ -974,6 +986,8 @@ export class ProgramService {
 				purchases: Number(row.purchases) || 0,
 				revenue: Number(row.revenue) || 0,
 				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
 			}));
 
 		} else if (dataType === 'monthly' || (period === 'custom' && customStartDate && customEndDate && this.getDayDifference(customStartDate, customEndDate) > 90)) {
@@ -984,6 +998,8 @@ export class ProgramService {
 				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
 				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
 				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
 				.where('analytics.programId = :programId', { programId })
 				.andWhere('analytics.date >= :startDate', { startDate })
 				.andWhere('analytics.date <= :endDate', { endDate })
@@ -997,6 +1013,8 @@ export class ProgramService {
 				purchases: Number(row.purchases) || 0,
 				revenue: Number(row.revenue) || 0,
 				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
 			}));
 
 		} else if (period === '3months' || dataType === 'weekly') {
@@ -1010,6 +1028,8 @@ export class ProgramService {
 				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
 				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
 				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
 				.where('analytics.programId = :programId', { programId })
 				.andWhere('analytics.date >= :startDate', { startDate })
 				.andWhere('analytics.date <= :endDate', { endDate })
@@ -1024,6 +1044,8 @@ export class ProgramService {
 				purchases: Number(row.purchases) || 0,
 				revenue: Number(row.revenue) || 0,
 				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
 			}));
 
 		} else {
@@ -1034,6 +1056,8 @@ export class ProgramService {
 				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
 				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
 				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
 				.where('analytics.programId = :programId', { programId })
 				.andWhere('analytics.date >= :startDate', { startDate })
 				.andWhere('analytics.date <= :endDate', { endDate })
@@ -1047,6 +1071,8 @@ export class ProgramService {
 				purchases: Number(row.purchases) || 0,
 				revenue: Number(row.revenue) || 0,
 				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
 			}));
 
 			if (period === '7days') {
@@ -1076,7 +1102,269 @@ export class ProgramService {
 		return workbook;
 	}
 
+	/**
+	 * Get promoter summary analytics
+	 */
+	async getPromoterSummaryAnalytics(
+		programId: string,
+		promoterId: string,
+		period: string = '30days',
+		customStartDate?: Date,
+		customEndDate?: Date,
+	) {
+		this.logger.info('START: getPromoterSummaryAnalytics service');
 
+		// Fetch promoter name
+		const promoter = await this.datasource.getRepository(Promoter).findOne({
+			where: { promoterId },
+			select: ['promoterId', 'name'],
+		});
+
+
+		const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
+		const dataType = this.getDataType(period, startDate, endDate);
+
+		// Get aggregate totals for this specific promoter
+		const aggregateResult = await this.promoterAnalyticsDayWiseViewRepository
+			.createQueryBuilder('analytics')
+			.select('COALESCE(SUM(analytics.dailyRevenue), 0)', 'totalRevenue')
+			.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'totalCommissions')
+			.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+			.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
+			.addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'totalSignups')
+			.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'totalPurchases')
+			.where('analytics.programId = :programId', { programId })
+			.andWhere('analytics.promoterId = :promoterId', { promoterId })
+			.andWhere('analytics.date >= :startDate', { startDate })
+			.andWhere('analytics.date <= :endDate', { endDate })
+			.getRawOne();
+			
+		let dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number; signupCommission: number; purchaseCommission: number }>;
+
+		if (dataType === 'yearly' || (period === 'custom' && customStartDate && customEndDate && this.getMonthDifference(customStartDate, customEndDate) > 35)) {
+			const yearlyData = await this.promoterAnalyticsDayWiseViewRepository
+				.createQueryBuilder('analytics')
+				.select('EXTRACT(YEAR FROM analytics.date)', 'year')
+				.addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
+				.where('analytics.programId = :programId', { programId })
+				.andWhere('analytics.promoterId = :promoterId', { promoterId })
+				.andWhere('analytics.date >= :startDate', { startDate })
+				.andWhere('analytics.date <= :endDate', { endDate })
+				.groupBy('EXTRACT(YEAR FROM analytics.date)')
+				.orderBy('year', 'ASC')
+				.getRawMany();
+
+			dailyData = yearlyData.map(row => ({
+				date: `${row.year}-01-01`,
+				signups: Number(row.signups) || 0,
+				purchases: Number(row.purchases) || 0,
+				revenue: Number(row.revenue) || 0,
+				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
+			}));
+
+		} else if (dataType === 'monthly' || (period === 'custom' && customStartDate && customEndDate && this.getDayDifference(customStartDate, customEndDate) > 90)) {
+			const monthlyData = await this.promoterAnalyticsDayWiseViewRepository
+				.createQueryBuilder('analytics')
+				.select("TO_CHAR(analytics.date, 'YYYY-MM')", 'month')
+				.addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
+				.where('analytics.programId = :programId', { programId })
+				.andWhere('analytics.promoterId = :promoterId', { promoterId })
+				.andWhere('analytics.date >= :startDate', { startDate })
+				.andWhere('analytics.date <= :endDate', { endDate })
+				.groupBy("TO_CHAR(analytics.date, 'YYYY-MM')")
+				.orderBy('month', 'ASC')
+				.getRawMany();
+
+			dailyData = monthlyData.map(row => ({
+				date: `${row.month}-01`,
+				signups: Number(row.signups) || 0,
+				purchases: Number(row.purchases) || 0,
+				revenue: Number(row.revenue) || 0,
+				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
+			}));
+
+		} else if (period === '3months' || dataType === 'weekly') {
+			const dayDiff = period === '3months' ? 90 : this.getDayDifference(customStartDate!, customEndDate!);
+			const weeksToShow = period === '3months' ? 13 : Math.ceil(dayDiff / 7);
+
+			const weeklyData = await this.promoterAnalyticsDayWiseViewRepository
+				.createQueryBuilder('analytics')
+				.select("TO_CHAR(DATE_TRUNC('week', analytics.date), 'YYYY-MM-DD')", 'weekStart')
+				.addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
+				.where('analytics.programId = :programId', { programId })
+				.andWhere('analytics.promoterId = :promoterId', { promoterId })
+				.andWhere('analytics.date >= :startDate', { startDate })
+				.andWhere('analytics.date <= :endDate', { endDate })
+				.groupBy("DATE_TRUNC('week', analytics.date)")
+				.orderBy('"weekStart"', 'ASC')
+				.limit(weeksToShow)
+				.getRawMany();
+
+			dailyData = weeklyData.map(row => ({
+				date: row.weekStart,
+				signups: Number(row.signups) || 0,
+				purchases: Number(row.purchases) || 0,
+				revenue: Number(row.revenue) || 0,
+				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
+			}));
+
+		} else {
+			const rawDailyData = await this.promoterAnalyticsDayWiseViewRepository
+				.createQueryBuilder('analytics')
+				.select("TO_CHAR(analytics.date, 'YYYY-MM-DD')", 'date')
+				.addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'signups')
+				.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'purchases')
+				.addSelect('COALESCE(SUM(analytics.dailyRevenue), 0)', 'revenue')
+				.addSelect('COALESCE(SUM(analytics.dailyCommission), 0)', 'commission')
+				.addSelect('COALESCE(SUM(analytics.signupCommission), 0)', 'signupCommission')
+				.addSelect('COALESCE(SUM(analytics.purchaseCommission), 0)', 'purchaseCommission')
+				.where('analytics.programId = :programId', { programId })
+				.andWhere('analytics.promoterId = :promoterId', { promoterId })
+				.andWhere('analytics.date >= :startDate', { startDate })
+				.andWhere('analytics.date <= :endDate', { endDate })
+				.groupBy('analytics.date')
+				.orderBy('analytics.date', 'ASC')
+				.getRawMany();
+
+			dailyData = rawDailyData.map(row => ({
+				date: row.date,
+				signups: Number(row.signups) || 0,
+				purchases: Number(row.purchases) || 0,
+				revenue: Number(row.revenue) || 0,
+				commission: Number(row.commission) || 0,
+				signupCommission: Number(row.signupCommission) || 0,
+				purchaseCommission: Number(row.purchaseCommission) || 0,
+			}));
+
+			if (period === '7days') {
+				dailyData = dailyData.slice(-7);
+			}
+		}
+
+		this.logger.info('END: getPromoterSummaryAnalytics service');
+
+		const workbook = this.promoterAnalyticsConverter.convert({
+			programId,
+			promoters: [{
+				promoterId,
+				promoterName: promoter!.name,
+				signups: Number(aggregateResult?.totalSignups) || 0,
+				purchases: Number(aggregateResult?.totalPurchases) || 0,
+				revenue: Number(aggregateResult?.totalRevenue) || 0,
+				commission: Number(aggregateResult?.totalCommissions) || 0,
+				signupCommission: Number(aggregateResult?.signupCommission) || 0,
+				purchaseCommission: Number(aggregateResult?.purchaseCommission) || 0,
+			}],
+			total: 1,
+			skip: 0,
+			take: 1,
+			hasMore: false,
+			sortBy: 'name',
+			period,
+		});
+
+		workbook.setMetadata(
+			new JSONObject({
+				period,
+				startDate: startDate.toISOString().split('T')[0],
+				endDate: endDate.toISOString().split('T')[0],
+				dataType,
+				dailyData: JSON.stringify(dailyData),
+			})
+		);
+
+		return workbook;
+	}
+
+	/**
+	 * Get link analytics for a specific promoter with date range filter
+	 */
+	async getPromoterLinksSummary(
+		programId: string,
+		promoterId: string,
+		period: string = '30days',
+		customStartDate?: Date,
+		customEndDate?: Date,
+		skip: number = 0,
+		take: number = 5,
+	) {
+		this.logger.info('START: getPromoterLinksSummary service');
+
+		const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
+
+		const linksData = await this.linkAnalyticsDayWiseViewRepository
+			.createQueryBuilder('link')
+			.select('link.linkId', 'linkId')
+			.addSelect('link.name', 'name')
+			.addSelect('link.refVal', 'refVal')
+			.addSelect('COALESCE(SUM(link.dailySignups), 0)', 'signups')
+			.addSelect('COALESCE(SUM(link.dailyPurchases), 0)', 'purchases')
+			.addSelect('COALESCE(SUM(link.dailyCommission), 0)', 'commission')
+			.addSelect('MIN(link.createdAt)', 'createdAt')
+			.where('link.programId = :programId', { programId })
+			.andWhere('link.promoterId = :promoterId', { promoterId })
+			.andWhere('link.date >= :startDate', { startDate })
+			.andWhere('link.date <= :endDate', { endDate })
+			.groupBy('link.linkId, link.name, link.refVal')
+			.orderBy('commission', 'DESC')
+			.offset(skip)
+			.limit(take)
+			.getRawMany();
+
+		const totalCountResult = await this.linkAnalyticsDayWiseViewRepository
+			.createQueryBuilder('link')
+			.select('COUNT(DISTINCT link.linkId)', 'count')
+			.where('link.programId = :programId', { programId })
+			.andWhere('link.promoterId = :promoterId', { promoterId })
+			.andWhere('link.date >= :startDate', { startDate })
+			.andWhere('link.date <= :endDate', { endDate })
+			.getRawOne();
+
+		const totalCount = Number(totalCountResult?.count) || 0;
+
+		const links = linksData.map(link => ({
+			linkId: link.linkId,
+			name: link.name,
+			refVal: link.refVal,
+			signups: Number(link.signups) || 0,
+			purchases: Number(link.purchases) || 0,
+			commission: Number(link.commission) || 0,
+			createdAt: link.createdAt,
+		}));
+
+		this.logger.info('END: getPromoterLinksSummary service');
+		return {
+			links,
+			total: totalCount,
+			skip,
+			take,
+			hasMore: skip + take < totalCount,
+			period,
+			startDate: startDate.toISOString().split('T')[0],
+			endDate: endDate.toISOString().split('T')[0],
+		};
+	}
 
 
 	async getPromoterAnalytics(
@@ -1102,8 +1390,7 @@ export class ProgramService {
 
 		const promoterData = await this.promoterAnalyticsDayWiseViewRepository
 			.createQueryBuilder('analytics')
-			.leftJoin(Promoter, 'promoter', 'promoter.promoterId = analytics.promoterId')
-			.select('analytics.promoterId', 'promoterId')
+			.leftJoin(Promoter, 'promoter', 'promoter.promoterId = analytics.promoterId').select('analytics.promoterId', 'promoterId')
 			.addSelect('promoter.name', 'promoterName')
 			.addSelect('COALESCE(SUM(analytics.dailySignups), 0)', 'totalSignups')
 			.addSelect('COALESCE(SUM(analytics.dailyPurchases), 0)', 'totalPurchases')

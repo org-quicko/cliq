@@ -537,4 +537,62 @@ export class ProgramController {
           result: workbook
         };
     }
+
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Permissions('read', PromoterAnalyticsView)
+    @Get(':program_id/promoters/:promoter_id/summary')
+    async getPromoterSummaryAnalytics(
+        @Param('program_id') programId: string,
+        @Param('promoter_id') promoterId: string,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        this.logger.info('START: getPromoterSummaryAnalytics controller');
+
+        const result = await this.programService.getPromoterSummaryAnalytics(
+            programId,
+            promoterId,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+        );
+
+        this.logger.info('END: getPromoterSummaryAnalytics controller');
+        return {
+            message: 'Successfully fetched promoter summary analytics.',
+            result
+        };
+    }
+
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Permissions('read', PromoterAnalyticsView)
+    @Get(':program_id/promoters/:promoter_id/links-summary')
+    async getPromoterLinksSummary(
+        @Param('program_id') programId: string,
+        @Param('promoter_id') promoterId: string,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('skip') skip: number = 0,
+        @Query('take') take: number = 5,
+    ) {
+        this.logger.info('START: getPromoterLinksSummary controller');
+
+        const result = await this.programService.getPromoterLinksSummary(
+            programId,
+            promoterId,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+            skip,
+            take,
+        );
+
+        this.logger.info('END: getPromoterLinksSummary controller');
+        return {
+            message: 'Successfully fetched promoter links summary.',
+            result
+        };
+    }
 }

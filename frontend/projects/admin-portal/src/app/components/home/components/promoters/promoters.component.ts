@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { PromotersStore } from './store/promoters.store';
 
 @Component({
@@ -46,6 +46,7 @@ export class PromotersComponent implements OnInit {
 
   promotersStore = inject(PromotersStore);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   promoters = this.promotersStore.promoters;
   totalPromoters = this.promotersStore.totalPromoters;
@@ -101,6 +102,8 @@ export class PromotersComponent implements OnInit {
     this.fetchPromoters();
   }
 
-
+  viewPromoterSummary(promoterId: string) {
+    this.router.navigate([promoterId], { relativeTo: this.route });
+  }
 }
 

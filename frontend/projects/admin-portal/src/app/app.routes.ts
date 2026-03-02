@@ -19,6 +19,7 @@ import { DynamicComponentLoaderComponent } from './components/dynamic-component-
 import { IsLoggedIn } from './guards';
 import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
 import { PromotersComponent } from './components/home/components/promoters/promoters.component';
+import { PromoterSummaryComponent } from './components/home/components/promoter-summary/promoter-summary.component';
 
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
@@ -69,6 +70,7 @@ export const routes: Routes = [
                             { path: 'dashboard', component: DashboardComponent },
                             { path: 'referrals' , component: ReferralsComponent},
                             {path: 'promoters', component: PromotersComponent},
+                            {path: 'promoters/:promoter_id', component: PromoterSummaryComponent},
                             { path: 'reports', component: ReportsComponent },
                             { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
                             { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
