@@ -15,9 +15,12 @@ import { audienceEnum } from '../enums/audience.enum';
 import { ApiKeyGuard } from './apiKey.guard';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+	private logger : winston.Logger = LoggerFactory.getLogger(AuthGuard.name);
 	constructor(
 		private jwtService: JwtService,
 		private userService: UserService,
@@ -26,8 +29,6 @@ export class AuthGuard implements CanActivate {
 		private apiKeyGuard: ApiKeyGuard,
 
 		private readonly reflector: Reflector,
-
-		private logger: LoggerService,
 	) { }
 
 	async canActivate(context: ExecutionContext) {

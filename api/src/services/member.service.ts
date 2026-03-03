@@ -17,9 +17,12 @@ import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 import { promoterStatusEnum } from '../enums/promoterStatus.enum';
 import { MemberConverter } from 'src/converters/member.converter';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class MemberService {
+	private logger: winston.Logger = LoggerFactory.getLogger(MemberService.name);
 	constructor(
 		@InjectRepository(Member)
 		private readonly memberRepository: Repository<Member>,
@@ -34,8 +37,6 @@ export class MemberService {
 		private promoterConverter: PromoterConverter,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	/**

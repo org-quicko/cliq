@@ -2,12 +2,14 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { LoggerService } from "../services/logger.service";
 import { ApiKeyService } from "src/services/apiKey.service";
 import { Request } from "express";
+import winston from "winston";
+import { LoggerFactory } from "@org-quicko/core";
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
+    private logger : winston.Logger = LoggerFactory.getLogger(ApiKeyGuard.name);
     constructor(
         private apiKeyService: ApiKeyService,
-        private logger: LoggerService,
     ) { }
 
     async canActivate(context: ExecutionContext) {

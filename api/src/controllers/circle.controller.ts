@@ -5,13 +5,15 @@ import { AddPromoterToCircleDto, CreateCircleDto, UpdateCircleDto } from '../dto
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Circle } from '../entities';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Circle')
 @Controller('/programs/:program_id/circles')
 export class CircleController {
+	private logger: winston.Logger = LoggerFactory.getLogger(CircleController.name);
 	constructor(
 		private readonly circleService: CircleService,
-		private logger: LoggerService,
 	) { }
 
 	/**

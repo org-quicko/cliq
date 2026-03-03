@@ -6,13 +6,15 @@ import { effectEnum, triggerEnum } from '../enums';
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Function } from '../entities';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Function')
 @Controller('/programs/:program_id/functions')
 export class FunctionController {
+	private logger: winston.Logger = LoggerFactory.getLogger(FunctionController.name);
 	constructor(
 		private readonly functionService: FunctionService,
-		private logger: LoggerService,
 	) { }
 
 	/**

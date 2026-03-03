@@ -5,8 +5,10 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
+import { plainToInstance } from 'class-transformer';
 import { ProgramService } from '../../../../../services/program.service';
 import { Status, SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { PromoterWorkbook, LinkAnalyticsRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 export interface PromoterLinkItem {
     linkId: string;
@@ -20,6 +22,7 @@ export interface PromoterLinkItem {
 
 export interface PromoterLinksStoreState {
     links: PromoterLinkItem[];
+    website: string;
     total: number;
     skip: number;
     take: number;
@@ -31,6 +34,7 @@ export interface PromoterLinksStoreState {
 
 const initialState: PromoterLinksStoreState = {
     links: [],
+    website: '',
     total: 0,
     skip: 0,
     take: 5,
@@ -69,27 +73,50 @@ export const PromoterLinksStore = signalStore(
                         programService.getPromoterLinksSummary(programId, promoterId, period, startDate, endDate, skip, take).pipe(
                             tapResponse({
                                 next: (response) => {
-                                    const result = response?.data;
-                                    const links: PromoterLinkItem[] = (result?.links || []).map((link: any) => ({
-                                        linkId: link.linkId,
-                                        name: link.name,
-                                        refVal: link.refVal,
-                                        signups: Number(link.signups) || 0,
-                                        purchases: Number(link.purchases) || 0,
-                                        commission: Number(link.commission) || 0,
-                                        createdAt: link.createdAt,
-                                    }));
+                                    try {
+                                        const workbook = plainToInstance(PromoterWorkbook, response?.data);
+                                        const linkTable = workbook.getLinkAnalyticsSheet().getLinkAnalyticsTable();
+                                        const tableMetadata = linkTable.getMetadata();
 
-                                    patchState(store, {
-                                        links,
-                                        total: result?.total || 0,
-                                        skip,
-                                        take,
-                                        hasMore: result?.hasMore || false,
-                                        period: result?.period || period || '30days',
-                                        error: null,
-                                        status: Status.SUCCESS,
-                                    });
+                                        const rows = linkTable.getRows() ?? [];
+                                        const links: PromoterLinkItem[] = [];
+                                        for (let i = 0; i < rows.length; i++) {
+                                            const row = linkTable.getRow(i);
+                                            links.push({
+                                                linkId: row.getLinkId() ?? '',
+                                                name: row.getLinkName() ?? '',
+                                                refVal: row.getRefVal() ?? '',
+                                                signups: Number(row.getSignups() ?? 0),
+                                                purchases: Number(row.getPurchases() ?? 0),
+                                                commission: Number(row.getCommission() ?? 0),
+                                                createdAt: row.getCreatedAt() ?? '',
+                                            });
+                                        }
+
+                                        const total = Number(tableMetadata?.get('count')) || 0;
+                                        const website = (tableMetadata?.get('website') as string) || '';
+
+                                        patchState(store, {
+                                            links,
+                                            website,
+                                            total,
+                                            skip,
+                                            take,
+                                            hasMore: Boolean(tableMetadata?.get('hasMore')),
+                                            period: (tableMetadata?.get('period') as string) || period || '30days',
+                                            error: null,
+                                            status: Status.SUCCESS,
+                                        });
+                                    } catch (error) {
+                                        patchState(store, {
+                                            links: [],
+                                            total: 0,
+                                            hasMore: false,
+                                            status: Status.ERROR,
+                                            error,
+                                        });
+                                        snackbarService.openSnackBar('Error parsing promoter links data', '');
+                                    }
                                 },
                                 error: (error: HttpErrorResponse) => {
                                     patchState(store, {

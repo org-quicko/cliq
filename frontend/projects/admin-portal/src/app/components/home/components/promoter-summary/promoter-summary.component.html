@@ -204,16 +204,13 @@
       }
     </div>
 
-    <!-- Pagination -->
-    @if (linksTotal() > 0) {
-      <mat-paginator
-        [length]="linksTotal()"
-        [pageSize]="paginationOptions().pageSize"
-        [pageIndex]="paginationOptions().pageIndex"
-        [pageSizeOptions]="[5, 10, 25]"
-        (page)="onLinksPageChange($event)"
-        showFirstLastButtons>
-      </mat-paginator>
+    <!-- View All Links -->
+    @if (linksTotal() > 5) {
+      <div class="flex justify-center">
+        <button mat-stroked-button (click)="viewAllLinks()">
+          View All Links
+        </button>
+      </div>
     }
   </div>
 

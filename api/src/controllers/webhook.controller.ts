@@ -13,14 +13,15 @@ import { Webhook } from "../entities";
 import { WebhookService } from "../services/webhook.service";
 import { CreateWebhookDto, UpdateWebhookDto } from "../dtos";
 import { LoggerService } from "../services/logger.service";
+import { LoggerFactory } from "@org-quicko/core";
+import winston from "winston";
 
 @ApiTags('Webhooks')
 @Controller('programs/:program_id/webhooks')
 export class WebhookController {
+    private logger: winston.Logger = LoggerFactory.getLogger(WebhookController.name);
     constructor(
         private readonly webhookService: WebhookService,
-        
-        private logger: LoggerService,
     ) { }
 
     @ApiResponse({ status: 201, description: 'Created' })

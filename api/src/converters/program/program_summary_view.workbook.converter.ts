@@ -2,11 +2,13 @@ import { ProgramSummaryViewWorkbook, ProgramSummaryViewRow } from '@org-quicko/c
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class ProgramSummaryViewWorkbookConverter {
+    private logger : winston.Logger = LoggerFactory.getLogger(ProgramSummaryViewWorkbookConverter.name);
     constructor(
-        private logger: LoggerService,
     ) { }
 
    convert(

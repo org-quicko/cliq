@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
 import { PromotersAnalyticsWorkbook, PromoterAnalyticsRow, PromoterAnalyticsList } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 
 export interface IPromoterAnalyticsData {
@@ -34,8 +36,8 @@ export interface IPromoterAnalyticsConverterInput {
 
 @Injectable()
 export class PromoterAnalyticsConverter {
+    private logger : winston.Logger = LoggerFactory.getLogger(PromoterAnalyticsConverter.name);
     constructor(
-        private logger: LoggerService,
     ) { }
 
     convert(data: IPromoterAnalyticsConverterInput) {

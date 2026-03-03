@@ -13,16 +13,17 @@ import { statusEnum } from '../enums';
 import { ProgramService } from './program.service';
 import { ApiKeyConverter } from '../converters/apiKey.converter';
 import { UpdateApiKeyDto } from '../dtos';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class ApiKeyService {
+	private logger: winston.Logger = LoggerFactory.getLogger(ApiKeyService.name);
 	constructor(
 		@InjectRepository(ApiKey)
 		private apiKeyRepository: Repository<ApiKey>,
 
 		private apiKeyConverter: ApiKeyConverter,
-
-		private logger: LoggerService,
 	) {}
 
 	async generateKey(programId: string) {

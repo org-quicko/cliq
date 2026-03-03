@@ -2,6 +2,8 @@ import { Injectable, HttpException, HttpStatus, OnModuleInit } from '@nestjs/com
 import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
 import { LoggerService } from './logger.service';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class MaterializedViewRefreshService implements OnModuleInit {
@@ -10,10 +12,10 @@ export class MaterializedViewRefreshService implements OnModuleInit {
 	private readonly materializedViews = [
 		'program_summary_mv',
 	];
+	private logger : winston.Logger = LoggerFactory.getLogger(MaterializedViewRefreshService.name);
 
 	constructor(
 		private readonly dataSource: DataSource,
-		private readonly logger: LoggerService,
 	) {
 		this.cronExpression = process.env.REFRESH_MV_CRON || '*/5 * * * * '; 
 	}

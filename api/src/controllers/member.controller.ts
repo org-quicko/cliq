@@ -8,14 +8,16 @@ import { MemberAuthService } from '../services/memberAuth.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Member } from '../entities';
 import { Public } from 'src/decorators/public.decorator';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Member')
 @Controller('/programs/:program_id/members')
 export class MemberController {
+	private logger: winston.Logger = LoggerFactory.getLogger(MemberController.name);
 	constructor(
 		private readonly memberService: MemberService,
 		private memberAuthService: MemberAuthService,
-		private logger: LoggerService,
 	) { }
 
 	/**

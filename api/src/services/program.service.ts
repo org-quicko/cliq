@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { DataSource, FindOptionsRelations, Repository, FindOptionsWhere, In, ILike } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Circle, Commission, Member, Program, Promoter, PromoterMember, Purchase, ReferralView, SignUp, User, LinkAnalyticsDayWiseView } from '../entities';
+import { Circle, Commission, Member, Program, Promoter, PromoterMember, Purchase, ReferralView, SignUp, User, LinkAnalyticsDayWiseView, LinkAnalyticsView } from '../entities';
 import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
 import { PromoterAnalyticsView } from '../entities';
 import { CreateUserDto } from '../dtos';
@@ -27,7 +27,6 @@ import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
 import { CommissionConverter } from '../converters/commission/commission.dto.converter';
 import { userRoleEnum, statusEnum, visibilityEnum, referralSortByEnum, memberRoleEnum } from '../enums';
-import { LoggerService } from './logger.service';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 import { defaultQueryOptions } from 'src/constants';
@@ -38,16 +37,19 @@ import { ReferralConverter } from 'src/converters/referral.converter';
 import { ReferralUserConverter } from 'src/converters/referralUser.converter';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Transform } from 'node:stream';
-import { BadRequestException, JSONObject } from '@org-quicko/core';
+import { BadRequestException, JSONObject, LoggerFactory } from '@org-quicko/core';
 import { ProgramAnalyticsWorkbookConverter } from '../converters/program/program_analytics.workbook.converter';
 import { PromoterAnalyticsConverter } from '../converters/promoter/promoter_analytics.workbook.converter';
 import { ProgramSummaryViewWorkbookConverter } from '../converters/program/program_summary_view.workbook.converter';
+import { PromoterWorkbookConverter } from '../converters/promoter/promoter.workbook.converter';
 import { ProgramSummaryView } from '../entities/programSummaryView.entity';
 import { SortByEnum } from '../enums';
 import { ReferralPaginatedConverter } from '../converters/referralpaginated.converter';
+import winston from 'winston'
 
 @Injectable()
 export class ProgramService {
+	 private logger: winston.Logger = LoggerFactory.getLogger(ProgramService.name);
 	constructor(
 		@InjectRepository(Program)
 		private readonly programRepository: Repository<Program>,
@@ -100,7 +102,6 @@ export class ProgramService {
 
 		private datasource: DataSource,
 
-		private logger: LoggerService,
 	) { }
 
 	/**
@@ -1138,7 +1139,7 @@ export class ProgramService {
 			.andWhere('analytics.date >= :startDate', { startDate })
 			.andWhere('analytics.date <= :endDate', { endDate })
 			.getRawOne();
-			
+
 		let dailyData: Array<{ date: string; signups: number; purchases: number; revenue: number; commission: number; signupCommission: number; purchaseCommission: number }>;
 
 		if (dataType === 'yearly' || (period === 'custom' && customStartDate && customEndDate && this.getMonthDifference(customStartDate, customEndDate) > 35)) {
@@ -1264,24 +1265,22 @@ export class ProgramService {
 
 		this.logger.info('END: getPromoterSummaryAnalytics service');
 
-		const workbook = this.promoterAnalyticsConverter.convert({
-			programId,
-			promoters: [{
-				promoterId,
-				promoterName: promoter!.name,
-				signups: Number(aggregateResult?.totalSignups) || 0,
-				purchases: Number(aggregateResult?.totalPurchases) || 0,
-				revenue: Number(aggregateResult?.totalRevenue) || 0,
-				commission: Number(aggregateResult?.totalCommissions) || 0,
-				signupCommission: Number(aggregateResult?.signupCommission) || 0,
-				purchaseCommission: Number(aggregateResult?.purchaseCommission) || 0,
-			}],
-			total: 1,
-			skip: 0,
-			take: 1,
-			hasMore: false,
-			sortBy: 'name',
-			period,
+		const promoterWorkbookConverter = new PromoterWorkbookConverter();
+		const workbook = promoterWorkbookConverter.convertTo({
+			promoterAnalyticsSheetInput: {
+				promoterAnalytics: [{
+					programId,
+					promoterId,
+					promoterName: promoter!.name,
+					totalSignUps: Number(aggregateResult?.totalSignups) || 0,
+					totalPurchases: Number(aggregateResult?.totalPurchases) || 0,
+					totalRevenue: Number(aggregateResult?.totalRevenue) || 0,
+					totalCommission: Number(aggregateResult?.totalCommissions) || 0,
+					signupCommission: Number(aggregateResult?.signupCommission) || 0,
+					purchaseCommission: Number(aggregateResult?.purchaseCommission) || 0,
+				}],
+				dateWiseData: dailyData,
+			},
 		});
 
 		workbook.setMetadata(
@@ -1290,7 +1289,6 @@ export class ProgramService {
 				startDate: startDate.toISOString().split('T')[0],
 				endDate: endDate.toISOString().split('T')[0],
 				dataType,
-				dailyData: JSON.stringify(dailyData),
 			})
 		);
 
@@ -1311,6 +1309,7 @@ export class ProgramService {
 	) {
 		this.logger.info('START: getPromoterLinksSummary service');
 
+		const program = await this.getProgramEntity(programId);
 		const { startDate, endDate } = this.getDateRange(period, customStartDate, customEndDate);
 
 		const linksData = await this.linkAnalyticsDayWiseViewRepository
@@ -1318,6 +1317,7 @@ export class ProgramService {
 			.select('link.linkId', 'linkId')
 			.addSelect('link.name', 'name')
 			.addSelect('link.refVal', 'refVal')
+			.addSelect('link.promoterId', 'promoterId')
 			.addSelect('COALESCE(SUM(link.dailySignups), 0)', 'signups')
 			.addSelect('COALESCE(SUM(link.dailyPurchases), 0)', 'purchases')
 			.addSelect('COALESCE(SUM(link.dailyCommission), 0)', 'commission')
@@ -1326,7 +1326,7 @@ export class ProgramService {
 			.andWhere('link.promoterId = :promoterId', { promoterId })
 			.andWhere('link.date >= :startDate', { startDate })
 			.andWhere('link.date <= :endDate', { endDate })
-			.groupBy('link.linkId, link.name, link.refVal')
+			.groupBy('link.linkId, link.name, link.refVal, link.promoterId')
 			.orderBy('commission', 'DESC')
 			.offset(skip)
 			.limit(take)
@@ -1343,27 +1343,26 @@ export class ProgramService {
 
 		const totalCount = Number(totalCountResult?.count) || 0;
 
-		const links = linksData.map(link => ({
-			linkId: link.linkId,
-			name: link.name,
-			refVal: link.refVal,
-			signups: Number(link.signups) || 0,
-			purchases: Number(link.purchases) || 0,
-			commission: Number(link.commission) || 0,
-			createdAt: link.createdAt,
-		}));
+		const promoterWorkbookConverter = new PromoterWorkbookConverter();
+		const workbook = promoterWorkbookConverter.convertTo({
+			linkAnalyticsInput: {
+				linkAnalytics: linksData,
+				metadata: {
+					website: program.website,
+					programId,
+					period,
+					startDate: startDate.toISOString().split('T')[0],
+					endDate: endDate.toISOString().split('T')[0],
+					count: totalCount,
+					skip,
+					take,
+					hasMore: skip + take < totalCount,
+				},
+			},
+		});
 
 		this.logger.info('END: getPromoterLinksSummary service');
-		return {
-			links,
-			total: totalCount,
-			skip,
-			take,
-			hasMore: skip + take < totalCount,
-			period,
-			startDate: startDate.toISOString().split('T')[0],
-			endDate: endDate.toISOString().split('T')[0],
-		};
+		return workbook;
 	}
 
 

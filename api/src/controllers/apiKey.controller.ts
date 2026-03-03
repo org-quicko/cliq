@@ -6,13 +6,15 @@ import { Permissions } from '../decorators/permissions.decorator';
 import { ApiKey } from '../entities';
 import { statusEnum } from 'src/enums';
 import { UpdateApiKeyDto } from 'src/dtos';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('ApiKey')
 @Controller('/programs/:program_id/apikeys')
 export class ApiKeyController {
+	private logger: winston.Logger = LoggerFactory.getLogger(ApiKeyController.name);
 	constructor(
 		private apiKeyService: ApiKeyService,
-		private logger: LoggerService,
 	) {}
 
 	@ApiResponse({ status: 201, description: 'Created' })

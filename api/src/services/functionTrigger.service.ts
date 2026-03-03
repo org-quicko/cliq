@@ -13,10 +13,13 @@ import { plainToInstance } from "class-transformer";
 import { CreateCommissionDto, SwitchCircleDto } from "../dtos";
 import { roundedNumber } from "../utils";
 import { GenerateCommissionEffect, SwitchCircleEffect } from "../classes";
+import winston from "winston";
+import { LoggerFactory } from "@org-quicko/core";
 
 
 @Injectable()
 export class FunctionTriggerService {
+    private logger: winston.Logger = LoggerFactory.getLogger(FunctionTriggerService.name);
     constructor(
         @InjectRepository(Function)
         private readonly functionRepository: Repository<Function>,
@@ -24,8 +27,6 @@ export class FunctionTriggerService {
         private promoterService: PromoterService,
         private circleService: CircleService,
         private commissionService: CommissionService,
-
-        private logger: LoggerService
     ) { }
 
     @OnEvent(SIGNUP_CREATED)

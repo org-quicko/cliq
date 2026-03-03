@@ -6,6 +6,8 @@ import { LoggerService } from './logger.service';
 import { MemberService } from './member.service';
 import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
 import { audienceEnum } from 'src/enums/audience.enum';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 export interface MemberLoginData extends LoginData {
 	member_id: string;
@@ -13,11 +15,11 @@ export interface MemberLoginData extends LoginData {
 
 @Injectable()
 export class MemberAuthService {
+	private logger: winston.Logger = LoggerFactory.getLogger(MemberAuthService.name);
 	constructor(
 		@Inject(forwardRef(() => MemberService))
 		private memberService: MemberService,
 		private jwtService: JwtService,
-		private logger: LoggerService,
 	) {}
 
 	async authenticateMember(programId: string, input: AuthInput): Promise<AuthResult> {

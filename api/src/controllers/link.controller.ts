@@ -5,13 +5,15 @@ import { CreateLinkDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Link } from '../entities';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Link')
 @Controller('programs/:program_id/promoters/:promoter_id/links')
 export class LinkController {
+	private logger: winston.Logger = LoggerFactory.getLogger(LinkController.name);
 	constructor(
 		private readonly linkService: LinkService,
-		private logger: LoggerService,
 	) { }
 
 	/**

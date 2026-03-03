@@ -3,14 +3,15 @@ import { ReferralView } from 'src/entities';
 import { Repository } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class ReferralService {
+    private logger: winston.Logger = LoggerFactory.getLogger(ReferralService.name);
     constructor(
         @InjectRepository(ReferralView)
         private readonly referralViewRepository: Repository<ReferralView>,
-
-        private logger: LoggerService,
     ) { }
 
     async getFirstReferral(programId?: string, promoterId?: string) {

@@ -6,6 +6,8 @@ import { User } from '../entities';
 import { LoggerService } from './logger.service';
 import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
 import { audienceEnum } from 'src/enums/audience.enum';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 export interface UserLoginData extends LoginData {
 	user_id: string;
@@ -13,11 +15,11 @@ export interface UserLoginData extends LoginData {
 
 @Injectable()
 export class UserAuthService {
+	private logger: winston.Logger = LoggerFactory.getLogger(UserAuthService.name);
 	constructor(
 		@Inject(forwardRef(() => UserService))
 		private userService: UserService,
 		private jwtService: JwtService,
-		private logger: LoggerService,
 	) { }
 
 	async authenticateUser(input: AuthInput): Promise<AuthResult> {

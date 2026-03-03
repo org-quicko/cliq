@@ -20,9 +20,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoterService } from './programPromoter.service';
 import { signUpEntityName } from '../constants';
 import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class SignUpService {
+	private logger: winston.Logger = LoggerFactory.getLogger(SignUpService.name);
 	constructor(
 		@InjectRepository(SignUp)
 		private readonly signUpRepository: Repository<SignUp>,
@@ -37,8 +40,6 @@ export class SignUpService {
 		private eventEmitter: EventEmitter2,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	/**

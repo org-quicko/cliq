@@ -3,13 +3,15 @@ import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { PurchaseService } from '../services/purchase.service';
 import { CreatePurchaseDto } from '../dtos';
 import { LoggerService } from '../services/logger.service';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @ApiTags('Purchase')
 @Controller('/purchases')
 export class PurchaseController {
+	private logger: winston.Logger = LoggerFactory.getLogger(PurchaseController.name);
 	constructor(
 		private readonly purchaseService: PurchaseService,
-		private logger: LoggerService,
 	) {}
 
 	/**

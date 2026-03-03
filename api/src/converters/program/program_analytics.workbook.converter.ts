@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ProgramAnalyticsSheet, ProgramAnalyticsWorkbook, ProgramAnalyticsTable, ProgramAnalyticsRow } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';   
 
 @Injectable()
 export class ProgramAnalyticsWorkbookConverter {
+    private logger : winston.Logger = LoggerFactory.getLogger(ProgramAnalyticsWorkbookConverter.name);
     constructor(
-        private logger: LoggerService,
     ) { }
     
     convert(

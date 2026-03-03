@@ -8,7 +8,7 @@ import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { plainToInstance } from 'class-transformer';
 import { ProgramService } from '../../../../../services/program.service';
 import { Status, SnackbarService } from '@org.quicko.cliq/ngx-core';
-import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
 export interface DailyData {
     date: string;
@@ -92,7 +92,7 @@ export const PromoterSummaryStore = signalStore(
                                 next: (response) => {
                                     try {
                                         const workbook = plainToInstance(
-                                            PromotersAnalyticsWorkbook,
+                                            PromoterWorkbook,
                                             response?.data
                                         );
 
@@ -101,8 +101,23 @@ export const PromoterSummaryStore = signalStore(
                                         const row = table.getRow(0);
                                         const metadata = workbook.getMetadata();
 
-                                        const dailyDataStr = metadata?.get('dailyData') as string;
-                                        const dailyData: DailyData[] = dailyDataStr ? JSON.parse(dailyDataStr) : [];
+                                        const dateWiseTable = sheet.getDateWisePromoterAnalyticsTable();
+                                        const dailyData: DailyData[] = [];
+                                        if (dateWiseTable) {
+                                            const dateWiseRows = dateWiseTable.getRows() ?? [];
+                                            for (let i = 0; i < dateWiseRows.length; i++) {
+                                                const dateRow = dateWiseTable.getRow(i);
+                                                dailyData.push({
+                                                    date: dateRow.getDate() ?? '',
+                                                    signups: Number(dateRow.getSignups() ?? 0),
+                                                    purchases: Number(dateRow.getPurchases() ?? 0),
+                                                    revenue: Number(dateRow.getRevenue() ?? 0),
+                                                    commission: Number(dateRow.getCommission() ?? 0),
+                                                    signupCommission: Number(dateRow.getSignupCommission() ?? 0),
+                                                    purchaseCommission: Number(dateRow.getPurchaseCommission() ?? 0),
+                                                });
+                                            }
+                                        }
 
                                         const analyticsData: PromoterSummaryData = {
                                             totalRevenue: Number(row.getTotalRevenue() ?? 0),

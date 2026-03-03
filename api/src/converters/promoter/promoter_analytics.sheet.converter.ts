@@ -1,23 +1,27 @@
-import { PromoterAnalyticsView } from "../../entities";
 import { PromoterAnalyticsSheet } from "@org-quicko/cliq-sheet-core/Promoter/beans";
-import { PromoterAnalyticsTableConverter } from "./promoter_analytics.table.converter";
+import { PromoterAnalyticsTableConverter, IPromoterAnalyticsInput } from "./promoter_analytics.table.converter";
+import { DateWisePromoterAnalyticsTableConverter, IDateWisePromoterAnalyticsData } from "./date_wise_promoter_analytics.table.converter";
 import { ConverterException } from '@org-quicko/core';
 
 export interface IPromoterAnalyticsSheetConverterInput {
-	promoterAnalytics: PromoterAnalyticsView[];
+	promoterAnalytics: IPromoterAnalyticsInput[];
+	dateWiseData?: IDateWisePromoterAnalyticsData[];
 };
 
 export class PromoterAnalyticsSheetConverter {
 
 	private promoterAnalyticsTableConverter: PromoterAnalyticsTableConverter;
+	private dateWisePromoterAnalyticsTableConverter: DateWisePromoterAnalyticsTableConverter;
 
 	constructor() {
 		this.promoterAnalyticsTableConverter = new PromoterAnalyticsTableConverter();
+		this.dateWisePromoterAnalyticsTableConverter = new DateWisePromoterAnalyticsTableConverter();
 	}
 
 	convertFrom(
 		{
-			promoterAnalytics
+			promoterAnalytics,
+			dateWiseData,
 		}: IPromoterAnalyticsSheetConverterInput
 	) {
 		try {
@@ -25,6 +29,11 @@ export class PromoterAnalyticsSheetConverter {
 
 			const promoterAnalyticsTable = this.promoterAnalyticsTableConverter.convertFrom(promoterAnalytics);
 			promoterAnalyticsSheet.replaceBlock(promoterAnalyticsTable);
+
+			if (dateWiseData) {
+				const dateWiseTable = this.dateWisePromoterAnalyticsTableConverter.convertFrom(dateWiseData);
+				promoterAnalyticsSheet.replaceBlock(dateWiseTable);
+			}
 
 			return promoterAnalyticsSheet;
 			

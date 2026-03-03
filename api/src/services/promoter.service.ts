@@ -58,6 +58,8 @@ import { CommissionWorkbookConverter } from 'src/converters/commission/commissio
 import { LinkWorkbook } from '@org-quicko/cliq-sheet-core/Link/beans';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Transform } from 'node:stream';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class PromoterService {
@@ -71,6 +73,8 @@ export class PromoterService {
 	private linkWorkbookConverter: LinkWorkbookConverter;
 
 	private commissionWorkbookConverter: CommissionWorkbookConverter;
+
+	private logger: winston.Logger = LoggerFactory.getLogger(PromoterService.name);
 
 	constructor(
 		@InjectRepository(Promoter)
@@ -113,8 +117,6 @@ export class PromoterService {
 		private referralConverter: ReferralConverter,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { 
 	 	this.promoterWorkbookConverter = new PromoterWorkbookConverter();
 		this.signUpWorkbookConverter = new SignUpWorkbookConverter();

@@ -9,10 +9,13 @@ import { userRoleEnum, statusEnum } from 'src/enums';
 import { UserAuthService } from './userAuth.service';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 
 @Injectable()
 export class UserService {
+	private logger: winston.Logger = LoggerFactory.getLogger(UserService.name);
 	constructor(
 		@InjectRepository(User)
 		private readonly userRepository: Repository<User>,
@@ -26,8 +29,6 @@ export class UserService {
 		private userConverter: UserConverter,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	async isFirstUserSignUp(): Promise<boolean> {

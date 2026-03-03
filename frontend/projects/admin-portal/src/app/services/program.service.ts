@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { ApiResponse, ProgramDto, ReferralDto, PaginatedList, referralSortByEnum, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { ProgramSummaryViewWorkbook } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
 
 @Injectable({
@@ -236,7 +237,7 @@ export class ProgramService {
         period?: string,
         startDate?: string,
         endDate?: string,
-    ): Observable<ApiResponse<PromotersAnalyticsWorkbook>> {
+    ): Observable<ApiResponse<PromoterWorkbook>> {
         const url = `${this.endpoint}/${programId}/promoters/${promoterId}/summary`;
 
         let params = new HttpParams();
@@ -250,7 +251,7 @@ export class ProgramService {
             params = params.set('endDate', endDate);
         }
 
-        return this.httpClient.get<ApiResponse<PromotersAnalyticsWorkbook>>(url, { params });
+        return this.httpClient.get<ApiResponse<PromoterWorkbook>>(url, { params });
     }
 
     getPromoterLinksSummary(
@@ -261,7 +262,7 @@ export class ProgramService {
         endDate?: string,
         skip?: number,
         take?: number,
-    ): Observable<ApiResponse<any>> {
+    ): Observable<ApiResponse<PromoterWorkbook>> {
         const url = `${this.endpoint}/${programId}/promoters/${promoterId}/links-summary`;
 
         let params = new HttpParams();
@@ -281,6 +282,6 @@ export class ProgramService {
             params = params.set('take', take.toString());
         }
 
-        return this.httpClient.get<ApiResponse<any>>(url, { params });
+        return this.httpClient.get<ApiResponse<PromoterWorkbook>>(url, { params });
     }
 }

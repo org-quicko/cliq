@@ -28,13 +28,15 @@ import { referralSortByEnum } from 'src/enums/referralSortBy.enum';
 import { getReportFileName, getStartEndDate } from 'src/utils';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Promoter')
 @Controller('/programs/:program_id/promoters')
 export class PromoterController {
+	private logger: winston.Logger = LoggerFactory.getLogger(PromoterController.name);
 	constructor(
 		private readonly promoterService: PromoterService,
-		private logger: LoggerService,
 	) { }
 
 	/**

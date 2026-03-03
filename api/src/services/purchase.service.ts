@@ -18,9 +18,12 @@ import { PURCHASE_CREATED, PurchaseCreatedEvent } from '../events';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { purchaseEntityName } from 'src/constants';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class PurchaseService {
+	private logger: winston.Logger = LoggerFactory.getLogger(PurchaseService.name);
 	constructor(
 		@InjectRepository(Purchase)
 		private readonly purchaseRepository: Repository<Purchase>,
@@ -34,8 +37,6 @@ export class PurchaseService {
 		private eventEmitter: EventEmitter2,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	/**

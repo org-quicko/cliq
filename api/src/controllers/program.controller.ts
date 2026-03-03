@@ -32,13 +32,15 @@ import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { isUUID } from 'class-validator';
 import { Readable } from 'node:stream';
 import { Public } from 'src/decorators/public.decorator';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Program')
 @Controller('/programs')
 export class ProgramController {
+  private logger: winston.Logger = LoggerFactory.getLogger(ProgramController.name);
   constructor(
     private readonly programService: ProgramService,
-    private logger: LoggerService,
   ) { }
 
   /**

@@ -4,14 +4,16 @@ import { PromoterMember } from '../entities';
 import { FindOptionsRelations, Repository } from 'typeorm';
 import { LoggerService } from './logger.service';
 import { statusEnum } from 'src/enums';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class PromoterMemberService {
+	private logger: winston.Logger = LoggerFactory.getLogger(PromoterMemberService.name);
+
 	constructor(
 		@InjectRepository(PromoterMember)
 		private promoterMemberRepository: Repository<PromoterMember>,
-
-		private logger: LoggerService,
 	) {}
 
 	async getPromoterMemberRowEntity(promoterId: string, memberId: string, relations: FindOptionsRelations<PromoterMember> = {}) {

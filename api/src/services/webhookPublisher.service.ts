@@ -10,9 +10,12 @@ import { Injectable } from "@nestjs/common";
 import { Webhook } from "../entities";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import winston from 'winston';
+import { LoggerFactory } from "@org-quicko/core";
 
 @Injectable()
 export class WebhookPublisherService {
+    private logger : winston.Logger = LoggerFactory.getLogger(WebhookPublisherService.name);
 
     constructor(
         @InjectRepository(Webhook)
@@ -20,8 +23,6 @@ export class WebhookPublisherService {
 
         @InjectQueue(eventQueueName)
         private readonly eventQueue: Queue,
-
-        private logger: LoggerService
     ) { }
 
     private async getWebhooksForEvent(programId: string, event: string): Promise<Webhook[]> {

@@ -8,14 +8,16 @@ import { plainToInstance } from 'class-transformer';
 import { UserAuthService } from '../services/userAuth.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Public } from 'src/decorators/public.decorator';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('User')
 @Controller('/users')
 export class UserController {
+    private logger : winston.Logger = LoggerFactory.getLogger(UserController.name);
 	constructor(
 		private userService: UserService,
 		private userAuthService: UserAuthService,
-		private logger: LoggerService,
 	) {}
 
 	/**
