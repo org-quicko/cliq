@@ -201,17 +201,15 @@
             <p class="mat-body-large text-on-surface-variant">No links to show</p>
           </div>
         }
+
+        @if (linksTotal() > 5) {
+          <div class="flex items-center gap-2 px-4 py-4 border-t border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors" (click)="viewAllLinks()">
+            <span class="mat-body-medium text-primary">View All Links</span>
+          </div>
+        }
       }
     </div>
 
-    <!-- View All Links -->
-    @if (linksTotal() > 5) {
-      <div class="flex justify-center">
-        <button mat-stroked-button (click)="viewAllLinks()">
-          View All Links
-        </button>
-      </div>
-    }
   </div>
 
 </div>

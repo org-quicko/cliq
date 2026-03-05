@@ -1,4 +1,4 @@
-<div class="w-full flex flex-col gap-8 bg-surface-container-lowest">
+<div class="super-admin-programs w-full flex flex-col gap-8 bg-surface-container-lowest">
 
       <!-- Breadcrumb + Header -->
       <header class="flex justify-between items-center">
@@ -67,7 +67,7 @@
                 {{ link.purchases }}
               </div>
               <div class="mat-body-medium text-on-surface-variant text-center">
-                {{ link.createdAt | date:'h:mm a, d MMM yyyy' }}
+                {{ link.createdAt | ordinalDate }}
               </div>
             </div>
           }
@@ -81,15 +81,16 @@
       </div>
 
       <!-- Pagination -->
-      @if (promoterLinksStore.total() > 0) {
-        <mat-paginator
-          [length]="promoterLinksStore.total()"
-          [pageSize]="paginationOptions().pageSize"
-          [pageIndex]="paginationOptions().pageIndex"
-          [pageSizeOptions]="[10, 25, 50]"
-          (page)="onPageChange($event)"
-          showFirstLastButtons>
-        </mat-paginator>
+      @if ((promoterLinksStore.total() ?? 0) > 0) {
+        <div class="mt-auto">
+          <mat-paginator
+            [length]="promoterLinksStore.total()"
+            [pageSize]="paginationOptions().pageSize"
+            [pageIndex]="paginationOptions().pageIndex"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            (page)="onPageChange($event)">
+          </mat-paginator>
+        </div>
       }
 
     </div>

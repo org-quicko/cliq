@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { FormatCurrencyPipe, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, ZeroToDashPipe, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { DateRangeStore } from '../../../../store/date-range.store';
 import { PromoterLinksStore } from './store/promoter-links.store';
@@ -26,10 +26,11 @@ import { DateRangeFilterComponent } from '../../../layout/range-selector/date-ra
         FormatCurrencyPipe,
         ZeroToDashPipe,
         DateRangeFilterComponent,
+        OrdinalDatePipe,
     ],
     providers: [PromoterLinksStore],
-    template: 'promoter-all-links.component.html',
-    styles: [`:host { display: block; }`],
+    templateUrl: 'promoter-all-links.component.html',
+    styleUrl: `promoter-all-links.component.css`,
 })
 export class PromoterAllLinksComponent implements OnInit {
     readonly promoterLinksStore = inject(PromoterLinksStore);
@@ -43,11 +44,8 @@ export class PromoterAllLinksComponent implements OnInit {
 
     readonly program = this.programStore.program;
 
-    private lastProgramId: string | null = null;
-    private lastPromoterId: string | null = null;
-    private lastActiveRange: string | null = null;
-    private lastStart: string | null = null;
-    private lastEnd: string | null = null;
+    private lastStart: string | null | undefined = undefined;
+    private lastEnd: string | null | undefined = undefined;
 
     paginationOptions = signal({
         pageIndex: 0,
@@ -56,7 +54,6 @@ export class PromoterAllLinksComponent implements OnInit {
 
     constructor() {
         effect(() => {
-            const activeRange = this.dateRangeStore.activeRange();
             const start = this.dateRangeStore.start();
             const end = this.dateRangeStore.end();
 
@@ -64,18 +61,13 @@ export class PromoterAllLinksComponent implements OnInit {
             const endStr = end ? end.toISOString().split('T')[0] : null;
 
             if (
-                this.lastProgramId === this.programId &&
-                this.lastPromoterId === this.promoterId &&
-                this.lastActiveRange === activeRange &&
+
                 this.lastStart === startStr &&
                 this.lastEnd === endStr
             ) {
                 return;
             }
 
-            this.lastProgramId = this.programId;
-            this.lastPromoterId = this.promoterId;
-            this.lastActiveRange = activeRange;
             this.lastStart = startStr;
             this.lastEnd = endStr;
 
