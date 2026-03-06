@@ -22,17 +22,12 @@ export class AddReferralSearchVector1772000000000 implements MigrationInterface 
     USING GIN (search_vector);
 `);
 
-        await queryRunner.query(`
-    -- Referral MV indexes
-    CREATE INDEX IF NOT EXISTS "idx_referral_mv_program_updated"
-    ON "referral_mv" ("program_id", "updated_at");
-`);
 
-        await queryRunner.query(`
-    UPDATE referral_mv
-    SET normalized_contact_info =
-        lower(regexp_replace(contact_info, '[^a-zA-Z0-9]', ' ', 'g'))
-`);
+//         await queryRunner.query(`
+//     UPDATE referral_mv
+//     SET normalized_contact_info =
+//         lower(regexp_replace(contact_info, '[^a-zA-Z0-9]', ' ', 'g'))
+// `);
 
 
         await queryRunner.query(`
@@ -53,11 +48,11 @@ export class AddReferralSearchVector1772000000000 implements MigrationInterface 
             USING GIN (search_vector);
         `);
 
-        await queryRunner.query(`
-            UPDATE promoter
-            SET normalized_name =
-                lower(regexp_replace(name, '[^a-zA-Z0-9]', ' ', 'g'))
-        `);
+        // await queryRunner.query(`
+        //     UPDATE promoter
+        //     SET normalized_name =
+        //         lower(regexp_replace(name, '[^a-zA-Z0-9]', ' ', 'g'))
+        // `);
 
 
         await queryRunner.query(`
@@ -78,18 +73,17 @@ export class AddReferralSearchVector1772000000000 implements MigrationInterface 
             USING GIN (search_vector);
         `);
 
-        await queryRunner.query(`
-            UPDATE member
-            SET normalized_email =
-                lower(regexp_replace(email, '[^a-zA-Z0-9]', ' ', 'g'))
-        `);
-    }
+    //     await queryRunner.query(`
+    //         UPDATE member
+    //         SET normalized_email =
+    //             lower(regexp_replace(email, '[^a-zA-Z0-9]', ' ', 'g'))
+    //     `);
+    // }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
 
 
         await queryRunner.query(`DROP INDEX referral_search_vector_idx`);
-        await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_program_updated"`);
         await queryRunner.query(`ALTER TABLE referral_mv DROP COLUMN search_vector`);
         await queryRunner.query(`ALTER TABLE referral_mv DROP COLUMN normalized_contact_info`);
 

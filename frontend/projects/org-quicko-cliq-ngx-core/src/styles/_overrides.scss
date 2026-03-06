@@ -20,12 +20,6 @@
     justify-content: center !important;
     margin: 0 !important;
   }
-
-  /* Ensure paginator container is properly aligned */
-  // .mat-mdc-paginator-container {
-  //   justify-content: flex-end !important;
-  //   padding: 16px 0 !important;
-  // }
 }
 
 @mixin mat-overrides {
