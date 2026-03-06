@@ -114,6 +114,111 @@
                         "header",
                         "rows"
                       ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "date_wise_program_analytics_table"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "table"
+                          ]
+                        },
+                        "header": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "date"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "revenue"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchases"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "signup_commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchase_commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "signups"
+                              ]
+                            }
+                          ],
+                          "additionalItems": false,
+                          "minItems": 7,
+                          "maxItems": 7
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ],
+                            "additionalItems": false,
+                            "minItems": 7,
+                            "maxItems": 7
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "header",
+                        "rows"
+                      ]
                     }
                   ]
                 }

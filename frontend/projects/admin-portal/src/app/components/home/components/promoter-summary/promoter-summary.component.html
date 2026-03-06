@@ -2,7 +2,7 @@
 
   <!-- Breadcrumb + Header -->
   <header class="flex justify-between items-center">
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-6">
       <div class="flex items-center gap-1 text-on-surface-variant mat-body-medium">
         <span class="cursor-pointer hover:underline" (click)="goBack()">Promoters</span>
         <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
@@ -26,7 +26,7 @@
   </header>
 
   <!-- Statistics Cards -->
-  <div class="w-full flex flex-row gap-5">
+  <div class="w-full flex flex-row gap-4">
     @if (isAnalyticsLoading()) {
       <div class="w-1/2 h-[260px] flex flex-col gap-px rounded overflow-hidden">
         <ngx-skeleton-loader [theme]="{
@@ -59,7 +59,7 @@
     } @else {
       <!-- Revenue and Commission -->
       <div class="w-1/2 h-[260px] flex flex-col border border-outline-variant rounded px-4">
-        <div class="w-full flex flex-col h-[130px] px-2 py-6 gap-[24px]">
+        <div class="w-full flex flex-col h-[130px] px-2 py-6 gap-6">
           <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
             <span [matTooltip]="tooltips.get('revenue')!" matTooltipPosition="above">
               Total Revenue
@@ -148,7 +148,12 @@
         <div class="mat-body-medium text-on-surface-variant text-center">Commission</div>
         <div class="mat-body-medium text-on-surface-variant text-center">Signups</div>
         <div class="mat-body-medium text-on-surface-variant text-center">Purchases</div>
-        <div class="mat-body-medium text-on-surface-variant text-center">Created at</div>
+        <button
+            class="mat-body-medium text-on-surface-variant text-center flex items-center justify-center gap-1 cursor-pointer hover:text-on-surface transition-colors mx-auto"
+            (click)="toggleSortOrder()">
+            Created at
+            <mat-icon class="text-sm !w-4 !h-4">{{ sortOrder() === 'ASC' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          </button>
       </div>
 
       @if (isLinksLoading()) {
@@ -191,7 +196,7 @@
               {{ link.purchases }}
             </div>
             <div class="mat-body-medium text-on-surface-variant text-center">
-              {{ link.createdAt | date:'h:mm a, d MMM yyyy' }}
+              {{ link.createdAt | ordinalDate }}
             </div>
           </div>
         }
@@ -204,7 +209,7 @@
 
         @if (linksTotal() > 5) {
           <div class="flex items-center gap-2 px-4 py-4 border-t border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors" (click)="viewAllLinks()">
-            <span class="mat-body-medium text-primary">View All Links</span>
+            <span class="mat-body-large text-primary">View All Links</span>
           </div>
         }
       }

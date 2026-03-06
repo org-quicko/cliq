@@ -24,7 +24,12 @@
           <div class="mat-body-medium text-on-surface-variant text-center">Commission</div>
           <div class="mat-body-medium text-on-surface-variant text-center">Signups</div>
           <div class="mat-body-medium text-on-surface-variant text-center">Purchases</div>
-          <div class="mat-body-medium text-on-surface-variant text-center">Created at</div>
+          <button
+            class="mat-body-medium text-on-surface-variant text-center flex items-center justify-center gap-1 cursor-pointer hover:text-on-surface transition-colors mx-auto"
+            (click)="toggleSortOrder()">
+            Created at
+            <mat-icon class="text-sm !w-4 !h-4">{{ sortOrder() === 'ASC' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          </button>
         </div>
 
         @if (promoterLinksStore.isLoading()) {

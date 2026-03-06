@@ -578,6 +578,7 @@ export class ProgramController {
         @Query('endDate') endDate?: string,
         @Query('skip') skip: number = 0,
         @Query('take') take: number = 5,
+        @Query('sort_order') sortOrder: 'ASC' | 'DESC' = 'DESC',
     ) {
         this.logger.info('START: getPromoterLinksSummary controller');
 
@@ -589,6 +590,7 @@ export class ProgramController {
             endDate ? new Date(endDate) : undefined,
             skip,
             take,
+            sortOrder,
         );
 
         this.logger.info('END: getPromoterLinksSummary controller');

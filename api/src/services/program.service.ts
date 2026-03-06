@@ -49,7 +49,7 @@ import winston from 'winston'
 
 @Injectable()
 export class ProgramService {
-	 private logger: winston.Logger = LoggerFactory.getLogger(ProgramService.name);
+	private logger: winston.Logger = LoggerFactory.getLogger(ProgramService.name);
 	constructor(
 		@InjectRepository(Program)
 		private readonly programRepository: Repository<Program>,
@@ -505,11 +505,17 @@ export class ProgramService {
 			.leftJoin(PromoterMember, 'pm', 'pm.promoterId = pav.promoterId AND pm.role = :adminRole', { adminRole: memberRoleEnum.ADMIN })
 			.leftJoin(Member, 'adminMember', 'adminMember.memberId = pm.memberId')
 			.where('pav.programId = :programId', { programId });
-
 		if (search?.trim()) {
-			baseQuery.andWhere('promoter.name ILIKE :search', {
-				search: `%${search.trim()}%`,
-			});
+
+			const tsQuery = this.buildPrefixTsQuery(search);
+
+			baseQuery.andWhere(`
+	(
+		"promoter"."search_vector" @@ to_tsquery('simple', :tsQuery)
+		OR "adminMember"."search_vector" @@ to_tsquery('simple', :tsQuery)
+	)
+	`, { tsQuery });
+
 		}
 
 		baseQuery.orderBy('promoter.name', order);
@@ -728,6 +734,24 @@ export class ProgramService {
 		return commissionsDto;
 	}
 
+	private buildPrefixTsQuery(input: string): string {
+		if (!input) return '';
+
+		const normalized = input
+			.toLowerCase()
+			.replace(/[._\-\/\\+]+/g, ' ')
+			.replace(/[&|!:*()'"<>]/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim();
+		if (!normalized) return '';
+
+		return normalized
+			.split(' ')
+			.filter(t => t.length > 0)
+			.map(t => `${t}:*`)
+			.join(' & ');
+	}
+
 	async getAllProgramReferrals(
 		programId: string,
 		search?: string,
@@ -747,9 +771,12 @@ export class ProgramService {
 			.where('referral.programId = :programId', { programId });
 
 		if (search?.trim()) {
+
+			const tsQuery = this.buildPrefixTsQuery(search);
+
 			query.andWhere(
-				'referral.contactInfo ILIKE :search',
-				{ search: `%${search.trim()}%` }
+				`referral.search_vector @@ to_tsquery('simple', :tsQuery)`,
+				{ tsQuery }
 			);
 		}
 		const total = await query.getCount();
@@ -1089,13 +1116,12 @@ export class ProgramService {
 			Number(aggregateResult?.totalSignups) || 0,
 			Number(aggregateResult?.totalPurchases) || 0,
 			period,
+			dailyData,
 		);
-
 
 		workbook.setMetadata({
 			startDate: startDate.toISOString().split('T')[0],
 			endDate: endDate.toISOString().split('T')[0],
-			dailyData: JSON.stringify(dailyData),
 			dataType,
 			period,
 		} as any);
@@ -1306,6 +1332,7 @@ export class ProgramService {
 		customEndDate?: Date,
 		skip: number = 0,
 		take: number = 5,
+		sortOrder: 'ASC' | 'DESC' = 'DESC',
 	) {
 		this.logger.info('START: getPromoterLinksSummary service');
 
@@ -1327,7 +1354,7 @@ export class ProgramService {
 			.andWhere('link.date >= :startDate', { startDate })
 			.andWhere('link.date <= :endDate', { endDate })
 			.groupBy('link.linkId, link.name, link.refVal, link.promoterId')
-			.orderBy('commission', 'DESC')
+			.orderBy('"createdAt"', sortOrder)
 			.offset(skip)
 			.limit(take)
 			.getRawMany();

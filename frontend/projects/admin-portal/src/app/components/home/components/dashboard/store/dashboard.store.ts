@@ -8,7 +8,7 @@ import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProgramService } from '../../../../../services/program.service';
 import { plainToInstance } from 'class-transformer';
-import { ProgramAnalyticsSheet, ProgramAnalyticsTable, ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
+import { ProgramAnalyticsSheet, ProgramAnalyticsTable, ProgramAnalyticsWorkbook, DateWiseProgramAnalyticsTable } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import 'reflect-metadata';
 import { computed } from '@angular/core';
 
@@ -105,8 +105,24 @@ export const DashboardStore = signalStore(
                                         };
 
                                         const metadata = workbook.getMetadata();
-                                        const dailyDataStr = metadata?.get('dailyData') as string;
-                                        const dailyData = dailyDataStr ? JSON.parse(dailyDataStr) : [];
+
+                                        const dateWiseTable = sheet.getDateWiseProgramAnalyticsTable() as DateWiseProgramAnalyticsTable;
+                                        const dailyData: DailyData[] = [];
+                                        if (dateWiseTable) {
+                                            const dateWiseRows = dateWiseTable.getRows() ?? [];
+                                            for (let i = 0; i < dateWiseRows.length; i++) {
+                                                const r = dateWiseTable.getRow(i);
+                                                dailyData.push({
+                                                    date: r.getDate() ?? '',
+                                                    signups: Number(r.getSignups() ?? 0),
+                                                    purchases: Number(r.getPurchases() ?? 0),
+                                                    revenue: Number(r.getRevenue() ?? 0),
+                                                    commission: Number(r.getCommission() ?? 0),
+                                                    signupCommission: Number(r.getSignupCommission() ?? 0),
+                                                    purchaseCommission: Number(r.getPurchaseCommission() ?? 0),
+                                                });
+                                            }
+                                        }
 
                                         patchState(store, {
                                             analytics: {

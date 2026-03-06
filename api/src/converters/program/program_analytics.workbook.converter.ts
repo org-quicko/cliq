@@ -1,9 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ProgramAnalyticsSheet, ProgramAnalyticsWorkbook, ProgramAnalyticsTable, ProgramAnalyticsRow } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
-import { LoggerService } from '../../services/logger.service';
+import { ProgramAnalyticsSheet, ProgramAnalyticsWorkbook, ProgramAnalyticsTable, ProgramAnalyticsRow, DateWiseProgramAnalyticsTable, DateWiseProgramAnalyticsRow } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { ConverterException, JSONObject } from '@org-quicko/core';
 import winston from 'winston';
-import { LoggerFactory } from '@org-quicko/core';   
+import { LoggerFactory } from '@org-quicko/core';
+
+export interface DailyAnalyticsEntry {
+    date: string;
+    signups: number;
+    purchases: number;
+    revenue: number;
+    commission: number;
+    signupCommission: number;
+    purchaseCommission: number;
+}
 
 @Injectable()
 export class ProgramAnalyticsWorkbookConverter {
@@ -17,6 +26,7 @@ export class ProgramAnalyticsWorkbookConverter {
         totalSignups: number,
         totalPurchases: number,
         period: string,
+        dailyData: DailyAnalyticsEntry[] = [],
     ) {
         try {
             this.logger.info('START: convert function: ProgramAnalyticsWorkbookConverter');
@@ -38,6 +48,21 @@ export class ProgramAnalyticsWorkbookConverter {
             analyticsTable.setMetadata(new JSONObject({ period }));
 
             analyticsSheet.replaceBlock(analyticsTable);
+
+            const dateWiseTable = new DateWiseProgramAnalyticsTable();
+            for (const entry of dailyData) {
+                const row = new DateWiseProgramAnalyticsRow([]);
+                row.setDate(entry.date);
+                row.setRevenue(entry.revenue);
+                row.setPurchases(entry.purchases);
+                row.setCommission(entry.commission);
+                row.setSignupCommission(entry.signupCommission);
+                row.setPurchaseCommission(entry.purchaseCommission);
+                row.setSignups(entry.signups);
+                dateWiseTable.addRow(row);
+            }
+            analyticsSheet.replaceBlock(dateWiseTable);
+
             programAnalyticsWorkbook.replaceSheet(analyticsSheet);
             
             this.logger.info('END: convert function: ProgramAnalyticsWorkbookConverter');

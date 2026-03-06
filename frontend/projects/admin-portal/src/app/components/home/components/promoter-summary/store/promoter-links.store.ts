@@ -28,6 +28,7 @@ export interface PromoterLinksStoreState {
     take: number;
     hasMore: boolean;
     period: string;
+    sortOrder: 'ASC' | 'DESC';
     error: any | null;
     status: Status;
 }
@@ -40,6 +41,7 @@ const initialState: PromoterLinksStoreState = {
     take: 5,
     hasMore: false,
     period: '30days',
+    sortOrder: 'DESC',
     error: null,
     status: Status.PENDING,
 };
@@ -64,13 +66,14 @@ export const PromoterLinksStore = signalStore(
                 endDate?: string;
                 skip?: number;
                 take?: number;
+                sortOrder?: 'ASC' | 'DESC';
             }>(
                 pipe(
                     tap(() => {
                         patchState(store, { status: Status.LOADING, links: [] });
                     }),
-                    switchMap(({ programId, promoterId, period, startDate, endDate, skip = 0, take = 5 }) =>
-                        programService.getPromoterLinksSummary(programId, promoterId, period, startDate, endDate, skip, take).pipe(
+                    switchMap(({ programId, promoterId, period, startDate, endDate, skip = 0, take = 5, sortOrder = 'DESC' }) =>
+                        programService.getPromoterLinksSummary(programId, promoterId, period, startDate, endDate, skip, take, sortOrder).pipe(
                             tapResponse({
                                 next: (response) => {
                                     try {
@@ -104,6 +107,7 @@ export const PromoterLinksStore = signalStore(
                                             take,
                                             hasMore: Boolean(tableMetadata?.get('hasMore')),
                                             period: (tableMetadata?.get('period') as string) || period || '30days',
+                                            sortOrder,
                                             error: null,
                                             status: Status.SUCCESS,
                                         });

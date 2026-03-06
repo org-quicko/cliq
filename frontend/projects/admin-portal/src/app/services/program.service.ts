@@ -262,6 +262,7 @@ export class ProgramService {
         endDate?: string,
         skip?: number,
         take?: number,
+        sortOrder?: 'ASC' | 'DESC',
     ): Observable<ApiResponse<PromoterWorkbook>> {
         const url = `${this.endpoint}/${programId}/promoters/${promoterId}/links-summary`;
 
@@ -280,6 +281,9 @@ export class ProgramService {
         }
         if (take !== undefined) {
             params = params.set('take', take.toString());
+        }
+        if (sortOrder) {
+            params = params.set('sort_order', sortOrder);
         }
 
         return this.httpClient.get<ApiResponse<PromoterWorkbook>>(url, { params });

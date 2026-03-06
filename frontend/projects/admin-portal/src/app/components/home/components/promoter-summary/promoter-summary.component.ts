@@ -1,13 +1,11 @@
-import { Component, inject, computed, effect, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, inject, computed, effect, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { FormatCurrencyPipe, ZeroToDashPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, ZeroToDashPipe, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { DateRangeStore } from '../../../../store/date-range.store';
 import { PromoterSummaryStore } from './store/promoter-summary.store';
@@ -20,17 +18,15 @@ import { DateRangeFilterComponent } from '../../../layout/range-selector/date-ra
     standalone: true,
     imports: [
         CommonModule,
-        DatePipe,
-        MatCardModule,
         MatDividerModule,
         MatIconModule,
-        MatButtonModule,
         MatTooltipModule,
         NgxSkeletonLoaderModule,
         FormatCurrencyPipe,
         ZeroToDashPipe,
         AnalyticsChartComponent,
         DateRangeFilterComponent,
+        OrdinalDatePipe,
     ],
     providers: [PromoterSummaryStore, PromoterLinksStore],
     templateUrl: './promoter-summary.component.html',
@@ -96,14 +92,14 @@ export class PromoterSummaryComponent implements OnInit {
 
     readonly links = this.promoterLinksStore.links;
     readonly linksTotal = this.promoterLinksStore.total;
-    readonly linksHasMore = this.promoterLinksStore.hasMore;
-    readonly today = new Date();
+
+    sortOrder = signal<'ASC' | 'DESC'>('DESC');
 
     tooltips = new Map<string, string>([
-        ['revenue', 'Total revenue driven through this promoter\'s referral links'],
-        ['commissions', 'Total commissions earned by this promoter'],
-        ['signups', 'Number of people who signed up using this promoter\'s links'],
-        ['purchases', 'Number of purchases made using this promoter\'s links'],
+        ['revenue', 'Total sales from orders made using this promoter\'s referral link'],
+        ['commissions', 'Commission this promoter has earned'],
+        ['signups', 'People who signed up using this promoter\'s referral link'],
+        ['purchases', 'Orders completed through this promoter\'s referral link'],
     ]);
 
     ngOnInit(): void {
@@ -155,6 +151,7 @@ export class PromoterSummaryComponent implements OnInit {
         const period = this.getPeriodValue();
         const start = this.dateRangeStore.start();
         const end = this.dateRangeStore.end();
+        const sortOrder = this.sortOrder();
 
         this.promoterLinksStore.fetchPromoterLinks({
             programId: this.programId,
@@ -162,11 +159,17 @@ export class PromoterSummaryComponent implements OnInit {
             period,
             skip: 0,
             take: 5,
+            sortOrder,
             ...(period === 'custom' && start && end ? {
                 startDate: start.toISOString(),
                 endDate: end.toISOString(),
             } : {}),
         });
+    }
+
+    toggleSortOrder() {
+        this.sortOrder.set(this.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        this.loadLinks();
     }
 
     viewAllLinks() {

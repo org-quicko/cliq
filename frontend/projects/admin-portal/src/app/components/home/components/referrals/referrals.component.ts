@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   inject,
   OnInit,
@@ -19,7 +20,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { ReferralStore } from './store/referrals.store';
-import { ReferralDto, referralSortByEnum, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
+import { ReferralDto, referralSortByEnum, referralKeyTypeEnum, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
+import { ProgramStore } from '../../../../store/program.store';
 
 @Component({
   selector: 'app-referrals',
@@ -57,12 +59,18 @@ export class ReferralsComponent implements OnInit {
   });
 
   referralStore = inject(ReferralStore);
+  programStore = inject(ProgramStore);
   private route = inject(ActivatedRoute);
   referrals = this.referralStore.referrals;
   count = this.referralStore.count;
   isLoading = this.referralStore.isLoading;
   isSorting = this.referralStore.isSorting;
   error = this.referralStore.error;
+
+  readonly referralKeyTypeEnum = referralKeyTypeEnum;
+  readonly referralKeyType = computed(() => this.programStore.program()?.referralKeyType);
+  readonly isEmailKeyType = computed(() => this.referralKeyType() === referralKeyTypeEnum.EMAIL || !this.referralKeyType());
+  readonly searchPlaceholder = computed(() => `Search Referrals by ${this.isEmailKeyType() ? 'Email' : 'Phone Number'}`);
 
   programId!: string;
   currentSort: { active: string; direction: 'asc' | 'desc' } = { active: 'updatedAt', direction: 'desc' };

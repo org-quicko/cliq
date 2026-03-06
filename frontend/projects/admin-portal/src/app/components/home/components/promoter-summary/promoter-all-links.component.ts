@@ -38,7 +38,6 @@ export class PromoterAllLinksComponent implements OnInit {
     readonly dateRangeStore = inject(DateRangeStore);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
-
     programId!: string;
     promoterId!: string;
 
@@ -51,6 +50,8 @@ export class PromoterAllLinksComponent implements OnInit {
         pageIndex: 0,
         pageSize: 10,
     });
+
+    sortOrder = signal<'ASC' | 'DESC'>('DESC');
 
     constructor() {
         effect(() => {
@@ -105,6 +106,7 @@ export class PromoterAllLinksComponent implements OnInit {
         const start = this.dateRangeStore.start();
         const end = this.dateRangeStore.end();
         const pagination = this.paginationOptions();
+        const sortOrder = this.sortOrder();
 
         this.promoterLinksStore.fetchPromoterLinks({
             programId: this.programId,
@@ -112,11 +114,18 @@ export class PromoterAllLinksComponent implements OnInit {
             period,
             skip: pagination.pageIndex * pagination.pageSize,
             take: pagination.pageSize,
+            sortOrder,
             ...(period === 'custom' && start && end ? {
                 startDate: start.toISOString(),
                 endDate: end.toISOString(),
             } : {}),
         });
+    }
+
+    toggleSortOrder() {
+        this.sortOrder.set(this.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        this.paginationOptions.set({ pageIndex: 0, pageSize: this.paginationOptions().pageSize });
+        this.loadLinks();
     }
 
     onPageChange(event: PageEvent) {

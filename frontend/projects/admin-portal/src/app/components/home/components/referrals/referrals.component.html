@@ -3,14 +3,14 @@
   <!-- Heading -->
   <div>
     <p class="mat-headline-medium text-on-surface m-0">
-      Referrals ({{ count() ?? 0 }})
+      Referrals ({{ count() ?? 0 | number }})
     </p>
   </div>
 
   <!-- Search Bar -->
   <div class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3">
     <mat-icon class="text-on-surface-variant mr-3">search</mat-icon>
-    <input matInput [formControl]="searchControl" placeholder="Search Referrals by Email"
+    <input matInput [formControl]="searchControl" [placeholder]="searchPlaceholder()"
       class="w-full mat-body-large text-on-surface placeholder:text-outline focus:outline-none bg-transparent" />
   </div>
 
