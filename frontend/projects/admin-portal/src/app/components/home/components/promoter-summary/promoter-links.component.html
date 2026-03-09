@@ -10,7 +10,7 @@
             <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
             <span class="text-on-surface">All Links</span>
           </div>
-          <span class="text-on-surface mat-headline-medium">All Links ({{ promoterLinksStore.total() }})</span>
+          <span class="text-on-surface mat-headline-medium">All Links ({{ promoterLinksStore.total() | number}})</span>
         </div>
         <app-date-range-filter></app-date-range-filter>
       </header>
