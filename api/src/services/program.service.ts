@@ -492,7 +492,7 @@ export class ProgramService {
 	 */
 	async getAllPromoters(
 		programId: string,
-		search?: string,
+		name?: string,
 		skip: number = 0,
 		take: number = 5,
 		order: 'ASC' | 'DESC' = 'ASC',
@@ -505,9 +505,9 @@ export class ProgramService {
 			.leftJoin(PromoterMember, 'pm', 'pm.promoterId = pav.promoterId AND pm.role = :adminRole', { adminRole: memberRoleEnum.ADMIN })
 			.leftJoin(Member, 'adminMember', 'adminMember.memberId = pm.memberId')
 			.where('pav.programId = :programId', { programId });
-		if (search?.trim()) {
+		if (name?.trim()) {
 
-			const tsQuery = this.buildPrefixTsQuery(search);
+			const tsQuery = this.buildPrefixTsQuery(name);
 
 			baseQuery.andWhere(`
 	(

@@ -207,7 +207,7 @@ export class ProgramService {
 
     getAllPromoters(
         programId: string,
-        search?: string,
+        name?: string,
         skip?: number,
         take?: number,
         order?: 'ASC' | 'DESC',
@@ -215,8 +215,8 @@ export class ProgramService {
         const url = `${this.endpoint}/${programId}/promoters`;
 
         let params = new HttpParams();
-        if (search) {
-            params = params.set('search', search);
+        if (name) {
+            params = params.set('name', name);
         }
         if (skip !== undefined) {
             params = params.set('skip', skip.toString());

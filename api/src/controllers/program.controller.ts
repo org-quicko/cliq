@@ -277,7 +277,7 @@ export class ProgramController {
   @Get(':program_id/promoters')
   async getAllPromoters(
     @Param('program_id') programId: string,
-    @Query('search') search?: string,
+    @Query('name') name?: string,
     @Query('skip') skip: number = 0,
     @Query('take') take: number = 5,
     @Query('order') order: 'ASC' | 'DESC' = 'ASC',
@@ -285,7 +285,7 @@ export class ProgramController {
     this.logger.info('START: getAllPromoters controller');
     const result = await this.programService.getAllPromoters(
       programId,
-      search,
+      name,
       skip,
       take,
       order,

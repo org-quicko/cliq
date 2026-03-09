@@ -17,7 +17,7 @@ export class AddReferralSearchVector1772000000000 implements MigrationInterface 
 `);
 
         await queryRunner.query(`
-    CREATE INDEX referral_search_vector_idx
+    CREATE INDEX idx_referral_search_vector
     ON referral_mv
     USING GIN (search_vector);
 `);
@@ -36,7 +36,7 @@ export class AddReferralSearchVector1772000000000 implements MigrationInterface 
         `);
 
         await queryRunner.query(`
-            CREATE INDEX promoter_search_vector_idx
+            CREATE INDEX idx_promoter_search_vector
             ON promoter
             USING GIN (search_vector);
         `);
@@ -54,7 +54,7 @@ export class AddReferralSearchVector1772000000000 implements MigrationInterface 
         `);
 
         await queryRunner.query(`
-            CREATE INDEX member_search_vector_idx
+            CREATE INDEX idx_member_search_vector
             ON member
             USING GIN (search_vector);
         `);
@@ -64,17 +64,17 @@ export class AddReferralSearchVector1772000000000 implements MigrationInterface 
     public async down(queryRunner: QueryRunner): Promise<void> {
 
 
-        await queryRunner.query(`DROP INDEX referral_search_vector_idx`);
+        await queryRunner.query(`DROP INDEX idx_referral_search_vector`);
         await queryRunner.query(`ALTER TABLE referral_mv DROP COLUMN search_vector`);
         await queryRunner.query(`ALTER TABLE referral_mv DROP COLUMN normalized_contact_info`);
 
 
-        await queryRunner.query(`DROP INDEX promoter_search_vector_idx`);
+        await queryRunner.query(`DROP INDEX idx_promoter_search_vector`);
         await queryRunner.query(`ALTER TABLE promoter DROP COLUMN search_vector`);
         await queryRunner.query(`ALTER TABLE promoter DROP COLUMN normalized_name`);
 
 
-        await queryRunner.query(`DROP INDEX member_search_vector_idx`);
+        await queryRunner.query(`DROP INDEX idx_member_search_vector`);
         await queryRunner.query(`ALTER TABLE member DROP COLUMN search_vector`);
         await queryRunner.query(`ALTER TABLE member DROP COLUMN normalized_email`);
     }
