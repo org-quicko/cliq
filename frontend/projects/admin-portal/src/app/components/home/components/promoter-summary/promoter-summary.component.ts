@@ -5,7 +5,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { FormatCurrencyPipe, ZeroToDashPipe, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, ZeroToDashPipe, OrdinalDatePipe, sortOrderEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { DateRangeStore } from '../../../../store/date-range.store';
 import { PromoterSummaryStore } from './store/promoter-summary.store';
@@ -105,7 +105,7 @@ export class PromoterSummaryComponent implements OnInit {
     readonly links = this.promoterLinksStore.links;
     readonly linksTotal = this.promoterLinksStore.total;
 
-    sortOrder = signal<'ASC' | 'DESC'>('DESC');
+    sortOrder = signal<sortOrderEnum>(sortOrderEnum.DESCENDING);
 
     tooltips = new Map<string, string>([
         ['revenue', 'Total sales from orders made using this promoter\'s referral link'],
@@ -180,7 +180,7 @@ export class PromoterSummaryComponent implements OnInit {
     }
 
     toggleSortOrder() {
-        this.sortOrder.set(this.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        this.sortOrder.set(this.sortOrder() === sortOrderEnum.ASCENDING ? sortOrderEnum.DESCENDING : sortOrderEnum.ASCENDING);
         this.loadLinks();
     }
 

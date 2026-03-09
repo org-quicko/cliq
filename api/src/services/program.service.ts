@@ -747,7 +747,6 @@ export class ProgramService {
 
 		return normalized
 			.split(' ')
-			.filter(t => t.length > 0)
 			.map(t => `${t}:*`)
 			.join(' & ');
 	}

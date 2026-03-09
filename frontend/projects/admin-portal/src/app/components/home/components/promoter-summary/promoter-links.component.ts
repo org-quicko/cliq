@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { FormatCurrencyPipe, ZeroToDashPipe, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, ZeroToDashPipe, OrdinalDatePipe, sortOrderEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { DateRangeStore } from '../../../../store/date-range.store';
 import { PromoterLinksStore } from './store/promoter-links.store';
@@ -51,7 +51,7 @@ export class PromoterLinksComponent implements OnInit {
         pageSize: 10,
     });
 
-    sortOrder = signal<'ASC' | 'DESC'>('DESC');
+    sortOrder = signal<sortOrderEnum>(sortOrderEnum.DESCENDING);
 
     constructor() {
         effect(() => {
@@ -123,7 +123,7 @@ export class PromoterLinksComponent implements OnInit {
     }
 
     toggleSortOrder() {
-        this.sortOrder.set(this.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        this.sortOrder.set(this.sortOrder() === sortOrderEnum.ASCENDING ? sortOrderEnum.DESCENDING : sortOrderEnum.ASCENDING);
         this.paginationOptions.set({ pageIndex: 0, pageSize: this.paginationOptions().pageSize });
         this.loadLinks();
     }
