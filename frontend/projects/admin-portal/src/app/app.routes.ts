@@ -23,10 +23,9 @@ import { PromoterSummaryComponent } from './components/home/components/promoter-
 import { PromoterLinksComponent } from './components/home/components/promoter-summary/promoter-links.component';
 
 export const routes: Routes = [
-    { path: '', pathMatch: 'full', redirectTo: 'admin/login' },
     { path: '404', component: NotFoundComponent },
-    { path: 'admin/setup', component: SuperAdminSetupComponent },
-    { path: 'admin/login', component: LoginComponent },
+    { path: 'setup', component: SuperAdminSetupComponent },
+    { path: 'login', component: LoginComponent },
     {
         path: '',
         resolve: { user: UserResolver },
