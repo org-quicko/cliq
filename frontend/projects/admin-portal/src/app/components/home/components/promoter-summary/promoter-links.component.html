@@ -1,0 +1,101 @@
+<div class="super-admin-programs w-full flex flex-col gap-8 bg-surface-container-lowest">
+
+      <!-- Breadcrumb + Header -->
+      <header class="flex justify-between items-center">
+        <div class="flex flex-col gap-1">
+          <div class="flex items-center gap-1 text-on-surface-variant mat-body-medium">
+            <span class="cursor-pointer hover:underline" (click)="goBackToPromoters()">Promoters</span>
+            <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
+            <span class="cursor-pointer hover:underline" (click)="goBackToSummary()">{{ promoterLinksStore.website() ? 'Summary' : 'Promoter' }}</span>
+            <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
+            <span class="text-on-surface">All Links</span>
+          </div>
+          <span class="text-on-surface mat-headline-medium">All Links ({{ promoterLinksStore.total() | number}})</span>
+        </div>
+        <app-date-range-filter></app-date-range-filter>
+      </header>
+
+      <!-- Links Table -->
+      <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
+
+        <!-- Table Header -->
+        <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center bg-surface-container-lowest px-6 py-4">
+          <div class="mat-body-medium text-on-surface-variant text-left">Link</div>
+          <div class="mat-body-medium text-on-surface-variant text-center">Commission</div>
+          <div class="mat-body-medium text-on-surface-variant text-center">Signups</div>
+          <div class="mat-body-medium text-on-surface-variant text-center">Purchases</div>
+          <button
+            class="mat-body-medium text-on-surface-variant text-center flex items-center justify-center gap-1 cursor-pointer hover:text-on-surface transition-colors mx-auto"
+            (click)="toggleSortOrder()">
+            Created at
+            <mat-icon class="text-sm !w-4 !h-4">{{ sortOrder() === 'ASC' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          </button>
+        </div>
+
+        @if (promoterLinksStore.isLoading()) {
+          @for (item of [].constructor(10); track $index) {
+            <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center px-6 py-4 border-t border-outline-variant">
+              <div class="flex flex-col gap-1">
+                <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+                <ngx-skeleton-loader [theme]="{ height: '0.85em', width: '200px', margin: '0' }"></ngx-skeleton-loader>
+              </div>
+              <div class="flex justify-center">
+                <ngx-skeleton-loader [theme]="{ height: '1em', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+              </div>
+              <div class="flex justify-center">
+                <ngx-skeleton-loader [theme]="{ height: '1em', width: '40px', margin: '0' }"></ngx-skeleton-loader>
+              </div>
+              <div class="flex justify-center">
+                <ngx-skeleton-loader [theme]="{ height: '1em', width: '40px', margin: '0' }"></ngx-skeleton-loader>
+              </div>
+              <div class="flex justify-center">
+                <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+              </div>
+            </div>
+          }
+        } @else {
+          @for (link of promoterLinksStore.links(); track link.getLinkId()) {
+            <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
+              <div class="flex flex-col text-left truncate">
+                <span class="mat-body-large text-on-surface truncate">{{ link.getLinkName() }}</span>
+                <span class="mat-body-small text-on-surface-variant truncate">
+                  {{ promoterLinksStore.website() }}?ref={{ link.getRefVal() }}
+                </span>
+              </div>
+              <div class="mat-body-large text-on-surface text-center">
+                {{ link.getCommission() | formatCurrency:program()?.currency }}
+              </div>
+              <div class="mat-body-large text-on-surface text-center">
+                {{ link.getSignups() }}
+              </div>
+              <div class="mat-body-large text-on-surface text-center">
+                {{ link.getPurchases() }}
+              </div>
+              <div class="mat-body-medium text-on-surface-variant text-center">
+                {{ link.getCreatedAt() | ordinalDate }}
+              </div>
+            </div>
+          }
+
+          @if (promoterLinksStore.links().length === 0) {
+            <div class="flex justify-center items-center py-16 border-t border-outline-variant">
+              <p class="mat-body-large text-on-surface-variant">No links to show</p>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if ((promoterLinksStore.total() ?? 0) > 0) {
+        <div class="mt-auto">
+          <mat-paginator
+            [length]="promoterLinksStore.total()"
+            [pageSize]="paginationOptions().pageSize"
+            [pageIndex]="paginationOptions().pageIndex"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            (page)="onPageChange($event)">
+          </mat-paginator>
+        </div>
+      }
+
+    </div>

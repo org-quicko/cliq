@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { ProgramDto } from '../../dtos';
 import { Program } from '../../entities';
-import { LoggerService } from '../../services/logger.service';
 import { ConverterException } from '@org-quicko/core';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class ProgramConverter {
+	private logger : winston.Logger = LoggerFactory.getLogger(ProgramConverter.name);
 
 	constructor(
-		private logger: LoggerService,
 	) { }
 
 	convert(program: Program): ProgramDto {

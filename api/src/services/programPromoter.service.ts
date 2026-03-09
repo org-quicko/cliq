@@ -2,15 +2,15 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoter } from '../entities';
 import { Repository } from 'typeorm';
-import { LoggerService } from './logger.service';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class ProgramPromoterService {
+	private logger: winston.Logger = LoggerFactory.getLogger(ProgramPromoterService.name);
 	constructor(
 		@InjectRepository(ProgramPromoter)
 		private programPromoterRepository: Repository<ProgramPromoter>,
-
-		private logger: LoggerService,
 	) { }
 
 	async getProgramPromoter(programId: string, promoterId: string) {

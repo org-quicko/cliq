@@ -4,11 +4,17 @@ import { LinkAnalyticsView } from "../../entities";
 
 export class LinkAnalyticsTableConverter {
 	convertFrom(
-		linkAnalytics: LinkAnalyticsView[], 
+		linkAnalytics: LinkAnalyticsView[],
 		metadata: {
-			website: string,
-			programId: string,
-			count: number
+			website: string;
+			programId: string;
+			period?: string;
+			startDate?: string;
+			endDate?: string;
+			count: number;
+			skip?: number;
+			take?: number;
+			hasMore?: boolean;
 		}
 	) {
 		try {
@@ -28,11 +34,11 @@ export class LinkAnalyticsTableConverter {
 				
 				linkAnalyticsTable.addRow(row);
 			});
-	
+
 			linkAnalyticsTable.setMetadata(new JSONObject(metadata));
-			
+
 			return linkAnalyticsTable;
-			
+
 		} catch (error) {
 			throw new ConverterException('Failed to convert to LinkAnalyticsTable', error);
 		}

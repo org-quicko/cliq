@@ -7,14 +7,16 @@ import {
 import { DataSource, Repository } from 'typeorm';
 import { CreateCommissionDto } from '../dtos';
 import { Commission } from '../entities';
-import { LoggerService } from './logger.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { COMMISSION_CREATED, CommissionCreatedEvent } from 'src/events/CommissionCreated.event';
 import { commissionEntityName } from 'src/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import winston from 'winston';
+import {LoggerFactory} from '@org-quicko/core';
 
 @Injectable()
 export class CommissionService {
+	private logger : winston.Logger = LoggerFactory.getLogger(CommissionService.name);
 	constructor(
 		@InjectRepository(Commission)
 		private readonly commissionRepository: Repository<Commission>,
@@ -22,8 +24,6 @@ export class CommissionService {
 		private eventEmitter: EventEmitter2,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	async createCommission(createCommissionDto: CreateCommissionDto) {

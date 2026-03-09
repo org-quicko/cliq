@@ -164,10 +164,10 @@
                               },
                               {
                                 "type": "number",
-                                "minimum": 0.01,
                                 "examples": [
                                   "840"
-                                ]
+                                ],
+                                "minimum": 0.01
                               },
                               {
                                 "type": "string",
@@ -479,12 +479,12 @@
                               },
                               {
                                 "type": "string",
+                                "examples": [
+                                  "Pam"
+                                ],
                                 "enum": [
                                   "lead",
                                   "active"
-                                ],
-                                "examples": [
-                                  "Pam"
                                 ]
                               },
                               {
@@ -502,17 +502,17 @@
                               },
                               {
                                 "type": "number",
-                                "minimum": 0.01,
                                 "examples": [
                                   "9180.4"
-                                ]
+                                ],
+                                "minimum": 0.01
                               },
                               {
                                 "type": "number",
-                                "minimum": 0.01,
                                 "examples": [
                                   "840.1"
-                                ]
+                                ],
+                                "minimum": 0.01
                               },
                               {
                                 "type": "string",
@@ -674,27 +674,27 @@
                               },
                               {
                                 "type": "number",
-                                "minimum": 0.01,
                                 "examples": [
                                   "80.4"
-                                ]
+                                ],
+                                "minimum": 0.01
                               },
                               {
                                 "type": "string",
+                                "examples": [
+                                  "signup"
+                                ],
                                 "enum": [
                                   "signup",
                                   "purchase"
-                                ],
-                                "examples": [
-                                  "signup"
                                 ]
                               },
                               {
                                 "type": "number",
-                                "minimum": 0.01,
                                 "examples": [
                                   "9180.4"
-                                ]
+                                ],
+                                "minimum": 0.01
                               },
                               {
                                 "type": "string",
@@ -816,11 +816,17 @@
                               "enum": [
                                 "created_at"
                               ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "program_website"
+                              ]
                             }
                           ],
                           "additionalItems": false,
-                          "minItems": 8,
-                          "maxItems": 8
+                          "minItems": 9,
+                          "maxItems": 9
                         },
                         "rows": {
                           "type": "array",
@@ -870,11 +876,14 @@
                                 "examples": [
                                   "2025-03-10 14:45:21.945055+05:30"
                                 ]
+                              },
+                              {
+                                "type": "string"
                               }
                             ],
                             "additionalItems": false,
-                            "minItems": 8,
-                            "maxItems": 8
+                            "minItems": 9,
+                            "maxItems": 9
                           }
                         }
                       },
@@ -947,6 +956,12 @@
                             {
                               "type": "string",
                               "enum": [
+                                "promoter_name"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
                                 "total_signups"
                               ]
                             },
@@ -967,11 +982,23 @@
                               "enum": [
                                 "total_commission"
                               ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "signup_commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchase_commission"
+                              ]
                             }
                           ],
                           "additionalItems": false,
-                          "minItems": 6,
-                          "maxItems": 6
+                          "minItems": 9,
+                          "maxItems": 9
                         },
                         "rows": {
                           "type": "array",
@@ -993,6 +1020,9 @@
                                 ]
                               },
                               {
+                                "type": "string"
+                              },
+                              {
                                 "type": "number",
                                 "examples": [
                                   "7"
@@ -1006,22 +1036,133 @@
                               },
                               {
                                 "type": "number",
-                                "minimum": 0.01,
                                 "examples": [
                                   "9180.4"
-                                ]
+                                ],
+                                "minimum": 0.01
                               },
                               {
                                 "type": "number",
-                                "minimum": 0.01,
                                 "examples": [
                                   "840.1"
-                                ]
+                                ],
+                                "minimum": 0.01
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
                               }
                             ],
                             "additionalItems": false,
-                            "minItems": 6,
-                            "maxItems": 6
+                            "minItems": 9,
+                            "maxItems": 9
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "@entity",
+                        "header",
+                        "rows"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "date_wise_promoter_analytics_table"
+                          ]
+                        },
+                        "@entity": {
+                          "type": "string",
+                          "enum": [
+                            "table"
+                          ]
+                        },
+                        "header": {
+                          "type": "array",
+                          "items": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "date"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "signups"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchases"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "revenue"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "signup_commission"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "purchase_commission"
+                              ]
+                            }
+                          ],
+                          "additionalItems": false,
+                          "minItems": 7,
+                          "maxItems": 7
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ],
+                            "additionalItems": false,
+                            "minItems": 7,
+                            "maxItems": 7
                           }
                         }
                       },
@@ -1152,13 +1293,13 @@
                               },
                               {
                                 "type": "string",
+                                "examples": [
+                                  "editor"
+                                ],
                                 "enum": [
                                   "admin",
                                   "editor",
                                   "viewer"
-                                ],
-                                "examples": [
-                                  "editor"
                                 ]
                               },
                               {

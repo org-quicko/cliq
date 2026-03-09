@@ -25,7 +25,7 @@ export class LinkAnalyticsDayWiseView {
 
     @Column({ 
         type: 'numeric', 
-        name: 'daily_signups',
+        name: 'signups',
         default: 0,
         transformer: NumericToNumber 
     })
@@ -33,7 +33,7 @@ export class LinkAnalyticsDayWiseView {
 
     @Column({ 
         type: 'numeric', 
-        name: 'daily_purchases',
+        name: 'purchases',
         default: 0,
         transformer: NumericToNumber 
     })
@@ -41,7 +41,7 @@ export class LinkAnalyticsDayWiseView {
 
     @Column({ 
         type: 'numeric', 
-        name: 'daily_commission',
+        name: 'commission',
         default: 0,
         transformer: NumericToNumber 
     })

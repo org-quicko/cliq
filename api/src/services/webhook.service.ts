@@ -1,20 +1,20 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LoggerService } from './logger.service';
 import { Webhook } from '../entities';
 import { CreateWebhookDto, UpdateWebhookDto } from '../dtos';
 import { WebhookConverter } from 'src/converters/webhook.converter';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class WebhookService {
+    private logger :winston.Logger = LoggerFactory.getLogger(WebhookService.name);
     constructor(
         @InjectRepository(Webhook)
         private readonly webhookRepository: Repository<Webhook>,
 
         private webhookConverter: WebhookConverter,
-
-        private logger: LoggerService,
     ) { }
 
     async createWebhook(programId: string, body: CreateWebhookDto) {

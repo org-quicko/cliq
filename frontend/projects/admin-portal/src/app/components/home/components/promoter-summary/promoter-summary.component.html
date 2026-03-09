@@ -1,0 +1,220 @@
+<div class="w-full flex flex-col gap-8 bg-surface-container-lowest">
+
+  <!-- Breadcrumb + Header -->
+  <header class="flex justify-between items-center">
+    <div class="flex flex-col gap-6">
+      <div class="flex items-center gap-1 text-on-surface-variant mat-body-medium">
+        <span class="cursor-pointer hover:underline" (click)="goBack()">Promoters</span>
+        <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
+        <span class="text-on-surface">
+          @if (isAnalyticsLoading()) {
+            <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+          } @else {
+            {{ promoterName() }}
+          }
+        </span>
+      </div>
+      <span class="text-on-surface mat-headline-medium">
+        @if (isAnalyticsLoading()) {
+          <ngx-skeleton-loader [theme]="{ height: '1.6em', width: '200px', margin: '0' }"></ngx-skeleton-loader>
+        } @else {
+          {{ promoterName() }}
+        }
+      </span>
+    </div>
+    <app-date-range-filter></app-date-range-filter>
+  </header>
+
+  <!-- Statistics Cards -->
+  <div class="w-full flex flex-row gap-4">
+    @if (isAnalyticsLoading()) {
+      <div class="w-1/2 h-[260px] flex flex-col gap-px rounded overflow-hidden">
+        <ngx-skeleton-loader [theme]="{
+          width: '100%',
+          height: '130px',
+          borderRadius: '0px',
+          backgroundColor: 'surface-container-low'
+        }" />
+        <ngx-skeleton-loader [theme]="{
+          width: '100%',
+          height: '130px',
+          borderRadius: '0px',
+          backgroundColor: 'surface-container-low'
+        }" />
+      </div>
+      <div class="w-1/2 h-[260px] flex flex-col gap-4">
+        <ngx-skeleton-loader [theme]="{
+          width: '100%',
+          height: '122px',
+          borderRadius: '8px',
+          backgroundColor: 'surface-container-low'
+        }" />
+        <ngx-skeleton-loader [theme]="{
+          width: '100%',
+          height: '122px',
+          borderRadius: '8px',
+          backgroundColor: 'surface-container-low'
+        }" />
+      </div>
+    } @else {
+      <!-- Revenue and Commission -->
+      <div class="w-1/2 h-[260px] flex flex-col border border-outline-variant rounded px-4">
+        <div class="w-full flex flex-col h-[130px] px-2 py-6 gap-6">
+          <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+            <span [matTooltip]="tooltips.get('revenue')!" matTooltipPosition="above">
+              Total Revenue
+            </span>
+          </div>
+          <div class="mat-headline-large text-on-surface">
+            <span>{{ analytics()?.getTotalRevenue() | formatCurrency:program()?.currency }}</span>
+          </div>
+        </div>
+
+        <mat-divider class="border-outline-variant"></mat-divider>
+
+        <div class="w-full flex flex-col h-[130px] px-2 py-6 gap-[24px]">
+          <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+            <span [matTooltip]="tooltips.get('commissions')!" matTooltipPosition="above">
+              Total Commission
+            </span>
+          </div>
+          <div class="mat-headline-large text-on-surface">
+            <span>{{ analytics()?.getTotalCommission() | formatCurrency:program()?.currency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signups and Purchases -->
+      <div class="w-1/2 h-[260px] flex flex-col gap-4">
+        <div class="w-full flex flex-col h-[122px] border border-outline-variant rounded p-6 gap-[24px]">
+          <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+            <span [matTooltip]="tooltips.get('signups')!" matTooltipPosition="above">
+              Signups
+            </span>
+          </div>
+          <div class="mat-title-large text-on-surface">
+            <span>{{ analytics()?.getTotalSignups() | zeroToDash }}</span>
+          </div>
+        </div>
+
+        <div class="w-full flex flex-col h-[122px] border border-outline-variant rounded p-6 gap-[24px]">
+          <div class="mat-body-large text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">
+            <span [matTooltip]="tooltips.get('purchases')!" matTooltipPosition="above">
+              Purchases
+            </span>
+          </div>
+          <div class="mat-title-large text-on-surface">
+            <span>{{ analytics()?.getTotalPurchases() | zeroToDash }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Analytics Chart -->
+  <div class="rounded-lg overflow-hidden">
+    @if (isAnalyticsLoading()) {
+      <ngx-skeleton-loader [theme]="{
+        width: '100%',
+        height: '450px',
+        borderRadius: '8px',
+        backgroundColor: 'surface-container-low'
+      }">
+      </ngx-skeleton-loader>
+    } @else {
+      <div class="border border-outline-variant rounded-lg overflow-hidden">
+        <app-analytics-chart
+          [graphData]="dayWiseData()"
+          [period]="period()"
+          [dataType]="dataType()"
+          [currency]="program()?.currency || 'INR'"
+        >
+        </app-analytics-chart>
+      </div>
+    }
+  </div>
+
+  <!-- Promoter's Links Table -->
+  <div class="flex flex-col gap-4">
+    <p class="mat-headline-small text-on-surface m-0">
+      {{ promoterName() }}'s Links ({{ linksTotal() }})
+    </p>
+
+    <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
+
+      <!-- Table Header -->
+      <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center bg-surface-container-lowest px-6 py-4">
+        <div class="mat-body-medium text-on-surface-variant text-left">Link</div>
+        <div class="mat-body-medium text-on-surface-variant text-center">Commission</div>
+        <div class="mat-body-medium text-on-surface-variant text-center">Signups</div>
+        <div class="mat-body-medium text-on-surface-variant text-center">Purchases</div>
+        <button
+            class="mat-body-medium text-on-surface-variant text-center flex items-center justify-center gap-1 cursor-pointer hover:text-on-surface transition-colors mx-auto"
+            (click)="toggleSortOrder()">
+            Created at
+            <mat-icon class="text-sm !w-4 !h-4">{{ sortOrder() === 'ASC' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          </button>
+      </div>
+
+      @if (isLinksLoading()) {
+        @for (item of [].constructor(5); track $index) {
+          <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center px-6 py-4 border-t border-outline-variant">
+            <div class="flex flex-col gap-1">
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+              <ngx-skeleton-loader [theme]="{ height: '0.85em', width: '200px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div class="flex justify-center">
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div class="flex justify-center">
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '40px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div class="flex justify-center">
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '40px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div class="flex justify-center">
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+          </div>
+        }
+      } @else {
+        @for (link of links(); track link.getLinkId()) {
+          <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
+            <div class="flex flex-col text-left truncate">
+              <span class="mat-body-large text-on-surface truncate">{{ link.getLinkName() }}</span>
+              <span class="mat-body-small text-on-surface-variant truncate">
+                {{ program()?.website }}?ref={{ link.getRefVal() }}
+              </span>
+            </div>
+            <div class="mat-body-large text-on-surface text-center">
+              {{ link.getCommission() | formatCurrency:program()?.currency }}
+            </div>
+            <div class="mat-body-large text-on-surface text-center">
+              {{ link.getSignups() }}
+            </div>
+            <div class="mat-body-large text-on-surface text-center">
+              {{ link.getPurchases() }}
+            </div>
+            <div class="mat-body-medium text-on-surface-variant text-center">
+              {{ link.getCreatedAt() | ordinalDate }}
+            </div>
+          </div>
+        }
+
+        @if (links().length === 0) {
+          <div class="flex justify-center items-center py-16 border-t border-outline-variant">
+            <p class="mat-body-large text-on-surface-variant">No links to show</p>
+          </div>
+        }
+
+        @if (linksTotal() > 5) {
+          <div class="flex items-center gap-2 px-4 py-4 border-t border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors" (click)="viewAllLinks()">
+            <span class="mat-body-large text-primary">View All Links</span>
+          </div>
+        }
+      }
+    </div>
+
+  </div>
+
+</div>

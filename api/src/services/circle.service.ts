@@ -13,11 +13,13 @@ import { ProgramService } from './program.service';
 import { CircleConverter } from '../converters/circle.converter';
 import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from '../constants';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class CircleService {
+	private logger: winston.Logger = LoggerFactory.getLogger(CircleService.name);
 	constructor(
 		@InjectRepository(Circle)
 		private readonly circleRepository: Repository<Circle>,
@@ -32,7 +34,6 @@ export class CircleService {
 
 		private datasource: DataSource,
 
-		private logger: LoggerService,
 	) { }
 
 	/**

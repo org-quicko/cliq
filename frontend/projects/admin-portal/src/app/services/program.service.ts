@@ -3,9 +3,10 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, ProgramDto,ReferralDto,PaginatedList, referralSortByEnum, SortByEnum } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, ProgramDto, ReferralDto, PaginatedList, referralSortByEnum, SortByEnum } from '@org.quicko.cliq/ngx-core';
 import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { ProgramSummaryViewWorkbook } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
 
 @Injectable({
@@ -185,9 +186,9 @@ export class ProgramService {
             params = params.set('query', query);
         }
 
-         if (sortBy) {
-        params = params.set('sort_by', sortBy);
-       }
+        if (sortBy) {
+            params = params.set('sort_by', sortBy);
+        }
 
         if (order) {
             params = params.set('sort_order', order);
@@ -202,5 +203,89 @@ export class ProgramService {
         }
 
         return this.httpClient.get<ApiResponse<PaginatedList<ReferralDto>>>(url, { params });
+    }
+
+    getAllPromoters(
+        programId: string,
+        name?: string,
+        skip?: number,
+        take?: number,
+        order?: 'ASC' | 'DESC',
+    ): Observable<ApiResponse<PromotersAnalyticsWorkbook>> {
+        const url = `${this.endpoint}/${programId}/promoters`;
+
+        let params = new HttpParams();
+        if (name) {
+            params = params.set('name', name);
+        }
+        if (skip !== undefined) {
+            params = params.set('skip', skip.toString());
+        }
+        if (take !== undefined) {
+            params = params.set('take', take.toString());
+        }
+        if (order) {
+            params = params.set('order', order);
+        }
+
+        return this.httpClient.get<ApiResponse<PromotersAnalyticsWorkbook>>(url, { params });
+    }
+
+    getPromoterSummaryAnalytics(
+        programId: string,
+        promoterId: string,
+        period?: string,
+        startDate?: string,
+        endDate?: string,
+    ): Observable<ApiResponse<PromoterWorkbook>> {
+        const url = `${this.endpoint}/${programId}/promoters/${promoterId}/summary`;
+
+        let params = new HttpParams();
+        if (period) {
+            params = params.set('period', period);
+        }
+        if (startDate) {
+            params = params.set('startDate', startDate);
+        }
+        if (endDate) {
+            params = params.set('endDate', endDate);
+        }
+
+        return this.httpClient.get<ApiResponse<PromoterWorkbook>>(url, { params });
+    }
+
+    getPromoterLinksSummary(
+        programId: string,
+        promoterId: string,
+        period?: string,
+        startDate?: string,
+        endDate?: string,
+        skip?: number,
+        take?: number,
+        sortOrder?: 'ASC' | 'DESC',
+    ): Observable<ApiResponse<PromoterWorkbook>> {
+        const url = `${this.endpoint}/${programId}/promoters/${promoterId}/links-summary`;
+
+        let params = new HttpParams();
+        if (period) {
+            params = params.set('period', period);
+        }
+        if (startDate) {
+            params = params.set('startDate', startDate);
+        }
+        if (endDate) {
+            params = params.set('endDate', endDate);
+        }
+        if (skip !== undefined) {
+            params = params.set('skip', skip.toString());
+        }
+        if (take !== undefined) {
+            params = params.set('take', take.toString());
+        }
+        if (sortOrder) {
+            params = params.set('sort_order', sortOrder);
+        }
+
+        return this.httpClient.get<ApiResponse<PromoterWorkbook>>(url, { params });
     }
 }

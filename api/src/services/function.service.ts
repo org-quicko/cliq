@@ -15,12 +15,14 @@ import {
 import { SwitchCircleEffect } from "../classes";
 import { ProgramService } from './program.service';
 import { FunctionConverter } from '../converters/function.converter';
-import { LoggerService } from './logger.service';
 import { CircleService } from './circle.service';
 import { defaultQueryOptions } from 'src/constants';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class FunctionService {
+	private logger: winston.Logger = LoggerFactory.getLogger(FunctionService.name);
 	constructor(
 		@InjectRepository(Function)
 		private readonly functionRepository: Repository<Function>,
@@ -31,8 +33,6 @@ export class FunctionService {
 		private functionConverter: FunctionConverter,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	/**

@@ -85,10 +85,10 @@ export class DashboardComponent implements OnInit {
 	readonly website = computed(() => this.programStore.program()!.website);
 
 	tooltips = new Map<string, string>([
-		['commissions', 'What you earn for every successful signup or purchase'],
-		['revenue', 'The total value driven through all your links'],
-		['signups', 'The number of people who signed up using your links'],
-		['purchases', 'The number of purchases made using your links'],
+		['commissions', 'Total commission you\'ve earned'],
+		['revenue', 'Total sales from all orders made through your referral links'],
+		['signups', 'Number of people who signed up using your referral links'],
+		['purchases', 'Number of purchases completed through your referral links'],
 	]);
 
 	readonly totalLinkDataLength = computed(() => {

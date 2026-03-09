@@ -38,7 +38,6 @@ import { MemberService } from './member.service';
 import { CircleService } from './circle.service';
 import { FunctionService } from './function.service';
 import { ProgramPromoterService } from './programPromoter.service';
-import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { CommissionService } from './commission.service';
 import { SignUpService } from './signUp.service';
@@ -47,6 +46,8 @@ import { ReferralService } from './referral.service';
 import { WebhookService } from './webhook.service';
 import { actionsType, subjectsType } from 'src/types';
 import { Request } from 'express';
+import {LoggerFactory} from '@org-quicko/core';
+import winston from 'winston';
 
 // these types are in order to check nested properties
 type FlatPurchase = Purchase & {
@@ -75,6 +76,7 @@ const userResources = [
 
 @Injectable()
 export class AuthorizationService {
+    private logger: winston.Logger = LoggerFactory.getLogger(AuthorizationService.name);
     constructor(
         private apiKeySerivce: ApiKeyService,
         private commissionService: CommissionService,
@@ -91,8 +93,6 @@ export class AuthorizationService {
         private promoterMemberService: PromoterMemberService,
         private referralService: ReferralService,
         private webhookService: WebhookService,
-
-        private logger: LoggerService,
     ) { }
 
     getProgramUserPermissions(user: User) {

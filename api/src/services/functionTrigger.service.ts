@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { LoggerService } from "./logger.service";
 import { commissionTypeEnum, conditionParameterEnum, conversionTypeEnum, effectEnum, functionStatusEnum, triggerEnum } from "../enums";
 import { PURCHASE_CREATED, PurchaseCreatedEvent, SIGNUP_CREATED, SignUpCreatedEvent, TriggerEvent } from "../events";
 import { OnEvent } from "@nestjs/event-emitter";
@@ -13,10 +12,13 @@ import { plainToInstance } from "class-transformer";
 import { CreateCommissionDto, SwitchCircleDto } from "../dtos";
 import { roundedNumber } from "../utils";
 import { GenerateCommissionEffect, SwitchCircleEffect } from "../classes";
+import winston from "winston";
+import { LoggerFactory } from "@org-quicko/core";
 
 
 @Injectable()
 export class FunctionTriggerService {
+    private logger: winston.Logger = LoggerFactory.getLogger(FunctionTriggerService.name);
     constructor(
         @InjectRepository(Function)
         private readonly functionRepository: Repository<Function>,
@@ -24,8 +26,6 @@ export class FunctionTriggerService {
         private promoterService: PromoterService,
         private circleService: CircleService,
         private commissionService: CommissionService,
-
-        private logger: LoggerService
     ) { }
 
     @OnEvent(SIGNUP_CREATED)

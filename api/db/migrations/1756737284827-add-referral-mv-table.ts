@@ -28,6 +28,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 			CREATE INDEX IF NOT EXISTS "idx_referral_mv_program_promoter" ON "referral_mv" ("program_id", "promoter_id");
 			CREATE INDEX IF NOT EXISTS "idx_referral_mv_promoter_contact" ON "referral_mv" ("promoter_id", "contact_id");
 			CREATE INDEX IF NOT EXISTS "idx_referral_mv_status" ON "referral_mv" ("status");
+			CREATE INDEX IF NOT EXISTS "idx_referral_mv_program_updated" ON "referral_mv" ("program_id", "updated_at");
 		`);
 
 		// Removed day-wise indexes as the table is no longer needed
@@ -311,6 +312,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_program_promoter";`);
 		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_promoter_contact";`);
 		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_status";`);
+		await queryRunner.query(`DROP INDEX IF EXISTS "idx_referral_mv_program_updated";`);
 
 		// Drop table
 		await queryRunner.query(`DROP TABLE IF EXISTS referral_mv;`);

@@ -7,14 +7,16 @@ import {
 	AuthorizationService,
 } from '../services/authorization.service';
 import { CHECK_PERMISSIONS_KEY } from '../decorators/permissions.decorator';
-import { LoggerService } from '../services/logger.service';
 import { MemberService } from '../services/member.service';
 import { UserService } from '../services/user.service';
 import { actionsType, subjectsType } from '../types';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
+	private logger : winston.Logger = LoggerFactory.getLogger(PermissionsGuard.name);
 	constructor(
 		private reflector: Reflector,
 
@@ -23,8 +25,6 @@ export class PermissionsGuard implements CanActivate {
 		private authorizationService: AuthorizationService,
 
 		private memberService: MemberService,
-
-		private logger: LoggerService,
 	) { }
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {

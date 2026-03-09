@@ -105,10 +105,10 @@ export class DashboardComponent implements OnInit {
 	readonly today = new Date();
 
 	tooltips = new Map<string, string>([
-		['revenue', 'The total value driven through all referral links'],
-		['commissions', 'Total commissions earned by promoters'],
-		['signups', 'The number of people who signed up using referral links'],
-		['purchases', 'The number of purchases made using referral links'],
+		['revenue', 'Total sales from all orders made through referral links'],
+		['commissions', 'Total commission for all promoters in this program'],
+		['signups', 'Total people who signed up using any referral link'],
+		['purchases', 'Total orders completed through any referral link'],
 	]);
 
 	ngOnInit() {

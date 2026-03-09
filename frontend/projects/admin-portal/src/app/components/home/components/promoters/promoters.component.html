@@ -1,0 +1,165 @@
+<div class="super-admin-programs flex flex-col gap-6 w-full">
+
+  <!-- Heading -->
+  <div class="flex items-center justify-between">
+    <p class="mat-headline-medium text-on-surface m-0">
+      Promoters ({{ total() ?? 0 | number }})
+    </p>
+  </div>
+
+  <!-- Count Cards (always constant) -->
+  <div class="grid grid-cols-3 gap-5">
+
+    <div class="border border-outline-variant rounded-[4px] px-6 py-6 flex flex-col gap-6">
+      <p class="mat-body-medium text-on-surface m-0">Total Promoters</p>
+      @if (isLoading()) {
+      <ngx-skeleton-loader [theme]="{ height: '1.6em', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+      } @else {
+      <p class="mat-headline-small text-on-surface m-0">{{ totalPromoters() }}</p>
+      }
+    </div>
+
+    <div class="border border-outline-variant rounded-[4px] px-6 py-6 flex flex-col gap-6">
+      <p class="mat-body-medium text-on-surface m-0">Active Promoters</p>
+      @if (isLoading()) {
+      <ngx-skeleton-loader [theme]="{ height: '1.6em', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+      } @else {
+      <p class="mat-headline-small text-on-surface m-0">{{ activePromoters() }}</p>
+      }
+    </div>
+
+    <div class="border border-outline-variant rounded-[4px] px-6 py-6 flex flex-col gap-6">
+      <p class="mat-body-medium text-on-surface m-0">Inactive Promoters</p>
+      @if (isLoading()) {
+      <ngx-skeleton-loader [theme]="{ height: '1.6em', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+      } @else {
+      <p class="mat-headline-small text-on-surface m-0">{{ archivedPromoters() }}</p>
+      }
+    </div>
+
+  </div>
+
+  <!-- Search Bar -->
+  <div class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3">
+    <mat-icon class="text-on-surface-variant mr-3">search</mat-icon>
+    <input matInput [formControl]="searchControl" placeholder="Search promoters"
+      class="w-full mat-body-large text-on-surface placeholder:text-outline focus:outline-none bg-transparent" />
+  </div>
+
+  <!-- Table Wrapper -->
+  <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
+
+    <!-- Header Row -->
+    <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_0.2fr] items-center bg-surface-container-lowest px-6 py-4">
+      <div class="mat-body-medium text-on-surface-variant text-left flex items-center gap-1 cursor-pointer select-none"
+        (click)="toggleSort()">
+        <span>Name</span>
+
+        <mat-icon class="text-on-surface-variant" [ngClass]="{
+      'rotate-180': order() === SortOrder.ASCENDING
+    }">
+          arrow_downward
+        </mat-icon>
+      </div>
+      <div class="mat-body-medium text-on-surface-variant text-center">Signups</div>
+      <div class="mat-body-medium text-on-surface-variant text-center">Purchases</div>
+      <div class="mat-body-medium text-on-surface-variant text-center">Commission</div>
+      <div class="mat-body-medium text-on-surface-variant text-center">Revenue</div>
+      <div class="mat-body-medium text-on-surface-variant text-center">Status</div>
+      <div></div>
+    </div>
+
+    <!-- Loading Skeleton -->
+    @if (isLoading()) {
+    @for (item of [].constructor(5); track $index) {
+    <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_0.2fr] items-center px-4 py-4 border-t border-outline-variant">
+      <div class="flex items-center">
+        <ngx-skeleton-loader [theme]="{ height: '2.1rem', width: '160px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '2.1rem', width: '40px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '2.1rem', width: '40px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '2.1rem', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '2.1rem', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader
+          [theme]="{ height: '2.1rem', width: '48px', 'border-radius': '6px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div></div>
+    </div>
+    }
+    } @else {
+
+    <!-- Data Rows -->
+    @for (promoter of promoters(); track promoter.getPromoterId()) {
+    <div
+      class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_0.2fr] items-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer"
+      (click)="viewPromoterSummary(promoter.getPromoterId())">
+
+      <div class="flex flex-col text-left truncate">
+        <span class="mat-body-large text-on-surface truncate">{{ promoter.getPromoterName() }}</span>
+        <span class="mat-body-large text-on-surface-variant truncate">{{ promoter.getMemberEmail() }}</span>
+      </div>
+
+      <div class="mat-body-large text-on-surface text-center">
+        {{ promoter.getTotalSignups() }}
+      </div>
+
+      <div class="mat-body-large text-on-surface text-center">
+        {{ promoter.getTotalPurchases() }}
+      </div>
+
+      <div class="mat-body-large text-on-surface text-center">
+        ₹{{ promoter.getTotalCommission() }}
+      </div>
+
+      <div class="mat-body-large text-on-surface text-center">
+        ₹{{ promoter.getTotalRevenue() }}
+      </div>
+
+      <div class="flex justify-center">
+        <span class="mat-label-small px-2 py-1 flex items-center justify-center rounded-sm min-w-[48px]" [ngClass]="{
+                'bg-secondary-container text-on-secondary-container': promoter.getStatus() === 'active',
+                'bg-surface-container text-on-surface': promoter.getStatus() === 'archived'
+              }">
+          {{ promoter.getStatus() === 'archived' ? 'Inactive' : (promoter.getStatus() | titlecase) }}
+        </span>
+      </div>
+
+      <div class="flex justify-center">
+        <button mat-icon-button (click)="viewPromoterSummary(promoter.getPromoterId()); $event.stopPropagation()">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+    </div>
+    }
+
+    <!-- Empty State -->
+    @if (promoters().length === 0) {
+    <div class="flex justify-center items-center py-16 border-t border-outline-variant">
+      <p class="mat-body-large text-on-surface-variant">No promoters to show</p>
+    </div>
+    }
+
+    }
+
+  </div>
+
+  <!-- Paginator -->
+  @if ((total() ?? 0) > 0) {
+  <div class="mt-auto">
+    <mat-paginator [length]="total()" [pageIndex]="paginationOptions().pageIndex"
+      [pageSize]="paginationOptions().pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"
+      (page)="onPageChange($event)"></mat-paginator>
+  </div>
+  }
+
+</div>

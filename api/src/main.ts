@@ -36,6 +36,13 @@ async function bootstrap() {
 		}),
 	});
 
+	app.getHttpAdapter().getInstance().use((req:any, res:any, next:any) => {
+		if(req.method === 'GET' && req.path === '/') {
+			return res.redirect(302, '/admin');
+		}
+		next();
+	});
+
 	useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
 	app.useGlobalPipes(

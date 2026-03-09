@@ -14,15 +14,17 @@ import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { SIGNUP_CREATED, SignUpCreatedEvent } from '../events';
 import { referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
-import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoterService } from './programPromoter.service';
 import { signUpEntityName } from '../constants';
 import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class SignUpService {
+	private logger: winston.Logger = LoggerFactory.getLogger(SignUpService.name);
 	constructor(
 		@InjectRepository(SignUp)
 		private readonly signUpRepository: Repository<SignUp>,
@@ -37,8 +39,6 @@ export class SignUpService {
 		private eventEmitter: EventEmitter2,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	/**

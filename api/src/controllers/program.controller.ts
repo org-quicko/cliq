@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Headers, Res, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ProgramService } from '../services/program.service';
-import { LoggerService } from '../services/logger.service';
 import {
   CreateProgramDto,
   UpdateProgramDto,
@@ -32,13 +31,15 @@ import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { isUUID } from 'class-validator';
 import { Readable } from 'node:stream';
 import { Public } from 'src/decorators/public.decorator';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Program')
 @Controller('/programs')
 export class ProgramController {
+  private logger: winston.Logger = LoggerFactory.getLogger(ProgramController.name);
   constructor(
     private readonly programService: ProgramService,
-    private logger: LoggerService,
   ) { }
 
   /**
@@ -278,18 +279,16 @@ export class ProgramController {
     @Param('program_id') programId: string,
     @Query('name') name?: string,
     @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
+    @Query('take') take: number = 5,
+    @Query('order') order: 'ASC' | 'DESC' = 'ASC',
   ) {
     this.logger.info('START: getAllPromoters controller');
     const result = await this.programService.getAllPromoters(
       programId,
-      {
-        name,
-      },
-      {
-        skip,
-        take,
-      }
+      name,
+      skip,
+      take,
+      order,
     );
     this.logger.info('END: getAllPromoters controller');
     return {
@@ -297,6 +296,7 @@ export class ProgramController {
       result,
     };
   }
+
 
   /**
    * Get signups in program
@@ -536,6 +536,66 @@ export class ProgramController {
         return {
           message: `Successfully fetched promoters sorted by ${sortBy}.`,
           result: workbook
+        };
+    }
+
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Permissions('read', PromoterAnalyticsView)
+    @Get(':program_id/promoters/:promoter_id/summary')
+    async getPromoterSummaryAnalytics(
+        @Param('program_id') programId: string,
+        @Param('promoter_id') promoterId: string,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        this.logger.info('START: getPromoterSummaryAnalytics controller');
+
+        const result = await this.programService.getPromoterSummaryAnalytics(
+            programId,
+            promoterId,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+        );
+
+        this.logger.info('END: getPromoterSummaryAnalytics controller');
+        return {
+            message: 'Successfully fetched promoter summary analytics.',
+            result
+        };
+    }
+
+    @ApiResponse({ status: 200, description: 'OK' })
+    @Permissions('read', PromoterAnalyticsView)
+    @Get(':program_id/promoters/:promoter_id/links-summary')
+    async getPromoterLinksSummary(
+        @Param('program_id') programId: string,
+        @Param('promoter_id') promoterId: string,
+        @Query('period') period: string = '30days',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+        @Query('skip') skip: number = 0,
+        @Query('take') take: number = 5,
+        @Query('sort_order') sortOrder: 'ASC' | 'DESC' = 'DESC',
+    ) {
+        this.logger.info('START: getPromoterLinksSummary controller');
+
+        const result = await this.programService.getPromoterLinksSummary(
+            programId,
+            promoterId,
+            period,
+            startDate ? new Date(startDate) : undefined,
+            endDate ? new Date(endDate) : undefined,
+            skip,
+            take,
+            sortOrder,
+        );
+
+        this.logger.info('END: getPromoterLinksSummary controller');
+        return {
+            message: 'Successfully fetched promoter links summary.',
+            result
         };
     }
 }

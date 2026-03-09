@@ -6,10 +6,12 @@ import { CreateContactDto } from '../dtos';
 import { ContactConverter } from '../converters/contact.converter';
 import { ProgramService } from './program.service';
 import { contactStatusEnum, referralKeyTypeEnum } from '../enums';
-import { LoggerService } from './logger.service';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class ContactService {
+	private logger: winston.Logger = LoggerFactory.getLogger(ContactService.name);
 	constructor(
 		@InjectRepository(Contact)
 		private readonly contactRepository: Repository<Contact>,
@@ -18,7 +20,6 @@ export class ContactService {
 
 		private contactConverter: ContactConverter,
 
-		private logger: LoggerService,
 	) {}
 
 	/**

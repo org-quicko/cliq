@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
 import { Member, Promoter, PromoterMember } from 'src/entities';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
-import { LoggerService } from './logger.service';
 import { memberRoleEnum, statusEnum } from 'src/enums';
 import { PromoterConverter } from 'src/converters/promoter/promoter.dto.converter';
 import { MemberAuthService } from './memberAuth.service';
@@ -17,9 +16,12 @@ import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 import { promoterStatusEnum } from '../enums/promoterStatus.enum';
 import { MemberConverter } from 'src/converters/member.converter';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class MemberService {
+	private logger: winston.Logger = LoggerFactory.getLogger(MemberService.name);
 	constructor(
 		@InjectRepository(Member)
 		private readonly memberRepository: Repository<Member>,
@@ -34,8 +36,6 @@ export class MemberService {
 		private promoterConverter: PromoterConverter,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { }
 
 	/**

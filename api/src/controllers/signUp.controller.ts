@@ -2,14 +2,15 @@ import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CreateSignUpDto } from '../dtos';
 import { SignUpService } from '../services/signUp.service';
-import { LoggerService } from '../services/logger.service';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @ApiTags('SignUp')
 @Controller('/signups')
 export class SignUpController {
+	private logger: winston.Logger = LoggerFactory.getLogger(SignUpController.name);
 	constructor(
 		private readonly signUpService: SignUpService,
-		private logger: LoggerService,
 	) {}
 
 	/**

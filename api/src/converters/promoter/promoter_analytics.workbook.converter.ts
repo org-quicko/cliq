@@ -1,7 +1,9 @@
+
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
-import { PromotersAnalyticsWorkbook, PromoterAnalyticsRow } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import { PromotersAnalyticsWorkbook, PromoterAnalyticsRow, PromoterAnalyticsList } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 
 export interface IPromoterAnalyticsData {
@@ -13,6 +15,8 @@ export interface IPromoterAnalyticsData {
     commission: number;
     signupCommission: number;
     purchaseCommission: number;
+    status?: string;
+    memberEmail?: string | null;
 }
 
 export interface IPromoterAnalyticsConverterInput {
@@ -24,12 +28,15 @@ export interface IPromoterAnalyticsConverterInput {
     hasMore: boolean;
     sortBy: string;
     period: string;
+    totalPromoters?: number;
+    activePromoters?: number;
+    archivedPromoters?: number;
 }
 
 @Injectable()
 export class PromoterAnalyticsConverter {
+    private logger : winston.Logger = LoggerFactory.getLogger(PromoterAnalyticsConverter.name);
     constructor(
-        private logger: LoggerService,
     ) { }
 
     convert(data: IPromoterAnalyticsConverterInput) {
@@ -54,10 +61,16 @@ export class PromoterAnalyticsConverter {
                 row.setTotalCommission(Number(promoter.commission ?? 0));
                 row.setSignupCommission(promoter.signupCommission ?? null);
                 row.setPurchaseCommission(promoter.purchaseCommission ?? null);
+                row.setStatus(String(promoter.status ?? ''));
+                row.setMemberEmail(promoter.memberEmail ?? '');
                 table.addRow(row);
             }
 
-
+            const list = new PromoterAnalyticsList();
+            list.addTotalPromoters(data.totalPromoters?? 0);
+            list.addActivePromoters(data.activePromoters?? 0);
+            list.addArchivedPromoters(data.archivedPromoters?? 0);
+            sheet.replaceBlock(list);
 
             workbook.setMetadata(new JSONObject({
                 sortBy: data.sortBy,
@@ -65,7 +78,7 @@ export class PromoterAnalyticsConverter {
                 total: data.total,
                 skip: data.skip,
                 take: data.take,
-                hasMore: data.hasMore
+                hasMore: data.hasMore,
             }));
 
             this.logger.info('END: convert function: PromoterAnalyticsConverter');

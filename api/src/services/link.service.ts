@@ -11,15 +11,17 @@ import { ProgramService } from './program.service';
 import { PromoterService } from './promoter.service';
 import { CreateLinkDto } from '../dtos';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from '../constants';
 import { linkStatusEnum } from '../enums';
 import { LinkAnalyticsView } from '../entities';
 import { LinkConverter } from '../converters/link/link.dto.converter';
 import { PromoterWorkbookConverter } from 'src/converters/promoter/promoter.workbook.converter';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class LinkService {
+	private logger: winston.Logger = LoggerFactory.getLogger(LinkService.name);
 	constructor(
 		@InjectRepository(Link)
 		private readonly linkRepository: Repository<Link>,
@@ -27,7 +29,6 @@ export class LinkService {
 		private programService: ProgramService,
 		private promoterService: PromoterService,
 		private linkConverter: LinkConverter,
-		private logger: LoggerService,
 	) {}
 
 	/**

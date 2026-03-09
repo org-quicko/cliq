@@ -36,7 +36,6 @@ import { PromoterMemberService } from './promoterMember.service';
 import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { commissionSortByEnum, conversionTypeEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, promoterStatusEnum, statusEnum } from '../enums';
-import { LoggerService } from './logger.service';
 import { CommissionConverter } from '../converters/commission/commission.dto.converter';
 import { ProgramService } from './program.service';
 import { sortOrderEnum } from '../enums/sortOrder.enum';
@@ -58,6 +57,8 @@ import { CommissionWorkbookConverter } from 'src/converters/commission/commissio
 import { LinkWorkbook } from '@org-quicko/cliq-sheet-core/Link/beans';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Transform } from 'node:stream';
+import winston from 'winston';
+import { LoggerFactory } from '@org-quicko/core';
 
 @Injectable()
 export class PromoterService {
@@ -71,6 +72,8 @@ export class PromoterService {
 	private linkWorkbookConverter: LinkWorkbookConverter;
 
 	private commissionWorkbookConverter: CommissionWorkbookConverter;
+
+	private logger: winston.Logger = LoggerFactory.getLogger(PromoterService.name);
 
 	constructor(
 		@InjectRepository(Promoter)
@@ -113,8 +116,6 @@ export class PromoterService {
 		private referralConverter: ReferralConverter,
 
 		private datasource: DataSource,
-
-		private logger: LoggerService,
 	) { 
 	 	this.promoterWorkbookConverter = new PromoterWorkbookConverter();
 		this.signUpWorkbookConverter = new SignUpWorkbookConverter();

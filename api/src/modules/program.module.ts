@@ -11,6 +11,7 @@ import {
 	ReferralView,
 	PromoterAnalyticsView,
 	SignUp,
+	LinkAnalyticsDayWiseView,
 } from '../entities';
 import { PromoterAnalyticsDayWiseView } from '../entities/promoterAnalyticsDayWiseView.entity';
 import { PromoterModule } from './promoter.module';
@@ -42,6 +43,7 @@ import { PromoterAnalyticsModule } from './promoterAnalytics.module';
 			PromoterAnalyticsDayWiseView,
 			ReferralView,
 			ProgramSummaryView,
+			LinkAnalyticsDayWiseView,
 		]),
 		CommissionModule,
 		PromoterModule,

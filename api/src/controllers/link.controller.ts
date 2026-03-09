@@ -2,16 +2,17 @@ import { Controller, Get, Post, Body, Param, Query, Patch } from '@nestjs/common
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { LinkService } from '../services/link.service';
 import { CreateLinkDto } from '../dtos';
-import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Link } from '../entities';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston';
 
 @ApiTags('Link')
 @Controller('programs/:program_id/promoters/:promoter_id/links')
 export class LinkController {
+	private logger: winston.Logger = LoggerFactory.getLogger(LinkController.name);
 	constructor(
 		private readonly linkService: LinkService,
-		private logger: LoggerService,
 	) { }
 
 	/**

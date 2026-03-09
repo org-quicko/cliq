@@ -12,6 +12,8 @@ export interface DailyData {
     purchases: number;
     revenue: number;
     commission: number;
+    signupCommission?: number;
+    purchaseCommission?: number;
 }
 
 @Component({
@@ -85,11 +87,22 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
             },
 
             plugins: {
-                legend: { display: false },
+                legend: {
+                    display: false,
+                    position: 'bottom' as const,
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 16,
+                        color: onSurfaceVariant,
+                        font: { size: 12 },
+                    },
+                },
                 tooltip: {
                     backgroundColor: surfaceContainerLowest,
                     titleColor: onSurfaceVariant,
                     bodyColor: onSurfaceVariant,
+                    footerColor: onSurfaceVariant,
                     borderColor: outlineVariant,
                     borderWidth: 1,
                     padding: 12,
@@ -99,9 +112,20 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
                         label: (ctx: TooltipItem<'bar'>) => {
                             const metric = this.selectedMetric();
                             const value = ctx.parsed.y ?? 0;
-                            return (metric === MetricType.REVENUE || metric === MetricType.COMMISSION)
+                            if (metric === MetricType.COMMISSION) {
+                                return ` ${ctx.dataset.label}  ${this.formatCurrency(value)}`;
+                            }
+                            return (metric === MetricType.REVENUE)
                                 ? ` ${this.getMetricLabel(metric)}  ${this.formatCurrency(value)}`
                                 : ` ${this.getMetricLabel(metric)}  ${value.toLocaleString()}`;
+                        },
+                        footer: (items: TooltipItem<'bar'>[]) => {
+                            const metric = this.selectedMetric();
+                            if (metric === MetricType.COMMISSION && items.length > 1) {
+                                const total = items.reduce((sum, item) => sum + (item.parsed.y ?? 0), 0);
+                                return `Total commission  ${this.formatCurrency(total)}`;
+                            }
+                            return '';
                         }
                     }
                 }
@@ -154,31 +178,89 @@ export class AnalyticsChartComponent implements OnInit, OnChanges, OnDestroy {
 
         this.assignXLabels();
 
+        const isCommission = metric === MetricType.COMMISSION;
 
-        const maxValue = Math.max(...this.processedData.map(p => p.value), 0);
-        const stepSize = this.calculateStepSize(maxValue);
+        if (isCommission) {
+            // Stacked bar chart for commission breakdown
+            const purchaseCommissions = this.graphData.map(d => d.purchaseCommission ?? 0);
+            const signupCommissions = this.graphData.map(d => d.signupCommission ?? 0);
 
-  
-        if (this.chartOptions.scales.y.ticks) {
-            this.chartOptions.scales.y.ticks.stepSize = stepSize;
+            const maxValue = Math.max(
+                ...this.processedData.map((_, i) => (purchaseCommissions[i] + signupCommissions[i])),
+                0
+            );
+            const stepSize = this.calculateStepSize(maxValue);
+
+            if (this.chartOptions?.scales?.y?.ticks) {
+                this.chartOptions.scales.y.ticks.stepSize = stepSize;
+            }
+
+            this.chartOptions.scales.x.stacked = true;
+            this.chartOptions.scales.y.stacked = true;
+            this.chartOptions.plugins.legend.display = true;
+
+            const secondary80 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-80').trim();
+            const secondary90 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-90').trim();
+            const primary70 = getComputedStyle(document.documentElement).getPropertyValue('--sys-primary-70').trim();
+            const primary60 = getComputedStyle(document.documentElement).getPropertyValue('--sys-primary-60').trim();
+
+            this.chartData = {
+                labels: this.processedData.map(p => p.xLabel),
+                datasets: [
+                    {
+                        label: 'Signup Commission',
+                        data: signupCommissions,
+                        backgroundColor: secondary90,
+                        hoverBackgroundColor: secondary80,
+                        borderColor: secondary90,
+                        hoverBorderColor: secondary80,
+                        borderWidth: 1,
+                        borderRadius: 0,
+                        stack: 'commission',
+                    },
+                    {
+                        label: 'Purchase Commission',
+                        data: purchaseCommissions,
+                        backgroundColor: primary70,
+                        hoverBackgroundColor: primary60,
+                        borderColor: primary70,
+                        hoverBorderColor: primary60,
+                        borderWidth: 1,
+                        borderRadius: { topLeft: 4, topRight: 4 },
+                        stack: 'commission',
+                    },
+                ]
+            };
+        } else {
+            // Single bar for other metrics
+            this.chartOptions.scales.x.stacked = false;
+            this.chartOptions.scales.y.stacked = false;
+            this.chartOptions.plugins.legend.display = false;
+
+            const maxValue = Math.max(...this.processedData.map(p => p.value), 0);
+            const stepSize = this.calculateStepSize(maxValue);
+
+            if (this.chartOptions?.scales?.y?.ticks) {
+                this.chartOptions.scales.y.ticks.stepSize = stepSize;
+            }
+
+            const secondary90 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-90').trim();
+            const secondary80 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-80').trim();
+
+            this.chartData = {
+                labels: this.processedData.map(p => p.xLabel),
+                datasets: [{
+                    label: this.getMetricLabel(metric),
+                    data: this.processedData.map(p => p.value),
+                    borderColor: secondary90,
+                    borderWidth: 1,
+                    backgroundColor: secondary90,
+                    hoverBackgroundColor: secondary80,
+                    hoverBorderColor: secondary80,
+                    borderRadius: 4,
+                }]
+            };
         }
-
-        const secondary90 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-90').trim();
-        const secondary80 = getComputedStyle(document.documentElement).getPropertyValue('--sys-secondary-80').trim();
-        
-        this.chartData = {
-            labels: this.processedData.map(p => p.xLabel),
-            datasets: [{
-                label: this.getMetricLabel(metric),
-                data: this.processedData.map(p => p.value),
-                borderColor: secondary90,
-                borderWidth: 1,
-                backgroundColor: secondary90,
-                hoverBackgroundColor: secondary80,
-                hoverBorderColor: secondary80,
-                borderRadius: 4,
-            }]
-        };
 
         setTimeout(() => this.chart?.update());
     }
