@@ -24,6 +24,7 @@ import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 - Promoter
 - Purchase
 - SignUp
+- PromoterAnalytics
 
 ## Development
 - Types and objects are auto-generated from source definitions
