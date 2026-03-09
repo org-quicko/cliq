@@ -11,7 +11,6 @@ import {
 } from '../dtos';
 import { SkipTransform } from '../decorators/skipTransform.decorator';
 import { statusEnum, conversionTypeEnum, memberSortByEnum, memberRoleEnum, commissionSortByEnum, linkSortByEnum } from '../enums';
-import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import {
 	Commission,

@@ -6,7 +6,6 @@ import { CreateContactDto } from '../dtos';
 import { ContactConverter } from '../converters/contact.converter';
 import { ProgramService } from './program.service';
 import { contactStatusEnum, referralKeyTypeEnum } from '../enums';
-import { LoggerService } from './logger.service';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 

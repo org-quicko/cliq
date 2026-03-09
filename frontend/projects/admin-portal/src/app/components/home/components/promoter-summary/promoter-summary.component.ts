@@ -83,11 +83,23 @@ export class PromoterSummaryComponent implements OnInit {
 
     readonly program = this.programStore.program;
 
-    readonly analytics = computed(() => this.promoterSummaryStore.analytics().data);
+    readonly analytics = computed(() => this.promoterSummaryStore.analytics().summaryRow);
     readonly promoterName = this.promoterSummaryStore.promoterName;
 
     readonly period = computed(() => this.promoterSummaryStore.analytics().period ?? '30days');
-    readonly dayWiseData = computed(() => this.promoterSummaryStore.analytics().dailyData);
+    readonly dayWiseData = computed(() => {
+        const rows = this.promoterSummaryStore.analytics().dailyRows;
+
+        return rows.map(row => ({
+            date: row.getDate() ?? '',
+            signups: Number(row.getSignups() ?? 0),
+            purchases: Number(row.getPurchases() ?? 0),
+            revenue: Number(row.getRevenue() ?? 0),
+            commission: Number(row.getCommission() ?? 0),
+            signupCommission: Number(row.getSignupCommission() ?? 0),
+            purchaseCommission: Number(row.getPurchaseCommission() ?? 0),
+        }));
+    });
     readonly dataType = computed(() => this.promoterSummaryStore.analytics().dataType ?? 'daily');
 
     readonly links = this.promoterLinksStore.links;

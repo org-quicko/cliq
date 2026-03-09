@@ -2,7 +2,6 @@ import { Controller, Get, Post, Delete, Body, Param, Query, Patch } from '@nestj
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CircleService } from '../services/circle.service';
 import { AddPromoterToCircleDto, CreateCircleDto, UpdateCircleDto } from '../dtos';
-import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Circle } from '../entities';
 import { LoggerFactory } from '@org-quicko/core';

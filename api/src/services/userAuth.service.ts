@@ -3,7 +3,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
 import { User } from '../entities';
-import { LoggerService } from './logger.service';
 import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
 import { audienceEnum } from 'src/enums/audience.enum';
 import winston from 'winston';

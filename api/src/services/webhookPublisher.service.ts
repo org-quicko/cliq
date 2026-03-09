@@ -1,6 +1,5 @@
 import { OnEvent } from "@nestjs/event-emitter";
 import { BaseEvent, COMMISSION_CREATED, PURCHASE_CREATED, SIGNUP_CREATED } from "../events";
-import { LoggerService } from "./logger.service";
 import { generateSignature } from "../utils";
 import { InjectQueue } from "@nestjs/bullmq";
 import { eventQueueName } from "../constants";

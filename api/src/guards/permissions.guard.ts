@@ -7,7 +7,6 @@ import {
 	AuthorizationService,
 } from '../services/authorization.service';
 import { CHECK_PERMISSIONS_KEY } from '../decorators/permissions.decorator';
-import { LoggerService } from '../services/logger.service';
 import { MemberService } from '../services/member.service';
 import { UserService } from '../services/user.service';
 import { actionsType, subjectsType } from '../types';

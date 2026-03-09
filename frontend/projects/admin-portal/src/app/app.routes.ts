@@ -20,12 +20,13 @@ import { IsLoggedIn } from './guards';
 import { ReferralsComponent } from './components/home/components/referrals/referrals.component';
 import { PromotersComponent } from './components/home/components/promoters/promoters.component';
 import { PromoterSummaryComponent } from './components/home/components/promoter-summary/promoter-summary.component';
-import { PromoterAllLinksComponent } from './components/home/components/promoter-summary/promoter-all-links.component';
+import { PromoterLinksComponent } from './components/home/components/promoter-summary/promoter-links.component';
 
 export const routes: Routes = [
+    { path: '', pathMatch: 'full', redirectTo: 'admin/login' },
     { path: '404', component: NotFoundComponent },
-    { path: 'setup', component: SuperAdminSetupComponent },
-    { path: 'login', component: LoginComponent },
+    { path: 'admin/setup', component: SuperAdminSetupComponent },
+    { path: 'admin/login', component: LoginComponent },
     {
         path: '',
         resolve: { user: UserResolver },
@@ -72,7 +73,7 @@ export const routes: Routes = [
                             { path: 'referrals' , component: ReferralsComponent},
                             {path: 'promoters', component: PromotersComponent},
                             {path: 'promoters/:promoter_id', component: PromoterSummaryComponent},
-                            {path: 'promoters/:promoter_id/links', component: PromoterAllLinksComponent},
+                            {path: 'promoters/:promoter_id/links', component: PromoterLinksComponent},
                             { path: 'reports', component: ReportsComponent },
                             { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
                             { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },

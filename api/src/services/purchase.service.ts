@@ -13,7 +13,6 @@ import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
 import { contactStatusEnum, referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
-import { LoggerService } from './logger.service';
 import { PURCHASE_CREATED, PurchaseCreatedEvent } from '../events';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';

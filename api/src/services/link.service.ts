@@ -11,7 +11,6 @@ import { ProgramService } from './program.service';
 import { PromoterService } from './promoter.service';
 import { CreateLinkDto } from '../dtos';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
-import { LoggerService } from './logger.service';
 import { defaultQueryOptions } from '../constants';
 import { linkStatusEnum } from '../enums';
 import { LinkAnalyticsView } from '../entities';

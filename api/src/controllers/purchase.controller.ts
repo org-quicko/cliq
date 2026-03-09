@@ -2,7 +2,6 @@ import { Controller, Post, Body, Headers } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { PurchaseService } from '../services/purchase.service';
 import { CreatePurchaseDto } from '../dtos';
-import { LoggerService } from '../services/logger.service';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 

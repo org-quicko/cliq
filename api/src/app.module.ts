@@ -15,7 +15,6 @@ import { MemberModule } from './modules/member.module';
 import { PromoterModule } from './modules/promoter.module';
 import { PurchaseModule } from './modules/purchase.module';
 import { SignUpModule } from './modules/signUp.module';
-import { LoggerModule } from './modules/logger.module';
 import { AuthModule } from './modules/auth.module';
 import { ApiKeyModule } from './modules/apiKey.module';
 import { ReferralModule } from './modules/referral.module';
@@ -72,7 +71,6 @@ import { PermissionsGuard } from './guards/permissions.guard';
 		MaterializedViewRefreshModule,
 		SignUpModule,
 		WebhookModule,
-		LoggerModule,
 	ServeStaticModule.forRoot(
 			{
 		rootPath: join(__dirname, '..', '..', 'public', 'admin'),

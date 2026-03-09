@@ -2,7 +2,6 @@ import { Controller, Get, Post, Delete, Patch, Body, Param } from '@nestjs/commo
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto, SignUpUserDto, UpdateUserDto } from '../dtos';
-import { LoggerService } from '../services/logger.service';
 import { Program, User } from '../entities';
 import { plainToInstance } from 'class-transformer';
 import { UserAuthService } from '../services/userAuth.service';

@@ -54,25 +54,25 @@
             </div>
           }
         } @else {
-          @for (link of promoterLinksStore.links(); track link.linkId) {
+          @for (link of promoterLinksStore.links(); track link.getLinkId()) {
             <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
               <div class="flex flex-col text-left truncate">
-                <span class="mat-body-large text-on-surface truncate">{{ link.name }}</span>
+                <span class="mat-body-large text-on-surface truncate">{{ link.getLinkName() }}</span>
                 <span class="mat-body-small text-on-surface-variant truncate">
-                  {{ promoterLinksStore.website() }}?ref={{ link.refVal }}
+                  {{ promoterLinksStore.website() }}?ref={{ link.getRefVal() }}
                 </span>
               </div>
               <div class="mat-body-large text-on-surface text-center">
-                {{ link.commission | formatCurrency:program()?.currency }}
+                {{ link.getCommission() | formatCurrency:program()?.currency }}
               </div>
               <div class="mat-body-large text-on-surface text-center">
-                {{ link.signups }}
+                {{ link.getSignups() }}
               </div>
               <div class="mat-body-large text-on-surface text-center">
-                {{ link.purchases }}
+                {{ link.getPurchases() }}
               </div>
               <div class="mat-body-medium text-on-surface-variant text-center">
-                {{ link.createdAt | ordinalDate }}
+                {{ link.getCreatedAt() | ordinalDate }}
               </div>
             </div>
           }

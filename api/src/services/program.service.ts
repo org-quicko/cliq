@@ -1110,14 +1110,18 @@ export class ProgramService {
 
 		this.logger.info('END: getProgramAnalytics service');
 
-		const workbook = this.programAnalyticsWorkbookConverter.convert(
-			Number(aggregateResult?.totalRevenue) || 0,
-			Number(aggregateResult?.totalCommissions) || 0,
-			Number(aggregateResult?.totalSignups) || 0,
-			Number(aggregateResult?.totalPurchases) || 0,
-			period,
-			dailyData,
-		);
+		const workbook = this.programAnalyticsWorkbookConverter.convertTo({
+			programAnalyticsSheetInput: {
+				programAnalytics: [{
+					totalRevenue: Number(aggregateResult?.totalRevenue) || 0,
+					totalCommissions: Number(aggregateResult?.totalCommissions) || 0,
+					totalSignups: Number(aggregateResult?.totalSignups) || 0,
+					totalPurchases: Number(aggregateResult?.totalPurchases) || 0,
+				}],
+				dateWiseData: dailyData,
+				period,
+			},
+		});
 
 		workbook.setMetadata({
 			startDate: startDate.toISOString().split('T')[0],

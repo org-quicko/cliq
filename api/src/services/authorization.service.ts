@@ -38,7 +38,6 @@ import { MemberService } from './member.service';
 import { CircleService } from './circle.service';
 import { FunctionService } from './function.service';
 import { ProgramPromoterService } from './programPromoter.service';
-import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { CommissionService } from './commission.service';
 import { SignUpService } from './signUp.service';

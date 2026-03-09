@@ -8,25 +8,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 
 import { ProgramService } from '../../../../../services/program.service';
-import { PromoterAnalyticsRow, PromoterAnalyticsSheet, PromoterAnalyticsTable, PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+import {
+    PromotersAnalyticsWorkbook,
+    PromoterAnalyticsRow,
+} from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
+
 import { Status } from '@org.quicko.cliq/ngx-core';
 
-
-export interface PromoterListItem {
-    promoterId: string;
-    promoterName: string;
-    memberEmail: string;
-    signups: number;
-    purchases: number;
-    revenue: number;
-    commission: number;
-    signupCommission: number;
-    purchaseCommission: number;
-    status: string;
-}
-
 export interface PromotersStoreState {
-    promoters: PromoterListItem[];
+    promoters: PromoterAnalyticsRow[];
     totalPromoters: number;
     activePromoters: number;
     archivedPromoters: number;
@@ -56,65 +46,50 @@ const initialState: PromotersStoreState = {
 export const PromotersStore = signalStore(
     withState(initialState),
     withDevtools('promoters'),
+
     withComputed((store) => ({
         isLoading: computed(() => store.status() === Status.LOADING),
     })),
-    withMethods(
-        (
-            store,
-            programService = inject(ProgramService),
-        ) => ({
-            resetStore: () => {
-                patchState(store, initialState);
-            },
 
-            fetchPromoters: rxMethod<{
-                programId: string;
-                search?: string;
-                skip?: number;
-                take?: number;
-                order?: 'ASC' | 'DESC';
-            }>(
-                pipe(
-                    tap(() => {
-                        patchState(store, { status: Status.LOADING, promoters: [] });
-                    }),
-                    switchMap(({ programId, search, skip = 0, take = 10, order = 'ASC' }) => {
-                        return programService.getAllPromoters(
-                            programId,
-                            search,
-                            skip,
-                            take,
-                            order
-                        ).pipe(
+    withMethods((store, programService = inject(ProgramService)) => ({
+        resetStore: () => {
+            patchState(store, initialState);
+        },
+
+        fetchPromoters: rxMethod<{
+            programId: string;
+            search?: string;
+            skip?: number;
+            take?: number;
+            order?: 'ASC' | 'DESC';
+        }>(
+            pipe(
+                tap(() => {
+                    patchState(store, { status: Status.LOADING, promoters: [] });
+                }),
+
+                switchMap(({ programId, search, skip = 0, take = 10, order = 'ASC' }) =>
+                    programService
+                        .getAllPromoters(programId, search, skip, take, order)
+                        .pipe(
                             tapResponse({
                                 next(response) {
                                     const workbook = plainToInstance(
                                         PromotersAnalyticsWorkbook,
                                         response?.data
                                     ) as PromotersAnalyticsWorkbook;
+
                                     const sheet = workbook.getPromoterAnalyticsSheet();
                                     const table = sheet.getPromoterAnalyticsTable();
-                                    const rows = table.getRows();
 
-                                    const promoters: PromoterListItem[] = [];
-                                    for (let i = 0; i < rows.length; i++) {
-                                        const row = table.getRow(i);
-                                        promoters.push({
-                                            promoterId: row.getPromoterId(),
-                                            promoterName: row.getPromoterName(),
-                                            memberEmail: row.getMemberEmail() ?? '',
-                                            signups: Number(row.getTotalSignups() ?? 0),
-                                            purchases: Number(row.getTotalPurchases() ?? 0),
-                                            revenue: Number(row.getTotalRevenue() ?? 0),
-                                            commission: Number(row.getTotalCommission() ?? 0),
-                                            signupCommission: Number(row.getSignupCommission() ?? 0),
-                                            purchaseCommission: Number(row.getPurchaseCommission() ?? 0),
-                                            status: row.getStatus() ?? '',
-                                        });
+                                    const rows: PromoterAnalyticsRow[] = [];
+
+                                    for (let i = 0; i < table.getRows().length; i++) {
+                                        rows.push(table.getRow(i));
                                     }
 
                                     const list = sheet.getPromoterAnalyticsList();
+
                                     const totalPromoters = Number(list?.valueOfTotalPromoters() ?? 0);
                                     const activePromoters = Number(list?.valueOfActivePromoters() ?? 0);
                                     const archivedPromoters = Number(list?.valueOfArchivedPromoters() ?? 0);
@@ -122,7 +97,7 @@ export const PromotersStore = signalStore(
                                     const metadata = workbook.getMetadata();
 
                                     patchState(store, {
-                                        promoters,
+                                        promoters: rows,
                                         totalPromoters,
                                         activePromoters,
                                         archivedPromoters,
@@ -135,6 +110,7 @@ export const PromotersStore = signalStore(
                                         status: Status.SUCCESS,
                                     });
                                 },
+
                                 error(error: HttpErrorResponse) {
                                     patchState(store, {
                                         promoters: [],
@@ -148,10 +124,9 @@ export const PromotersStore = signalStore(
                                     });
                                 },
                             })
-                        );
-                    }),
+                        )
                 )
-            ),
-        })
-    ),
+            )
+        ),
+    }))
 );

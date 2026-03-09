@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Delete, Patch, Body, Param, Query, Headers, Res, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ProgramService } from '../services/program.service';
-import { LoggerService } from '../services/logger.service';
 import {
   CreateProgramDto,
   UpdateProgramDto,

@@ -1,7 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LoggerService } from './logger.service';
 import { Webhook } from '../entities';
 import { CreateWebhookDto, UpdateWebhookDto } from '../dtos';
 import { WebhookConverter } from 'src/converters/webhook.converter';

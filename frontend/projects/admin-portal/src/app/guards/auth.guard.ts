@@ -27,7 +27,7 @@ export class IsLoggedIn implements CanActivate, CanActivateChild {
 		}
 
 
-		this.router.navigate(['/login']);
+		this.router.navigate(['admin/login']);
 		return false;
 	}
 }

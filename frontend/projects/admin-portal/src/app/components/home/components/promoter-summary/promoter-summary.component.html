@@ -66,7 +66,7 @@
             </span>
           </div>
           <div class="mat-headline-large text-on-surface">
-            <span>{{ analytics()?.totalRevenue | formatCurrency:program()?.currency }}</span>
+            <span>{{ analytics()?.getTotalRevenue() | formatCurrency:program()?.currency }}</span>
           </div>
         </div>
 
@@ -79,7 +79,7 @@
             </span>
           </div>
           <div class="mat-headline-large text-on-surface">
-            <span>{{ analytics()?.totalCommissions | formatCurrency:program()?.currency }}</span>
+            <span>{{ analytics()?.getTotalCommission() | formatCurrency:program()?.currency }}</span>
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@
             </span>
           </div>
           <div class="mat-title-large text-on-surface">
-            <span>{{ analytics()?.totalSignups | zeroToDash }}</span>
+            <span>{{ analytics()?.getTotalSignups() | zeroToDash }}</span>
           </div>
         </div>
 
@@ -104,7 +104,7 @@
             </span>
           </div>
           <div class="mat-title-large text-on-surface">
-            <span>{{ analytics()?.totalPurchases | zeroToDash }}</span>
+            <span>{{ analytics()?.getTotalPurchases() | zeroToDash }}</span>
           </div>
         </div>
       </div>
@@ -178,25 +178,25 @@
           </div>
         }
       } @else {
-        @for (link of links(); track link.linkId) {
+        @for (link of links(); track link.getLinkId()) {
           <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
             <div class="flex flex-col text-left truncate">
-              <span class="mat-body-large text-on-surface truncate">{{ link.name }}</span>
+              <span class="mat-body-large text-on-surface truncate">{{ link.getLinkName() }}</span>
               <span class="mat-body-small text-on-surface-variant truncate">
-                {{ program()?.website }}?ref={{ link.refVal }}
+                {{ program()?.website }}?ref={{ link.getRefVal() }}
               </span>
             </div>
             <div class="mat-body-large text-on-surface text-center">
-              {{ link.commission | formatCurrency:program()?.currency }}
+              {{ link.getCommission() | formatCurrency:program()?.currency }}
             </div>
             <div class="mat-body-large text-on-surface text-center">
-              {{ link.signups }}
+              {{ link.getSignups() }}
             </div>
             <div class="mat-body-large text-on-surface text-center">
-              {{ link.purchases }}
+              {{ link.getPurchases() }}
             </div>
             <div class="mat-body-medium text-on-surface-variant text-center">
-              {{ link.createdAt | ordinalDate }}
+              {{ link.getCreatedAt() | ordinalDate }}
             </div>
           </div>
         }

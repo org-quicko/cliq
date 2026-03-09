@@ -1,7 +1,6 @@
 import { Injectable, HttpException, HttpStatus, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
-import { LoggerService } from './logger.service';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 

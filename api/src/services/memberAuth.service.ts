@@ -2,7 +2,6 @@ import { BadRequestException, forwardRef, Inject, Injectable, UnauthorizedExcept
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Member } from '../entities';
-import { LoggerService } from './logger.service';
 import { MemberService } from './member.service';
 import { AuthInput, AuthResult, LoginData } from '../interfaces/auth.interface';
 import { audienceEnum } from 'src/enums/audience.enum';

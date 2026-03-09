@@ -13,7 +13,7 @@ import { PromoterLinksStore } from './store/promoter-links.store';
 import { DateRangeFilterComponent } from '../../../layout/range-selector/date-range-filter.component';
 
 @Component({
-    selector: 'app-promoter-all-links',
+    selector: 'app-promoter-links',
     standalone: true,
     imports: [
         CommonModule,
@@ -29,10 +29,10 @@ import { DateRangeFilterComponent } from '../../../layout/range-selector/date-ra
         OrdinalDatePipe,
     ],
     providers: [PromoterLinksStore],
-    templateUrl: 'promoter-all-links.component.html',
-    styleUrl: `promoter-all-links.component.css`,
+    templateUrl: 'promoter-links.component.html',
+    styleUrl: `promoter-links.component.css`,
 })
-export class PromoterAllLinksComponent implements OnInit {
+export class PromoterLinksComponent implements OnInit {
     readonly promoterLinksStore = inject(PromoterLinksStore);
     readonly programStore = inject(ProgramStore);
     readonly dateRangeStore = inject(DateRangeStore);

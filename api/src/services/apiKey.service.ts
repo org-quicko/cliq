@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { ApiKey } from '../entities';
-import { LoggerService } from './logger.service';
 import { statusEnum } from '../enums';
 import { ProgramService } from './program.service';
 import { ApiKeyConverter } from '../converters/apiKey.converter';

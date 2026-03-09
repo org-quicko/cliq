@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SignUpMemberDto, UpdateMemberDto } from 'src/dtos';
 import { Member, Promoter, PromoterMember } from 'src/entities';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
-import { LoggerService } from './logger.service';
 import { memberRoleEnum, statusEnum } from 'src/enums';
 import { PromoterConverter } from 'src/converters/promoter/promoter.dto.converter';
 import { MemberAuthService } from './memberAuth.service';

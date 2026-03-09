@@ -15,7 +15,6 @@ import {
 import { SwitchCircleEffect } from "../classes";
 import { ProgramService } from './program.service';
 import { FunctionConverter } from '../converters/function.converter';
-import { LoggerService } from './logger.service';
 import { CircleService } from './circle.service';
 import { defaultQueryOptions } from 'src/constants';
 import winston from 'winston';

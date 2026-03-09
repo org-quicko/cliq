@@ -12,7 +12,6 @@ import { Permissions } from "../decorators/permissions.decorator";
 import { Webhook } from "../entities";
 import { WebhookService } from "../services/webhook.service";
 import { CreateWebhookDto, UpdateWebhookDto } from "../dtos";
-import { LoggerService } from "../services/logger.service";
 import { LoggerFactory } from "@org-quicko/core";
 import winston from "winston";
 

@@ -3,7 +3,6 @@ import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FunctionService } from '../services/function.service';
 import { CreateFunctionDto, UpdateFunctionDto } from '../dtos';
 import { effectEnum, triggerEnum } from '../enums';
-import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Function } from '../entities';
 import { LoggerFactory } from '@org-quicko/core';

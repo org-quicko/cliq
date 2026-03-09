@@ -16,6 +16,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { PromotersStore } from './store/promoters.store';
+import { sortOrderEnum } from '@org.quicko.cliq/ngx-core';
 
 @Component({
   selector: 'app-promoters',
@@ -42,7 +43,9 @@ export class PromotersComponent implements OnInit {
     pageSize: 5,
   });
 
-  order = signal<'ASC' | 'DESC'>('ASC');
+  order = signal(sortOrderEnum.ASCENDING);
+
+  readonly SortOrder = sortOrderEnum;
 
   promotersStore = inject(PromotersStore);
   private route = inject(ActivatedRoute);
@@ -80,7 +83,7 @@ export class PromotersComponent implements OnInit {
   }
 
   toggleSort() {
-    this.order.set(this.order() === 'ASC' ? 'DESC' : 'ASC');
+    this.order.set(this.order() === sortOrderEnum.ASCENDING ? sortOrderEnum.DESCENDING : sortOrderEnum.ASCENDING);
     this.fetchPromoters();
   }
 

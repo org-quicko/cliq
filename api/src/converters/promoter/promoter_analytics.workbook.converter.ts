@@ -1,6 +1,5 @@
 
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
 import { PromotersAnalyticsWorkbook, PromoterAnalyticsRow, PromoterAnalyticsList } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 import winston from 'winston';

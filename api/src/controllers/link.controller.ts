@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Param, Query, Patch } from '@nestjs/common
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { LinkService } from '../services/link.service';
 import { CreateLinkDto } from '../dtos';
-import { LoggerService } from '../services/logger.service';
 import { Permissions } from '../decorators/permissions.decorator';
 import { Link } from '../entities';
 import { LoggerFactory } from '@org-quicko/core';

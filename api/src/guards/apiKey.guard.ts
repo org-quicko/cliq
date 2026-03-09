@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { LoggerService } from "../services/logger.service";
 import { ApiKeyService } from "src/services/apiKey.service";
 import { Request } from "express";
 import winston from "winston";

@@ -36,7 +36,6 @@ import { PromoterMemberService } from './promoterMember.service';
 import { PurchaseConverter } from '../converters/purchase/purchase.dto.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { commissionSortByEnum, conversionTypeEnum, linkSortByEnum, memberRoleEnum, memberSortByEnum, promoterStatusEnum, statusEnum } from '../enums';
-import { LoggerService } from './logger.service';
 import { CommissionConverter } from '../converters/commission/commission.dto.converter';
 import { ProgramService } from './program.service';
 import { sortOrderEnum } from '../enums/sortOrder.enum';

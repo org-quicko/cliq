@@ -7,7 +7,6 @@ import {
 import { DataSource, Repository } from 'typeorm';
 import { CreateCommissionDto } from '../dtos';
 import { Commission } from '../entities';
-import { LoggerService } from './logger.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { COMMISSION_CREATED, CommissionCreatedEvent } from 'src/events/CommissionCreated.event';
 import { commissionEntityName } from 'src/constants';

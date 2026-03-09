@@ -10,18 +10,8 @@ import { ProgramService } from '../../../../../services/program.service';
 import { Status, SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { PromoterWorkbook, LinkAnalyticsRow } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 
-export interface PromoterLinkItem {
-    linkId: string;
-    name: string;
-    refVal: string;
-    signups: number;
-    purchases: number;
-    commission: number;
-    createdAt: string;
-}
-
 export interface PromoterLinksStoreState {
-    links: PromoterLinkItem[];
+    links: LinkAnalyticsRow[];
     website: string;
     total: number;
     skip: number;
@@ -81,20 +71,11 @@ export const PromoterLinksStore = signalStore(
                                         const linkTable = workbook.getLinkAnalyticsSheet().getLinkAnalyticsTable();
                                         const tableMetadata = linkTable.getMetadata();
 
-                                        const rows = linkTable.getRows() ?? [];
-                                        const links: PromoterLinkItem[] = [];
-                                        for (let i = 0; i < rows.length; i++) {
-                                            const row = linkTable.getRow(i);
-                                            links.push({
-                                                linkId: row.getLinkId() ?? '',
-                                                name: row.getLinkName() ?? '',
-                                                refVal: row.getRefVal() ?? '',
-                                                signups: Number(row.getSignups() ?? 0),
-                                                purchases: Number(row.getPurchases() ?? 0),
-                                                commission: Number(row.getCommission() ?? 0),
-                                                createdAt: row.getCreatedAt() ?? '',
-                                            });
-                                        }
+                                        const links : LinkAnalyticsRow[]= [];
+
+                                         for (let i = 0; i < linkTable.getRows().length; i++) {
+                                        links.push(linkTable.getRow(i));
+                                    }
 
                                         const total = Number(tableMetadata?.get('count')) || 0;
                                         const website = (tableMetadata?.get('website') as string) || '';

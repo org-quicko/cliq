@@ -14,7 +14,6 @@ import { LinkService } from './link.service';
 import { ContactService } from './contact.service';
 import { SIGNUP_CREATED, SignUpCreatedEvent } from '../events';
 import { referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
-import { LoggerService } from './logger.service';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoterService } from './programPromoter.service';

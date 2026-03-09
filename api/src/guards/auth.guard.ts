@@ -10,7 +10,6 @@ import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../services/user.service';
 import { MemberService } from '../services/member.service';
-import { LoggerService } from '../services/logger.service';
 import { audienceEnum } from '../enums/audience.enum';
 import { ApiKeyGuard } from './apiKey.guard';
 import { Reflector } from '@nestjs/core';

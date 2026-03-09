@@ -4,7 +4,6 @@ import { Repository, EntityNotFoundError, DataSource } from 'typeorm';
 import { SignUpUserDto, UpdateUserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
 import { UserConverter } from '../converters/user.converter';
-import { LoggerService } from './logger.service';
 import { userRoleEnum, statusEnum } from 'src/enums';
 import { UserAuthService } from './userAuth.service';
 import * as bcrypt from 'bcrypt';

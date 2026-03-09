@@ -56,7 +56,7 @@
         <span>Name</span>
 
         <mat-icon class="text-on-surface-variant" [ngClass]="{
-      'rotate-180': order() === 'ASC'
+      'rotate-180': order() === SortOrder.ASCENDING
     }">
           arrow_downward
         </mat-icon>
@@ -98,43 +98,43 @@
     } @else {
 
     <!-- Data Rows -->
-    @for (promoter of promoters(); track promoter.promoterId) {
+    @for (promoter of promoters(); track promoter.getPromoterId()) {
     <div
       class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_0.2fr] items-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer"
-      (click)="viewPromoterSummary(promoter.promoterId)">
+      (click)="viewPromoterSummary(promoter.getPromoterId())">
 
       <div class="flex flex-col text-left truncate">
-        <span class="mat-body-large text-on-surface truncate">{{ promoter.promoterName }}</span>
-        <span class="mat-body-large text-on-surface-variant truncate">{{ promoter.memberEmail }}</span>
+        <span class="mat-body-large text-on-surface truncate">{{ promoter.getPromoterName() }}</span>
+        <span class="mat-body-large text-on-surface-variant truncate">{{ promoter.getMemberEmail() }}</span>
       </div>
 
       <div class="mat-body-large text-on-surface text-center">
-        {{ promoter.signups }}
+        {{ promoter.getTotalSignups() }}
       </div>
 
       <div class="mat-body-large text-on-surface text-center">
-        {{ promoter.purchases }}
+        {{ promoter.getTotalPurchases() }}
       </div>
 
       <div class="mat-body-large text-on-surface text-center">
-        ₹{{ promoter.commission }}
+        ₹{{ promoter.getTotalCommission() }}
       </div>
 
       <div class="mat-body-large text-on-surface text-center">
-        ₹{{ promoter.revenue }}
+        ₹{{ promoter.getTotalRevenue() }}
       </div>
 
       <div class="flex justify-center">
         <span class="mat-label-small px-2 py-1 flex items-center justify-center rounded-sm min-w-[48px]" [ngClass]="{
-                'bg-secondary-container text-on-secondary-container': promoter.status === 'active',
-                'bg-surface-container text-on-surface': promoter.status === 'archived'
+                'bg-secondary-container text-on-secondary-container': promoter.getStatus() === 'active',
+                'bg-surface-container text-on-surface': promoter.getStatus() === 'archived'
               }">
-          {{ promoter.status === 'archived' ? 'Inactive' : (promoter.status | titlecase) }}
+          {{ promoter.getStatus() === 'archived' ? 'Inactive' : (promoter.getStatus() | titlecase) }}
         </span>
       </div>
 
       <div class="flex justify-center">
-        <button mat-icon-button (click)="viewPromoterSummary(promoter.promoterId); $event.stopPropagation()">
+        <button mat-icon-button (click)="viewPromoterSummary(promoter.getPromoterId()); $event.stopPropagation()">
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
@@ -152,13 +152,6 @@
     }
 
   </div>
-
-  <!-- Error State -->
-  @if (error()) {
-  <div class="w-full text-error mat-body-medium">
-    {{ error() }}
-  </div>
-  }
 
   <!-- Paginator -->
   @if ((total() ?? 0) > 0) {

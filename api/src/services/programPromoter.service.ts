@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoter } from '../entities';
 import { Repository } from 'typeorm';
-import { LoggerService } from './logger.service';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 

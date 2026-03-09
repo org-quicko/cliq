@@ -1,6 +1,5 @@
 import { ProgramSummaryViewWorkbook, ProgramSummaryViewRow } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '../../services/logger.service';
 import { ConverterException, JSONObject } from '@org-quicko/core';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
