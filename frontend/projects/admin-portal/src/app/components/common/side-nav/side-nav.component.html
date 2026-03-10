@@ -35,6 +35,17 @@
                 </div>
             </mat-list-item>
         </a>
+        <a routerLink="circles" routerLinkActive #circles="routerLinkActive" class="block mb-2">
+            <mat-list-item [activated]="circles.isActive" class="px-4 py-1">
+                <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">
+                    circle
+                </mat-icon>
+                <div matListItemTitle
+                    [class]="`font-sans leading-[20px] ${circles.isActive ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`">
+                    Circles
+                </div>
+            </mat-list-item>
+        </a>
         <a routerLink="reports" routerLinkActive #reports="routerLinkActive" class="block mb-2">
             <mat-list-item [activated]="reports.isActive" class="px-4 py-1">
                 <mat-icon matListItemIcon [class]="`text-on-surface-variant material-symbols-outlined`">

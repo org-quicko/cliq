@@ -51,13 +51,10 @@ export class CircleController {
 
 		const result = await this.circleService.getAllCircles(
 			programId,
-			{
-				name,
-			},
-			{
-				skip,
-				take,
-			});
+			name,
+			skip,
+			take,
+		);
 
 		this.logger.info('END: getAllCircles controller');
 		return { message: 'Successfully fetched all circles.', result };

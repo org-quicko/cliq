@@ -1,0 +1,88 @@
+<div class="super-admin-programs flex flex-col gap-6 w-full">
+
+  <!-- Heading -->
+  <div class="flex items-center justify-between">
+    <p class="mat-headline-medium text-on-surface m-0">
+      Circles ({{ total() ?? 0 | number }})
+    </p>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3">
+    <mat-icon class="text-on-surface-variant mr-3">search</mat-icon>
+    <input matInput [formControl]="searchControl" placeholder="Search in circles"
+      class="w-full mat-body-large text-on-surface placeholder:text-outline focus:outline-none bg-transparent" />
+  </div>
+
+  <!-- Table Wrapper -->
+  <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
+
+    <!-- Header Row -->
+    <div class="grid grid-cols-[2fr_1fr_0.2fr] items-center bg-surface-container-lowest px-6 py-4">
+      <div class="mat-body-medium text-on-surface-variant text-left flex items-center gap-1">
+        <span>Name</span>
+      </div>
+      <div class="mat-body-medium text-on-surface-variant text-center">Number of promoters</div>
+      <div></div>
+    </div>
+
+    <!-- Loading Skeleton -->
+    @if (isLoading()) {
+    @for (item of [].constructor(10); track $index) {
+    <div class="grid grid-cols-[2fr_1fr_0.2fr] items-center px-6 py-4 border-t border-outline-variant">
+      <div class="flex items-center">
+        <ngx-skeleton-loader [theme]="{ height: '1.4em', width: '180px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div class="flex justify-center">
+        <ngx-skeleton-loader [theme]="{ height: '1.4em', width: '40px', margin: '0' }"></ngx-skeleton-loader>
+      </div>
+      <div></div>
+    </div>
+    }
+    } @else {
+
+    <!-- Data Rows -->
+    @for (circle of circles(); track circle.getCircleId()) {
+    <div
+      class="grid grid-cols-[2fr_1fr_0.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
+
+      <div class="mat-body-large text-on-surface text-left truncate">
+        {{ circle.getName() }}
+      </div>
+
+      <div class="mat-body-large text-on-surface text-center">
+        {{ circle.getNumberOfPromoters() }}
+      </div>
+
+      <div class="flex justify-center">
+        <button mat-icon-button [matMenuTriggerFor]="circleMenu" (click)="$event.stopPropagation()">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #circleMenu="matMenu">
+        </mat-menu>
+      </div>
+
+    </div>
+    }
+
+    <!-- Empty State -->
+    @if (circles().length === 0) {
+    <div class="flex justify-center items-center py-16 border-t border-outline-variant">
+      <p class="mat-body-large text-on-surface-variant">No circles to show</p>
+    </div>
+    }
+
+    }
+
+  </div>
+
+  <!-- Paginator -->
+  @if ((total() ?? 0) > 0) {
+  <div class="mt-auto">
+    <mat-paginator [length]="total()" [pageIndex]="paginationOptions().pageIndex"
+      [pageSize]="paginationOptions().pageSize" [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"></mat-paginator>
+  </div>
+  }
+
+</div>
