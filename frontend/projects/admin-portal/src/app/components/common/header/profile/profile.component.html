@@ -1,21 +1,10 @@
 <div class="hover:cursor-pointer">
-	<ngx-avatars 
-		size="40" 
-		[round]="true" 
-		[name]="userName()" 
-		bgColor="var(--sys-primary-fixed)"
-		fgColor="var(--sys-on-primary-fixed-variant)" 
-		[mat-menu-trigger-for]="profileOptions"
-	>
+	<ngx-avatars size="40" [round]="true" [name]="userName()" bgColor="var(--sys-primary-fixed)"
+		fgColor="var(--sys-on-primary-fixed-variant)" [mat-menu-trigger-for]="profileOptions">
 	</ngx-avatars>
 </div>
 
-<mat-menu 
-	class="w-[300px] mt-[22px] rounded-[5px]" 
-	#profileOptions="matMenu" 
-	yPosition="below" 
-	xPosition="before"
->
+<mat-menu class="w-[300px] mt-[22px] rounded-[5px]" #profileOptions="matMenu" yPosition="below" xPosition="before">
 	<ng-template matMenuContent>
 		<div class="flex flex-col">
 			<!-- User Info Section -->
@@ -27,7 +16,8 @@
 								{{ userName() | titlecase }}
 							</div>
 							@if(userRole()) {
-							<div class="bg-surface-container-highest mat-label-small px-[8px] py-[4px] whitespace-nowrap rounded">
+							<div
+								class="bg-surface-container-highest mat-label-small px-[8px] py-[4px] whitespace-nowrap rounded">
 								{{ userRole()?.replace("_", " ") | titlecase }}
 							</div>
 							}
@@ -51,14 +41,21 @@
 				</div>
 			</div>
 
+			<div class="flex flex-col mat-body-large text-on-surface-variant">
+				<div class="flex gap-[12px] px-[16px] py-[16px] hover:bg-neutral-10 hover:bg-opacity-[8%]" mat-menu-item
+					(click)="goToSettings()">
+					<mat-icon class="material-symbols-outlined mr-0">settings</mat-icon>
+					<div class="cursor-pointer">
+						Settings
+					</div>
+				</div>
+			</div>
+
 
 			<!-- Sign Out Option -->
 			<div class="flex flex-col">
-				<div 
-					class="flex gap-[12px] px-[16px] py-[16px] hover:bg-neutral-10 hover:bg-opacity-[8%]" 
-					mat-menu-item
-					(click)="logout()"
-				>
+				<div class="flex gap-[12px] px-[16px] py-[16px] hover:bg-neutral-10 hover:bg-opacity-[8%]" mat-menu-item
+					(click)="logout()">
 					<mat-icon class="material-symbols-outlined mr-0">logout</mat-icon>
 					<div class="cursor-pointer">Sign Out</div>
 				</div>

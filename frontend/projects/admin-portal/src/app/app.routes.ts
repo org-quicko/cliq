@@ -22,7 +22,8 @@ import { PromotersComponent } from './components/home/components/promoters/promo
 import { PromoterSummaryComponent } from './components/home/components/promoter-summary/promoter-summary.component';
 import { PromoterLinksComponent } from './components/home/components/promoter-summary/promoter-links.component';
 import { CirclesComponent } from './components/home/components/circles/circles.component';
-
+import { SettingsComponent } from './components/settings/settings.component';
+import { ProfileComponent } from './components/settings/components/profile/profile.component';
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     { path: 'setup', component: SuperAdminSetupComponent },
@@ -78,6 +79,14 @@ export const routes: Routes = [
                             { path: 'reports', component: ReportsComponent },
                             { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
                             { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
+                            {
+                                path: 'settings',
+                                component: SettingsComponent,
+                                children: [
+                                    { path: '', redirectTo: 'profile', pathMatch: 'full' },
+                                    { path: 'profile', component: ProfileComponent },
+                                ]
+                            }
                         ]
                     },
                 ],

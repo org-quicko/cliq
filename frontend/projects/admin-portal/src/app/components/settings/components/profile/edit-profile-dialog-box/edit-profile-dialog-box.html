@@ -1,0 +1,72 @@
+<app-form-dialog-box
+	[formGroup]="editProfileForm"
+	[onSubmit]="onSubmit"
+	[height]="'h-auto'"
+	icon="edit"
+	headerText="Edit Profile"
+	submitBtnText="Save"
+>
+	<!-- Form fields -->
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-5">
+			<mat-form-field [appearance]="'outline'" class="w-full" subscriptSizing="dynamic">
+				<mat-label>Email</mat-label>
+				<input type="text" matInput formControlName="email" class="w-full max-w-[468px]" required />
+			</mat-form-field>
+
+			<div class="flex gap-4">
+				<mat-form-field [appearance]="'outline'" class="w-1/2" subscriptSizing="dynamic">
+					<mat-label>First Name</mat-label>
+					<input type="text" matInput formControlName="firstName" class="w-full max-w-[468px]"
+						required />
+				</mat-form-field>
+
+				<mat-form-field [appearance]="'outline'" class="w-1/2" subscriptSizing="dynamic">
+					<mat-label>Last Name</mat-label>
+					<input type="text" matInput formControlName="lastName" class="w-full max-w-[468px]"
+						required />
+				</mat-form-field>
+			</div>
+		</div>
+
+		<div class="flex flex-col gap-5">
+			<div class="mat-title-medium text-on-surface-variant font-semibold">
+				<span>Password</span>
+			</div>
+
+			<mat-form-field [appearance]="'outline'" class="w-full" subscriptSizing="dynamic">
+				<mat-label>Current Password</mat-label>
+				<input [type]="hideCurrentPassword ? 'password': 'text'" matInput
+					formControlName="currentPassword" autocomplete="off" />
+				<button mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword"
+					type="button">
+					<mat-icon class="material-symbols-outlined">{{ hideCurrentPassword ? 'visibility_off' :
+						'visibility' }}</mat-icon>
+				</button>
+			</mat-form-field>
+
+			<mat-form-field [appearance]="'outline'" class="w-full" subscriptSizing="dynamic">
+				<mat-label>New Password</mat-label>
+				<input [type]="hideNewPassword ? 'password': 'text'" matInput formControlName="newPassword" />
+
+				<button mat-icon-button matSuffix (click)="hideNewPassword = !hideNewPassword" type="button">
+					<mat-icon class="material-symbols-outlined">{{ hideNewPassword ? 'visibility_off' :
+						'visibility' }}</mat-icon>
+				</button>
+			</mat-form-field>
+
+			@if (editProfileForm.hasError('passwordsMatch')) {
+			<mat-error class="text-on-error-container"><span>New password must be different from current
+					password.</span></mat-error>
+			}
+			@if (editProfileForm.hasError('passwordsRequired')) {
+			<mat-error class="text-on-error-container"><span>Must enter both current and new password to change
+					password.</span></mat-error>
+			}
+			@if (error()) {
+			<mat-error class="text-on-error-container"><span>{{ error()?.error.message }}</span></mat-error>
+			}
+		</div>
+
+	</div>
+</app-form-dialog-box>

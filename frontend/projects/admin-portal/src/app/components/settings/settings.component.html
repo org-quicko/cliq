@@ -1,0 +1,29 @@
+<div class="w-full h-auto min-h-[528px] gap-6">
+	<div class="flex flex-col gap-6">
+		<!-- Header -->
+		<div>
+			<div class="w-full h-auto min-h-[104px] flex flex-col gap-5">
+				<div><span class="mat-headline-medium text-on-surface">Settings</span></div>
+
+				<div class="flex justify-start w-fit">
+					<nav mat-tab-nav-bar [tabPanel]="tabPanel" class="flex justify-start items-start h-12">
+						@for (tab of tabs; track tab) {
+						<a mat-tab-link [routerLink]="tab" routerLinkActive (click)="selectedTab = tab" [active]="selectedTab == tab" [class]="`${selectedTab === tab ? 'text-primary' : 'text-on-surface-variant'}`">
+							<div class="flex justify-start items-center gap-[8px] py-[12px]">
+								<div class="mat-body-medium tracking-normal text-on-surface">
+									{{ tab | titlecase }}
+								</div>
+							</div>
+						</a>
+						}
+					</nav>
+					<mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+				</div>
+			</div>
+			<mat-divider class="w-full -mt-[2px] border-outline-variant"></mat-divider>
+		</div>
+
+		<!-- Tab content -->
+		<router-outlet />
+	</div>
+</div>

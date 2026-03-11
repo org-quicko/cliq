@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiResponse, LoginDto, UserDto, ProgramUserDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, LoginDto, UserDto, ProgramUserDto, UpdateUserDto } from '@org.quicko.cliq/ngx-core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { instanceToPlain } from 'class-transformer';
@@ -62,5 +62,11 @@ export class UserService {
 		const url = `${this.baseUrl}/programs/${programId}/users/${userId}`;
 
 		return this.httpClient.get<ApiResponse<ProgramUserDto>>(url);
+	}
+
+	updateUser(userId: string, updatedInfo: UpdateUserDto): Observable<ApiResponse<UserDto>> {
+		const url = `${this.baseUrl}/users/${userId}`;
+		const body = instanceToPlain(updatedInfo);
+		return this.httpClient.patch<ApiResponse<UserDto>>(url, body);
 	}
 }
