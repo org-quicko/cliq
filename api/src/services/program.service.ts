@@ -365,7 +365,8 @@ export class ProgramService {
 		const programUsersResult = await this.programUserRepository.find({
 			where: {
 				programId,
-				...whereOptions
+				...whereOptions,
+				status: statusEnum.ACTIVE,
 			},
 			relations: { user: true },
 			...queryOptions,

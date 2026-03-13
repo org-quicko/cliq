@@ -330,6 +330,7 @@ export class AuthorizationService {
             
             allow(['read', 'read_all'], [ReferralView, PromoterAnalyticsView, ProgramPromoter, Link, Circle, Function, Webhook, ApiKey], { programId });
             allow('read', User, { programUsers: { $elemMatch: { programId } } });
+            allow('read', ProgramUser, { programId });
             allow(['read', 'read_all'], LinkAnalyticsView);
 
             allow<FlatPurchase>('read', Purchase, { 'contact.programId': programId });
@@ -349,6 +350,9 @@ export class AuthorizationService {
                 allow(['change_role', 'remove_user'], ProgramUser, { programId, role: { $ne: userRoleEnum.SUPER_ADMIN } });
 
                 allow('invite_user', ProgramUser, { programId });
+
+                // can update info of users within their program
+                allow('update', User, { programUsers: { $elemMatch: { programId } } });
 
                 // can also perform all operations on circle, functions and links
                 allow('manage', [Link, Circle, Function, ApiKey, Webhook], { programId });

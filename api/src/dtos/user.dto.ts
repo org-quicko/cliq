@@ -3,7 +3,8 @@ import { Expose } from 'class-transformer';
 import { IsString, IsUUID, IsDate, IsOptional, IsEnum, IsEmail } from 'class-validator';
 import { userRoleEnum, statusEnum } from 'src/enums';
 
-export class UserDto {
+export class 
+UserDto {
 	@Expose({ name: 'user_id' })
 	@IsUUID()
 	userId: string;

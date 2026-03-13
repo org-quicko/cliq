@@ -24,6 +24,7 @@ import { PromoterLinksComponent } from './components/home/components/promoter-su
 import { CirclesComponent } from './components/home/components/circles/circles.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ProfileComponent } from './components/settings/components/profile/profile.component';
+import { TeamComponent } from './components/settings/components/team/team.component';
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     { path: 'setup', component: SuperAdminSetupComponent },
@@ -85,6 +86,7 @@ export const routes: Routes = [
                                 children: [
                                     { path: '', redirectTo: 'profile', pathMatch: 'full' },
                                     { path: 'profile', component: ProfileComponent },
+                                    { path: 'team', component: TeamComponent },
                                 ]
                             }
                         ]
