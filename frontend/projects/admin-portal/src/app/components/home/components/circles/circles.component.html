@@ -18,7 +18,7 @@
   <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
 
     <!-- Header Row -->
-    <div class="grid grid-cols-[2fr_1fr_0.2fr] items-center bg-surface-container-lowest px-6 py-4">
+    <div class="grid grid-cols-[0.5fr_1fr_0.2fr] items-center bg-surface-container-lowest px-6 py-4">
       <div class="mat-body-medium text-on-surface-variant text-left flex items-center gap-1">
         <span>Name</span>
       </div>
@@ -29,7 +29,7 @@
     <!-- Loading Skeleton -->
     @if (isLoading()) {
     @for (item of [].constructor(10); track $index) {
-    <div class="grid grid-cols-[2fr_1fr_0.2fr] items-center px-6 py-4 border-t border-outline-variant">
+    <div class="grid grid-cols-[0.5fr_1fr_0.2fr] items-center px-6 py-4 border-t border-outline-variant">
       <div class="flex items-center">
         <ngx-skeleton-loader [theme]="{ height: '1.4em', width: '180px', margin: '0' }"></ngx-skeleton-loader>
       </div>
@@ -44,7 +44,7 @@
     <!-- Data Rows -->
     @for (circle of circles(); track circle.getCircleId()) {
     <div
-      class="grid grid-cols-[2fr_1fr_0.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
+      class="grid grid-cols-[0.5fr_1fr_0.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
 
       <div class="mat-body-large text-on-surface text-left truncate">
         {{ circle.getName() }}
@@ -55,11 +55,9 @@
       </div>
 
       <div class="flex justify-center">
-        <button mat-icon-button [matMenuTriggerFor]="circleMenu" (click)="$event.stopPropagation()">
-          <mat-icon>more_vert</mat-icon>
+        <button mat-icon-button>
+          <mat-icon>chevron_right</mat-icon>
         </button>
-        <mat-menu #circleMenu="matMenu">
-        </mat-menu>
       </div>
 
     </div>

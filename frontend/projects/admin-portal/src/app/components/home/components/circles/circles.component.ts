@@ -11,7 +11,6 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -27,7 +26,6 @@ import { CirclesStore } from './store/circles.store';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatMenuModule,
     NgxSkeletonLoaderModule,
   ],
   templateUrl: './circles.component.html',

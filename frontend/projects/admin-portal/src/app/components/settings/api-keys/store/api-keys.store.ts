@@ -84,6 +84,14 @@ export const ApiKeysStore = signalStore(
 			resetState() {
 				patchState(store, initialApiKeysState);
 			},
+			clearSecret() {
+				const current = store.apiKey();
+				if (current) {
+					patchState(store, {
+						apiKey: { ...current, secret: undefined },
+					});
+				}
+			}
 		})
 	)
 );

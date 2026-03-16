@@ -58,21 +58,6 @@ export class ProgramProfileComponent {
 		});
 	}
 
-	// onEditTermsAndConditions() {
-	// 	if (!this.can('update', ProgramDto)) {
-	// 		this.snackbarService.openSnackBar('You do not have permission to edit Terms & Conditions.', undefined);
-	// 		return;
-	// 	}
-
-	// 	this.dialog.open(EditTermsDialogComponent, {
-	// 		width: 'auto',
-	// 		maxWidth: '90vw',
-	// 		data: {
-	// 			program: this.program(),
-	// 		}
-	// 	});
-	// }
-
 	onDeleteProgram() {
 		if (!this.can('delete', ProgramDto)) {
 			this.snackbarService.openSnackBar('You do not have permission to delete this program.', undefined);

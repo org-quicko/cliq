@@ -45,10 +45,13 @@ export class ApiKeysComponent implements OnInit {
 		effect(() => {
 			const apiKey = this.apiKeysStore.apiKey();
 			if (apiKey?.secret) {
-				this.dialog.open(ApiCredentialsDialogComponent, {
+				const ref = this.dialog.open(ApiCredentialsDialogComponent, {
 					width: '516px',
 					disableClose: true,
 					data: { apiKey },
+				});
+				ref.afterClosed().subscribe(() => {
+					this.apiKeysStore.clearSecret();
 				});
 			}
 		});

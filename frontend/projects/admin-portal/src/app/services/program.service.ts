@@ -8,7 +8,6 @@ import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAna
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
 import { ProgramSummaryViewWorkbook } from '@org-quicko/cliq-sheet-core/ProgramSummaryView/beans';
-import { CircleWorkbook } from '@org-quicko/cliq-sheet-core/Circle/beans';
 import { instanceToPlain } from 'class-transformer';
 
 @Injectable({
@@ -299,28 +298,6 @@ export class ProgramService {
         }
 
         return this.httpClient.get<ApiResponse<PromoterWorkbook>>(url, { params });
-    }
-
-    getAllCircles(
-        programId: string,
-        name?: string,
-        skip?: number,
-        take?: number,
-    ): Observable<ApiResponse<CircleWorkbook>> {
-        const url = `${this.endpoint}/${programId}/circles`;
-
-        let params = new HttpParams();
-        if (name) {
-            params = params.set('name', name);
-        }
-        if (skip !== undefined) {
-            params = params.set('skip', skip.toString());
-        }
-        if (take !== undefined) {
-            params = params.set('take', take.toString());
-        }
-
-        return this.httpClient.get<ApiResponse<CircleWorkbook>>(url, { params });
     }
 
     getProgramUsers(

@@ -7,7 +7,7 @@ import { plainToInstance } from 'class-transformer';
 import { HttpErrorResponse } from '@angular/common/http';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 
-import { ProgramService } from '../../../../../services/program.service';
+import { CirclesService } from '../../../../../services/circles.service';
 import { CircleWorkbook, CircleRow } from '@org-quicko/cliq-sheet-core/Circle/beans';
 import { Status } from '@org.quicko.cliq/ngx-core';
 
@@ -39,7 +39,7 @@ export const CirclesStore = signalStore(
         isLoading: computed(() => store.status() === Status.LOADING),
     })),
 
-    withMethods((store, programService = inject(ProgramService)) => ({
+    withMethods((store, circlesService = inject(CirclesService)) => ({
         resetStore: () => {
             patchState(store, initialState);
         },
@@ -56,7 +56,7 @@ export const CirclesStore = signalStore(
                 }),
 
                 switchMap(({ programId, search, skip = 0, take = 10 }) =>
-                    programService
+                    circlesService
                         .getAllCircles(programId, search, skip, take)
                         .pipe(
                             tapResponse({
