@@ -54,6 +54,21 @@ export function defineUserAbilities(role: userRoleEnum): UserAbility {
 
   allow('read_all', ProgramDto);
 
+  allow(['read', 'read_all'], [
+    ReferralDto,
+    'PromoterAnalyticsView',
+    PromoterDto,
+    LinkDto,
+    CircleDto,
+    FunctionDto,
+    'Webhook',
+    ApiKeyDto,
+    CommissionDto,
+    SignUpDto,
+    PurchaseDto,
+    ProgramUserDto
+  ]);
+
   allow(['read', 'update', 'delete'], UserDto);
   allow('leave', ProgramDto);
 
