@@ -56,7 +56,6 @@ export class AddEditUserDialogComponent implements OnDestroy {
 		this.newUser = new CreateUserDto();
 		this.addUserForm = this.fb.formGroup(this.newUser);
 
-		// Add role control manually since it doesn't have @prop()
 		this.addUserForm.addControl('role', new FormControl('', Validators.required));
 
 		if (this.isEditMode) {

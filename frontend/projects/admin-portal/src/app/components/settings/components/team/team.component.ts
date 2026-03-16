@@ -8,13 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { AbilityServiceSignal } from '@casl/angular';
-import { PureAbility } from '@casl/ability';
 
 import {
-	ProgramUserDto,
 	UserDto,
 	Status,
 	userRoleEnum,
+	UpdateUserRoleDto,
 	UpdateProgramUserDto,
 	UpdateUserDto,
 	OrdinalDatePipe
@@ -24,7 +23,8 @@ import { ProgramStore } from '../../../../store/program.store';
 import { TeamStore, onAddUserSuccess, onRemoveUserSuccess } from './store/team.store';
 import { AddEditUserDialogComponent } from './components/add-edit-user-dialog/add-edit-user-dialog.component';
 import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
-import { UserAbility, UserAbilityTuple } from '../../../../permissions/ability';
+import { NotAllowedDialogBoxComponent } from '../../../common/not-allowed-dialog-box/not-allowed-dialog-box.component';
+import { UserAbility } from '../../../../permissions/ability';
 
 @Component({
 	selector: 'app-team',
@@ -39,8 +39,6 @@ import { UserAbility, UserAbilityTuple } from '../../../../permissions/ability';
 		MatDividerModule,
 		TitleCasePipe,
 		OrdinalDatePipe,
-		AddEditUserDialogComponent,
-		InfoDialogBoxComponent,
 	],
 	providers: [TeamStore],
 	templateUrl: './team.component.html',
@@ -59,8 +57,6 @@ export class TeamComponent implements OnInit {
 
 	private readonly abilityService = inject<AbilityServiceSignal<UserAbility>>(AbilityServiceSignal);
 	protected readonly can = this.abilityService.can;
-
-	private readonly ability = inject<PureAbility<UserAbilityTuple>>(PureAbility);
 
 	userRoles = [userRoleEnum.ADMIN, userRoleEnum.EDITOR, userRoleEnum.VIEWER];
 
@@ -115,26 +111,27 @@ export class TeamComponent implements OnInit {
 		this.loadUsers();
 	}
 
+	openNotAllowedDialogBox(description: string) {
+		this.dialog.open(NotAllowedDialogBoxComponent, {
+			data: { description }
+		});
+	}
+
 	onAddUser() {
-		if (this.can('invite_user', ProgramUserDto)) {
 
-			this.teamStore.setStatus(Status.PENDING);
-
-			this.dialog.open(AddEditUserDialogComponent, {
-				data: {
-					addUser: this.addUser,
-					status: this.teamStore.status,
-				}
-			});
-
-		} else {
-
-			const rule = this.ability.relevantRuleFor('invite_user', ProgramUserDto);
-
-			this.openNotAllowedDialogBox(
-				rule?.reason ?? 'You do not have permission to add a user.'
-			);
+		if (!this.can('invite_user', UpdateUserRoleDto)) {
+			this.openNotAllowedDialogBox('You do not have permission to add a user.');
+			return;
 		}
+
+		this.teamStore.setStatus(Status.PENDING);
+
+		this.dialog.open(AddEditUserDialogComponent, {
+			data: {
+				addUser: this.addUser,
+				status: this.teamStore.status,
+			}
+		});
 	}
 
 	addUser = (newUser: any) => {
@@ -146,91 +143,70 @@ export class TeamComponent implements OnInit {
 
 	onEdit(user: UserDto) {
 
-		if (this.ability.can('change_role', ProgramUserDto)) {
-
-			this.dialog.open(AddEditUserDialogComponent, {
-				data: {
-					user,
-					editUser: ({ role, email, firstName, lastName }: { role: userRoleEnum, email: string, firstName: string, lastName: string }) => {
-						const isRoleChanged = role !== user.role;
-						const isInfoChanged = email !== user.email || firstName !== user.firstName || lastName !== user.lastName;
-
-						if (isRoleChanged) {
-							const updatedRole = new UpdateProgramUserDto();
-							updatedRole.role = role;
-
-							this.teamStore.updateUserRole({
-								programId: this.programId(),
-								userId: user.userId,
-								body: updatedRole,
-							});
-						}
-
-						if (isInfoChanged) {
-
-							const userInfo = new UpdateUserDto();
-							userInfo.email = email;
-							userInfo.firstName = firstName;
-							userInfo.lastName = lastName;
-
-							this.teamStore.updateUserInfo({
-								userId: user.userId,
-								body: userInfo,
-							});
-						}
-					},
-					status: this.teamStore.status,
-				}
-			});
-
-		} else {
-
-			const rule = this.ability.relevantRuleFor('change_role', ProgramUserDto);
-
-			this.openNotAllowedDialogBox(
-				rule?.reason ?? 'You do not have permission to edit a user.'
-			);
+		if (!this.can('change_role', UpdateUserRoleDto)) {
+			this.openNotAllowedDialogBox('You do not have permission to edit a user.');
+			return;
 		}
+
+		if (user.role === userRoleEnum.SUPER_ADMIN) {
+			this.openNotAllowedDialogBox('Cannot modify a super admin user.');
+			return;
+		}
+
+		this.dialog.open(AddEditUserDialogComponent, {
+			data: {
+				user,
+				editUser: ({ role, email, firstName, lastName }: { role: userRoleEnum, email: string, firstName: string, lastName: string }) => {
+					if (role !== user.role) {
+						const updatedRole = new UpdateProgramUserDto();
+						updatedRole.role = role;
+						this.teamStore.updateUserRole({
+							programId: this.programId(),
+							userId: user.userId,
+							body: updatedRole,
+						});
+					}
+
+					if (email !== user.email || firstName !== user.firstName || lastName !== user.lastName) {
+						const userInfo = new UpdateUserDto();
+						userInfo.email = email;
+						userInfo.firstName = firstName;
+						userInfo.lastName = lastName;
+						this.teamStore.updateUserInfo({
+							userId: user.userId,
+							body: userInfo,
+						});
+					}
+				},
+				status: this.teamStore.status,
+			}
+		});
 	}
 
 	onRemove(user: UserDto) {
 
-		if (this.ability.can('remove_user', ProgramUserDto)) {
-
-			this.dialog.open(InfoDialogBoxComponent, {
-				data: {
-					title: `Remove ${user.firstName} ${user.lastName}?`,
-					message: `Are you sure you want to remove ${user.firstName} ${user.lastName} from this program? They will lose all access.`,
-					confirmButtonText: 'Remove',
-					cancelButtonText: 'Cancel',
-					onSubmit: () => {
-						this.teamStore.removeUser({
-							programId: this.programId(),
-							userId: user.userId,
-						});
-					}
-				}
-			});
-
-		} else {
-
-			const rule = this.ability.relevantRuleFor('remove_user', ProgramUserDto);
-
-			this.openNotAllowedDialogBox(
-				rule?.reason ?? 'You do not have permission to remove a user.'
-			);
+		if (!this.can('remove_user', UpdateUserRoleDto)) {
+			this.openNotAllowedDialogBox('You do not have permission to remove a user.');
+			return;
 		}
-	}
 
-	openNotAllowedDialogBox(restrictionReason: string) {
+		if (user.role === userRoleEnum.SUPER_ADMIN) {
+			this.openNotAllowedDialogBox('Cannot modify a super admin user.');
+			return;
+		}
 
 		this.dialog.open(InfoDialogBoxComponent, {
 			data: {
-				message: restrictionReason,
-				confirmButtonText: 'Got it',
-				title: 'Action not allowed',
-				removeCancelBtn: true,
-				onSubmit: () => { }
+				title: `Remove ${user.firstName} ${user.lastName}?`,
+				message: `Are you sure you want to remove ${user.firstName} ${user.lastName} from this program? They will lose all access.`,
+				confirmButtonText: 'Remove',
+				cancelButtonText: 'Cancel',
+				onSubmit: () => {
+					this.teamStore.removeUser({
+						programId: this.programId(),
+						userId: user.userId,
+					});
+				}
 			}
 		});
 	}

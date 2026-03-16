@@ -115,3 +115,8 @@ export class SignUpUserDto implements Omit<CreateUserDto, 'role'> {
 	@IsString()
 	lastName: string;
 }
+
+export class UpdateUserRoleDto {
+	@IsEnum(userRoleEnum)
+	role: userRoleEnum;
+}

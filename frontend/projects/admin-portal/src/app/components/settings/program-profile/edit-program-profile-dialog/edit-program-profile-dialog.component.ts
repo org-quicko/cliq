@@ -68,7 +68,6 @@ export class EditProgramProfileDialogComponent {
 				this.programService.updateProgram(this.data.program.programId, instanceToPlain(body) as UpdateProgramDto)
 			);
 
-			// Refresh the program in the store
 			const response = await firstValueFrom(
 				this.programService.getProgram(this.data.program.programId)
 			);

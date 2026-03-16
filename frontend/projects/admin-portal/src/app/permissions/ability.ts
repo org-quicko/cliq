@@ -12,6 +12,7 @@ import {
   PurchaseDto,
   ApiKeyDto,
   UserDto,
+  UpdateUserRoleDto,
   userRoleEnum,
   actionsType
 } from '@org.quicko.cliq/ngx-core';
@@ -30,6 +31,7 @@ export type subjectsType =
     | typeof PurchaseDto
     | typeof ApiKeyDto
     | typeof UserDto
+    | typeof UpdateUserRoleDto
     | 'ProgramSummaryMv'
     | 'PromoterAnalyticsView'
     | 'Webhook'
@@ -83,11 +85,7 @@ export function defineUserAbilities(role: userRoleEnum): UserAbility {
 
     allow(['change_role', 'remove_user', 'invite_user'], ProgramUserDto);
 
-    allow(['change_role', 'remove_user'], UserDto);
-
-    forbid(['change_role', 'remove_user'], UserDto, {
-      role: userRoleEnum.SUPER_ADMIN
-    }).because('Cannot modify a super admin user.');
+    allow(['change_role', 'remove_user', 'invite_user'], UpdateUserRoleDto);
 
   }
 
