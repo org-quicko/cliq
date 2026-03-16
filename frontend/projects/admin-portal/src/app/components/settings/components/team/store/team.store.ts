@@ -6,7 +6,7 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { plainToInstance } from 'class-transformer';
-import { CreateUserDto, SnackbarService, Status, UpdateProgramUserDto, UpdateUserDto, UserDto } from '@org.quicko.cliq/ngx-core';
+import { CreateUserDto, SnackbarService, Status, UpdateProgramUserDto, UpdateUserDto, UpdateUserRoleDto, UserDto } from '@org.quicko.cliq/ngx-core';
 import { ProgramService } from '../../../../../services/program.service';
 import { UserService } from '../../../../../services/user.service';
 
@@ -69,7 +69,7 @@ export const TeamStore = signalStore(
 								},
 								error(error: HttpErrorResponse) {
 									patchState(store, { status: Status.ERROR, error });
-									snackBarService.openSnackBar(error?.error?.message || 'Failed to add user', '');
+									snackBarService.openSnackBar('Failed to add user', '');
 								},
 							})
 						)
@@ -77,7 +77,7 @@ export const TeamStore = signalStore(
 				)
 			),
 
-			updateUserRole: rxMethod<{ programId: string, userId: string, body: UpdateProgramUserDto }>(
+			updateUserRole: rxMethod<{ programId: string, userId: string, body: UpdateUserRoleDto }>(
 				pipe(
 					switchMap(({ programId, userId, body }) =>
 						programService.updateUserRole(programId, userId, body).pipe(

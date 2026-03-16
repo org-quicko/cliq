@@ -25,26 +25,26 @@
 
 			<!-- Email -->
 			<ng-container matColumnDef="email">
-				<th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline w-[25%]">Email</th>
-				<td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant w-[25%]">
+				<th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline text-center w-[25%]">Email</th>
+				<td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant text-center w-[25%]">
 					{{ user.email ?? '-' }}
 				</td>
 			</ng-container>
 
 			<!-- Role -->
 			<ng-container matColumnDef="role">
-				<th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline w-[15%]">Role</th>
-				<td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant w-[15%]">
-					<span class="px-3 py-1 rounded-[4px] bg-surface-container text-sm capitalize">
-						{{ user.role }}
+				<th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline text-center w-[15%]">Role</th>
+				<td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant text-center w-[15%]">
+					<span class="px-3 py-1 rounded-[4px] bg-surface-container text-sm">
+						{{ user.role.split('_').join(' ') | titlecase }}
 					</span>
 				</td>
 			</ng-container>
 
 			<!-- Joined On -->
 			<ng-container matColumnDef="joinedOn">
-				<th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline w-[25%]">Joined on</th>
-				<td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant w-[25%]">
+				<th mat-header-cell *matHeaderCellDef class="p-4 mat-body-medium text-outline text-center w-[25%]">Joined on</th>
+				<td mat-cell *matCellDef="let user" class="p-4 mat-body-large text-on-surface-variant text-center w-[25%]">
 					{{ user.createdAt | ordinalDate }}
 				</td>
 			</ng-container>
@@ -52,7 +52,7 @@
 			<!-- Menu -->
 			<ng-container matColumnDef="menu">
 				<th mat-header-cell *matHeaderCellDef class="w-[10%]"></th>
-				<td mat-cell *matCellDef="let user" class="p-4 text-right w-[10%]">
+				<td mat-cell *matCellDef="let user" class="p-4 text-center w-[10%]">
 					<button mat-icon-button [matMenuTriggerFor]="userMenu">
 						<mat-icon>more_vert</mat-icon>
 					</button>

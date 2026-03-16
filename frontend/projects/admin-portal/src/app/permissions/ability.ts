@@ -89,7 +89,6 @@ export function defineUserAbilities(role: userRoleEnum): UserAbility {
 
   }
 
-
   if (role === userRoleEnum.EDITOR) {
     allow('manage', [LinkDto, CircleDto, FunctionDto]);
   }

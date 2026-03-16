@@ -1,6 +1,6 @@
 import { Component, Input, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
-import { MarkdownService } from '../../../services/markdown.service';
+import { MarkdownService } from '../../services/markdown.service';
 
 @Component({
 	selector: 'app-markdown-content',

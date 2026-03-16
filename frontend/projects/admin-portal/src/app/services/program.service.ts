@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, ProgramDto, ReferralDto, PaginatedList, referralSortByEnum, SortByEnum, CreateUserDto, UpdateProgramUserDto, ProgramUserDto, UserDto, UpdateProgramDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, ProgramDto, ReferralDto, PaginatedList, referralSortByEnum, SortByEnum, UpdateProgramUserDto, ProgramUserDto, UserDto, UpdateProgramDto, UpdateUserRoleDto, CreateUserDto } from '@org.quicko.cliq/ngx-core';
 import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
@@ -318,18 +318,18 @@ export class ProgramService {
         return this.httpClient.get<ApiResponse<UserDto[]>>(url, { params });
     }
 
-    inviteUser(programId: string, body: CreateUserDto): Observable<ApiResponse<any>> {
+    inviteUser(programId: string, body: CreateUserDto): Observable<ApiResponse<CreateUserDto>> {
         const url = `${this.endpoint}/${programId}/invite`;
-        return this.httpClient.post<ApiResponse<any>>(url, instanceToPlain(body));
+        return this.httpClient.post<ApiResponse<CreateUserDto>>(url, instanceToPlain(body));
     }
 
-    updateUserRole(programId: string, userId: string, body: UpdateProgramUserDto): Observable<ApiResponse<any>> {
+    updateUserRole(programId: string, userId: string, body: UpdateUserRoleDto): Observable<ApiResponse<UpdateUserRoleDto>> {
         const url = `${this.endpoint}/${programId}/users/${userId}`;
-        return this.httpClient.patch<ApiResponse<any>>(url, instanceToPlain(body));
+        return this.httpClient.patch<ApiResponse<UpdateUserRoleDto>>(url, instanceToPlain(body));
     }
 
-    removeUser(programId: string, userId: string): Observable<ApiResponse<any>> {
+    removeUser(programId: string, userId: string): Observable<ApiResponse<null>> {
         const url = `${this.endpoint}/${programId}/users/${userId}`;
-        return this.httpClient.delete<ApiResponse<any>>(url);
+        return this.httpClient.delete<ApiResponse<null>>(url);
     }
 }

@@ -158,7 +158,7 @@ export class TeamComponent implements OnInit {
 				user,
 				editUser: ({ role, email, firstName, lastName }: { role: userRoleEnum, email: string, firstName: string, lastName: string }) => {
 					if (role !== user.role) {
-						const updatedRole = new UpdateProgramUserDto();
+						const updatedRole = new UpdateUserRoleDto();
 						updatedRole.role = role;
 						this.teamStore.updateUserRole({
 							programId: this.programId(),

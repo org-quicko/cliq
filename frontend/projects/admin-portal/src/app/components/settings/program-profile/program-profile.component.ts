@@ -13,7 +13,7 @@ import { ProgramService } from '../../../services/program.service';
 import { UserAbility } from '../../../permissions/ability';
 import { EditProgramProfileDialogComponent } from './edit-program-profile-dialog/edit-program-profile-dialog.component';
 import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
-import { MarkdownContentComponent } from '../../common/markdown-content/markdown-content.component';
+import { MarkdownContentComponent } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-program-profile',

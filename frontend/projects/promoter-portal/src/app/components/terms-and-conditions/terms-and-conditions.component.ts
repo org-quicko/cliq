@@ -8,7 +8,7 @@ import { onRegisterForProgramSuccess, TncStore } from './store/tnc.store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RegisterForProgramDto, Status } from '@org.quicko.cliq/ngx-core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MarkdownContentComponent } from '../common/markdown-content/markdown-content.component';
+import { MarkdownContentComponent } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-terms-and-conditions',
