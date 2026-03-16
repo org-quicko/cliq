@@ -75,7 +75,7 @@ export function defineUserAbilities(role: userRoleEnum): UserAbility {
 
   if (role === userRoleEnum.ADMIN) {
 
-    allow(['update', 'invite_user'], ProgramDto);
+    allow(['update', 'delete', 'invite_user'], ProgramDto);
 
     allow('manage', PromoterDto);
 

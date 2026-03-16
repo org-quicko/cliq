@@ -28,6 +28,9 @@ export class ApiKeyService {
 	async generateKey(programId: string) {
 		this.logger.info(`START: generateKey service`);
 
+		// Delete any existing keys for this program (only 1 key per program)
+		await this.apiKeyRepository.delete({ programId });
+
 		const key = crypto.randomBytes(16).toString('hex');
 		const secret = crypto.randomBytes(32).toString('hex');
 
@@ -44,18 +47,18 @@ export class ApiKeyService {
 		return apiKeyDto;
 	}
 
-	async getAllKeys(programId: string) {
-		this.logger.info(`START: getAllKeys service`);
+	async getKey(programId: string) {
+		this.logger.info(`START: getKey service`);
 
-		const apiKeys = await this.apiKeyRepository.find({
+		const apiKey = await this.apiKeyRepository.findOne({
 			where: { programId },
 		});
-		const apiKeysDto = apiKeys.map((apiKey) =>
-			this.apiKeyConverter.convert(apiKey),
-		);
-
-		this.logger.info(`END: getAllKeys service`);
-		return apiKeysDto;
+		if (!apiKey) {
+        this.logger.warn('Api Key not found');
+        throw new NotFoundException('Api key not found');
+      }
+      this.logger.info('END: fetchApiKey service');
+      return this.apiKeyConverter.convert(apiKey);
 	}
 
 	async updateKey(

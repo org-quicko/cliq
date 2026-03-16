@@ -7,15 +7,26 @@
 
 				<div class="flex justify-start w-fit">
 					<nav mat-tab-nav-bar [tabPanel]="tabPanel" class="flex justify-start items-start h-12">
-						@for (tab of tabs; track tab) {
-						<a mat-tab-link [routerLink]="tab" routerLinkActive (click)="selectedTab = tab" [active]="selectedTab == tab" [class]="`${selectedTab === tab ? 'text-primary' : 'text-on-surface-variant'}`">
+						<a mat-tab-link routerLink="Profile" routerLinkActive #rlaProfile="routerLinkActive" [active]="rlaProfile.isActive" [class]="rlaProfile.isActive ? 'text-primary' : 'text-on-surface-variant'">
 							<div class="flex justify-start items-center gap-[8px] py-[12px]">
-								<div class="mat-body-medium tracking-normal text-on-surface">
-									{{ tab | titlecase }}
-								</div>
+								<div class="mat-body-medium tracking-normal text-on-surface">Profile</div>
 							</div>
 						</a>
-						}
+						<a mat-tab-link routerLink="Program" routerLinkActive #rlaProgram="routerLinkActive" [active]="rlaProgram.isActive" [class]="rlaProgram.isActive ? 'text-primary' : 'text-on-surface-variant'">
+							<div class="flex justify-start items-center gap-[8px] py-[12px]">
+								<div class="mat-body-medium tracking-normal text-on-surface">Program</div>
+							</div>
+						</a>
+						<a mat-tab-link routerLink="Team" routerLinkActive #rlaTeam="routerLinkActive" [active]="rlaTeam.isActive" [class]="rlaTeam.isActive ? 'text-primary' : 'text-on-surface-variant'">
+							<div class="flex justify-start items-center gap-[8px] py-[12px]">
+								<div class="mat-body-medium tracking-normal text-on-surface">Team</div>
+							</div>
+						</a>
+						<a mat-tab-link routerLink="api-keys" routerLinkActive #rlaApiKeys="routerLinkActive" [active]="rlaApiKeys.isActive" [class]="rlaApiKeys.isActive ? 'text-primary' : 'text-on-surface-variant'">
+							<div class="flex justify-start items-center gap-[8px] py-[12px]">
+								<div class="mat-body-medium tracking-normal text-on-surface">API Keys</div>
+							</div>
+						</a>
 					</nav>
 					<mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 				</div>

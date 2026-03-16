@@ -25,6 +25,8 @@ import { CirclesComponent } from './components/home/components/circles/circles.c
 import { SettingsComponent } from './components/settings/settings.component';
 import { ProfileComponent } from './components/settings/components/profile/profile.component';
 import { TeamComponent } from './components/settings/components/team/team.component';
+import { ProgramProfileComponent } from './components/settings/program-profile/program-profile.component';
+import { ApiKeysComponent } from './components/settings/api-keys/api-keys.component';
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     { path: 'setup', component: SuperAdminSetupComponent },
@@ -84,9 +86,11 @@ export const routes: Routes = [
                                 path: 'settings',
                                 component: SettingsComponent,
                                 children: [
-                                    { path: '', redirectTo: 'profile', pathMatch: 'full' },
-                                    { path: 'profile', component: ProfileComponent },
-                                    { path: 'team', component: TeamComponent },
+                                    { path: '', redirectTo: 'Profile', pathMatch: 'full' },
+                                    { path: 'Profile', component: ProfileComponent },
+                                    { path: 'Program', component: ProgramProfileComponent },
+                                    { path: 'Team', component: TeamComponent },
+                                    { path: 'api-keys', component: ApiKeysComponent },
                                 ]
                             }
                         ]

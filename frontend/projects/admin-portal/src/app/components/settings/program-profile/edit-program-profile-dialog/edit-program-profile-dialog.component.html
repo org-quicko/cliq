@@ -1,0 +1,23 @@
+<app-form-dialog-box
+	[formGroup]="form"
+	[onSubmit]="save"
+	icon="edit"
+	headerText="Edit program"
+	submitBtnText="Save"
+	[isLoading]="isLoading"
+>
+	<mat-form-field appearance="outline" class="w-full">
+		<mat-label>Program name</mat-label>
+		<input matInput formControlName="name" />
+	</mat-form-field>
+
+	<mat-form-field appearance="outline" class="w-full">
+		<mat-label>Program visibility</mat-label>
+		<mat-select formControlName="visibility">
+			@for (option of visibilityOptions; track option) {
+				<mat-option [value]="option">{{ option | titlecase }}</mat-option>
+			}
+		</mat-select>
+	</mat-form-field>
+
+</app-form-dialog-box>

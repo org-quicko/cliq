@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, ProgramDto, ReferralDto, PaginatedList, referralSortByEnum, SortByEnum, CreateUserDto, UpdateProgramUserDto, ProgramUserDto, UserDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, ProgramDto, ReferralDto, PaginatedList, referralSortByEnum, SortByEnum, CreateUserDto, UpdateProgramUserDto, ProgramUserDto, UserDto, UpdateProgramDto } from '@org.quicko.cliq/ngx-core';
 import { ProgramAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/ProgramAnalytics/beans';
 import { PromotersAnalyticsWorkbook } from '@org-quicko/cliq-sheet-core/PromoterAnalytics/beans';
 import { PromoterWorkbook } from '@org-quicko/cliq-sheet-core/Promoter/beans';
@@ -27,6 +27,16 @@ export class ProgramService {
     getProgram(programId: string): Observable<ApiResponse<ProgramDto>> {
         const url = `${this.endpoint}/${programId}`;
         return this.httpClient.get<ApiResponse<ProgramDto>>(url);
+    }
+
+    updateProgram(programId: string, body: UpdateProgramDto): Observable<ApiResponse<ProgramDto>> {
+        const url = `${this.endpoint}/${programId}`;
+        return this.httpClient.patch<ApiResponse<ProgramDto>>(url, instanceToPlain(body));
+    }
+
+    deleteProgram(programId: string): Observable<ApiResponse<ProgramDto>> {
+        const url = `${this.endpoint}/${programId}`;
+        return this.httpClient.delete<ApiResponse<ProgramDto>>(url);
     }
 
     getCommissionsReport(
