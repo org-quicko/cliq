@@ -8,11 +8,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatDialog } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ApiKeyDto, OrdinalDatePipe, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
+import { ApiKeyDto, OrdinalDatePipe, SnackbarService, Status, NotAllowedDialogBoxComponent } from '@org.quicko.cliq/ngx-core';
 import { ApiKeysStore } from './../store/api-keys.store';
 import { ProgramStore } from '../../../store/program.store';
 import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
 import { ApiCredentialsDialogComponent } from './api-credentials-dialog/api-credentials-dialog.component';
+import { AbilityServiceSignal } from '@casl/angular';
+import { UserAbility } from '../../../permissions/ability';
 
 @Component({
 	selector: 'app-api-keys',
@@ -36,6 +38,8 @@ export class ApiKeysComponent implements OnInit {
 	private readonly dialog = inject(MatDialog);
 	private readonly snackbarService = inject(SnackbarService);
 	private readonly clipboard = inject(Clipboard);
+	private readonly abilityService = inject<AbilityServiceSignal<UserAbility>>(AbilityServiceSignal);
+	protected readonly can = this.abilityService.can;
 
 	readonly apiKey = computed(() => this.apiKeysStore.apiKey());
 	readonly isLoading = computed(() => this.apiKeysStore.status() === Status.LOADING);
@@ -65,12 +69,24 @@ export class ApiKeysComponent implements OnInit {
 	}
 
 	onGenerateApiKey(): void {
+		if (!this.can('manage', ApiKeyDto)) {
+			this.dialog.open(NotAllowedDialogBoxComponent, {
+				data: { description: 'You do not have permission to Generate an API key.' }
+			});
+			return;
+		}
 		const programId = this.programId()!;
 
 		this.apiKeysStore.generateApiKey({ programId });
 	}
 
 	onRegenerateApiKey(): void {
+		if (!this.can('manage', ApiKeyDto)) {
+			this.dialog.open(NotAllowedDialogBoxComponent, {
+				data: { description: 'You do not have permission to Generate an API key.' }
+			});
+			return;
+		}
 		const programId = this.programId()!;
 	
 		this.dialog.open(InfoDialogBoxComponent, {

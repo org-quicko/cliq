@@ -18,12 +18,21 @@
 				</mat-select>
 			</mat-form-field>
 
-			<!-- Email (read-only in edit mode) -->
+			<!-- Email (with autocomplete in add mode) -->
 			<mat-form-field appearance="outline" class="w-full">
 				<mat-label>Email</mat-label>
-				<input type="text" matInput formControlName="email" [required]="!isEditMode" />
+				<input type="text" matInput formControlName="email" [required]="!isEditMode"
+					[matAutocomplete]="emailAuto" />
+				<mat-autocomplete #emailAuto="matAutocomplete"
+					[displayWith]="displayEmail"
+					(optionSelected)="onEmailSelected($event)">
+					@for (user of emailSuggestions; track user.userId) {
+						<mat-option [value]="user">{{ user.email }}</mat-option>
+					}
+				</mat-autocomplete>
 			</mat-form-field>
 
+			@if (!existingUser) {
 			<!-- Name fields -->
 			<div class="flex gap-4">
 				<mat-form-field appearance="outline" class="w-1/2">
@@ -36,8 +45,9 @@
 					<input type="text" matInput formControlName="lastName" [required]="!isEditMode" />
 				</mat-form-field>
 			</div>
+			}
 
-			@if (!isEditMode) {
+			@if (!isEditMode && !existingUser) {
 			<!-- Password -->
 			<div class="flex flex-col gap-0">
 				<mat-form-field appearance="outline" class="w-full !m-0">

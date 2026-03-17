@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityNotFoundError, DataSource } from 'typeorm';
+import { Repository, EntityNotFoundError, DataSource, ILike } from 'typeorm';
 import { SignUpUserDto, UpdateUserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
 import { UserConverter } from '../converters/user.converter';
@@ -115,6 +115,17 @@ export class UserService {
 
 		this.logger.info('END: getUserEntity service');
 		return userResult;
+	}
+
+	async searchUsersByEmail(email: string) {
+		this.logger.info('START: searchUsersByEmail service');
+
+		const users = await this.userRepository.find({
+			where: { email: ILike(`%${email}%`) },
+		});
+
+		this.logger.info('END: searchUsersByEmail service');
+		return users;
 	}
 
 	async getUserByEmail(email: string) {

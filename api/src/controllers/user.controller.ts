@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
+import { UserConverter } from '../converters/user.converter';
 import { CreateUserDto, SignUpUserDto, UpdateUserDto } from '../dtos';
 import { Program, User } from '../entities';
 import { plainToInstance } from 'class-transformer';
@@ -17,6 +18,7 @@ export class UserController {
 	constructor(
 		private userService: UserService,
 		private userAuthService: UserAuthService,
+		private userConverter: UserConverter,
 	) {}
 
 	/**
@@ -48,11 +50,26 @@ export class UserController {
 
 		const result = await this.userAuthService.authenticateUser({
 			email: transformedBody.email,
-			password: transformedBody.password,
+			password: transformedBody.password!,
 		});
 
 		this.logger.info('END: login controller');
 		return { message: 'Successfully logged in user.', result };
+	}
+
+	/**
+	 * Search user by email
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Get('search')
+	async searchUserByEmail(@Query('email') email: string) {
+		this.logger.info('START: searchUserByEmail controller');
+
+		const users = await this.userService.searchUsersByEmail(email);
+		const result = users.map(user => this.userConverter.convert(user));
+
+		this.logger.info('END: searchUserByEmail controller');
+		return { message: 'Successfully searched for user.', result };
 	}
 
 	/**

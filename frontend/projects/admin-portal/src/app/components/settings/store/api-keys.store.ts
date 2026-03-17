@@ -48,7 +48,9 @@ export const ApiKeysStore = signalStore(
 								},
 								error(error: HttpErrorResponse) {
 									patchState(store, { status: Status.ERROR, error });
-									snackBarService.openSnackBar('Failed to fetch API key', undefined);
+									if (error.status !== 404) {
+										snackBarService.openSnackBar('Failed to fetch API key', undefined);
+									}
 								},
 							})
 						)

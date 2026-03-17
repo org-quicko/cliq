@@ -13,7 +13,7 @@ import { ProgramService } from '../../../services/program.service';
 import { UserAbility } from '../../../permissions/ability';
 import { EditProgramProfileDialogComponent } from './edit-program-profile-dialog/edit-program-profile-dialog.component';
 import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
-import { MarkdownContentComponent } from '@org.quicko.cliq/ngx-core';
+import { MarkdownContentComponent, NotAllowedDialogBoxComponent } from '@org.quicko.cliq/ngx-core';
 
 @Component({
 	selector: 'app-program-profile',
@@ -46,7 +46,9 @@ export class ProgramProfileComponent {
 
 	onEditDetails() {
 		if (!this.can('update', ProgramDto)) {
-			this.snackbarService.openSnackBar('You do not have permission to edit program details.', undefined);
+			this.dialog.open(NotAllowedDialogBoxComponent, {
+				data: { description: 'You do not have permission to edit program details.' }
+			});
 			return;
 		}
 
@@ -60,7 +62,9 @@ export class ProgramProfileComponent {
 
 	onDeleteProgram() {
 		if (!this.can('delete', ProgramDto)) {
-			this.snackbarService.openSnackBar('You do not have permission to delete this program.', undefined);
+			this.dialog.open(NotAllowedDialogBoxComponent, {
+				data: { description: 'You do not have permission to delete this program.' }
+			});
 			return;
 		}
 
@@ -70,7 +74,7 @@ export class ProgramProfileComponent {
 			width: '448px',
 			data: {
 				title: 'Delete program?',
-				message: `Are you sure you want to delete program "${program?.name}"? This will remove all associated links, promoters and members.`,
+				message: `Are you sure you want to delete program "${program?.name}"? You will lose all the associated data`,
 				confirmButtonText: 'Delete',
 				cancelButtonText: 'Cancel',
 				onSubmit: async () => {

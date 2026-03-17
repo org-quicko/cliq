@@ -44,16 +44,19 @@ export class CreateUserDto {
 	@IsEmail()
 	email: string;
 
+	@IsOptional()
 	@IsString()
-	password: string;
+	password?: string;
 
 	@Expose({ name: 'first_name' })
+	@IsOptional()
 	@IsString()
-	firstName: string;
+	firstName?: string;
 
 	@Expose({ name: 'last_name' })
+	@IsOptional()
 	@IsString()
-	lastName: string;
+	lastName?: string;
 
 	@IsOptional()
 	@IsEnum(userRoleEnum, { message: `role must be one of ${Object.values(userRoleEnum).join(', ')}` })

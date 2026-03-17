@@ -46,7 +46,6 @@ export class ApiCredentialsDialogComponent {
 		const jsonContent = JSON.stringify({
 			key: apiKey.key || '',
 			secret: apiKey.secret || '',
-			createdAt: apiKey.createdAt || '',
 		}, null, 2);
 
 		const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });

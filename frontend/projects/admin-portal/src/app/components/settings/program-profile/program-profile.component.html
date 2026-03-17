@@ -13,11 +13,14 @@
 			</div>
 			<div class="flex flex-col gap-2">
 				<div><span class="text-on-surface-variant">Website URL</span></div>
-				<div><span class="text-on-surface">{{ program()?.website || 'None' }}</span></div>
+				<div>
+					<a [href]="program()!.website.startsWith('http') ? program()!.website : 'https://' + program()!.website" target="_blank" rel="noopener noreferrer"
+						class="text-on-surface underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%]">{{ program()!.website }}</a>	
+				</div>
 			</div>
 			<div class="flex flex-col gap-2">
 				<div><span class="text-on-surface-variant">Program currency</span></div>
-				<div><span class="text-on-surface">{{ program()?.currency | titlecase }}</span></div>
+				<div><span class="text-on-surface">{{ program()?.currency }}</span></div>
 			</div>
 			<div class="flex flex-col gap-2">
 				<div><span class="text-on-surface-variant">Program visibility</span></div>
