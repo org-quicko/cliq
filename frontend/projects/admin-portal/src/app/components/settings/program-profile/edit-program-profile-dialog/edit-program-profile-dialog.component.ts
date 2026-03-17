@@ -54,10 +54,9 @@ export class EditProgramProfileDialogComponent {
 	save = () => {
 		if (this.form.invalid) return;
 
-		const body = plainToInstance(UpdateProgramDto, {
-			name: this.form.value.name!,
-			visibility: this.form.value.visibility!,
-		});
+		const body = new UpdateProgramDto();
+		body.name = this.form.value.name!;
+		body.visibility = this.form.value.visibility!;
 
 		const currentProgram = this.programStore.program() ?? this.data.program;
 		this.programStore.updateProgram({

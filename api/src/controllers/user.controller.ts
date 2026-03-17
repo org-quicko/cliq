@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Delete, Patch, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
-import { UserConverter } from '../converters/user.converter';
 import { CreateUserDto, SignUpUserDto, UpdateUserDto } from '../dtos';
 import { Program, User } from '../entities';
 import { plainToInstance } from 'class-transformer';
@@ -18,7 +17,6 @@ export class UserController {
 	constructor(
 		private userService: UserService,
 		private userAuthService: UserAuthService,
-		private userConverter: UserConverter,
 	) {}
 
 	/**
@@ -62,11 +60,14 @@ export class UserController {
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Get('search')
-	async getUsers(@Query('email') email: string) {
+	async getUsers(
+		@Query('email') email: string,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
+	) {
 		this.logger.info('START: getUsers controller');
 
-		const users = await this.userService.getUsers(email);
-		const result = users.map(user => this.userConverter.convert(user));
+		const result = await this.userService.getUsers(email, skip, take);
 
 		this.logger.info('END: getUsers controller');
 		return { message: 'Successfully fetched users.', result };

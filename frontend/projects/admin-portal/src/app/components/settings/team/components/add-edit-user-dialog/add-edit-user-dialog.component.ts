@@ -7,9 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { CreateUserDto, Status, UserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
+import { CreateUserDto, PaginatedList, Status, UserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil, catchError, of } from 'rxjs';
+import { plainToInstance } from 'class-transformer';
 import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-dialog-box.component';
 import { TitleCasePipe } from '@angular/common';
 import { onAddUserSuccess } from '../../../store/team.store';
@@ -97,8 +98,15 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
 				this.userService.getUsers(value).pipe(
 					catchError(() => of(null))
 				).subscribe((response) => {
-					if (response?.data?.length) {
-						this.emailSuggestions = response.data;
+					if (response?.data) {
+						const paginatedList = plainToInstance(PaginatedList<UserDto>, response.data);
+						const items = paginatedList.getItems() || [];
+						if (items.length) {
+							this.emailSuggestions = items;
+						} else {
+							this.emailSuggestions = [];
+							this.clearExistingUser();
+						}
 					} else {
 						this.emailSuggestions = [];
 						this.clearExistingUser();

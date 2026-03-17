@@ -3,8 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityNotFoundError, DataSource, ILike } from 'typeorm';
 import { SignUpUserDto, UpdateUserDto } from '../dtos';
 import { ProgramUser, User } from '../entities';
-import { UserConverter } from '../converters/user.converter';
-import { userRoleEnum, statusEnum } from 'src/enums';
+import { UserConverter } from '../converters/user.converter';import { UserPaginatedConverter } from '../converters/userPaginated.converter';import { userRoleEnum, statusEnum } from 'src/enums';
 import { UserAuthService } from './userAuth.service';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
@@ -26,6 +25,8 @@ export class UserService {
 		private userAuthService: UserAuthService,
 
 		private userConverter: UserConverter,
+
+		private userPaginatedConverter: UserPaginatedConverter,
 
 		private datasource: DataSource,
 	) { }
@@ -117,15 +118,17 @@ export class UserService {
 		return userResult;
 	}
 
-	async getUsers(email: string) {
+	async getUsers(email: string, skip: number = 0, take: number = 10) {
 		this.logger.info('START: getUsers service');
 
-		const users = await this.userRepository.find({
+		const [users, count] = await this.userRepository.findAndCount({
 			where: { email: ILike(`%${email}%`) },
+			skip,
+			take,
 		});
 
 		this.logger.info('END: getUsers service');
-		return users ;
+		return this.userPaginatedConverter.convert(users, skip, take, count);
 	}
 
 	async getUserByEmail(email: string) {
