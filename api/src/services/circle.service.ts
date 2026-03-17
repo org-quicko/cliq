@@ -6,12 +6,13 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere, ILike } from 'typeorm';
 import { AddPromoterToCircleDto, CreateCircleDto, SwitchCircleDto, UpdateCircleDto } from '../dtos';
 import { Circle, CirclePromoter } from '../entities';
 import { ProgramService } from './program.service';
 import { CircleConverter } from '../converters/circle.converter';
 import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
+import { CircleWorkbookConverter } from '../converters/circle/circle.workbook.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { defaultQueryOptions } from '../constants';
 import winston from 'winston';
@@ -31,6 +32,7 @@ export class CircleService {
 
 		private circleConverter: CircleConverter,
 		private promoterConverter: PromoterConverter,
+		private circleWorkbookConverter: CircleWorkbookConverter,
 
 		private datasource: DataSource,
 
@@ -72,30 +74,33 @@ export class CircleService {
 	 */
 	async getAllCircles(
 		programId: string,
-		whereOptions: FindOptionsWhere<Circle> = {},
-		queryOptions: QueryOptionsInterface = defaultQueryOptions,
+		name: string | undefined,
+		skip: number = 0,
+		take: number = 10,
 	) {
 		this.logger.info('START: getAllCircles service');
 
-		const circles = await this.circleRepository.find({
-			where: {
-				program: {
-					programId,
-				},
-				...whereOptions,
-			},
-			...queryOptions,
+		const whereClause: FindOptionsWhere<Circle> = {
+			program: { programId },
+			...(name && { name: ILike(`%${name}%`) }),
+		};
+
+		const [circles, totalCount] = await this.circleRepository.findAndCount({
+			where: whereClause,
+			relations: { circlePromoters: true },
+			skip,
+			take,
 		});
 
-		if (!circles) {
-			this.logger.warn('Failed to get circles');
-			throw new NotFoundException('Failed to get circles');
-		}
+		const workbook = this.circleWorkbookConverter.convert(
+			circles,
+			skip,
+			take,
+			totalCount,
+		);
 
 		this.logger.info('END: getAllCircles service');
-		return circles.map((circle: Circle) =>
-			this.circleConverter.convert(circle),
-		);
+		return workbook;
 	}
 
 	/**

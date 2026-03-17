@@ -4,22 +4,25 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { pipe, switchMap, tap } from 'rxjs';
 import { UserService } from '../services/user.service';
-import { SnackbarService, Status, UserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
+import { SnackbarService, Status, UserDto, UpdateUserDto, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 import { plainToInstance } from 'class-transformer';
 import { computed } from '@angular/core';
 import { tapResponse } from '@ngrx/operators';
 import { PermissionsService } from '../services/permission.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface UserStoreState {
 	user: UserDto | null;
 	isLoading: boolean;
-	error: string | null;
+	error: HttpErrorResponse | null;
+	status: Status;
 }
 
 export const initialUserState: UserStoreState = {
 	user: null,
 	isLoading: false,
 	error: null,
+	status: Status.PENDING,
 };
 
 export const UserStore = signalStore(
@@ -81,6 +84,31 @@ export const UserStore = signalStore(
 
 			clearUser() {
 				patchState(store, initialUserState);
+			},
+
+			updateUserInfo: rxMethod<{ updatedInfo: UpdateUserDto, userId: string }>(
+				pipe(
+					tap(() => patchState(store, { status: Status.LOADING })),
+					switchMap(({ updatedInfo, userId }) =>
+						userService.updateUser(userId, updatedInfo).pipe(
+							tapResponse({
+								next(response) {
+									const userDto = plainToInstance(UserDto, response.data);
+									patchState(store, { status: Status.SUCCESS, user: userDto, error: null });
+									snackbarService.openSnackBar('Successfully updated your info!', '');
+								},
+								error(error: HttpErrorResponse) {
+									patchState(store, { status: Status.ERROR, error });
+									snackbarService.openSnackBar(error.error.message, '');
+								},
+							})
+						)
+					)
+				)
+			),
+
+			resetError() {
+				patchState(store, { error: null });
 			},
 		})
 	)

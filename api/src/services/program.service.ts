@@ -310,10 +310,17 @@ export class ProgramService {
 						throw new ConflictException(message);
 					}
 
-					const salt = await bcrypt.genSalt(SALT_ROUNDS);
-					user.password = await bcrypt.hash(body.password, salt);
+					if (body.password) {
+						const salt = await bcrypt.genSalt(SALT_ROUNDS);
+						user.password = await bcrypt.hash(body.password, salt);
+					}
 
-					Object.assign(user, { firstName: body.firstName, lastName: body.lastName });
+					if (body.firstName || body.lastName) {
+						Object.assign(user, {
+							...(body.firstName && { firstName: body.firstName }),
+							...(body.lastName && { lastName: body.lastName }),
+						});
+					}
 
 					await userRepository.save(user);
 
@@ -365,7 +372,8 @@ export class ProgramService {
 		const programUsersResult = await this.programUserRepository.find({
 			where: {
 				programId,
-				...whereOptions
+				...whereOptions,
+				status: statusEnum.ACTIVE,
 			},
 			relations: { user: true },
 			...queryOptions,

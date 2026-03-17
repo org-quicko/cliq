@@ -21,7 +21,12 @@ import { ReferralsComponent } from './components/home/components/referrals/refer
 import { PromotersComponent } from './components/home/components/promoters/promoters.component';
 import { PromoterSummaryComponent } from './components/home/components/promoter-summary/promoter-summary.component';
 import { PromoterLinksComponent } from './components/home/components/promoter-summary/promoter-links.component';
-
+import { CirclesComponent } from './components/home/components/circles/circles.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { ProfileComponent } from './components/settings/profile/profile.component';
+import { TeamComponent } from './components/settings/team/team.component';
+import { ProgramProfileComponent } from './components/settings/program-profile/program-profile.component';
+import { ApiKeysComponent } from './components/settings/api-keys/api-keys.component';
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     { path: 'setup', component: SuperAdminSetupComponent },
@@ -70,12 +75,24 @@ export const routes: Routes = [
                             },
                             { path: 'dashboard', component: DashboardComponent },
                             { path: 'referrals' , component: ReferralsComponent},
+                            { path: 'circles', component: CirclesComponent },
                             {path: 'promoters', component: PromotersComponent},
                             {path: 'promoters/:promoter_id', component: PromoterSummaryComponent},
                             {path: 'promoters/:promoter_id/links', component: PromoterLinksComponent},
                             { path: 'reports', component: ReportsComponent },
                             { path: 'promoters-by-signups', component: PromotersBySignupsComponent },
                             { path: 'promoters-by-purchases', component: PromotersByPurchasesComponent },
+                            {
+                                path: 'settings',
+                                component: SettingsComponent,
+                                children: [
+                                    { path: '', redirectTo: 'Profile', pathMatch: 'full' },
+                                    { path: 'Profile', component: ProfileComponent },
+                                    { path: 'Program', component: ProgramProfileComponent },
+                                    { path: 'Team', component: TeamComponent },
+                                    { path: 'api-keys', component: ApiKeysComponent },
+                                ]
+                            }
                         ]
                     },
                 ],

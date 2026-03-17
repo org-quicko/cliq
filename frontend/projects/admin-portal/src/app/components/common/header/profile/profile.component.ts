@@ -116,4 +116,12 @@ export class ProfileComponent implements OnInit {
 		this.authService.deleteToken();
 		window.location.href = `${window.location.origin}/admin/login`;
 	}
+
+	goToSettings() {
+    const orgId = this.programStore.program()?.programId;
+    this.router.navigate([this.programId(), 'home', 'settings']);
+  }
+
+
+
 }

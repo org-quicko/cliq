@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Patch, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Patch, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto, SignUpUserDto, UpdateUserDto } from '../dtos';
@@ -48,11 +48,29 @@ export class UserController {
 
 		const result = await this.userAuthService.authenticateUser({
 			email: transformedBody.email,
-			password: transformedBody.password,
+			password: transformedBody.password!,
 		});
 
 		this.logger.info('END: login controller');
 		return { message: 'Successfully logged in user.', result };
+	}
+
+	/**
+	 * Get users
+	 */
+	@ApiResponse({ status: 200, description: 'OK' })
+	@Get('search')
+	async getUsers(
+		@Query('email') email: string,
+		@Query('skip') skip: number = 0,
+		@Query('take') take: number = 10,
+	) {
+		this.logger.info('START: getUsers controller');
+
+		const result = await this.userService.getUsers(email, skip, take);
+
+		this.logger.info('END: getUsers controller');
+		return { message: 'Successfully fetched users.', result };
 	}
 
 	/**

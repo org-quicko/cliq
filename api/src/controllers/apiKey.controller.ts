@@ -77,14 +77,14 @@ export class ApiKeyController {
 	@ApiResponse({ status: 403, description: 'Unauthorized' })
 	@Permissions('read', ApiKey)
 	@Get()
-	async getAllKeys(@Param('program_id') programId: string) {
-		this.logger.info(`START: getAllKeys controller`);
+	async getKey(@Param('program_id') programId: string) {
+		this.logger.info(`START: getKey controller`);
 
-		const result = await this.apiKeyService.getAllKeys(programId);
+		const result = await this.apiKeyService.getKey(programId);
 
-		this.logger.info(`END: getAllKeys controller`);
+		this.logger.info(`END: getKey controller`);
 		return {
-			message: `Successfully fetched all API keys of Program ${programId}.`,
+			message: `Successfully fetched API key of Program ${programId}.`,
 			result,
 		};
 	}

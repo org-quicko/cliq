@@ -110,6 +110,10 @@ export class UpdateProgramDto {
 	website?: string;
 
 	@IsOptional()
+	@IsEnum(visibilityEnum)
+	visibility?: visibilityEnum;
+
+	@IsOptional()
 	@Expose({ name: 'theme_color' })
 	@IsString()
 	themeColor?: string;

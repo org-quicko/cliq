@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiResponse, LoginDto, UserDto, ProgramUserDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, LoginDto, UserDto, ProgramUserDto, UpdateUserDto, PaginatedList } from '@org.quicko.cliq/ngx-core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { instanceToPlain } from 'class-transformer';
@@ -62,5 +62,20 @@ export class UserService {
 		const url = `${this.baseUrl}/programs/${programId}/users/${userId}`;
 
 		return this.httpClient.get<ApiResponse<ProgramUserDto>>(url);
+	}
+
+	updateUser(userId: string, updatedInfo: UpdateUserDto): Observable<ApiResponse<UserDto>> {
+		const url = `${this.baseUrl}/users/${userId}`;
+		const body = instanceToPlain(updatedInfo);
+		return this.httpClient.patch<ApiResponse<UserDto>>(url, body);
+	}
+
+	 getUsers(email: string, skip: number = 0, take: number = 10): Observable<ApiResponse<PaginatedList<UserDto>>> {
+		const url = `${this.baseUrl}/users/search`;
+		const params = new HttpParams()
+			.set('email', email)
+			.set('skip', skip.toString())
+			.set('take', take.toString());
+		return this.httpClient.get<ApiResponse<PaginatedList<UserDto>>>(url, { params });
 	}
 }

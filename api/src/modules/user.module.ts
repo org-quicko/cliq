@@ -5,6 +5,7 @@ import { UserService } from '../services/user.service';
 import { UserController } from '../controllers/user.controller';
 import { User, ProgramUser } from '../entities';
 import { UserConverter } from '../converters/user.converter';
+import { UserPaginatedConverter } from '../converters/userPaginated.converter';
 import { UserAuthService } from '../services/userAuth.service';
 
 @Global()
@@ -17,7 +18,7 @@ import { UserAuthService } from '../services/userAuth.service';
 		// }),
 	],
 	controllers: [UserController],
-	providers: [UserService, UserAuthService, UserConverter],
-	exports: [UserService, UserAuthService, UserConverter],
+	providers: [UserService, UserAuthService, UserConverter, UserPaginatedConverter],
+	exports: [UserService, UserAuthService, UserConverter, UserPaginatedConverter],
 })
 export class UserModule {}

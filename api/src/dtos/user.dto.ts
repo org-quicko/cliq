@@ -3,7 +3,8 @@ import { Expose } from 'class-transformer';
 import { IsString, IsUUID, IsDate, IsOptional, IsEnum, IsEmail } from 'class-validator';
 import { userRoleEnum, statusEnum } from 'src/enums';
 
-export class UserDto {
+export class 
+UserDto {
 	@Expose({ name: 'user_id' })
 	@IsUUID()
 	userId: string;
@@ -43,16 +44,19 @@ export class CreateUserDto {
 	@IsEmail()
 	email: string;
 
+	@IsOptional()
 	@IsString()
-	password: string;
+	password?: string;
 
 	@Expose({ name: 'first_name' })
+	@IsOptional()
 	@IsString()
-	firstName: string;
+	firstName?: string;
 
 	@Expose({ name: 'last_name' })
+	@IsOptional()
 	@IsString()
-	lastName: string;
+	lastName?: string;
 
 	@IsOptional()
 	@IsEnum(userRoleEnum, { message: `role must be one of ${Object.values(userRoleEnum).join(', ')}` })
