@@ -5,11 +5,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AbilityServiceSignal } from '@casl/angular';
-import { firstValueFrom } from 'rxjs';
-
 import { ProgramDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../store/program.store';
-import { ProgramService } from '../../../services/program.service';
 import { UserAbility } from '../../../permissions/ability';
 import { EditProgramProfileDialogComponent } from './edit-program-profile-dialog/edit-program-profile-dialog.component';
 import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
@@ -32,7 +29,6 @@ import { MarkdownContentComponent, NotAllowedDialogBoxComponent } from '@org.qui
 export class ProgramProfileComponent {
 
 	private readonly programStore = inject(ProgramStore);
-	private readonly programService = inject(ProgramService);
 	private readonly dialog = inject(MatDialog);
 	private readonly snackbarService = inject(SnackbarService);
 	private readonly router = inject(Router);
@@ -54,6 +50,7 @@ export class ProgramProfileComponent {
 
 		this.dialog.open(EditProgramProfileDialogComponent, {
 			width: '516px',
+			autoFocus: false,
 			data: {
 				program: this.program(),
 			}
@@ -72,19 +69,17 @@ export class ProgramProfileComponent {
 
 		this.dialog.open(InfoDialogBoxComponent, {
 			width: '448px',
+			autoFocus: false,
 			data: {
 				title: 'Delete program?',
 				message: `Are you sure you want to delete program "${program?.name}"? You will lose all the associated data`,
 				confirmButtonText: 'Delete',
 				cancelButtonText: 'Cancel',
-				onSubmit: async () => {
-					try {
-						await firstValueFrom(this.programService.deleteProgram(program!.programId));
-						this.snackbarService.openSnackBar('Program deleted successfully', undefined);
-						this.router.navigate(['/programs']);
-					} catch (err) {
-						this.snackbarService.openSnackBar('Failed to delete program', undefined);
-					}
+				onSubmit: () => {
+					this.programStore.deleteProgram({
+						programId: program!.programId,
+						onSuccess: () => this.router.navigate(['/programs']),
+					});
 				}
 			}
 		});

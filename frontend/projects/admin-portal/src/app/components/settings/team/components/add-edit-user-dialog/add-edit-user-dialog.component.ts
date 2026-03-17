@@ -94,7 +94,7 @@ export class AddEditUserDialogComponent implements OnInit, OnDestroy {
 					return;
 				}
 
-				this.userService.searchUsersByEmail(value).pipe(
+				this.userService.getUsers(value).pipe(
 					catchError(() => of(null))
 				).subscribe((response) => {
 					if (response?.data?.length) {

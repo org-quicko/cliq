@@ -58,18 +58,18 @@ export class UserController {
 	}
 
 	/**
-	 * Search user by email
+	 * Get users
 	 */
 	@ApiResponse({ status: 200, description: 'OK' })
 	@Get('search')
-	async searchUserByEmail(@Query('email') email: string) {
-		this.logger.info('START: searchUserByEmail controller');
+	async getUsers(@Query('email') email: string) {
+		this.logger.info('START: getUsers controller');
 
-		const users = await this.userService.searchUsersByEmail(email);
+		const users = await this.userService.getUsers(email);
 		const result = users.map(user => this.userConverter.convert(user));
 
-		this.logger.info('END: searchUserByEmail controller');
-		return { message: 'Successfully searched for user.', result };
+		this.logger.info('END: getUsers controller');
+		return { message: 'Successfully fetched users.', result };
 	}
 
 	/**

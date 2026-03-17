@@ -10,10 +10,10 @@ export class CircleTableConverter {
 			circles.forEach((circle) => {
 				const row = new CircleRow([]);
 
-				row.setCircleId(String(circle.circleId));
-				row.setName(String(circle.name));
+				row.setCircleId(circle.circleId);
+				row.setName(circle.name);
 				row.setNumberOfPromoters(circle.circlePromoters?.length ?? 0);
-				row.setIsDefaultCircle(Boolean(circle.isDefaultCircle));
+				row.setIsDefaultCircle(circle.isDefaultCircle);
 
 				table.addRow(row);
 			});

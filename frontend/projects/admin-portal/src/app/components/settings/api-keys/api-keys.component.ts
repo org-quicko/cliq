@@ -62,10 +62,9 @@ export class ApiKeysComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		const programId = this.programId();
-		if (programId) {
+		const programId = this.programId()!;
+
 			this.apiKeysStore.fetchApiKey({ programId });
-		}
 	}
 
 	onGenerateApiKey(): void {

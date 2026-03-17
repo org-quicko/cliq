@@ -31,7 +31,7 @@ import { AuthService } from '../../../../services/auth.service';
 	templateUrl: './edit-profile-dialog-box.html',
 	styleUrl: './edit-profile-dialog-box.css'
 })
-export class EditProfileDialogBoxComponent implements OnInit, OnDestroy {
+export class EditProfileDialogBoxComponent implements OnDestroy {
 
 	destroy$ = new Subject<boolean>();
 
@@ -72,10 +72,6 @@ export class EditProfileDialogBoxComponent implements OnInit, OnDestroy {
 
 	closeDialog(): void {
 		this.dialogRef.close();
-	}
-
-	ngOnInit(): void {
-
 	}
 
 	ngOnDestroy(): void {

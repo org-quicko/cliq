@@ -22,7 +22,6 @@ export const initialApiKeysState: ApiKeysStoreState = {
 };
 
 export const ApiKeysStore = signalStore(
-	{ providedIn: 'root' },
 	withState(initialApiKeysState),
 	withDevtools('api-keys'),
 	withMethods(

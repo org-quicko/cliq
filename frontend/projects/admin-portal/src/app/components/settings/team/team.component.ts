@@ -40,7 +40,7 @@ import { UserAbility } from '../../../permissions/ability';
 		TitleCasePipe,
 		OrdinalDatePipe,
 	],
-	providers: [TeamStore],
+	providers: [],
 	templateUrl: './team.component.html',
 	styleUrl: './team.component.css'
 })
@@ -113,6 +113,7 @@ export class TeamComponent implements OnInit {
 
 	openNotAllowedDialogBox(description: string) {
 		this.dialog.open(NotAllowedDialogBoxComponent, {
+			autoFocus: false,
 			data: { description }
 		});
 	}
@@ -127,6 +128,7 @@ export class TeamComponent implements OnInit {
 		this.teamStore.setStatus(Status.PENDING);
 
 		this.dialog.open(AddEditUserDialogComponent, {
+			autoFocus: false,
 			data: {
 				addUser: this.addUser,
 				status: this.teamStore.status,
@@ -154,6 +156,7 @@ export class TeamComponent implements OnInit {
 		}
 
 		this.dialog.open(AddEditUserDialogComponent, {
+			autoFocus: false,
 			data: {
 				user,
 				editUser: ({ role, email, firstName, lastName }: { role: userRoleEnum, email: string, firstName: string, lastName: string }) => {
@@ -196,6 +199,7 @@ export class TeamComponent implements OnInit {
 		}
 
 		this.dialog.open(InfoDialogBoxComponent, {
+			autoFocus: false,
 			data: {
 				title: `Remove ${user.firstName} ${user.lastName}?`,
 				message: `Are you sure you want to remove ${user.firstName} ${user.lastName} from this program? They will lose all access.`,

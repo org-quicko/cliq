@@ -70,7 +70,7 @@ export class UserService {
 		return this.httpClient.patch<ApiResponse<UserDto>>(url, body);
 	}
 
-	searchUsersByEmail(email: string): Observable<ApiResponse<UserDto[]>> {
+	 getUsers(email: string): Observable<ApiResponse<UserDto[]>> {
 		const url = `${this.baseUrl}/users/search`;
 		const params = new HttpParams().set('email', email);
 		return this.httpClient.get<ApiResponse<UserDto[]>>(url, { params });

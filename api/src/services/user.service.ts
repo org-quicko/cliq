@@ -117,15 +117,15 @@ export class UserService {
 		return userResult;
 	}
 
-	async searchUsersByEmail(email: string) {
-		this.logger.info('START: searchUsersByEmail service');
+	async getUsers(email: string) {
+		this.logger.info('START: getUsers service');
 
 		const users = await this.userRepository.find({
 			where: { email: ILike(`%${email}%`) },
 		});
 
-		this.logger.info('END: searchUsersByEmail service');
-		return users;
+		this.logger.info('END: getUsers service');
+		return users ;
 	}
 
 	async getUserByEmail(email: string) {

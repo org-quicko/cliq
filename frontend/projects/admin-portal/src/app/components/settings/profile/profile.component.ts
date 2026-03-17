@@ -28,6 +28,6 @@ export class ProfileComponent {
 
 	onClickEditDetailsBtn() {
 		this.userStore.resetError();
-		this.dialog.open(EditProfileDialogBoxComponent);
+		this.dialog.open(EditProfileDialogBoxComponent, { autoFocus: false });
 	}
 }

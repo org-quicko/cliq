@@ -1,5 +1,5 @@
 <mat-dialog-content class="w-[448px] h-auto bg-surface-container-lowest rounded-[5px] p-6">
-	<form (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+	<div class="flex flex-col gap-6">
 		<div class="w-full h-auto max-h-20 flex flex-col gap-4">
 			<div class="flex gap-4 justify-between items-center">
 				<div><span class="mat-title-medium text-on-surface">{{ data.title }}</span></div>
@@ -22,5 +22,5 @@
 				{{ data.confirmButtonText }}
 			</button>
 		</mat-dialog-actions>
-	</form>
+	</div>
 </mat-dialog-content>
