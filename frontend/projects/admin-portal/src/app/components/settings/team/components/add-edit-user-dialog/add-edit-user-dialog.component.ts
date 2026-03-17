@@ -9,9 +9,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { CreateUserDto, Status, userRoleEnum } from '@org.quicko.cliq/ngx-core';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { Subject } from 'rxjs';
-import { FormDialogBoxComponent } from '../../../../../common/form-dialog-box/form-dialog-box.component';
+import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-dialog-box.component';
 import { TitleCasePipe } from '@angular/common';
-import { onAddUserSuccess } from '../../store/team.store';
+import { onAddUserSuccess } from '../../../store/team.store';
 import { FormControl, Validators } from '@angular/forms';
 
 @Component({

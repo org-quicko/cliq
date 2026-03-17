@@ -19,12 +19,12 @@ import {
 	OrdinalDatePipe
 } from '@org.quicko.cliq/ngx-core';
 
-import { ProgramStore } from '../../../../store/program.store';
-import { TeamStore, onAddUserSuccess, onRemoveUserSuccess } from './store/team.store';
+import { ProgramStore } from '../../../store/program.store';
+import { TeamStore, onAddUserSuccess, onRemoveUserSuccess } from './../store/team.store';
 import { AddEditUserDialogComponent } from './components/add-edit-user-dialog/add-edit-user-dialog.component';
-import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
-import { NotAllowedDialogBoxComponent } from '../../../common/not-allowed-dialog-box/not-allowed-dialog-box.component';
-import { UserAbility } from '../../../../permissions/ability';
+import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
+import { NotAllowedDialogBoxComponent } from '@org.quicko.cliq/ngx-core';
+import { UserAbility } from '../../../permissions/ability';
 
 @Component({
 	selector: 'app-team',

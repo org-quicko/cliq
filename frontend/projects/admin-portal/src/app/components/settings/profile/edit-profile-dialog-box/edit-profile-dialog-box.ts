@@ -7,12 +7,12 @@ import { MatInputModule } from '@angular/material/input';
 import { Subject } from 'rxjs';
 import { Status, UpdateUserDto } from '@org.quicko.cliq/ngx-core';
 import { MatButtonModule } from '@angular/material/button';
-import { UserStore } from '../../../../../store/user.store';
+import { UserStore } from '../../../../store/user.store';
 import { RxFormBuilder } from '@rxweb/reactive-form-validators';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormDialogBoxComponent } from '../../../../common/form-dialog-box/form-dialog-box.component';
+import { FormDialogBoxComponent } from '../../../common/form-dialog-box/form-dialog-box.component';
 import { Inject } from '@angular/core';
-import { AuthService } from '../../../../../services/auth.service';
+import { AuthService } from '../../../../services/auth.service';
 
 @Component({
 	selector: 'app-edit-profile-dialog-box',

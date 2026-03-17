@@ -7,7 +7,7 @@ import { tapResponse } from '@ngrx/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { plainToInstance } from 'class-transformer';
 import { ApiKeyDto, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
-import { ApiKeysService } from '../../../../services/api-keys.service';
+import { ApiKeysService } from '../../../services/api-keys.service';
 
 export interface ApiKeysStoreState {
 	apiKey: ApiKeyDto | null;

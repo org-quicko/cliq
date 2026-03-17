@@ -9,7 +9,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatDialog } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ApiKeyDto, OrdinalDatePipe, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
-import { ApiKeysStore } from './store/api-keys.store';
+import { ApiKeysStore } from './../store/api-keys.store';
 import { ProgramStore } from '../../../store/program.store';
 import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
 import { ApiCredentialsDialogComponent } from './api-credentials-dialog/api-credentials-dialog.component';
@@ -65,22 +65,14 @@ export class ApiKeysComponent implements OnInit {
 	}
 
 	onGenerateApiKey(): void {
-		const programId = this.programId();
-		if (!programId) {
-			this.snackbarService.openSnackBar('Program not found', undefined);
-			return;
-		}
+		const programId = this.programId()!;
 
 		this.apiKeysStore.generateApiKey({ programId });
 	}
 
 	onRegenerateApiKey(): void {
-		const programId = this.programId();
-		if (!programId) {
-			this.snackbarService.openSnackBar('Program not found', undefined);
-			return;
-		}
-
+		const programId = this.programId()!;
+	
 		this.dialog.open(InfoDialogBoxComponent, {
 			width: '448px',
 			data: {

@@ -23,8 +23,8 @@ import { PromoterSummaryComponent } from './components/home/components/promoter-
 import { PromoterLinksComponent } from './components/home/components/promoter-summary/promoter-links.component';
 import { CirclesComponent } from './components/home/components/circles/circles.component';
 import { SettingsComponent } from './components/settings/settings.component';
-import { ProfileComponent } from './components/settings/components/profile/profile.component';
-import { TeamComponent } from './components/settings/components/team/team.component';
+import { ProfileComponent } from './components/settings/profile/profile.component';
+import { TeamComponent } from './components/settings/team/team.component';
 import { ProgramProfileComponent } from './components/settings/program-profile/program-profile.component';
 import { ApiKeysComponent } from './components/settings/api-keys/api-keys.component';
 export const routes: Routes = [

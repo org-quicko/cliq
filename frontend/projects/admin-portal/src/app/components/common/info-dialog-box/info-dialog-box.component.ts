@@ -1,14 +1,12 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 
 @Component({
 	selector: 'app-info-dialog-box',
-	imports: [MatButtonModule, MatIconModule, MatFormFieldModule, FormsModule, MatDialogModule],
+	imports: [MatButtonModule, MatIconModule, MatDialogModule],
 	templateUrl: './info-dialog-box.component.html',
 	styleUrl: './info-dialog-box.component.css'
 })

@@ -7,8 +7,8 @@ import { tapResponse } from '@ngrx/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { plainToInstance } from 'class-transformer';
 import { CreateUserDto, SnackbarService, Status, UpdateProgramUserDto, UpdateUserDto, UpdateUserRoleDto, UserDto } from '@org.quicko.cliq/ngx-core';
-import { ProgramService } from '../../../../../services/program.service';
-import { UserService } from '../../../../../services/user.service';
+import { ProgramService } from '../../../services/program.service';
+import { UserService } from '../../../services/user.service';
 
 export interface TeamStoreState {
 	users: UserDto[];

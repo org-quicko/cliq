@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { OrdinalDatePipe, SnackbarService, ApiKeyDto } from '@org.quicko.cliq/ngx-core';
 
@@ -16,6 +17,7 @@ import { OrdinalDatePipe, SnackbarService, ApiKeyDto } from '@org.quicko.cliq/ng
 		MatButtonModule,
 		MatIconModule,
 		MatDividerModule,
+		MatTooltipModule,
 		OrdinalDatePipe,
 	],
 	templateUrl: './api-credentials-dialog.component.html',
@@ -39,18 +41,19 @@ export class ApiCredentialsDialogComponent {
 		}
 	}
 
-	downloadTxt(): void {
+	downloadJson(): void {
 		const { apiKey } = this.data;
-		const textContent =
-			`API Key: ${apiKey.key || ''}\n` +
-			`Secret: ${apiKey.secret || ''}\n` +
-			`Created At: ${apiKey.createdAt || ''}\n`;
+		const jsonContent = JSON.stringify({
+			key: apiKey.key || '',
+			secret: apiKey.secret || '',
+			createdAt: apiKey.createdAt || '',
+		}, null, 2);
 
-		const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
+		const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
 		const url = URL.createObjectURL(blob);
 		const link = document.createElement('a');
 		link.href = url;
-		link.download = 'api-key.txt';
+		link.download = 'api-key.json';
 		link.click();
 		URL.revokeObjectURL(url);
 	}
