@@ -1,10 +1,7 @@
 import { CircleSheet } from '@org-quicko/cliq-sheet-core/Circle/beans';
 import { ConverterException } from '@org-quicko/core';
-import { CircleTableConverter, ICircleTableInput } from './circle.table.converter';
-
-export interface ICircleSheetConverterInput {
-	circles: ICircleTableInput[];
-}
+import { Circle } from '../../entities';
+import { CircleTableConverter } from './circle.table.converter';
 
 export class CircleSheetConverter {
 	private circleTableConverter: CircleTableConverter;
@@ -13,7 +10,7 @@ export class CircleSheetConverter {
 		this.circleTableConverter = new CircleTableConverter();
 	}
 
-	convertFrom({ circles }: ICircleSheetConverterInput) {
+	convertFrom(circles: Circle[]) {
 		try {
 			const circleSheet = new CircleSheet();
 

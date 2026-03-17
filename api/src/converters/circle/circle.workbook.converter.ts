@@ -2,8 +2,8 @@ import { CircleWorkbook } from '@org-quicko/cliq-sheet-core/Circle/beans';
 import { Injectable } from '@nestjs/common';
 import { ConverterException, JSONObject, LoggerFactory } from '@org-quicko/core';
 import winston from 'winston';
+import { Circle } from '../../entities';
 import { CircleSheetConverter } from './circle.sheet.converter';
-import { ICircleTableInput } from './circle.table.converter';
 
 @Injectable()
 export class CircleWorkbookConverter {
@@ -15,7 +15,7 @@ export class CircleWorkbookConverter {
 	}
 
 	convert(
-		circles: ICircleTableInput[],
+		circles: Circle[],
 		skip: number,
 		take: number,
 		totalCount: number,
@@ -25,7 +25,7 @@ export class CircleWorkbookConverter {
 
 			const workbook = new CircleWorkbook();
 
-			const sheet = this.circleSheetConverter.convertFrom({ circles });
+			const sheet = this.circleSheetConverter.convertFrom(circles);
 			workbook.replaceSheet(sheet);
 
 			workbook.setMetadata(new JSONObject({

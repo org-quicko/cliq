@@ -87,21 +87,13 @@ export class CircleService {
 
 		const [circles, totalCount] = await this.circleRepository.findAndCount({
 			where: whereClause,
+			relations: { circlePromoters: true },
 			skip,
 			take,
 		});
 
-		const circlesWithPromoterCount = await Promise.all(
-			circles.map(async (circle) => {
-				const numberOfPromoters = await this.circlePromoterRepository.count({
-					where: { circleId: circle.circleId },
-				});
-				return { circle, numberOfPromoters };
-			}),
-		);
-
 		const workbook = this.circleWorkbookConverter.convert(
-			circlesWithPromoterCount,
+			circles,
 			skip,
 			take,
 			totalCount,

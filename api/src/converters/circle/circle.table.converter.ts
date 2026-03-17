@@ -2,23 +2,18 @@ import { CircleRow, CircleTable } from '@org-quicko/cliq-sheet-core/Circle/beans
 import { ConverterException } from '@org-quicko/core';
 import { Circle } from '../../entities';
 
-export interface ICircleTableInput {
-	circle: Circle;
-	numberOfPromoters: number;
-}
-
 export class CircleTableConverter {
-	convertFrom(circles: ICircleTableInput[]) {
+	convertFrom(circles: Circle[]) {
 		try {
 			const table = new CircleTable();
 
-			circles.forEach((data) => {
+			circles.forEach((circle) => {
 				const row = new CircleRow([]);
 
-				row.setCircleId(String(data.circle.circleId));
-				row.setName(String(data.circle.name));
-				row.setNumberOfPromoters(Number(data.numberOfPromoters ?? 0));
-				row.setIsDefaultCircle(Boolean(data.circle.isDefaultCircle));
+				row.setCircleId(String(circle.circleId));
+				row.setName(String(circle.name));
+				row.setNumberOfPromoters(circle.circlePromoters?.length ?? 0);
+				row.setIsDefaultCircle(Boolean(circle.isDefaultCircle));
 
 				table.addRow(row);
 			});
