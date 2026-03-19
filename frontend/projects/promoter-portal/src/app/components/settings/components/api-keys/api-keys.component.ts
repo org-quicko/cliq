@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -8,13 +8,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatDialog } from '@angular/material/dialog';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ApiKeyDto, OrdinalDatePipe, SnackbarService, Status, NotAllowedDialogBoxComponent } from '@org.quicko.cliq/ngx-core';
-import { ApiKeysStore } from './../store/api-keys.store';
-import { ProgramStore } from '../../../store/program.store';
-import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
-import { ApiCredentialsDialogComponent } from '@org.quicko.cliq/ngx-core';
 import { AbilityServiceSignal } from '@casl/angular';
-import { UserAbility } from '../../../permissions/ability';
+import { ApiCredentialsDialogComponent, ApiKeyDto, NotAllowedDialogBoxComponent, OrdinalDatePipe, SnackbarService, Status } from '@org.quicko.cliq/ngx-core';
+import { ApiKeysStore } from '../../store/api-keys.store';
+import { ProgramStore } from '../../../../store/program.store';
+import { PromoterStore } from '../../../../store/promoter.store';
+import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
+import { MemberAbility } from '../../../../permissions/ability';
 
 @Component({
 	selector: 'app-api-keys',
@@ -35,15 +35,17 @@ export class ApiKeysComponent implements OnInit {
 
 	private readonly apiKeysStore = inject(ApiKeysStore);
 	private readonly programStore = inject(ProgramStore);
+	private readonly promoterStore = inject(PromoterStore);
 	private readonly dialog = inject(MatDialog);
 	private readonly snackbarService = inject(SnackbarService);
 	private readonly clipboard = inject(Clipboard);
-	private readonly abilityService = inject<AbilityServiceSignal<UserAbility>>(AbilityServiceSignal);
+	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
 	protected readonly can = this.abilityService.can;
 
 	readonly apiKey = computed(() => this.apiKeysStore.apiKey());
 	readonly isLoading = computed(() => this.apiKeysStore.status() === Status.LOADING);
 	readonly programId = computed(() => this.programStore.program()?.programId);
+	readonly promoterId = computed(() => this.promoterStore.promoter()?.promoterId);
 
 	constructor() {
 		effect(() => {
@@ -63,31 +65,34 @@ export class ApiKeysComponent implements OnInit {
 
 	ngOnInit(): void {
 		const programId = this.programId()!;
+		const promoterId = this.promoterId()!;
 
-			this.apiKeysStore.fetchApiKey({ programId });
+		this.apiKeysStore.fetchApiKey({ programId, promoterId });
 	}
 
 	onGenerateApiKey(): void {
 		if (!this.can('manage', ApiKeyDto)) {
 			this.dialog.open(NotAllowedDialogBoxComponent, {
-				data: { description: 'You do not have permission to Generate an API key.' }
+				data: { description: 'You do not have permission to generate an API key.' },
 			});
 			return;
 		}
 		const programId = this.programId()!;
+		const promoterId = this.promoterId()!;
 
-		this.apiKeysStore.generateApiKey({ programId });
+		this.apiKeysStore.generateApiKey({ programId, promoterId });
 	}
 
 	onRegenerateApiKey(): void {
 		if (!this.can('manage', ApiKeyDto)) {
 			this.dialog.open(NotAllowedDialogBoxComponent, {
-				data: { description: 'You do not have permission to Generate an API key.' }
+				data: { description: 'You do not have permission to regenerate an API key.' },
 			});
 			return;
 		}
 		const programId = this.programId()!;
-	
+		const promoterId = this.promoterId()!;
+
 		this.dialog.open(InfoDialogBoxComponent, {
 			width: '448px',
 			data: {
@@ -96,9 +101,9 @@ export class ApiKeysComponent implements OnInit {
 				confirmButtonText: 'Regenerate',
 				cancelButtonText: 'Cancel',
 				onSubmit: () => {
-					this.apiKeysStore.generateApiKey({ programId });
-				}
-			}
+					this.apiKeysStore.generateApiKey({ programId, promoterId });
+				},
+			},
 		});
 	}
 

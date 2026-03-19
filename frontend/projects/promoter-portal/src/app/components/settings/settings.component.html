@@ -7,11 +7,11 @@
 
 				<div class="flex justify-start w-fit">
 					<nav mat-tab-nav-bar [tabPanel]="tabPanel" class="flex justify-start items-start h-12">
-						@for (tab of tabs; track tab) {
-						<a mat-tab-link [routerLink]="tab" routerLinkActive (click)="selectedTab = tab" [active]="selectedTab == tab" [class]="`${selectedTab === tab ? 'text-primary' : 'text-on-surface-variant'}`">
+						@for (tab of tabs; track tab.path) {
+						<a mat-tab-link [routerLink]="tab.path" routerLinkActive (click)="selectedTab = tab.path" [active]="selectedTab == tab.path" [class]="`${selectedTab === tab.path ? 'text-primary' : 'text-on-surface-variant'}`">
 							<div class="flex justify-start items-center gap-[8px] py-[12px]">
 								<div class="mat-body-medium tracking-normal text-on-surface">
-									{{ tab | titlecase }}
+									{{ tab.label }}
 								</div>
 							</div>
 						</a>

@@ -1,9 +1,10 @@
 import { AbilityBuilder, createMongoAbility, MongoAbility, ExtractSubjectType, InferSubjects } from '@casl/ability';
-import { LinkDto, MemberDto, ReferralDto, CommissionDto, PromoterDto, memberRoleEnum, actionsType, PromoterMemberDto } from '@org.quicko.cliq/ngx-core';
+import { ApiKeyDto, LinkDto, MemberDto, ReferralDto, CommissionDto, PromoterDto, memberRoleEnum, actionsType, PromoterMemberDto } from '@org.quicko.cliq/ngx-core';
 
 export type subjectsType =
 	InferSubjects<
-		typeof LinkDto
+		typeof ApiKeyDto
+		| typeof LinkDto
 		| typeof MemberDto
 		| typeof ReferralDto
 		| typeof CommissionDto
@@ -21,19 +22,21 @@ export function defineMemberAbilities(role: memberRoleEnum): MemberAbility {
 
 	// Base permissions for all roles
 	allow(['read', 'read_all'], [LinkDto, ReferralDto, CommissionDto, MemberDto, PromoterMemberDto]);
+	allow('read', ApiKeyDto);
 
 	forbid(['create', 'delete'], LinkDto).because('Only editors and admin can manage links');
 	forbid(['invite_member', 'remove_member'], PromoterMemberDto).because('Only admin can add or remove members');
 	forbid('change_role', PromoterMemberDto).because('Only admin can change member role');
 	forbid('update', PromoterDto).because('Only editors and admin can update promoter details');
 	forbid('delete', PromoterDto).because('Only admin can delete promoter');
+	forbid('manage', ApiKeyDto).because('Only admin can manage API keys');
 
 	if (role === memberRoleEnum.EDITOR) {
 		allow('manage', LinkDto);
 		allow('update', PromoterDto);
 
 	} else if (role === memberRoleEnum.ADMIN) {
-		allow('manage', [LinkDto, PromoterDto, PromoterMemberDto]);
+		allow('manage', [LinkDto, PromoterDto, PromoterMemberDto, ApiKeyDto]);
 	}
 
 	return build({

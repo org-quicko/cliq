@@ -202,7 +202,11 @@ export class AuthorizationService {
                 } else if (subject === Function) {
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } else if (subject === ApiKey) {
+                    if(entityType === 'Member') {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
                     return this.checkIfUserIsPartOfProgram(request, subject);
+                    }
                 } else if (subject === ReferralView) {
                     if (entityType === 'Member') {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
@@ -442,6 +446,7 @@ export class AuthorizationService {
             allow(['read', 'leave'], Promoter, { promoterId });
             allow(['read', 'read_all'], [PromoterAnalyticsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link], { promoterId });
             allow(['read', 'read_all'], LinkAnalyticsView);
+            allow('read', ApiKey, { promoterId });
 
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 
@@ -452,7 +457,7 @@ export class AuthorizationService {
             } else if (role === memberRoleEnum.ADMIN) {
                 // allow update program or invite other users to the program
                 // also, can only register on behalf of the promoter if member is the admin of that promoter
-                allow('manage', [Promoter, PromoterMember, Link], { promoterId });
+                allow('manage', [Promoter, PromoterMember, Link, ApiKey], { promoterId });
 
                 // can only manage the program-promoter relations if you are admin of this promoter
                 allow('manage', ProgramPromoter, { promoterId });
