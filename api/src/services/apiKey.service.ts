@@ -3,13 +3,12 @@ import {
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { ApiKey } from '../entities';
 import { statusEnum } from '../enums';
-import { ProgramService } from './program.service';
 import { ApiKeyConverter } from '../converters/apiKey.converter';
 import { UpdateApiKeyDto } from '../dtos';
 import winston from 'winston';
@@ -25,11 +24,15 @@ export class ApiKeyService {
 		private apiKeyConverter: ApiKeyConverter,
 	) {}
 
-	async generateKey(programId: string) {
+	async generateKey(programId: string, promoterId?: string) {
 		this.logger.info(`START: generateKey service`);
 
-		// Delete any existing keys for this program (only 1 key per program)
-		await this.apiKeyRepository.delete({ programId });
+		// Delete any existing key for this combination
+		if (promoterId) {
+			await this.apiKeyRepository.delete({ programId, promoterId });
+		} else {
+			await this.apiKeyRepository.delete({ programId, promoterId: IsNull() });
+		}
 
 		const key = crypto.randomBytes(16).toString('hex');
 		const secret = crypto.randomBytes(32).toString('hex');
@@ -38,6 +41,7 @@ export class ApiKeyService {
 			key,
 			secret,
 			programId,
+			promoterId: promoterId ?? null,
 		});
 
 		const apiKey = await this.apiKeyRepository.save(newApiKey);
@@ -47,53 +51,64 @@ export class ApiKeyService {
 		return apiKeyDto;
 	}
 
-	async getKey(programId: string) {
+	async getKey(programId: string, promoterId?: string) {
 		this.logger.info(`START: getKey service`);
 
-		const apiKey = await this.apiKeyRepository.findOne({
-			where: { programId },
-		});
+		const where = promoterId
+			? { programId, promoterId }
+			: { programId, promoterId: IsNull() };
+
+		const apiKey = await this.apiKeyRepository.findOne({ where });
 		if (!apiKey) {
-        this.logger.warn('Api Key not found');
-        throw new NotFoundException('Api key not found');
-      }
-      this.logger.info('END: fetchApiKey service');
-      return this.apiKeyConverter.convert(apiKey);
+			this.logger.warn('Api Key not found');
+			throw new NotFoundException('Api key not found');
+		}
+		this.logger.info('END: getKey service');
+		return this.apiKeyConverter.convert(apiKey);
 	}
 
 	async updateKey(
 		programId: string,
 		apiKeyId: string,
 		body: UpdateApiKeyDto,
+		promoterId?: string,
 	) {
 		this.logger.info(`START: updateKey service`);
 
-		const keyExists = await this.keyExistsInProgram(programId, apiKeyId);
+		const keyExists = await this.keyExistsInProgram(programId, apiKeyId, promoterId);
 
 		if (!keyExists) {
 			this.logger.error(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
 			throw new BadRequestException(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
 		}
 
+		const where = promoterId
+			? { programId, apiKeyId, promoterId }
+			: { programId, apiKeyId, promoterId: IsNull() };
+
 		await this.apiKeyRepository.update(
-			{ programId, apiKeyId },
+			where,
 			{ status: body.status, updatedAt: () => `NOW()` },
 		);
 
 		this.logger.info(`END: updateKey service`);
 	}
 
-	async deleteKey(programId: string, apiKeyId: string) {
+	async deleteKey(programId: string, apiKeyId: string, promoterId?: string) {
 		this.logger.info(`START: deleteKey service`);
 
-		const keyExists = await this.keyExistsInProgram(programId, apiKeyId);
+		const keyExists = await this.keyExistsInProgram(programId, apiKeyId, promoterId);
 
 		if (!keyExists) {
 			this.logger.error(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
 			throw new BadRequestException(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
 		}
 
-		await this.apiKeyRepository.delete({ programId, apiKeyId });
+		const where = promoterId
+			? { programId, apiKeyId, promoterId }
+			: { programId, apiKeyId, promoterId: IsNull() };
+
+		await this.apiKeyRepository.delete(where);
 
 		this.logger.info(`END: deleteKey service`);
 	}
@@ -118,12 +133,12 @@ export class ApiKeyService {
 		return isValid ? apiKey : null;
 	}
 
-	async keyExistsInProgram(programId: string, apiKeyId: string) {
-		const keyResult = await this.apiKeyRepository.findOne({
-			where: { programId, apiKeyId },
-		});
+	async keyExistsInProgram(programId: string, apiKeyId: string, promoterId?: string) {
+		const where = promoterId
+			? { programId, apiKeyId, promoterId }
+			: { programId, apiKeyId, promoterId: IsNull() };
 
-		if (!keyResult) return false;
-		else return true;
+		const keyResult = await this.apiKeyRepository.findOne({ where });
+		return !!keyResult;
 	}
 }

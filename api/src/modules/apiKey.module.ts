@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiKey } from '../entities';
 import { ApiKeyController } from '../controllers/apiKey.controller';
+import { PromoterApiKeyController } from '../controllers/promoterApiKey.controller';
 import { ApiKeyService } from '../services/apiKey.service';
 import { ProgramModule } from './program.module';
 import { ApiKeyConverter } from 'src/converters/apiKey.converter';
@@ -13,7 +14,7 @@ import { ApiKeyConverter } from 'src/converters/apiKey.converter';
 		ProgramModule,
 	],
 	providers: [ApiKeyService, ApiKeyConverter],
-	controllers: [ApiKeyController],
+	controllers: [ApiKeyController, PromoterApiKeyController],
 	exports: [ApiKeyService],
 })
 export class ApiKeyModule {}

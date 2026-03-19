@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Program } from './program.entity';
+import { Promoter } from './promoter.entity';
 import { SALT_ROUNDS } from '../constants';
 import { statusEnum } from 'src/enums';
 
@@ -39,6 +40,16 @@ export class ApiKey {
 
 	@Column('uuid', { name: 'program_id' })
 	programId: string;
+
+	@ManyToOne(() => Promoter, { nullable: true, onDelete: 'CASCADE' })
+	@JoinColumn({
+		name: 'promoter_id',
+		referencedColumnName: 'promoterId',
+	})
+	promoter: Promoter;
+
+	@Column('uuid', { name: 'promoter_id', nullable: true })
+	promoterId: string | null;
 
 	@CreateDateColumn({
 		name: 'created_at',

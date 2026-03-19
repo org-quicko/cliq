@@ -67,7 +67,15 @@ export class PermissionsGuard implements CanActivate {
 			entityType = 'Member';
 		}
 		else if (api_key_id) {
-			ability = this.authorizationService.getApiUserAbility(request.headers.program_id as string);
+			const promoter_id = request.headers.promoter_id as string;
+			if (promoter_id) {
+				ability = this.authorizationService.getPromoterApiUserAbility(
+					request.headers.program_id as string,
+					request.headers.promoter_id as string,
+				);
+			} else {
+				ability = this.authorizationService.getApiUserAbility(request.headers.program_id as string);
+			}
 			entityType = 'Api User';
 		}
 		else {

@@ -411,6 +411,25 @@ export class AuthorizationService {
         return ability;
     }
 
+    getPromoterApiUserAbility(programId: string, promoterId: string) {
+    this.logger.info(`START: getPromoterApiUserAbility service`);
+
+    const { can: allow, build } = new AbilityBuilder<AppAbility>(createAbility);
+
+    allow('read', Promoter, { promoterId });
+    allow(['read', 'read_all'], [Link, ReferralView, PromoterAnalyticsView, Commission, SignUp, Purchase], { promoterId });
+    allow(['read', 'read_all'], LinkAnalyticsView);
+    allow('manage', ApiKey, { programId });
+
+    const ability = build({
+        detectSubjectType: (item) =>
+            item.constructor as ExtractSubjectType<subjectsType>,
+    });
+
+    this.logger.info(`END: getPromoterApiUserAbility service`);
+    return ability;
+}
+
 
     getMemberAbility(member: Member) {
         this.logger.info(`START: getMemberAbility service`);

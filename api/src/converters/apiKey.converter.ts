@@ -14,6 +14,7 @@ export class ApiKeyConverter {
 			// give the non-hashed secret to the user
 			apiKeyDto.secret = secret;
 			apiKeyDto.status = apiKey.status;
+			apiKeyDto.promoterId = apiKey.promoterId;
 
 			apiKeyDto.createdAt = apiKey.createdAt;
 			apiKeyDto.updatedAt = apiKey.updatedAt;
