@@ -12,12 +12,12 @@ export class ApiKeysService {
 	constructor(private httpClient: HttpClient) {}
 
 	fetchApiKey(programId: string, promoterId: string) {
-		const url = `${this.endpoint}/programs/${programId}/promoters/${promoterId}/apikeys`;
+		const url = `${this.endpoint}/programs/${programId}/promoters/${promoterId}/api-keys`;
 		return this.httpClient.get<ApiResponse<ApiKeyDto>>(url);
 	}
 
 	generateApiKey(programId: string, promoterId: string) {
-		const url = `${this.endpoint}/programs/${programId}/promoters/${promoterId}/apikeys`;
+		const url = `${this.endpoint}/programs/${programId}/promoters/${promoterId}/api-keys`;
 		return this.httpClient.post<ApiResponse<ApiKeyDto>>(url, {});
 	}
 }
