@@ -6,6 +6,7 @@ import {
 	Index,
 	JoinColumn,
 	ManyToOne,
+	OneToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -41,7 +42,7 @@ export class ApiKey {
 	@Column('uuid', { name: 'program_id' })
 	programId: string;
 
-	@ManyToOne(() => Promoter, { nullable: true, onDelete: 'CASCADE' })
+	@OneToOne(() => Promoter, { nullable: true, onDelete: 'CASCADE' })
 	@JoinColumn({
 		name: 'promoter_id',
 		referencedColumnName: 'promoterId',

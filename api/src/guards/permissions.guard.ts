@@ -10,6 +10,7 @@ import { CHECK_PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 import { MemberService } from '../services/member.service';
 import { UserService } from '../services/user.service';
 import { actionsType, subjectsType } from '../types';
+import { entityTypeEnum } from '../enums';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
@@ -49,7 +50,7 @@ export class PermissionsGuard implements CanActivate {
 		const api_key_id = request.headers.api_key_id as string;
 
 
-		let entityType: 'User' | 'Member' | 'Api User';
+		let entityType: entityTypeEnum;
 
 		if (!member_id && !user_id && !api_key_id) {
 			return false;
@@ -64,7 +65,7 @@ export class PermissionsGuard implements CanActivate {
 				return false;
 			}
 			ability = this.authorizationService.getMemberAbility(memberEntity);
-			entityType = 'Member';
+			entityType = entityTypeEnum.MEMBER;
 		}
 		else if (api_key_id) {
 			const promoter_id = request.headers.promoter_id as string;
@@ -73,10 +74,11 @@ export class PermissionsGuard implements CanActivate {
 					request.headers.program_id as string,
 					request.headers.promoter_id as string,
 				);
+				entityType = entityTypeEnum.PROMOTER_API_USER;
 			} else {
 				ability = this.authorizationService.getApiUserAbility(request.headers.program_id as string);
+				entityType = entityTypeEnum.API_USER;
 			}
-			entityType = 'Api User';
 		}
 		else {
 			const userEntity = await this.userService.getUserEntity(user_id);
@@ -86,7 +88,7 @@ export class PermissionsGuard implements CanActivate {
 
 			// Generate user's ability
 			ability = this.authorizationService.getUserAbility(userEntity);
-			entityType = 'User';
+			entityType = entityTypeEnum.USER;
 		}
 
 		try {

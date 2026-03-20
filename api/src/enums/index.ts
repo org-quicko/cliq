@@ -19,4 +19,5 @@ export * from './sortOrder.enum';
 export * from './status.enum';
 export * from './trigger.enum';
 export * from './visibility.enum';
+export * from './entityType.enum';
 export * from './SortBy.enum';

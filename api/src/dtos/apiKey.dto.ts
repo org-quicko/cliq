@@ -35,8 +35,3 @@ export class ApiKeyDto {
 	@IsDate()
 	updatedAt: Date;
 }
-
-export class UpdateApiKeyDto {
-	@IsEnum(statusEnum)
-	status: statusEnum;
-}

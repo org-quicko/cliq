@@ -10,7 +10,6 @@ import * as bcrypt from 'bcrypt';
 import { ApiKey } from '../entities';
 import { statusEnum } from '../enums';
 import { ApiKeyConverter } from '../converters/apiKey.converter';
-import { UpdateApiKeyDto } from '../dtos';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 
@@ -65,33 +64,6 @@ export class ApiKeyService {
 		}
 		this.logger.info('END: getKey service');
 		return this.apiKeyConverter.convert(apiKey);
-	}
-
-	async updateKey(
-		programId: string,
-		apiKeyId: string,
-		body: UpdateApiKeyDto,
-		promoterId?: string,
-	) {
-		this.logger.info(`START: updateKey service`);
-
-		const keyExists = await this.keyExistsInProgram(programId, apiKeyId, promoterId);
-
-		if (!keyExists) {
-			this.logger.error(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
-			throw new BadRequestException(`Error. Failed to find API key ${apiKeyId} in Program ${programId}`);
-		}
-
-		const where = promoterId
-			? { programId, apiKeyId, promoterId }
-			: { programId, apiKeyId, promoterId: IsNull() };
-
-		await this.apiKeyRepository.update(
-			where,
-			{ status: body.status, updatedAt: () => `NOW()` },
-		);
-
-		this.logger.info(`END: updateKey service`);
 	}
 
 	async deleteKey(programId: string, apiKeyId: string, promoterId?: string) {
