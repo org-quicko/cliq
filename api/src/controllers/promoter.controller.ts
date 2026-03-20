@@ -392,6 +392,7 @@ export class PromoterController {
 		};
 	}
 
+	@Permissions('read', SignUp)
 	@Get(':promoter_id/reports/signups')
 	@SkipTransform()
 	async getSignUpsReport(
@@ -452,6 +453,7 @@ export class PromoterController {
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Purchase)
 	@SkipTransform()
 	@Get(':promoter_id/reports/purchases')
 	async getPurchasesReport(
@@ -513,6 +515,7 @@ export class PromoterController {
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read', Commission)
 	@SkipTransform()
 	@Get(':promoter_id/reports/commissions')
 	async getCommissionsReport(
@@ -572,6 +575,7 @@ export class PromoterController {
 	}
 
 	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read_all', LinkAnalyticsView)
 	@SkipTransform()
 	@Get(':promoter_id/reports/links')
 	async getLinksReport(
@@ -628,6 +632,7 @@ export class PromoterController {
 
 
 	@ApiResponse({ status: 200, description: 'OK' })
+	@Permissions('read_all', ReferralView)
 	@Get(':promoter_id/reports/referrals')
 	@SkipTransform()
 	async getReferralsReport(

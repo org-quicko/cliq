@@ -19,6 +19,7 @@ import { TeamComponent } from './components/settings/components/team/team.compon
 import { SettingsComponent } from './components/settings/settings.component';
 import { TermsAndConditionsComponent } from './components/terms-and-conditions/terms-and-conditions.component';
 import { TncResolver } from './resolver/tnc.resolver';
+import { ApiKeysComponent } from './components/settings/components/api-keys/api-keys.component';
 
 export const routes: Routes = [
 	{ path: '404', component: NotFoundComponent },
@@ -100,6 +101,10 @@ export const routes: Routes = [
 										path: 'team',
 										component: TeamComponent
 									},
+									{
+										path: 'api-keys',
+										component: ApiKeysComponent
+									}
 								]
 							},
 						]

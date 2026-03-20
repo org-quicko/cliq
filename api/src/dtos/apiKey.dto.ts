@@ -22,6 +22,11 @@ export class ApiKeyDto {
 	@IsUUID()
 	programId?: string;
 
+	@IsOptional()
+	@Expose({ name: 'promoter_id' })
+	@IsUUID()
+	promoterId?: string | null;
+
 	@Expose({ name: 'created_at' })
 	@IsDate()
 	createdAt: Date;
@@ -29,9 +34,4 @@ export class ApiKeyDto {
 	@Expose({ name: 'updated_at' })
 	@IsDate()
 	updatedAt: Date;
-}
-
-export class UpdateApiKeyDto {
-	@IsEnum(statusEnum)
-	status: statusEnum;
 }

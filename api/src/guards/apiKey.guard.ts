@@ -26,6 +26,9 @@ export class ApiKeyGuard implements CanActivate {
         if (apiKey) {
             request.headers.api_key_id = apiKey.apiKeyId;
             request.headers.program_id = apiKey.programId;
+            if (apiKey.promoterId) {
+                request.headers.promoter_id = apiKey.promoterId;
+            }
             this.logger.info(`END: canActivate function - ApiKeyGuard (authenticated via API Key)`);
             return true;
         }

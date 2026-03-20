@@ -6,7 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { OrdinalDatePipe, SnackbarService, ApiKeyDto } from '@org.quicko.cliq/ngx-core';
+import { OrdinalDatePipe } from '../../pipes/ordinalDate.pipe';
+import { SnackbarService } from '../../services/snackbar.service';
+import { ApiKeyDto } from '../../dtos/apiKey.dto';
 
 @Component({
 	selector: 'app-api-credentials-dialog',

@@ -28,7 +28,7 @@ import {
     LinkAnalyticsView,
     ProgramSummaryView,
 } from '../entities';
-import { memberRoleEnum, userRoleEnum, statusEnum } from '../enums';
+import { memberRoleEnum, userRoleEnum, statusEnum, entityTypeEnum } from '../enums';
 import { UserService } from './user.service';
 import { ProgramService } from './program.service';
 import { LinkService } from './link.service';
@@ -120,7 +120,7 @@ export class AuthorizationService {
     }
 
     async getSubjects(
-        entityType: 'User' | 'Member' | 'Api User',
+        entityType: entityTypeEnum,
         request: Request,
         requiredPermissions: { action: actionsType; subject: subjectsType }[],
     ) {
@@ -144,6 +144,7 @@ export class AuthorizationService {
                     const user = this.userService.getUserEntity(subjectUserId);
                     return user;
                 } else if (subject === Program) {
+                    if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     if (action === 'read_all' || action === 'create') return subject;
 
                     if (!subjectProgramId) {
@@ -154,6 +155,7 @@ export class AuthorizationService {
                         subjectProgramId,
                     );
                 } else if (subject === ProgramUser) {
+                    if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } else if (subject === Member) {
 
@@ -163,6 +165,7 @@ export class AuthorizationService {
 
                     return this.memberService.getMemberEntity(subjectMemberId);
                 } else if (subject === ProgramPromoter) {
+                    if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     if (action === 'read_all') {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
@@ -190,54 +193,62 @@ export class AuthorizationService {
                 } else if (subject === PromoterMember) {
                     return this.checkIfMemberIsPartOfPromoter(request, subject);
                 } else if (subject === Link) {
-                    if (entityType === 'Member') {
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
                     } else {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
 
                 } else if (subject === Circle) {
+                    if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     return this.checkIfUserIsPartOfProgram(request, subject);
 
                 } else if (subject === Function) {
+                    if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } else if (subject === ApiKey) {
-                    return this.checkIfUserIsPartOfProgram(request, subject);
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) {
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    } else {
+                        return this.checkIfUserIsPartOfProgram(request, subject);
+                    }
                 } else if (subject === ReferralView) {
-                    if (entityType === 'Member') {
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
                     } else {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
                 } else if (subject === PromoterAnalyticsView) {
-                    if (entityType === 'Member') {
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
                     } else {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
                 } else if (subject === Commission) {
-                    if (entityType === 'Member') {
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
                     } else {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
                 } else if (subject === SignUp) {
-                    if (entityType === 'Member') {
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
                     } else {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
                 } else if (subject === Purchase) {
-                    if (entityType === 'Member') {
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) {
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
                     } else {
                         return this.checkIfUserIsPartOfProgram(request, subject);
                     }
                 } else if (subject === Webhook) {
+                    if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } else if (subject === LinkAnalyticsView) {
                     return this.checkIfMemberIsPartOfPromoter(request, subject);
                 } else if (subject === ProgramSummaryView) {
+                    if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     // Only super admins can access, return subject itself
                     if (action === 'read_all') return subject;
                     return subject;
@@ -287,7 +298,7 @@ export class AuthorizationService {
         const subjectPromoterId = request.params.promoter_id as string | undefined;
 
         if (!subjectPromoterId) {
-            throw new BadRequestException(`Error. Must provide Promoter ID for performing action on object`);
+            return null;
         } else {
             if (!subjectMemberId) {
                 if (!apiKey || !apiSecret) {
@@ -295,6 +306,10 @@ export class AuthorizationService {
                 } else {
                     if (subjectProgramId && subjectProgramId !== (request.headers.program_id as string)) {
                         // trying to access a different program's information
+                        return null;
+                    }
+                    const headerPromoterId = request.headers.promoter_id as string | undefined;
+                    if (headerPromoterId && subjectPromoterId !== headerPromoterId) {
                         return null;
                     }
                     return subject;
@@ -411,6 +426,25 @@ export class AuthorizationService {
         return ability;
     }
 
+    getPromoterApiUserAbility(programId: string, promoterId: string) {
+    this.logger.info(`START: getPromoterApiUserAbility service`);
+
+    const { can: allow, build } = new AbilityBuilder<AppAbility>(createAbility);
+
+    allow('read', Promoter, { promoterId });
+    allow(['read', 'read_all'], [Link, ReferralView, PromoterAnalyticsView, Commission, SignUp, Purchase], { promoterId });
+    allow(['read', 'read_all'], LinkAnalyticsView);
+    allow('manage', ApiKey, { programId });
+
+    const ability = build({
+        detectSubjectType: (item) =>
+            item.constructor as ExtractSubjectType<subjectsType>,
+    });
+
+    this.logger.info(`END: getPromoterApiUserAbility service`);
+    return ability;
+}
+
 
     getMemberAbility(member: Member) {
         this.logger.info(`START: getMemberAbility service`);
@@ -423,6 +457,7 @@ export class AuthorizationService {
             allow(['read', 'leave'], Promoter, { promoterId });
             allow(['read', 'read_all'], [PromoterAnalyticsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link], { promoterId });
             allow(['read', 'read_all'], LinkAnalyticsView);
+            allow('read', ApiKey, { promoterId });
 
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 
@@ -433,7 +468,7 @@ export class AuthorizationService {
             } else if (role === memberRoleEnum.ADMIN) {
                 // allow update program or invite other users to the program
                 // also, can only register on behalf of the promoter if member is the admin of that promoter
-                allow('manage', [Promoter, PromoterMember, Link], { promoterId });
+                allow('manage', [Promoter, PromoterMember, Link, ApiKey], { promoterId });
 
                 // can only manage the program-promoter relations if you are admin of this promoter
                 allow('manage', ProgramPromoter, { promoterId });

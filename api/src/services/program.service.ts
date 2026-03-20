@@ -714,7 +714,6 @@ export class ProgramService {
 		const programResult = await this.programRepository.findOne({
 			where: {
 				programId,
-				...whereOptions,
 			},
 			relations: {
 				contacts: {
@@ -733,6 +732,10 @@ export class ProgramService {
 		programResult.contacts.forEach((contact) => {
 			commissions = [...commissions, ...contact.commissions];
 		});
+
+		if (whereOptions.conversionType) {
+			commissions = commissions.filter((c) => c.conversionType === whereOptions.conversionType);
+		}
 
 		const commissionsDto = commissions.map((c) =>
 			this.commissionConverter.convert(c),
