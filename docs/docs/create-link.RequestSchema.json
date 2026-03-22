@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"type":"object","properties":{"ref_val":{"type":"string"},"name":{"type":"string"}},"required":["ref_val","name"]},"example":{"ref_val":"padme","name":"Padme's Link"}}}}}

@@ -1,0 +1,1 @@
+{"parameters":[{"name":"program_id","in":"path","description":"","required":true,"example":"d8d0f7ef-24df-4611-ac29-ab8d157c087d","schema":{"type":"string"}},{"name":"promoter_id","in":"path","description":"","required":true,"example":"da9628b2-9080-4888-a086-41dfa8f25456","schema":{"type":"string"}}]}

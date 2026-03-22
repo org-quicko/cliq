@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"type":"object","properties":{"accepted_terms_and_conditions":{"type":"boolean"}},"required":["accepted_terms_and_conditions"]},"example":{"accepted_terms_and_conditions":true}}}}}

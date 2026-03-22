@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"","content":{"application/octet-stream":{"schema":{"type":"object","properties":{}},"example":"contact_id,sign_up_date,email,phone,external_id,utm_id,utm_source,utm_medium,utm_campaign,utm_term,utm_content"}},"headers":{}}}}

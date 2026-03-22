@@ -1,0 +1,5898 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "org-quicko-cliq",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "member"
+    },
+    {
+      "name": "promoter"
+    },
+    {
+      "name": "link"
+    },
+    {
+      "name": "api_key"
+    }
+  ],
+  "paths": {
+    "/api/programs/{program_id}/members/signup": {
+      "post": {
+        "summary": "Member sign up",
+        "deprecated": false,
+        "description": "Member Sign Up",
+        "operationId": "memberSignup",
+        "tags": [
+          "member"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "first_name",
+                  "last_name"
+                ]
+              },
+              "example": {
+                "email": "anakin@mail.com",
+                "password": "starwars",
+                "first_name": "Anakin",
+                "last_name": "Skywalker"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "access_token": {
+                          "type": "string"
+                        },
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "logo_url": {
+                          "type": "null"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "accepted_terms_and_conditions": {
+                          "type": "boolean"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        },
+                        "member_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "access_token",
+                        "promoter_id",
+                        "name",
+                        "logo_url",
+                        "status",
+                        "accepted_terms_and_conditions",
+                        "created_at",
+                        "updated_at",
+                        "member_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully signed up member.",
+                  "data": {
+                    "access_token": ""
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/members/login": {
+      "post": {
+        "summary": "Member log in",
+        "deprecated": false,
+        "description": "",
+        "operationId": "memberLogin",
+        "tags": [
+          "member"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "example": {
+                "email": "john.member@test.com",
+                "password": "123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "access_token": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "access_token"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully logged in user.",
+                  "data": {
+                    "access_token": ""
+                  }
+                }
+              }
+            },
+            "headers": {}
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "error"
+                  ]
+                },
+                "example": {
+                  "code": 401,
+                  "message": "Invalid password! Please try again!"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/members/{member_id}": {
+      "get": {
+        "summary": "Get member",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getMember",
+        "tags": [
+          "member"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "6d3a9b2f-1c84-4e7a-b5d2-9f6e3c1a8b77",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "member_id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "first_name": {
+                          "type": "string"
+                        },
+                        "last_name": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        },
+                        "member": {
+                          "type": "object",
+                          "properties": {
+                            "email": {
+                              "type": "string"
+                            },
+                            "password": {
+                              "type": "string"
+                            },
+                            "first_name": {
+                              "type": "string"
+                            },
+                            "last_name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "email",
+                            "password",
+                            "first_name",
+                            "last_name"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "member_id",
+                        "email",
+                        "first_name",
+                        "last_name",
+                        "role",
+                        "status",
+                        "created_at",
+                        "updated_at",
+                        "member"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched member.",
+                  "data": {
+                    "member_id": "6d3a9b2f-1c84-4e7a-b5d2-9f6e3c1a8b77",
+                    "email": "john.member@test.com",
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "role": "admin",
+                    "status": "active",
+                    "created_at": "2021-01-15T00:00:00.000Z",
+                    "updated_at": "2026-03-11T07:06:12.165Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update member info",
+        "deprecated": false,
+        "description": "",
+        "operationId": "updateMember",
+        "tags": [
+          "member"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "b474e74c-4d79-4935-82af-6f1bb676508a",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "c694e74c-4d79-4935-82af-6f1bb676508a",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "current_password": {
+                    "type": "string"
+                  },
+                  "new_password": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "first_name": "Anakin",
+                "last_name": "Skywalker",
+                "email": "anakin@mail.com",
+                "current_password": "ok",
+                "new_password": "starwars"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "member_id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "first_name": {
+                          "type": "string"
+                        },
+                        "last_name": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "member_id",
+                        "email",
+                        "first_name",
+                        "last_name",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "message": "Successfully updated member information."
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Error. Incorrect password entered!"
+                }
+              }
+            },
+            "headers": {}
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "error"
+                  ]
+                },
+                "example": {
+                  "code": 403,
+                  "message": "Forbidden resource"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete member",
+        "deprecated": false,
+        "description": "",
+        "operationId": "deleteMember",
+        "tags": [
+          "member"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully deleted member."
+                }
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 404,
+                  "message": "Failed to get member of ID: c57238c8-02d2-46c6-94ea-7d1290c2cadb."
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/members/{member_id}/promoter": {
+      "get": {
+        "summary": "Get Promoter of Member",
+        "deprecated": false,
+        "description": "",
+        "operationId": "memberPromoter",
+        "tags": [
+          "member"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "5c2f8e91-1a73-4b6d-8c2a-9f4e7b3d6a10",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "logo_url": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "promoter_id",
+                        "name",
+                        "logo_url",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched promoter of Member 23b4bcb8-a466-46d7-b241-af3822480747.",
+                  "data": {
+                    "promoter_id": "b3096757-5c66-46da-988c-d3dcc97de48e",
+                    "name": "promoter man",
+                    "logo_url": "www.promoter-man.com",
+                    "created_at": "2025-03-10T09:15:21.945Z",
+                    "updated_at": "2025-03-10T09:15:21.945Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 404,
+                  "message": "Error. Member 8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33 isn't part of any promoter!"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/members/exists": {
+      "post": {
+        "summary": "Check member existence in program",
+        "deprecated": false,
+        "description": "",
+        "operationId": "memberExists",
+        "tags": [
+          "member"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              },
+              "example": {
+                "email": "anakin@mail.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully checked member existence in program.",
+                  "data": false
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/purchases": {
+      "post": {
+        "summary": "Create Purchase",
+        "deprecated": false,
+        "description": "",
+        "operationId": "purchase",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ref_val": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "integer"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "external_id": {
+                    "type": "string"
+                  },
+                  "item_id": {
+                    "type": "string"
+                  },
+                  "utm_params": {
+                    "type": "object",
+                    "properties": {
+                      "utm_id": {
+                        "type": "string"
+                      },
+                      "utm_source": {
+                        "type": "string"
+                      },
+                      "utm_medium": {
+                        "type": "string"
+                      },
+                      "utm_campaign": {
+                        "type": "string"
+                      },
+                      "utm_term": {
+                        "type": "string"
+                      },
+                      "utm_content": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "utm_id",
+                      "utm_source",
+                      "utm_medium",
+                      "utm_campaign",
+                      "utm_term",
+                      "utm_content"
+                    ]
+                  }
+                },
+                "required": [
+                  "ref_val",
+                  "amount",
+                  "email",
+                  "phone",
+                  "external_id",
+                  "item_id",
+                  "utm_params"
+                ]
+              },
+              "example": {
+                "ref_val": "anakin",
+                "amount": 420,
+                "email": "{{$randomEmail}}",
+                "phone": "737819472589",
+                "external_id": "nice_external_id",
+                "item_id": "item1",
+                "utm_params": {
+                  "utm_id": "2345",
+                  "utm_source": "instagram",
+                  "utm_medium": "social",
+                  "utm_campaign": "fireship",
+                  "utm_term": "ok",
+                  "utm_content": "logolink"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/signups": {
+      "post": {
+        "summary": "Create Signup",
+        "deprecated": false,
+        "description": "",
+        "operationId": "signup",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ref_val": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "utm_params": {
+                    "type": "object",
+                    "properties": {
+                      "utm_id": {
+                        "type": "string"
+                      },
+                      "utm_source": {
+                        "type": "string"
+                      },
+                      "utm_medium": {
+                        "type": "string"
+                      },
+                      "utm_campaign": {
+                        "type": "string"
+                      },
+                      "utm_term": {
+                        "type": "string"
+                      },
+                      "utm_content": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "utm_id",
+                      "utm_source",
+                      "utm_medium",
+                      "utm_campaign",
+                      "utm_term",
+                      "utm_content"
+                    ]
+                  }
+                },
+                "required": [
+                  "ref_val",
+                  "email",
+                  "first_name",
+                  "last_name",
+                  "phone",
+                  "utm_params"
+                ]
+              },
+              "example": {
+                "ref_val": "prateik-rudo",
+                "email": "{{$randomEmail}}",
+                "first_name": "{{$randomFirstName}}",
+                "last_name": "{{$randomLastName}}",
+                "phone": "1284896390726",
+                "utm_params": {
+                  "utm_id": "2345",
+                  "utm_source": "instagram",
+                  "utm_medium": "social",
+                  "utm_campaign": "fireship",
+                  "utm_term": "ok",
+                  "utm_content": "logolink"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/programs/{program_id}/promoters": {
+      "post": {
+        "summary": "Create promoter",
+        "deprecated": false,
+        "description": "",
+        "operationId": "createPromoter",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "2b9f7e4c-6a31-4d8b-9c2f-1e3a5d7b8c60",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              "example": {
+                "name": "Nice Promoter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "logo_url": {
+                          "type": "null"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "accepted_terms_and_conditions": {
+                          "type": "boolean"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "promoter_id",
+                        "name",
+                        "logo_url",
+                        "status",
+                        "accepted_terms_and_conditions",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully created promoter.",
+                  "data": {
+                    "promoter_id": "17c8b152-6b7c-424f-bb5a-ccc270e93bd3",
+                    "name": "N",
+                    "logo_url": null,
+                    "status": "active",
+                    "accepted_terms_and_conditions": false,
+                    "created_at": "2026-03-22T10:28:40.261Z",
+                    "updated_at": "2026-03-22T10:28:40.261Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 401,
+                  "message": "Error. Member john.member@test.com already exists in Program 930433e7-591c-4dda-a300-d3bfe17bd03d in a promoter"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}": {
+      "patch": {
+        "summary": "Update promoter info",
+        "deprecated": false,
+        "description": "",
+        "operationId": "updatePromoter",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "2b9f7e4c-6a31-4d8b-9c2f-1e3a5d7b8c60",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "b2d7a9c4-6f31-4e8a-9c5d-1b3a7e2f8c11",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "logo_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "logo_url"
+                ]
+              },
+              "example": {
+                "name": "Vader's club",
+                "logo_url": "https://t4.ftcdn.net/jpg/03/13/36/79/360_F_313367965_7B8Y7JrJ3JAG6zdjw51L59kVQZMlA9K7.jpg"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "logo_url": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "accepted_terms_and_conditions": {
+                          "type": "boolean"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "promoter_id",
+                        "name",
+                        "logo_url",
+                        "status",
+                        "accepted_terms_and_conditions",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully updated promoter.",
+                  "data": {
+                    "promoter_id": "9a7b1d2f-3c8e-4f6a-9d21-6b3c4a7e5f92",
+                    "name": "Vader's club",
+                    "logo_url": "https://t4.ftcdn.net/jpg/03/13/36/79/360_F_313367965_7B8Y7JrJ3JAG6zdjw51L59kVQZMlA9K7.jpg",
+                    "status": "active",
+                    "accepted_terms_and_conditions": true,
+                    "created_at": "2021-01-15T00:00:00.000Z",
+                    "updated_at": "2026-03-20T11:38:05.914Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get promoter",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getPromoter",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "logo_url": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "accepted_terms_and_conditions": {
+                          "type": "boolean"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        },
+                        "promoter": {
+                          "type": "object",
+                          "properties": {
+                            "promoter_id": {
+                              "type": "string"
+                            },
+                            "promoter_name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "promoter_id",
+                            "promoter_name"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "promoter_id",
+                        "name",
+                        "logo_url",
+                        "status",
+                        "accepted_terms_and_conditions",
+                        "created_at",
+                        "updated_at",
+                        "promoter"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched promoter.",
+                  "data": {
+                    "promoter_id": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+                    "name": "Vader's club",
+                    "logo_url": "https://t4.ftcdn.net/jpg/03/13/36/79/360_F_313367965_7B8Y7JrJ3JAG6zdjw51L59kVQZMlA9K7.jpg",
+                    "status": "active",
+                    "accepted_terms_and_conditions": true,
+                    "created_at": "2021-01-15T00:00:00.000Z",
+                    "updated_at": "2026-03-20T11:38:05.914Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete promoter",
+        "deprecated": false,
+        "description": "",
+        "operationId": "deletePromoter",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "26262626-2626-2626-2626-262626262626",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully deleted promoter."
+                }
+              }
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Error. Only admin is allowed to delete promoter"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/members": {
+      "post": {
+        "summary": "Invite member",
+        "deprecated": false,
+        "description": "",
+        "operationId": "inviteMember",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "{{$string.uuid}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "{{$string.uuid}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "first_name",
+                  "last_name",
+                  "role"
+                ]
+              },
+              "example": {
+                "email": "boba@quicko.com",
+                "password": "starwars",
+                "first_name": "Boba",
+                "last_name": "Fett the great",
+                "role": "admin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sheets": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "blocks": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "header": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "rows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "@entity": {
+                                      "type": "string"
+                                    },
+                                    "metadata": {
+                                      "type": "object",
+                                      "properties": {
+                                        "promoterId": {
+                                          "type": "string"
+                                        },
+                                        "skip": {
+                                          "type": "integer"
+                                        },
+                                        "take": {
+                                          "type": "integer"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        }
+                                      },
+                                      "required": [
+                                        "promoterId",
+                                        "skip",
+                                        "take",
+                                        "count"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "header",
+                                    "rows",
+                                    "name",
+                                    "@entity"
+                                  ]
+                                }
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "@entity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "blocks",
+                              "name",
+                              "@entity"
+                            ]
+                          }
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "@entity": {
+                          "type": "string"
+                        },
+                        "member_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "sheets",
+                        "name",
+                        "@entity",
+                        "member_id"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully added member to promoter.",
+                  "data": {
+                    "sheets": [
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "member_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "role",
+                              "added_on"
+                            ],
+                            "rows": [
+                              [
+                                "b802555b-2fff-401d-8535-002290774250",
+                                "Boba",
+                                "Fett the great",
+                                "boba@quicko.com",
+                                "admin",
+                                "2026-03-20T11:47:19.110Z"
+                              ]
+                            ],
+                            "metadata": {
+                              "promoterId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                              "skip": 0,
+                              "take": 10,
+                              "count": 1
+                            },
+                            "name": "member_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "member_sheet",
+                        "@entity": "sheet"
+                      }
+                    ],
+                    "name": "PromoterWorkbook",
+                    "@entity": "workbook"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get all members",
+        "deprecated": false,
+        "description": "",
+        "operationId": "allMembers",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "ADMIN / VIEWER",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "ACTIVE / INACTIVE",
+            "required": false,
+            "example": "active",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "1",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "1",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "DESC",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sheets": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "blocks": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "header": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "rows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "@entity": {
+                                      "type": "string"
+                                    },
+                                    "metadata": {
+                                      "type": "object",
+                                      "properties": {
+                                        "promoterId": {
+                                          "type": "string"
+                                        },
+                                        "skip": {
+                                          "type": "integer"
+                                        },
+                                        "take": {
+                                          "type": "integer"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        }
+                                      },
+                                      "required": [
+                                        "promoterId",
+                                        "skip",
+                                        "take",
+                                        "count"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "header",
+                                    "rows",
+                                    "name",
+                                    "@entity"
+                                  ]
+                                }
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "@entity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "blocks",
+                              "name",
+                              "@entity"
+                            ]
+                          }
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "@entity": {
+                          "type": "string"
+                        },
+                        "members": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "member_id": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string"
+                              },
+                              "password": {
+                                "type": "string"
+                              },
+                              "first_name": {
+                                "type": "string"
+                              },
+                              "last_name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "member_id",
+                              "email",
+                              "password",
+                              "first_name",
+                              "last_name"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "sheets",
+                        "name",
+                        "@entity",
+                        "members"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched members of promoter.",
+                  "data": {
+                    "sheets": [
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "member_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "role",
+                              "added_on"
+                            ],
+                            "rows": [
+                              [
+                                "1b480fcf-860c-4164-836a-5ef234c76259",
+                                "J",
+                                "AA",
+                                "john.adminmember@test.com",
+                                "editor",
+                                "2026-03-11T09:53:54.369Z"
+                              ],
+                              [
+                                "1b480fcf-860c-4164-836a-5ef234c76250",
+                                "J",
+                                "A",
+                                "johnadmin@gmail.com",
+                                "admin",
+                                "2026-03-11T09:48:12.264Z"
+                              ],
+                              [
+                                "b802555b-2fff-401d-8535-002290774250",
+                                "Boba",
+                                "Fett the great",
+                                "boba@quicko.com",
+                                "admin",
+                                "2026-03-20T11:47:19.110Z"
+                              ],
+                              [
+                                "00022121-0001-0001-0001-000000000001",
+                                "Anakin",
+                                "Skywalker",
+                                "john.member@test.com",
+                                "admin",
+                                "2026-02-10T11:54:46.611Z"
+                              ]
+                            ],
+                            "metadata": {
+                              "promoterId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                              "skip": 0,
+                              "take": 10,
+                              "count": 4
+                            },
+                            "name": "member_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "member_sheet",
+                        "@entity": "sheet"
+                      }
+                    ],
+                    "name": "PromoterWorkbook",
+                    "@entity": "workbook"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/members/{member_id}/role": {
+      "patch": {
+        "summary": "Update role",
+        "deprecated": false,
+        "description": "",
+        "operationId": "updateRole",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "b2d7a9c4-6f31-4e8a-9c5d-1b3a7e2f8c11",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "role"
+                ]
+              },
+              "example": {
+                "role": "editor"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully updated role of member."
+                }
+              }
+            },
+            "headers": {}
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "error"
+                  ]
+                },
+                "example": {
+                  "error": "You are unauthorized to perform this action."
+                }
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 400,
+                  "message": "Error. Cannot change role of self."
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/members/{member_id}": {
+      "patch": {
+        "summary": "Remove member",
+        "deprecated": false,
+        "description": "",
+        "operationId": "removeMember",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "2b9f7e4c-6a31-4d8b-9c2f-1e3a5d7b8c60",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Successfully removed member."
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/signups": {
+      "get": {
+        "summary": "Get signups for promoter",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterSignups",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "6beebf2c-fd81-4a6b-b721-f73b5abf6b3c",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "f61c72c4-f4fb-4b39-89db-a85990019142",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "contact": {
+                            "type": "object",
+                            "properties": {
+                              "contactId": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string"
+                              },
+                              "firstName": {
+                                "type": "string"
+                              },
+                              "externalId": {
+                                "type": "string"
+                              },
+                              "lastName": {
+                                "type": "string"
+                              },
+                              "phone": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "type": "string"
+                              },
+                              "updatedAt": {
+                                "type": "string"
+                              },
+                              "programId": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "contactId",
+                              "email",
+                              "firstName",
+                              "externalId",
+                              "lastName",
+                              "phone",
+                              "status",
+                              "createdAt",
+                              "updatedAt",
+                              "programId"
+                            ]
+                          },
+                          "contactId": {
+                            "type": "string"
+                          },
+                          "utmParams": {
+                            "type": "object",
+                            "properties": {
+                              "utm_medium": {
+                                "type": "string"
+                              },
+                              "utm_source": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "utm_medium",
+                              "utm_source"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          },
+                          "promoterId": {
+                            "type": "string"
+                          },
+                          "linkId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "contact",
+                          "contactId",
+                          "utmParams",
+                          "createdAt",
+                          "updatedAt",
+                          "promoterId",
+                          "linkId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": "{\r\n    \"code\": 200,\r\n    \"message\": \"Successfully fetched all signups of promoter.\",\r\n    \"data\": [\r\n        {\r\n            \"contact\": {\r\n                \"contactId\": \"8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33\",\r\n                \"email\": \"steve.2024@example.com\",\r\n                \"firstName\": \"Steve\",\r\n                \"externalId\": \"CUS-021\",\r\n                \"lastName\": \"Iron\",\r\n                \"phone\": \"+1234567021\",\r\n                \"status\": \"active\",\r\n                \"createdAt\": \"2026-01-27T00:00:00.000Z\",\r\n                \"updatedAt\": \"2026-02-10T11:54:46.611Z\",\r\n                \"programId\": \"930433e7-591c-4dda-a300-d3bfe17bd03d\"\r\n            },\r\n            \"contactId\": \"5e1c9a7d-8b34-4d2f-a7c6-9b3d1e5f2a73\",\r\n            \"utmParams\": {\r\n                \"utm_medium\": \"organic\",\r\n                \"utm_source\": \"repeat\"\r\n            },\r\n            \"createdAt\": \"2026-01-27T00:00:00.000Z\",\r\n            \"updatedAt\": \"2026-02-10T11:54:46.611Z\",\r\n            \"promoterId\": \"5e1c9a7d-8b34-4d2f-a7c6-9b3d1e5f2a73\",\r\n            \"linkId\": \"a7d4c2b1-8f93-4e6a-9b21-3c5f7d8e2a44\"\r\n        },\r\n        {\r\n            \"contact\": {\r\n                \"contactId\": \"8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33\",\r\n                \"email\": \"zack.2025@example.com\",\r\n                \"firstName\": \"Zack\",\r\n                \"externalId\": \"CUS-027\",\r\n                \"lastName\": \"Titanium\",\r\n                \"phone\": \"+1234567027\",\r\n                \"status\": \"active\",\r\n                \"createdAt\": \"2026-02-02T00:00:00.000Z\",\r\n                \"updatedAt\": \"2026-02-10T11:54:46.611Z\",\r\n                \"programId\": \"930433e7-591c-4dda-a300-d3bfe17bd03d\"\r\n            },\r\n            \"contactId\": \"5e1c9a7d-8b34-4d2f-a7c6-9b3d1e5f2a73\",\r\n            \"utmParams\": {\r\n                \"utm_medium\": \"organic\",\r\n                \"utm_source\": \"google\"\r\n            },\r\n            \"createdAt\": \"2026-02-02T00:00:00.000Z\",\r\n            \"updatedAt\": \"2026-02-10T11:54:46.611Z\",\r\n            \"promoterId\": \"8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33\",\r\n            \"linkId\": \"a7d4c2b1-8f93-4e6a-9b21-3c5f7d8e2a44\"\r\n        }\r\n    ]"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/purchases": {
+      "get": {
+        "summary": "Get purchases for promoter",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterPurchases",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "7c3a5f1d-9e84-4b2a-8d6f-2a1c7e9b5d90",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "purchaseId": {
+                            "type": "string"
+                          },
+                          "itemId": {
+                            "type": "string"
+                          },
+                          "contactId": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "number"
+                          },
+                          "utmParams": {
+                            "type": "object",
+                            "properties": {
+                              "utm_source": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "utm_source"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          },
+                          "linkId": {
+                            "type": "string"
+                          },
+                          "promoterId": {
+                            "type": "string"
+                          },
+                          "contact": {
+                            "type": "object",
+                            "properties": {
+                              "contactId": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "type": "string"
+                              },
+                              "firstName": {
+                                "type": "string"
+                              },
+                              "externalId": {
+                                "type": "string"
+                              },
+                              "lastName": {
+                                "type": "string"
+                              },
+                              "phone": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "type": "string"
+                              },
+                              "updatedAt": {
+                                "type": "string"
+                              },
+                              "programId": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "contactId",
+                              "email",
+                              "firstName",
+                              "externalId",
+                              "lastName",
+                              "phone",
+                              "status",
+                              "createdAt",
+                              "updatedAt",
+                              "programId"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "purchaseId",
+                          "itemId",
+                          "contactId",
+                          "amount",
+                          "utmParams",
+                          "createdAt",
+                          "updatedAt",
+                          "linkId",
+                          "promoterId",
+                          "contact"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched all purchases of promoter.",
+                  "data": [
+                    {
+                      "purchaseId": "2a5d7c9e-4b31-4f8a-9c6d-3e1b7a2f5c81",
+                      "itemId": "PROD-013",
+                      "contactId": "d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+                      "amount": 699.99,
+                      "utmParams": {
+                        "utm_source": "repeat"
+                      },
+                      "createdAt": "2026-01-27T00:00:00.000Z",
+                      "updatedAt": "2026-02-10T11:54:46.611Z",
+                      "linkId": "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+                      "promoterId": "2a5d7c9e-4b31-4f8a-9c6d-3e1b7a2f5c81",
+                      "contact": {
+                        "contactId": "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+                        "email": "steve.2024@example.com",
+                        "firstName": "Steve",
+                        "externalId": "CUS-021",
+                        "lastName": "Iron",
+                        "phone": "+1234567021",
+                        "status": "active",
+                        "createdAt": "2026-01-27T00:00:00.000Z",
+                        "updatedAt": "2026-02-10T11:54:46.611Z",
+                        "programId": "930433e7-591c-4dda-a300-d3bfe17bd03d"
+                      }
+                    },
+                    {
+                      "purchaseId": "d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+                      "itemId": "PROD-016",
+                      "contactId": "2a5d7c9e-4b31-4f8a-9c6d-3e1b7a2f5c81",
+                      "amount": 899.99,
+                      "utmParams": {
+                        "utm_source": "google"
+                      },
+                      "createdAt": "2026-02-02T00:00:00.000Z",
+                      "updatedAt": "2026-02-10T11:54:46.611Z",
+                      "linkId": "00026565-0001-0001-0001-000000000001",
+                      "promoterId": "d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+                      "contact": {
+                        "contactId": "00030027-0027-0027-0027-000000000027",
+                        "email": "zack.2025@example.com",
+                        "firstName": "Zack",
+                        "externalId": "CUS-027",
+                        "lastName": "Titanium",
+                        "phone": "+1234567027",
+                        "status": "active",
+                        "createdAt": "2026-02-02T00:00:00.000Z",
+                        "updatedAt": "2026-02-10T11:54:46.611Z",
+                        "programId": "930433e7-591c-4dda-a300-d3bfe17bd03d"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/referrals": {
+      "get": {
+        "summary": "Get promoter referrals (in a program)",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterReferralsProgram",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "5e1c9a7d-8b34-4d2f-a7c6-9b3d1e5f2a73",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "updatedAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "DESC",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "1000000",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "programId": {
+                            "type": "string"
+                          },
+                          "promoterId": {
+                            "type": "string"
+                          },
+                          "contactId": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "contactInfo": {
+                            "type": "string"
+                          },
+                          "totalRevenue": {
+                            "type": "number"
+                          },
+                          "totalCommission": {
+                            "type": "integer"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "programId",
+                          "promoterId",
+                          "contactId",
+                          "status",
+                          "contactInfo",
+                          "totalRevenue",
+                          "totalCommission",
+                          "createdAt",
+                          "updatedAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully got promoter referrals.",
+                  "data": [
+                    {
+                      "programId": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+                      "promoterId": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+                      "contactId": "c4b7a2e1-9d53-4f6a-b8c2-7e1a3d5f9c28",
+                      "status": "active",
+                      "contactInfo": "zack.2025@example.com",
+                      "totalRevenue": 899.99,
+                      "totalCommission": 100,
+                      "createdAt": "2026-02-02T00:00:00.000Z",
+                      "updatedAt": "2026-02-26T15:43:43.870Z"
+                    },
+                    {
+                      "programId": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+                      "promoterId": "c4b7a2e1-9d53-4f6a-b8c2-7e1a3d5f9c28",
+                      "contactId": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+                      "status": "active",
+                      "contactInfo": "steve.2024@example.com",
+                      "totalRevenue": 699.99,
+                      "totalCommission": 80,
+                      "createdAt": "2026-01-27T00:00:00.000Z",
+                      "updatedAt": "2026-02-26T15:43:43.829Z"
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/referrals/{contact_id}": {
+      "get": {
+        "summary": "Get promoter referral",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterReferral",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "1e7a5c3d-9b84-4f2a-8c6e-3d1b7a9c5f21",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contact_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "c4b7a2e1-9d53-4f6a-b8c2-7e1a3d5f9c28",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "contact_id": {
+                          "type": "string"
+                        },
+                        "program_id": {
+                          "type": "string"
+                        },
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "contact_info": {
+                          "type": "string"
+                        },
+                        "total_revenue": {
+                          "type": "number"
+                        },
+                        "total_commission": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "contact_id",
+                        "program_id",
+                        "promoter_id",
+                        "contact_info",
+                        "total_revenue",
+                        "total_commission",
+                        "status",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully got promoter referral d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12.",
+                  "data": {
+                    "contact_id": "d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+                    "program_id": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+                    "promoter_id": "3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3",
+                    "contact_info": "z*****@example.com",
+                    "total_revenue": 899.99,
+                    "total_commission": 100,
+                    "status": "active",
+                    "updated_at": "2026-02-26T15:43:43.870Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/commissions": {
+      "get": {
+        "summary": "Get promoter commissions",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterCommissions",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "{{$string.uuid}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "{{$string.uuid}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conversion_type",
+            "in": "query",
+            "description": "signup / purchase",
+            "required": false,
+            "example": "purchase",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contact_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "{{contact_id}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "link_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "{{link_id}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "0",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "5",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "createdAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "DESC",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sheets": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "blocks": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "header": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "rows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "array",
+                                        "items": {
+                                          "oneOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "integer"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "@entity": {
+                                      "type": "string"
+                                    },
+                                    "metadata": {
+                                      "type": "object",
+                                      "properties": {
+                                        "count": {
+                                          "type": "integer"
+                                        }
+                                      },
+                                      "required": [
+                                        "count"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "header",
+                                    "rows",
+                                    "name",
+                                    "@entity"
+                                  ]
+                                }
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "@entity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "blocks",
+                              "name",
+                              "@entity"
+                            ]
+                          }
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "@entity": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "sheets",
+                        "name",
+                        "@entity"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": "{\r\n    \"code\": 200,\r\n    \"message\": \"Successfully fetched all commissions of promoter.\",\r\n    \"data\": {\r\n        \"sheets\": [\r\n            {\r\n                \"blocks\": [\r\n                    {\r\n                        \"header\": [\r\n                            \"commission_id\",\r\n                            \"contact_id\",\r\n                            \"link_id\",\r\n                            \"referral\",\r\n                            \"commission\",\r\n                            \"conversion_type\",\r\n                            \"revenue\",\r\n                            \"created_at\",\r\n                            \"updated_at\"\r\n                        ],\r\n                        \"rows\": [\r\n                            [\r\n                                \"00032001-0001-0001-0001-000000000001\",\r\n                                \"00030001-0001-0001-0001-000000000001\",\r\n                                \"00026565-0001-0001-0001-000000000001\",\r\n                                \"a*****@example.com\",\r\n                                10,\r\n                                \"signup\",\r\n                                0,\r\n                                \"2026-01-07T00:00:00.000Z\",\r\n                                \"2026-02-10T11:54:46.614Z\"\r\n                            ],\r\n                            [\r\n                                \"00032006-0006-0006-0006-000000000006\",\r\n                                \"00030001-0001-0001-0001-000000000001\",\r\n                                \"00026565-0001-0001-0001-000000000001\",\r\n                                \"a*****@example.com\",\r\n                                20,\r\n                                \"purchase\",\r\n                                199.99,\r\n                                \"2026-01-07T00:00:00.000Z\",\r\n                                \"2026-02-10T11:54:46.614Z\"\r\n                            ],\r\n                        ],\r\n                        \"metadata\": {\r\n                            \"count\": 6\r\n                        },\r\n                        \"name\": \"commission_table\",\r\n                        \"@entity\": \"table\"\r\n                    }\r\n                ],\r\n                \"name\": \"commission_sheet\",\r\n                \"@entity\": \"sheet\"\r\n            }\r\n        ],\r\n        \"name\": \"PromoterWorkbook\",\r\n        \"@entity\": \"workbook\"\r\n    }\r\n}"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/reports/signups": {
+      "get": {
+        "summary": "Get signups report",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterSignupReport",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "1b480fcf-860c-4164-836a-5ef234c76259",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "report_period",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "last_30_days",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "2025-03-01T14:43:05.861Z",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "2025-03-31T14:43:05.862Z",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "example": "contact_id,sign_up_date,email,phone,external_id,utm_id,utm_source,utm_medium,utm_campaign,utm_term,utm_content"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/reports/referrals": {
+      "get": {
+        "summary": "Get referrals report",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterReferralReport",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "1b480fcf-860c-4164-836a-5ef234c76259",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "ed5b68e3-a2ba-4a2d-90fd-a79a8f56323a",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "report_period",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "last_30_days",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "01/01/2022",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "5",
+            "required": true,
+            "example": "12/31/2025",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "example": "contact_id,status,contact_info,total_revenue,total_commission,created_at,updated_at"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/reports/purchases": {
+      "get": {
+        "summary": "Get purchases report",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterPurchasesReport",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "a6a316b3-c592-4748-94b0-af703d001975",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "ed5b68e3-a2ba-4a2d-90fd-a79a8f56323a",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "2025-03-11T09:23:42.473Z",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "2025-04-15T09:23:42.473Z",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "report_period",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "last_90_days",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "example": "purchase_id,contact_id,purchase_date,item_id,amount,external_id,utm_id,utm_source,utm_medium,utm_campaign,utm_content,utm_term"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/reports/commissions": {
+      "get": {
+        "summary": "Get commissions report",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterCommissionReport",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "9d5a1c7e-3b84-4f2a-8c6d-2e7a1b3c5f90",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "report_period",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "last_7_days",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "example": "commission_id,type,reference_id,commission,created_at"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/reports/links": {
+      "get": {
+        "summary": "Get links report",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterLinksReport",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "ed5b68e3-a2ba-4a2d-90fd-a79a8f56323a",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "bb9d5b12-f2e7-4767-b7d9-fb5d3762ffee",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "report_period",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "last_90_days",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "example": "link_id,name,signups,purchases,commission,created_at"
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/analytics": {
+      "get": {
+        "summary": "Get promoter analytics",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterAnalytics",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "bb9d5b12-f2e7-4767-b7d9-fb5d3762ffee",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "9d5a1c7e-3b84-4f2a-8c6d-2e7a1b3c5f90",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sheets": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "blocks": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "header": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "rows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "array",
+                                        "items": {
+                                          "oneOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "integer"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "@entity": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "header",
+                                    "rows",
+                                    "name",
+                                    "@entity"
+                                  ]
+                                }
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "@entity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "blocks",
+                              "name",
+                              "@entity"
+                            ]
+                          }
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "@entity": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "sheets",
+                        "name",
+                        "@entity"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully got promoter analytics.",
+                  "data": {
+                    "sheets": [
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "contact_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "phone",
+                              "amount",
+                              "item_id",
+                              "link_id",
+                              "created_at"
+                            ],
+                            "rows": [],
+                            "name": "purchase_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "purchase_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "contact_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "phone",
+                              "link_id",
+                              "created_at"
+                            ],
+                            "rows": [],
+                            "name": "signup_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "signup_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "promoter_id",
+                              "status",
+                              "contact_id",
+                              "contact_info",
+                              "total_revenue",
+                              "total_commission",
+                              "updated_at"
+                            ],
+                            "rows": [],
+                            "name": "referral_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "referral_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "commission_id",
+                              "contact_id",
+                              "link_id",
+                              "referral",
+                              "commission",
+                              "conversion_type",
+                              "revenue",
+                              "created_at",
+                              "updated_at"
+                            ],
+                            "rows": [],
+                            "name": "commission_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "commission_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "link_id",
+                              "link_name",
+                              "ref_val",
+                              "promoter_id",
+                              "signups",
+                              "purchases",
+                              "commission",
+                              "created_at",
+                              "program_website"
+                            ],
+                            "rows": [],
+                            "name": "link_analytics_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "link_analytics_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "program_id",
+                              "promoter_id",
+                              "promoter_name",
+                              "total_signups",
+                              "total_purchases",
+                              "total_revenue",
+                              "total_commission",
+                              "signup_commission",
+                              "purchase_commission"
+                            ],
+                            "rows": [
+                              [
+                                "930433e7-591c-4dda-a300-d3bfe17bd03d",
+                                "b2d7a9c4-6f31-4e8a-9c5d-1b3a7e2f8c11",
+                                3,
+                                3,
+                                1799.97,
+                                210,
+                                30,
+                                180
+                              ]
+                            ],
+                            "name": "promoter_analytics_table",
+                            "@entity": "table"
+                          },
+                          {
+                            "header": [
+                              "date",
+                              "signups",
+                              "purchases",
+                              "revenue",
+                              "commission",
+                              "signup_commission",
+                              "purchase_commission"
+                            ],
+                            "rows": [],
+                            "name": "date_wise_promoter_analytics_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "promoter_analytics_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "member_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "role",
+                              "added_on"
+                            ],
+                            "rows": [],
+                            "name": "member_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "member_sheet",
+                        "@entity": "sheet"
+                      }
+                    ],
+                    "name": "PromoterWorkbook",
+                    "@entity": "workbook"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/link_analytics": {
+      "get": {
+        "summary": "Get promoter link analytics",
+        "deprecated": false,
+        "description": "",
+        "operationId": "promoterLinkAnalytics",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "e4c7a1d9-5b82-4f3a-8c2e-6d9f1a7b3c55",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "018dd1e6-55fe-46aa-b444-c41ec13f0c84",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "2",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "2",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "createdAt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "ASC",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-accept-type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "application/json;format=sheet-json",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sheets": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "blocks": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "header": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "rows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "array",
+                                        "items": {
+                                          "oneOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "integer"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "@entity": {
+                                      "type": "string"
+                                    },
+                                    "metadata": {
+                                      "type": "object",
+                                      "properties": {
+                                        "programId": {
+                                          "type": "string"
+                                        },
+                                        "website": {
+                                          "type": "string"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        }
+                                      },
+                                      "required": [
+                                        "programId",
+                                        "website",
+                                        "count"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "header",
+                                    "rows",
+                                    "name",
+                                    "@entity"
+                                  ]
+                                }
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "@entity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "blocks",
+                              "name",
+                              "@entity"
+                            ]
+                          }
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "@entity": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "sheets",
+                        "name",
+                        "@entity"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully got promoter link analytics.",
+                  "data": {
+                    "sheets": [
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "contact_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "phone",
+                              "amount",
+                              "item_id",
+                              "link_id",
+                              "created_at"
+                            ],
+                            "rows": [],
+                            "name": "purchase_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "purchase_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "contact_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "phone",
+                              "link_id",
+                              "created_at"
+                            ],
+                            "rows": [],
+                            "name": "signup_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "signup_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "promoter_id",
+                              "status",
+                              "contact_id",
+                              "contact_info",
+                              "total_revenue",
+                              "total_commission",
+                              "updated_at"
+                            ],
+                            "rows": [],
+                            "name": "referral_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "referral_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "commission_id",
+                              "contact_id",
+                              "link_id",
+                              "referral",
+                              "commission",
+                              "conversion_type",
+                              "revenue",
+                              "created_at",
+                              "updated_at"
+                            ],
+                            "rows": [],
+                            "name": "commission_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "commission_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "link_id",
+                              "link_name",
+                              "ref_val",
+                              "promoter_id",
+                              "signups",
+                              "purchases",
+                              "commission",
+                              "created_at",
+                              "program_website"
+                            ],
+                            "rows": [
+                              [
+                                "00026565-0001-0001-0001-000000000001",
+                                "John Main Link",
+                                "john-main",
+                                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                                3,
+                                3,
+                                210,
+                                "2021-01-15T00:00:00.000Z"
+                              ]
+                            ],
+                            "metadata": {
+                              "programId": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+                              "website": "www.quicko.com",
+                              "count": 1
+                            },
+                            "name": "link_analytics_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "link_analytics_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "program_id",
+                              "promoter_id",
+                              "promoter_name",
+                              "total_signups",
+                              "total_purchases",
+                              "total_revenue",
+                              "total_commission",
+                              "signup_commission",
+                              "purchase_commission"
+                            ],
+                            "rows": [],
+                            "name": "promoter_analytics_table",
+                            "@entity": "table"
+                          },
+                          {
+                            "header": [
+                              "date",
+                              "signups",
+                              "purchases",
+                              "revenue",
+                              "commission",
+                              "signup_commission",
+                              "purchase_commission"
+                            ],
+                            "rows": [],
+                            "name": "date_wise_promoter_analytics_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "promoter_analytics_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "member_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "role",
+                              "added_on"
+                            ],
+                            "rows": [],
+                            "name": "member_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "member_sheet",
+                        "@entity": "sheet"
+                      }
+                    ],
+                    "name": "PromoterWorkbook",
+                    "@entity": "workbook"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/register": {
+      "post": {
+        "summary": "Register for program",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "promoter"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "{{program_id}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "{{promoter_id}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accepted_tnc",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "true",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "circle_id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "b7897fd4-58a5-48fe-b411-7d4d35ec460d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accepted_terms_and_conditions": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "accepted_terms_and_conditions"
+                ]
+              },
+              "example": {
+                "accepted_terms_and_conditions": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/links": {
+      "post": {
+        "summary": "Create link",
+        "deprecated": false,
+        "description": "",
+        "operationId": "createLink",
+        "tags": [
+          "link"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "d8d0f7ef-24df-4611-ac29-ab8d157c087d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "da9628b2-9080-4888-a086-41dfa8f25456",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ref_val": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "ref_val",
+                  "name"
+                ]
+              },
+              "example": {
+                "ref_val": "padme",
+                "name": "Padme's Link"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sheets": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "blocks": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "header": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "rows": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "array",
+                                        "items": {
+                                          "oneOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "integer"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "@entity": {
+                                      "type": "string"
+                                    },
+                                    "metadata": {
+                                      "type": "object",
+                                      "properties": {
+                                        "website": {
+                                          "type": "string"
+                                        },
+                                        "programId": {
+                                          "type": "string"
+                                        },
+                                        "count": {
+                                          "type": "integer"
+                                        }
+                                      },
+                                      "required": [
+                                        "website",
+                                        "programId",
+                                        "count"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "header",
+                                    "rows",
+                                    "name",
+                                    "@entity"
+                                  ]
+                                }
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "@entity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "blocks",
+                              "name",
+                              "@entity"
+                            ]
+                          }
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "@entity": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "sheets",
+                        "name",
+                        "@entity"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully created link.",
+                  "data": {
+                    "sheets": [
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "contact_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "phone",
+                              "amount",
+                              "item_id",
+                              "link_id",
+                              "created_at"
+                            ],
+                            "rows": [],
+                            "name": "purchase_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "purchase_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "contact_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "phone",
+                              "link_id",
+                              "created_at"
+                            ],
+                            "rows": [],
+                            "name": "signup_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "signup_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "promoter_id",
+                              "status",
+                              "contact_id",
+                              "contact_info",
+                              "total_revenue",
+                              "total_commission",
+                              "updated_at"
+                            ],
+                            "rows": [],
+                            "name": "referral_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "referral_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "commission_id",
+                              "contact_id",
+                              "link_id",
+                              "referral",
+                              "commission",
+                              "conversion_type",
+                              "revenue",
+                              "created_at",
+                              "updated_at"
+                            ],
+                            "rows": [],
+                            "name": "commission_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "commission_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "link_id",
+                              "link_name",
+                              "ref_val",
+                              "promoter_id",
+                              "signups",
+                              "purchases",
+                              "commission",
+                              "created_at",
+                              "program_website"
+                            ],
+                            "rows": [
+                              [
+                                "a4c5cac1-c9ea-4c4a-a365-c1128fa501f7",
+                                "Padme's Link",
+                                "padme",
+                                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                                0,
+                                0,
+                                0,
+                                "2026-03-20T12:51:34.153Z"
+                              ]
+                            ],
+                            "metadata": {
+                              "website": "www.quicko.com",
+                              "programId": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+                              "count": 1
+                            },
+                            "name": "link_analytics_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "link_analytics_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "program_id",
+                              "promoter_id",
+                              "promoter_name",
+                              "total_signups",
+                              "total_purchases",
+                              "total_revenue",
+                              "total_commission",
+                              "signup_commission",
+                              "purchase_commission"
+                            ],
+                            "rows": [],
+                            "name": "promoter_analytics_table",
+                            "@entity": "table"
+                          },
+                          {
+                            "header": [
+                              "date",
+                              "signups",
+                              "purchases",
+                              "revenue",
+                              "commission",
+                              "signup_commission",
+                              "purchase_commission"
+                            ],
+                            "rows": [],
+                            "name": "date_wise_promoter_analytics_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "promoter_analytics_sheet",
+                        "@entity": "sheet"
+                      },
+                      {
+                        "blocks": [
+                          {
+                            "header": [
+                              "member_id",
+                              "first_name",
+                              "last_name",
+                              "email",
+                              "role",
+                              "added_on"
+                            ],
+                            "rows": [],
+                            "name": "member_table",
+                            "@entity": "table"
+                          }
+                        ],
+                        "name": "member_sheet",
+                        "@entity": "sheet"
+                      }
+                    ],
+                    "name": "PromoterWorkbook",
+                    "@entity": "workbook"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get all links",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getallLinks",
+        "tags": [
+          "link"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "1e7a5c3d-9b84-4f2a-8c6e-3d1b7a9c5f21",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "5e1c9a7d-8b34-4d2f-a7c6-9b3d1e5f2a73",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "{{api_key}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-api-secret",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "{{api_secret}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "link_id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "ref_val": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "updated_at": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched all links.",
+                  "data": [
+                    {
+                      "link_id": "2a5d7c9e-4b31-4f8a-9c6d-3e1b7a2f5c81",
+                      "name": "John Main Link",
+                      "ref_val": "john-main",
+                      "created_at": "2021-01-15T00:00:00.000Z",
+                      "updated_at": "2026-02-10T11:54:46.611Z"
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/links/{link_id}": {
+      "patch": {
+        "summary": "Delete a link",
+        "deprecated": false,
+        "description": "",
+        "operationId": "deleteLink",
+        "tags": [
+          "link"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "1e7a5c3d-9b84-4f2a-8c6e-3d1b7a9c5f21",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "a4c5cac1-c9ea-4c4a-a365-c1128fa501f7",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully deleted link."
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get link",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getLink",
+        "tags": [
+          "link"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "f1c7a9d3-5b84-4e2a-8c6f-9d3a1b7e2c64",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "1e7a5c3d-9b84-4f2a-8c6e-3d1b7a9c5f21",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "link_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "00026565-0001-0001-0001-000000000001",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "link_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "ref_val": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "link_id",
+                        "name",
+                        "ref_val",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched link 00026565-0001-0001-0001-000000000001.",
+                  "data": {
+                    "link_id": "00026565-0001-0001-0001-000000000001",
+                    "name": "John Main Link",
+                    "ref_val": "john-main",
+                    "created_at": "2021-01-15T00:00:00.000Z",
+                    "updated_at": "2026-02-10T11:54:46.611Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/apikeys": {
+      "post": {
+        "summary": "Generate API Key",
+        "deprecated": false,
+        "description": "",
+        "operationId": "generateKey",
+        "tags": [
+          "api_key"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter users by status: active/inactive/pending",
+            "required": false,
+            "example": "{{user_status}}",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "{{user_role}}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "api_key_id": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "secret": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "api_key_id",
+                        "key",
+                        "secret",
+                        "status",
+                        "promoter_id",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully generated API key for Promoter aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa in Program 930433e7-591c-4dda-a300-d3bfe17bd03d",
+                  "data": {
+                    "api_key_id": "b474e74c-4d79-4935-82af-6f1bb676508a",
+                    "key": "f12df33b194e55445990df21be2fe5e9",
+                    "secret": "14ae36f5a5f1fe67df61cf14196c64efc1fe7293cd807f6467e7b17ea89d57d8",
+                    "status": "active",
+                    "promoter_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                    "created_at": "2026-03-20T13:01:00.095Z",
+                    "updated_at": "2026-03-20T13:01:00.095Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get API Key",
+        "deprecated": false,
+        "description": "",
+        "operationId": "getKey",
+        "tags": [
+          "api_key"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "api_key_id": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "api_key_id",
+                        "key",
+                        "status",
+                        "promoter_id",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully fetched API key for Promoter 3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3 in Program 930433e7-591c-4dda-a300-d3bfe17bd03d.",
+                  "data": {
+                    "api_key_id": "a52d562e-bd95-4c49-9083-17fc78e5ad6c",
+                    "key": "6df812d3d1e3df7ad578e7d6c0168f05",
+                    "status": "active",
+                    "promoter_id": "3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3",
+                    "created_at": "2026-03-20T13:07:27.791Z",
+                    "updated_at": "2026-03-20T13:07:27.791Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/programs/{program_id}/promoters/{promoter_id}/apikeys/{api_key_id}": {
+      "delete": {
+        "summary": "Delete API Key",
+        "deprecated": false,
+        "description": "",
+        "operationId": "deleteKey",
+        "tags": [
+          "api_key"
+        ],
+        "parameters": [
+          {
+            "name": "program_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "b2d7a9c4-6f31-4e8a-9c5d-1b3a7e2f8c11",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "promoter_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "5d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api_key_id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "c4b7a2e1-9d53-4f6a-b8c2-7e1a3d5f9c28",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "Successfully deleted promoter api key."
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "webhooks": {},
+  "components": {
+    "schemas": {},
+    "responses": {},
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "servers": [],
+  "security": []
+}

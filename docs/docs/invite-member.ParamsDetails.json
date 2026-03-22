@@ -1,0 +1,1 @@
+{"parameters":[{"name":"program_id","in":"path","description":"","required":true,"example":"{{$string.uuid}}","schema":{"type":"string"}},{"name":"promoter_id","in":"path","description":"","required":true,"example":"{{$string.uuid}}","schema":{"type":"string"}}]}

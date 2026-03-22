@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"","content":{"application/octet-stream":{"schema":{"type":"object","properties":{}},"example":"commission_id,type,reference_id,commission,created_at"}},"headers":{}}}}
