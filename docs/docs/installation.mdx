@@ -7,15 +7,13 @@ pagination_prev: null
 pagination_next: null
 ---
 
-Cliq is a self-hosted affiliate software solution designed for startups. It can be deployed using Docker and requires a PostgreSQL database and Redis instance to run.
+Cliq is a self-hosted affiliate software solution. It can be deployed using Docker and requires a PostgreSQL database and Redis instance to run.
 
 ## Prerequisites
 
-- Node.js (v18+ recommended)
-- npm or yarn
-- Docker (for containerized deployment)
+- Docker for containerized deployment
 - PostgreSQL
-- Redis (for caching, queues, and background jobs)
+- Redis for caching, queues, and background jobs
 
 ## Docker
 
@@ -36,7 +34,7 @@ cp .env.example .env
 
 #### Start the services
 ```bash
-docker-compose -f docker-compose.yml up --build
+docker compose up -d
 ```
 
 ## Environment Variables

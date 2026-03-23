@@ -39,7 +39,6 @@
 }
 
 .theme-doc-sidebar-container::after {
-  content: "Built with ♥ at Quicko";
   position: fixed;
   bottom: 0;
   left: 0;
