@@ -1,0 +1,43 @@
+---
+id: api-introduction
+title: "API Introduction"
+description: "Introduction to Cliq API authorization methods"
+sidebar_label: "Introduction"
+hide_title: true
+hide_table_of_contents: true
+---
+
+# API Introduction
+
+The Cliq API supports two authorization methods for authenticating your requests. Choose the method that best fits your use case.
+
+## Authorization Methods
+
+### 1. Bearer Token Authentication
+
+This method uses JWT tokens obtained through the login endpoint. Include the token in the `Authorization` header.
+
+**Usage:**
+```http
+Authorization: Bearer <token>
+```
+
+**How to get a token:**
+1. Call the login endpoint with your credentials
+2. Extract the `access_token` from the response
+3. Use this token in subsequent API calls
+
+### 2. API Key Authentication
+
+This method uses API keys for programmatic access. Include both the API key and secret in the request headers.
+
+**Usage:**
+```http
+x-api-key: <your-api-key>
+x-api-secret: <your-api-secret>
+```
+
+**How to get API keys:**
+1. Generate an API key using the Generate API Key endpoint
+2. Store the `api_key` and `api_secret` from the response securely
+3. Use these credentials in the request headers for subsequent API calls

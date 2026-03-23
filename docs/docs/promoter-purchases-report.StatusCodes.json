@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"","content":{"application/json":{"schema":{"type":"object","properties":{}},"example":"purchase_id,contact_id,purchase_date,item_id,amount,external_id,utm_id,utm_source,utm_medium,utm_campaign,utm_content,utm_term"}},"headers":{}}}}

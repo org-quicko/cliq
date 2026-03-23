@@ -1,0 +1,69 @@
+---
+id: all-members
+title: "Get all members"
+description: "Get a list of all members belonging to a promoter."
+sidebar_label: "Get all members"
+hide_title: true
+hide_table_of_contents: true
+api: eJytV21vozgQ/ivIn+4kSAwhacPppPZ2e6uetKvTtrcrbRRVBobEDWBqO+1GEf/9ZPOe0JRuy4e02ON5xo/HDzN7FELGISASQuRFJBZgohBEwGkmKUuRh76C5BQeQRjEiKmQBosMEsdGAokPXBg+xCxd0XRlSGYQI+MsYRL4CJmIZcCJcnMdIg+ROP5crEEmkmQlkLdAlTlamigjnCQglYG32KOUJIA8ZbHiJLmjITIRVRFlRK7RYZjIRBwetpSrjUi+BRPBT5JksfIxn2B3MoEzazq3A8sNQ2KRCcZWOPEjsM/8EE+UdxGsISHI2yO5y9Q6ITlNVyjPzXY4OuA3xUPKx+r5qZ6B8XAWQxXIwxb47iiSy4+fr78YY+Pb9dX3q6+duMoDbwIbCCokkVvxAuyH2+tvV8bYuP5S/HsamQSSPsJQ/A3NTqOfBrMH4kiyeYHc98ERjMs7f/cWKO3pFWiMh8DfAvjx6ubDQMCfFgkCyKSlTUrMNZAigteAkiyLaaA1ZXwvWPpHxHhC5J9iDSAtNXIypKVyLjKWChBq3sFY/TmKIGCphFSquUNENXYEwPx7CCQylTpkwCUt3AcshJYVTSWsgKPcRAkIQVbQE6OJQiIH+NY7Fi07wjnRGSQhES+v92MWbN6wvjy+l9c3+YA4exqC+KKn3Cwzq4e9C0gllbveuQQkGcZupfLqw9XjSOtP78FqxeidCdi2yKjDqbyd8Ys2tFkJXalDhYvl4Yr6Jml+zUoKKiaWv8jXAUqZMO/mXh1HUQ38cg4WDtSXuM89JITGvTMZEeKJ8f5lEeVC3j27oZg8P3vAWBNeFUwLugPUdrvMD/2UV/2I+YbBo5TQytPITCkqy7ylpZU8ORi39AjdbIMAhIi2cbwzIpDBGsK61mNRp76r7lKlRYtGVhaNQnSJeGbXDUNlQUPCEMI7lqrCsNCNxQLZvnuOoyCyzmc4sFx75lrnkxmxphA5Ezc4mznTOTLRP8hEl5fIRPdsnY5ImNC0COFCgpCjgCUKL6SSqVvjYGdm4Yll27d47k0n3tQdTWbzH2hpDkLEFWIJqPEuVmo7JZQeOUJyzz3bGTkzt0Dyz7EznU59y4miyHKxHVrn08nUwthx5vjszC2Q/mK+Kg3/BikNuQZjxYGom+Ezn1w8bGmwYc+gOvjWtj33zLPnI9vGBSpW7m3HtjDGBz/Vo4qYy5RstLObze6JxBstN5rdY2K7uI5la9yp67mz0cy2f6DlsivFbbEdXBprBcaV4Nq4Fli3lqMq7yTx4/a9UXWdGlHlQNdSJ3LHshhpWf5bBvud8Y3P2KZj/VQN5voSFzdASZV+FRBsuTZUFwUI17djmRd0rJna/krj647CQ2OS0XHZ/4jxvumE8nHFWTFcdST5OKk7LAH8sWillg30japcygKgDKBWsbWUWVU9qffSQEVO04hpSyp1Gcb4yipyzQpi+tBXxCns4sUe4RHWssuETIiuoEoyP4Fs95KHfvZNIfaWNrTcn4SfcpzFhKYqmC3X34aC6QUiGS0+L5prZCKv03fWdJczrRaw1mATrZmQytl+7xMB//E4z9VwUV2rQw+pUJn3TKvd3u5R09a7iQ3smhbwkcRb3cOpyvsVSD192gmwuvU7DVcaF+XLENOyxBnkte6WBltX3U6zYKleONVC8Lqj+e1r+aH93XiOqqqcSTtBVhG1Mut1R/UeyHXm5staoV5JwOkEOWz2OmdUmFxqg9bcUZPV0cRPV7fqs7JVN7VWq1KdzEZI9/2b3+8Li1u2gTTPay6kelcs5Pn/f+hJpg==
+sidebar_class_name: "get api-method"
+info_path: org-quicko-cliq
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get all members"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/api/programs/{program_id}/promoters/{promoter_id}/members"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Get a list of all members belonging to a promoter.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./all-members.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./all-members.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./all-members.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

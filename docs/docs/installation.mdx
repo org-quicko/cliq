@@ -1,0 +1,56 @@
+---
+slug: installation
+title: "Installation"
+sidebar_label: "Getting Started"
+custom_edit_url: null
+pagination_prev: null
+pagination_next: null
+---
+
+Cliq is a self-hosted affiliate software solution. It can be deployed using Docker and requires a PostgreSQL database and Redis instance to run.
+
+## Prerequisites
+
+- Docker for containerized deployment
+- PostgreSQL
+- Redis for caching, queues, and background jobs
+
+## Docker
+
+To run the entire stack using Docker Compose:
+
+#### Download the compose file
+```bash
+curl -LO https://github.com/org-quicko/cliq/raw/main/docker-compose.yml
+```
+
+#### Set the environment variables
+```bash
+curl -LO https://github.com/org-quicko/cliq/raw/main/.env.example
+
+# create a .env file and set the environment variables
+cp .env.example .env
+```
+
+#### Start the services
+```bash
+docker compose up -d
+```
+
+## Environment Variables
+
+<div style={{fontSize: '12px'}}>
+
+| Variable         | Description                        | Example                        |
+|------------------|------------------------------------|--------------------------------|
+| DB_USERNAME      | Database username                  | cliq_user                      |
+| DB_PASSWORD      | Database password                  | strongpassword                 |
+| DB_NAME          | Database name                      | cliq_db                        |
+| DB_HOST          | Database host                      | db (use `db` for Docker)       |
+| JWT_SECRET       | JWT signing secret                 | any-random-string              |
+| REDIS_HOST       | Redis host                         | redis (use `redis` for Docker) |
+| REDIS_PORT       | Redis port                         | 6379                           |
+
+</div>
+
+These variables can be set in a `.env` file, in your shell, or directly in `docker-compose.yml`.

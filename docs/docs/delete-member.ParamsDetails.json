@@ -1,0 +1,1 @@
+{"parameters":[{"name":"program_id","in":"path","description":"","required":true,"example":"8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33","schema":{"type":"string"}},{"name":"member_id","in":"path","description":"","required":true,"example":"3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3","schema":{"type":"string"}}]}
