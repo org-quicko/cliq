@@ -1,1 +1,0 @@
-{"parameters":[{"name":"program_id","in":"path","description":"","required":true,"example":"3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3","schema":{"type":"string"}}]}

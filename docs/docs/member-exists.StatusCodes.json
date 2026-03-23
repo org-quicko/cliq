@@ -1,1 +1,0 @@
-{"responses":{"200":{"description":"","content":{"application/json":{"schema":{"type":"object","properties":{"code":{"type":"integer"},"message":{"type":"string"},"data":{"type":"boolean"}},"required":["code","message","data"]},"example":{"code":201,"message":"Successfully checked member existence in program.","data":false}}},"headers":{}}}}

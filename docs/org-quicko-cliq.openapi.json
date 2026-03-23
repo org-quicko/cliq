@@ -24,7 +24,7 @@
       "post": {
         "summary": "Member sign up",
         "deprecated": false,
-        "description": "Member Sign Up",
+        "description": "Registers a new member into a program",
         "operationId": "memberSignup",
         "tags": [
           "member"
@@ -166,7 +166,7 @@
       "post": {
         "summary": "Member log in",
         "deprecated": false,
-        "description": "",
+        "description": "Authenticates an existing member within a program using email and password.",
         "operationId": "memberLogin",
         "tags": [
           "member"
@@ -294,7 +294,7 @@
       "get": {
         "summary": "Get member",
         "deprecated": false,
-        "description": "",
+        "description": "Fetches the profile details of a specific member.",
         "operationId": "getMember",
         "tags": [
           "member"
@@ -433,7 +433,7 @@
       "patch": {
         "summary": "Update member info",
         "deprecated": false,
-        "description": "",
+        "description": "Updates the profile information of a specific member.",
         "operationId": "updateMember",
         "tags": [
           "member"
@@ -620,7 +620,7 @@
       "delete": {
         "summary": "Delete member",
         "deprecated": false,
-        "description": "",
+        "description": "Permanently deletes a member from the system.",
         "operationId": "deleteMember",
         "tags": [
           "member"
@@ -714,7 +714,7 @@
       "get": {
         "summary": "Get Promoter of Member",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves the promoter that a specific member belongs to within a program.",
         "operationId": "memberPromoter",
         "tags": [
           "member"
@@ -828,7 +828,8 @@
                   "message": "Error. Member 8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33 isn't part of any promoter!"
                 }
               }
-            }
+            },
+            "headers": {}
           }
         },
         "security": [
@@ -838,89 +839,11 @@
         ]
       }
     },
-    "/api/programs/{program_id}/members/exists": {
-      "post": {
-        "summary": "Check member existence in program",
-        "deprecated": false,
-        "description": "",
-        "operationId": "memberExists",
-        "tags": [
-          "member"
-        ],
-        "parameters": [
-          {
-            "name": "program_id",
-            "in": "path",
-            "description": "",
-            "required": true,
-            "example": "3f8c2a5e-6c41-4d9c-bb7e-2e4a91f1a7d3",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "email"
-                ]
-              },
-              "example": {
-                "email": "anakin@mail.com"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "integer"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "boolean"
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "message",
-                    "data"
-                  ]
-                },
-                "example": {
-                  "code": 201,
-                  "message": "Successfully checked member existence in program.",
-                  "data": false
-                }
-              }
-            },
-            "headers": {}
-          }
-        },
-        "security": []
-      }
-    },
     "/api/purchases": {
       "post": {
         "summary": "Create Purchase",
         "deprecated": false,
-        "description": "",
+        "description": "Records a new purchase event against a program via API key authentication.",
         "operationId": "purchase",
         "tags": [
           "promoter"
@@ -1039,7 +962,159 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "purchase_id": {
+                          "type": "string"
+                        },
+                        "link_id": {
+                          "type": "string"
+                        },
+                        "amount": {
+                          "type": "integer"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "first_name": {
+                          "type": "null"
+                        },
+                        "last_name": {
+                          "type": "null"
+                        },
+                        "phone": {
+                          "type": "string"
+                        },
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "utm_params": {
+                          "type": "object",
+                          "properties": {
+                            "utm_id": {
+                              "type": "string"
+                            },
+                            "utm_source": {
+                              "type": "string"
+                            },
+                            "utm_medium": {
+                              "type": "string"
+                            },
+                            "utm_campaign": {
+                              "type": "string"
+                            },
+                            "utm_term": {
+                              "type": "string"
+                            },
+                            "utm_content": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "utm_id",
+                            "utm_source",
+                            "utm_medium",
+                            "utm_campaign",
+                            "utm_term",
+                            "utm_content"
+                          ]
+                        },
+                        "contact_id": {
+                          "type": "string"
+                        },
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "purchase_id",
+                        "link_id",
+                        "amount",
+                        "email",
+                        "first_name",
+                        "last_name",
+                        "phone",
+                        "item_id",
+                        "utm_params",
+                        "contact_id",
+                        "promoter_id",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully created purchase.",
+                  "data": {
+                    "purchase_id": "55a770a4-163e-4313-b9e3-bedc2bb1dd3c",
+                    "link_id": "4f037e65-7d06-4414-9510-ffad9d0f6ff0",
+                    "amount": 420,
+                    "email": "Osvaldo_Sanford@yahoo.com",
+                    "first_name": null,
+                    "last_name": null,
+                    "phone": "737819472589",
+                    "item_id": "item1",
+                    "utm_params": {
+                      "utm_id": "2345",
+                      "utm_source": "instagram",
+                      "utm_medium": "social",
+                      "utm_campaign": "fireship",
+                      "utm_term": "ok",
+                      "utm_content": "logolink"
+                    },
+                    "contact_id": "e6544592-b47e-4b76-bad7-ea37c5b7ef7c",
+                    "promoter_id": "733dd245-d263-4544-8717-8af4bb67f15f",
+                    "created_at": "2026-03-23T06:08:49.128Z",
+                    "updated_at": "2026-03-23T06:08:49.128Z"
+                  }
+                }
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "code": 404,
+                  "message": "Failed to get link with ref val anakin."
                 }
               }
             },
@@ -1053,7 +1128,7 @@
       "post": {
         "summary": "Create Signup",
         "deprecated": false,
-        "description": "",
+        "description": "Records a new signup event against a program via API key authentication.",
         "operationId": "signup",
         "tags": [
           "promoter"
@@ -1167,7 +1242,173 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "contact_id": {
+                          "type": "string"
+                        },
+                        "link_id": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "first_name": {
+                          "type": "string"
+                        },
+                        "last_name": {
+                          "type": "string"
+                        },
+                        "utm_params": {
+                          "type": "object",
+                          "properties": {
+                            "utm_id": {
+                              "type": "string"
+                            },
+                            "utm_source": {
+                              "type": "string"
+                            },
+                            "utm_medium": {
+                              "type": "string"
+                            },
+                            "utm_campaign": {
+                              "type": "string"
+                            },
+                            "utm_term": {
+                              "type": "string"
+                            },
+                            "utm_content": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "utm_id",
+                            "utm_source",
+                            "utm_medium",
+                            "utm_campaign",
+                            "utm_term",
+                            "utm_content"
+                          ]
+                        },
+                        "phone": {
+                          "type": "string"
+                        },
+                        "promoter_id": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "contact_id",
+                        "link_id",
+                        "email",
+                        "first_name",
+                        "last_name",
+                        "utm_params",
+                        "phone",
+                        "promoter_id",
+                        "created_at",
+                        "updated_at"
+                      ]
+                    },
+                    "ref_val": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "integer"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "external_id": {
+                      "type": "string"
+                    },
+                    "item_id": {
+                      "type": "string"
+                    },
+                    "utm_params": {
+                      "type": "object",
+                      "properties": {
+                        "utm_id": {
+                          "type": "string"
+                        },
+                        "utm_source": {
+                          "type": "string"
+                        },
+                        "utm_medium": {
+                          "type": "string"
+                        },
+                        "utm_campaign": {
+                          "type": "string"
+                        },
+                        "utm_term": {
+                          "type": "string"
+                        },
+                        "utm_content": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "utm_id",
+                        "utm_source",
+                        "utm_medium",
+                        "utm_campaign",
+                        "utm_term",
+                        "utm_content"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data",
+                    "ref_val",
+                    "amount",
+                    "email",
+                    "phone",
+                    "external_id",
+                    "item_id",
+                    "utm_params"
+                  ]
+                },
+                "example": {
+                  "code": 201,
+                  "message": "Successfully created signup.",
+                  "data": {
+                    "contact_id": "a9324a8b-dbf0-40e6-aaf2-3f4a92a76e90",
+                    "link_id": "4f037e65-7d06-4414-9510-ffad9d0f6ff0",
+                    "email": "T*****@gmail.com",
+                    "first_name": "Alysa",
+                    "last_name": "Thompson",
+                    "utm_params": {
+                      "utm_id": "2345",
+                      "utm_source": "instagram",
+                      "utm_medium": "social",
+                      "utm_campaign": "fireship",
+                      "utm_term": "ok",
+                      "utm_content": "logolink"
+                    },
+                    "phone": "12****26",
+                    "promoter_id": "733dd245-d263-4544-8717-8af4bb67f15f",
+                    "created_at": "2026-03-23T06:05:39.146Z",
+                    "updated_at": "2026-03-23T06:05:39.146Z"
+                  }
                 }
               }
             },
@@ -1181,7 +1422,7 @@
       "post": {
         "summary": "Create promoter",
         "deprecated": false,
-        "description": "",
+        "description": "Creates a new promoter entity within a program. ",
         "operationId": "createPromoter",
         "tags": [
           "promoter"
@@ -1346,7 +1587,7 @@
       "patch": {
         "summary": "Update promoter info",
         "deprecated": false,
-        "description": "",
+        "description": "Updates info for an existing promoter.",
         "operationId": "updatePromoter",
         "tags": [
           "promoter"
@@ -1481,7 +1722,7 @@
       "get": {
         "summary": "Get promoter",
         "deprecated": false,
-        "description": "",
+        "description": "Fetches details of a specific promoter within a program.",
         "operationId": "getPromoter",
         "tags": [
           "promoter"
@@ -1627,7 +1868,7 @@
       "delete": {
         "summary": "Delete promoter",
         "deprecated": false,
-        "description": "",
+        "description": "Deletes a specific promoter from a program.",
         "operationId": "deletePromoter",
         "tags": [
           "promoter"
@@ -1726,7 +1967,8 @@
                   "message": "Error. Only admin is allowed to delete promoter"
                 }
               }
-            }
+            },
+            "headers": {}
           }
         },
         "security": []
@@ -1736,7 +1978,7 @@
       "post": {
         "summary": "Invite member",
         "deprecated": false,
-        "description": "",
+        "description": "Invites and adds a new member to a promoter organization.",
         "operationId": "inviteMember",
         "tags": [
           "promoter"
@@ -1979,7 +2221,7 @@
       "get": {
         "summary": "Get all members",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves a list of all members belonging to a promoter.",
         "operationId": "allMembers",
         "tags": [
           "promoter"
@@ -2305,7 +2547,7 @@
       "patch": {
         "summary": "Update role",
         "deprecated": false,
-        "description": "",
+        "description": "Updates role for an existing promoter",
         "operationId": "updateRole",
         "tags": [
           "promoter"
@@ -2444,7 +2686,8 @@
                   "message": "Error. Cannot change role of self."
                 }
               }
-            }
+            },
+            "headers": {}
           }
         },
         "security": [
@@ -2458,7 +2701,7 @@
       "patch": {
         "summary": "Remove member",
         "deprecated": false,
-        "description": "",
+        "description": "Removes a member from a promoter organization",
         "operationId": "removeMember",
         "tags": [
           "promoter"
@@ -2534,7 +2777,7 @@
       "get": {
         "summary": "Get signups for promoter",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves all sign-up conversions.",
         "operationId": "promoterSignups",
         "tags": [
           "promoter"
@@ -2743,7 +2986,7 @@
       "get": {
         "summary": "Get purchases for promoter",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves all purchase conversions.",
         "operationId": "promoterPurchases",
         "tags": [
           "promoter"
@@ -3005,7 +3248,7 @@
       "get": {
         "summary": "Get promoter referrals (in a program)",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves a  list of all referrals.",
         "operationId": "promoterReferralsProgram",
         "tags": [
           "promoter"
@@ -3183,7 +3426,7 @@
       "get": {
         "summary": "Get promoter referral",
         "deprecated": false,
-        "description": "",
+        "description": "Fetches details of a single referral contact .",
         "operationId": "promoterReferral",
         "tags": [
           "promoter"
@@ -3310,7 +3553,7 @@
       "get": {
         "summary": "Get promoter commissions",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves a list of commissions earned.",
         "operationId": "promoterCommissions",
         "tags": [
           "promoter"
@@ -3543,7 +3786,7 @@
       "get": {
         "summary": "Get signups report",
         "deprecated": false,
-        "description": "",
+        "description": "Generates and returns a sign-ups report within a date range.",
         "operationId": "promoterSignupReport",
         "tags": [
           "promoter"
@@ -3636,7 +3879,7 @@
       "get": {
         "summary": "Get referrals report",
         "deprecated": false,
-        "description": "",
+        "description": "Generates and returns a referrals report within a date range.",
         "operationId": "promoterReferralReport",
         "tags": [
           "promoter"
@@ -3729,7 +3972,7 @@
       "get": {
         "summary": "Get purchases report",
         "deprecated": false,
-        "description": "",
+        "description": "Generates and returns a purchases report within a date range.",
         "operationId": "promoterPurchasesReport",
         "tags": [
           "promoter"
@@ -3822,7 +4065,7 @@
       "get": {
         "summary": "Get commissions report",
         "deprecated": false,
-        "description": "",
+        "description": "Generates and returns a commissions report within a date range",
         "operationId": "promoterCommissionReport",
         "tags": [
           "promoter"
@@ -3915,7 +4158,7 @@
       "get": {
         "summary": "Get links report",
         "deprecated": false,
-        "description": "",
+        "description": "Generates and returns a link performance report within a date range.",
         "operationId": "promoterLinksReport",
         "tags": [
           "promoter"
@@ -3988,7 +4231,7 @@
       "get": {
         "summary": "Get promoter analytics",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves aggregated performance statistics.",
         "operationId": "promoterAnalytics",
         "tags": [
           "promoter"
@@ -4324,7 +4567,7 @@
       "get": {
         "summary": "Get promoter link analytics",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves link analytics data for all links.",
         "operationId": "promoterLinkAnalytics",
         "tags": [
           "promoter"
@@ -4741,7 +4984,7 @@
       "post": {
         "summary": "Register for program",
         "deprecated": false,
-        "description": "",
+        "description": "Registers a promoter to participate in a program, optionally within a circle. ",
         "tags": [
           "promoter"
         ],
@@ -4852,7 +5095,7 @@
       "post": {
         "summary": "Create link",
         "deprecated": false,
-        "description": "",
+        "description": "Create a new referral link.",
         "operationId": "createLink",
         "tags": [
           "link"
@@ -5222,7 +5465,7 @@
       "get": {
         "summary": "Get all links",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves a list of all links.",
         "operationId": "getallLinks",
         "tags": [
           "link"
@@ -5372,7 +5615,7 @@
       "patch": {
         "summary": "Delete a link",
         "deprecated": false,
-        "description": "",
+        "description": "Delete a specific link",
         "operationId": "deleteLink",
         "tags": [
           "link"
@@ -5447,7 +5690,7 @@
       "get": {
         "summary": "Get link",
         "deprecated": false,
-        "description": "",
+        "description": "Fetches a specific link by its ID.",
         "operationId": "getLink",
         "tags": [
           "link"
@@ -5559,7 +5802,7 @@
       "post": {
         "summary": "Generate API Key",
         "deprecated": false,
-        "description": "",
+        "description": "Generates a new API key.",
         "operationId": "generateKey",
         "tags": [
           "api_key"
@@ -5709,7 +5952,7 @@
       "get": {
         "summary": "Get API Key",
         "deprecated": false,
-        "description": "",
+        "description": "Retrieves an existing API key.",
         "operationId": "getKey",
         "tags": [
           "api_key"
@@ -5812,7 +6055,7 @@
       "delete": {
         "summary": "Delete API Key",
         "deprecated": false,
-        "description": "",
+        "description": "Deletes an existing API Key",
         "operationId": "deleteKey",
         "tags": [
           "api_key"
