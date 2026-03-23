@@ -98,6 +98,7 @@ const config: Config = {
             sidebarOptions: {
               groupPathsBy: 'tag',
             },
+            hideSendButton: true,
           },
         },
       },
