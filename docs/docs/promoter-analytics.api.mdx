@@ -20,6 +20,7 @@ import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
 import Translate from "@docusaurus/Translate";
+import { Card, CardGroup } from "@site/src/components/CardGroup";
 
 <Heading
   as={"h1"}
@@ -59,6 +60,23 @@ Retrieves aggregated performance statistics.
 >
   
 </RequestSchema>
+
+<CardGroup cols={2}>
+  <Card
+    title="View Schema"
+    icon="📄"
+    href="https://sheet-tools.quicko.org.in/sheet-schema-builder?schema_url=https://raw.githubusercontent.com/org-quicko/cliq/refs/heads/main/lib/sheet-core/resources/schemas/Promoter/PromoterWorkbook.schema.json"
+    arrow
+    horizontal
+  />
+  <Card
+    title="View Sample"
+    icon="📊"
+    href="https://sheet-tools.quicko.org.in/sheet-visualiser?data_url=https://raw.githubusercontent.com/org-quicko/cliq/refs/heads/main/docs/static/data/promoter_analytics.json"
+    arrow
+    horizontal
+  />
+</CardGroup>
 
 <StatusCodes
   {...require("./promoter-analytics.StatusCodes.json")}
