@@ -1,9 +1,10 @@
 import React from 'react';
+import {ArrowUpRight } from 'lucide-react';
 import styles from './CardGroup.module.css';
 
 interface CardProps {
   title: string;
-  icon?: string;
+  icon?: React.ReactNode;
   href: string;
   arrow?: boolean;
   horizontal?: boolean;
@@ -28,7 +29,7 @@ export function Card({ title, icon, href, arrow = false, horizontal = false, chi
         <span className={styles.cardTitle}>{title}</span>
         {children && <span className={styles.cardBody}>{children}</span>}
       </div>
-      {arrow && <span className={styles.cardArrow}>→</span>}
+      {arrow && <span className={styles.cardArrow}><ArrowUpRight size={20} /></span>}
     </a>
   );
 }

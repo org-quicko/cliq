@@ -21,6 +21,7 @@ import TabItem from "@theme/TabItem";
 import Heading from "@theme/Heading";
 import Translate from "@docusaurus/Translate";
 import { Card, CardGroup } from "@site/src/components/CardGroup";
+import { FileText,FileChartColumn } from "lucide-react";
 
 <Heading
   as={"h1"}
@@ -61,28 +62,32 @@ Retrieves aggregated performance statistics.
   
 </RequestSchema>
 
+<StatusCodes
+
+  {...require("./promoter-analytics.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
 <CardGroup cols={2}>
   <Card
     title="View Schema"
-    icon="📄"
+    icon={<FileText size={24} />}
     href="https://sheet-tools.quicko.org.in/sheet-schema-builder?schema_url=https://raw.githubusercontent.com/org-quicko/cliq/refs/heads/main/lib/sheet-core/resources/schemas/Promoter/PromoterWorkbook.schema.json"
     arrow
     horizontal
   />
   <Card
     title="View Sample"
-    icon="📊"
-    href="https://sheet-tools.quicko.org.in/sheet-visualiser?data_url=https://raw.githubusercontent.com/org-quicko/cliq/refs/heads/main/docs/static/data/promoter_analytics.json"
+    icon={<FileChartColumn size={24} />}
+    href="https://sheet-tools.quicko.org.in/sheet-visualiser?data_url=https://raw.githubusercontent.com/AyushPandita111/cliq/refs/heads/feature/docs/docs/data/promoter_analytics.json"
     arrow
     horizontal
   />
 </CardGroup>
 
-<StatusCodes
-  {...require("./promoter-analytics.StatusCodes.json")}
->
-  
-</StatusCodes>
+
 
 
       
