@@ -1,0 +1,223 @@
+{
+        "sheets": [
+            {
+                "blocks": [
+                    {
+                        "header": [
+                            "contact_id",
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "phone",
+                            "amount",
+                            "item_id",
+                            "link_id",
+                            "created_at"
+                        ],
+                        "rows": [],
+                        "name": "purchase_table",
+                        "@entity": "table"
+                    }
+                ],
+                "name": "purchase_sheet",
+                "@entity": "sheet"
+            },
+            {
+                "blocks": [
+                    {
+                        "header": [
+                            "contact_id",
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "phone",
+                            "link_id",
+                            "created_at"
+                        ],
+                        "rows": [],
+                        "name": "signup_table",
+                        "@entity": "table"
+                    }
+                ],
+                "name": "signup_sheet",
+                "@entity": "sheet"
+            },
+            {
+                "blocks": [
+                    {
+                        "header": [
+                            "promoter_id",
+                            "status",
+                            "contact_id",
+                            "contact_info",
+                            "total_revenue",
+                            "total_commission",
+                            "updated_at"
+                        ],
+                        "rows": [],
+                        "name": "referral_table",
+                        "@entity": "table"
+                    }
+                ],
+                "name": "referral_sheet",
+                "@entity": "sheet"
+            },
+            {
+                "blocks": [
+                    {
+                        "header": [
+                            "commission_id",
+                            "contact_id",
+                            "link_id",
+                            "referral",
+                            "commission",
+                            "conversion_type",
+                            "revenue",
+                            "created_at",
+                            "updated_at"
+                        ],
+                        "rows": [],
+                        "name": "commission_table",
+                        "@entity": "table"
+                    }
+                ],
+                "name": "commission_sheet",
+                "@entity": "sheet"
+            },
+            {
+                "blocks": [
+                    {
+                        "header": [
+                            "link_id",
+                            "link_name",
+                            "ref_val",
+                            "promoter_id",
+                            "signups",
+                            "purchases",
+                            "commission",
+                            "created_at",
+                            "program_website"
+                        ],
+                        "rows": [
+                            [
+                                "9f3a1c2e-7b91-4d3e-a2f1-1c9b0d8e1234",
+                                "Alex Carter",
+                                "alex-carter",
+                                "b1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                                5,
+                                2,
+                                145,
+                                "2022-03-12T10:15:30.000Z"
+                            ],
+                            [
+                                "3a8d72e1-cc91-4f3d-b8a1-8e7b9c123abc",
+                                "Sophia Lee",
+                                "sophia-lee",
+                                "b1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                                1,
+                                4,
+                                320,
+                                "2023-07-25T08:45:10.000Z"
+                            ],
+                            [
+                                "b7c1e2a9-5f12-4a6d-91a2-0c8e1234d567",
+                                "Michael Brown",
+                                "michael-brown",
+                                "b1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                                2,
+                                1,
+                                89,
+                                "2020-11-05T14:20:00.000Z"
+                            ],
+                            [
+                                "c4d2e1f9-1234-4bcd-8a12-ffeeddccbbaa",
+                                "Emma Wilson",
+                                "emma-wilson",
+                                "b1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                                6,
+                                3,
+                                410,
+                                "2024-01-18T19:05:45.000Z"
+                            ],
+                            [
+                                "e9f8d7c6-b5a4-4321-9c8b-7a6f5e4d3c2b",
+                                "Liam Johnson",
+                                "liam-johnson",
+                                "b1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                                4,
+                                5,
+                                275,
+                                "2021-09-30T06:30:25.000Z"
+                            ]
+                        ],
+                        "metadata": {
+                            "programId": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+                            "website": "www.quicko.com",
+                            "count": 1
+                        },
+                        "name": "link_analytics_table",
+                        "@entity": "table"
+                    }
+                ],
+                "name": "link_analytics_sheet",
+                "@entity": "sheet"
+            },
+            {
+                "blocks": [
+                    {
+                        "header": [
+                            "program_id",
+                            "promoter_id",
+                            "promoter_name",
+                            "total_signups",
+                            "total_purchases",
+                            "total_revenue",
+                            "total_commission",
+                            "signup_commission",
+                            "purchase_commission"
+                        ],
+                        "rows": [],
+                        "name": "promoter_analytics_table",
+                        "@entity": "table"
+                    },
+                    {
+                        "header": [
+                            "date",
+                            "signups",
+                            "purchases",
+                            "revenue",
+                            "commission",
+                            "signup_commission",
+                            "purchase_commission"
+                        ],
+                        "rows": [],
+                        "name": "date_wise_promoter_analytics_table",
+                        "@entity": "table"
+                    }
+                ],
+                "name": "promoter_analytics_sheet",
+                "@entity": "sheet"
+            },
+            {
+                "blocks": [
+                    {
+                        "header": [
+                            "member_id",
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "role",
+                            "added_on"
+                        ],
+                        "rows": [],
+                        "name": "member_table",
+                        "@entity": "table"
+                    }
+                ],
+                "name": "member_sheet",
+                "@entity": "sheet"
+            }
+        ],
+        "name": "PromoterWorkbook",
+        "@entity": "workbook"
+    }

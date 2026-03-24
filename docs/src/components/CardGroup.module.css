@@ -1,0 +1,61 @@
+.cardGroup {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  color: inherit;
+}
+
+.horizontal {
+  flex-direction: row;
+}
+
+.cardContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.cardBody {
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-700);
+  margin-left: 0.5rem;
+}
+
+.cardArrow {
+  display: flex;
+  align-items: center;
+  color: var(--ifm-color-emphasis-500);
+  margin-left: 0.75rem;
+  flex-shrink: 0;
+}
