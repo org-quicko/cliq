@@ -14,7 +14,7 @@ import { ActionableListItemComponent } from './components/actionable-list-item/a
 import { PureAbility } from '@casl/ability';
 import { AbilityServiceSignal } from '@casl/angular';
 import { MemberAbility, MemberAbilityTuple } from '../../../../permissions/ability';
-import { PromoterDto } from '@org.quicko.cliq/ngx-core';
+import { PromoterDto, SnackbarService } from '@org.quicko.cliq/ngx-core';
 import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
 import { EditPromoterDialogBoxComponent } from './components/edit-promoter-dialog-box/edit-promoter-dialog-box.component';
 import { ActionableListItemInterface } from '../../../../interfaces/actionableListItem.interface';
@@ -60,7 +60,20 @@ export class PromoterComponent {
 		}
 	}
 
-	constructor(private authService: AuthService) { }
+	copiedPromoterId = false;
+
+	constructor(private authService: AuthService, private snackBarService: SnackbarService) { }
+
+	onCopyPromoterId() {
+		const promoterId = this.promoterStore.promoter()?.promoterId;
+		navigator.clipboard.writeText(promoterId!).then(() => {
+			this.copiedPromoterId = true;
+			setTimeout(() => {
+				this.copiedPromoterId = false;
+			}, 3000);
+		});
+		this.snackBarService.openSnackBar('Promoter ID Copied!', '');
+	}
 
 	onEdit() {
 		if (this.can('update', PromoterDto)) {
