@@ -6,6 +6,8 @@ import {
 	Max,
 	Min,
 	ValidateNested,
+	IsOptional,
+	IsString
 } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 import { commissionTypeEnum } from '../enums/commissionType.enum';
@@ -59,6 +61,12 @@ export class SwitchCircleEffect {
 	@Expose({ name: 'target_circle_id', toPlainOnly: true })
 	@IsUUID()
 	targetCircleId: string;
+
+
+	@Expose({ name: 'target_circle_name' })
+    @IsOptional()
+    @IsString()
+    targetCircleName?: string;
 }
 
 export type Effect = GenerateCommissionEffect | SwitchCircleEffect;

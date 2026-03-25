@@ -46,7 +46,7 @@ export class FunctionController {
 	@Get()
 	async getAllFunctions(
 		@Param('program_id') programId: string,
-		@Query('circle_name') name: string,
+		@Query('circle_id') circleId: string,
 		@Query('trigger') trigger: triggerEnum,
 		@Query('effect_type') effectType: effectEnum,
 		@Query('skip') skip: number = 0,
@@ -57,11 +57,8 @@ export class FunctionController {
 		const result = await this.functionService.getAllFunctions(
 			programId,
 			{
-				name,
+				circleId,
 				trigger,
-				circle: {
-					name
-				},
 				effectType,
 			},
 			{

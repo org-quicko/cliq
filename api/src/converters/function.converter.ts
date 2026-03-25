@@ -11,11 +11,12 @@ import { ConverterException } from '@org-quicko/core';
 export class FunctionConverter {
 	constructor(private conditionConverter: ConditionConverter) { }
 
-	convert(func: Function): FunctionDto {
+	convert(func: Function, targetCircleNameMap?: Map<string, string>): FunctionDto {
 		try {
 			const functionDto = new FunctionDto();
 
 			functionDto.functionId = func.functionId;
+			console.log('Converting function:', JSON.stringify(func, null, 2));
 
 			functionDto.name = func.name;
 			functionDto.circleId = func.circle.circleId;
@@ -32,7 +33,11 @@ export class FunctionConverter {
 				}
 				functionDto.effect = effect;
 			} else {
-				functionDto.effect = Object.assign(new SwitchCircleEffect(), func.effect);
+				const effect = Object.assign(new SwitchCircleEffect(), func.effect);
+				if (targetCircleNameMap && effect.targetCircleId) {
+					effect.targetCircleName = targetCircleNameMap.get(effect.targetCircleId);
+				}
+				functionDto.effect = effect;
 			}
 
 			functionDto.trigger = func.trigger;
@@ -48,4 +53,8 @@ export class FunctionConverter {
 			throw new ConverterException('Error converting Function entity to FunctionDto', error);
 		}
 	}
+
+	convertMany(functions: Function[], targetCircleNameMap?: Map<string, string>): FunctionDto[] {
+        return functions.map(func => this.convert(func, targetCircleNameMap));
+    }
 }

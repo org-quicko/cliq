@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CirclesStore } from './store/circles.store';
 
 @Component({
@@ -42,6 +42,7 @@ export class CirclesComponent implements OnInit {
 
   circlesStore = inject(CirclesStore);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   circles = this.circlesStore.circles;
   total = this.circlesStore.total;
@@ -86,5 +87,9 @@ export class CirclesComponent implements OnInit {
       pageSize: event.pageSize,
     });
     this.fetchCircles();
+  }
+
+  navigateToCircle(circleId: string) {
+    this.router.navigate([circleId], { relativeTo: this.route });
   }
 }
