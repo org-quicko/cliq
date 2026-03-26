@@ -47,8 +47,11 @@
       class="grid grid-cols-[0.5fr_1fr_0.2fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer"
       (click)="navigateToCircle(circle.getCircleId())">
 
-      <div class="mat-body-large text-on-surface text-left truncate">
-        {{ circle.getName() }}
+      <div class="mat-body-large text-on-surface text-left truncate flex items-center gap-2">
+        <span>{{ circle.getName() }}</span>
+        @if (circle.getIsDefaultCircle()) {
+          <span class="px-2 py-1 rounded bg-surface-container text-on-surface mat-label-small">Default</span>
+        }
       </div>
 
       <div class="mat-body-large text-on-surface text-center">

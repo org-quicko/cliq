@@ -24,6 +24,7 @@ import { PromoterLinksComponent } from './components/home/components/promoter-su
 import { CirclesComponent } from './components/home/components/circles/circles.component';
 import { CircleSummaryComponent } from './components/home/components/circle-summary/circle-summary.component';
 import { CircleFunctionsComponent } from './components/home/components/circle-summary/circle-functions/circle-functions.component';
+import { CirclePromotersComponent } from './components/home/components/circle-summary/circle-promoters/circle-promoters.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ProfileComponent } from './components/settings/profile/profile.component';
 import { TeamComponent } from './components/settings/team/team.component';
@@ -83,6 +84,7 @@ export const routes: Routes = [
                                 children: [
                                     { path: '', component: CircleSummaryComponent },
                                     { path: 'functions', component: CircleFunctionsComponent },
+                                    { path: 'promoters', component: CirclePromotersComponent },
                                 ]
                             },
                             {path: 'promoters', component: PromotersComponent},

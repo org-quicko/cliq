@@ -41,4 +41,12 @@ th {
   top: auto !important;
 }
 
+.whitespace-pre-line .mdc-tooltip__surface,
+.whitespace-pre-line .mat-mdc-tooltip-surface {
+  white-space: pre-line !important;
+  text-align: left !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
 

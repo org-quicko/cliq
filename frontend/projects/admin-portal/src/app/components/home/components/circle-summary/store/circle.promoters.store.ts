@@ -8,7 +8,7 @@ import { withDevtools } from '@angular-architects/ngrx-toolkit';
 import { plainToInstance } from 'class-transformer';
 
 import { CirclesService } from '../../../../../services/circles.service';
-import { Status, SnackbarService, PromoterDto } from '@org.quicko.cliq/ngx-core';
+import { Status, SnackbarService, PromoterDto, PaginatedList } from '@org.quicko.cliq/ngx-core';
 
 export interface CirclePromotersStoreState {
     promoters: PromoterDto[];
@@ -50,7 +50,7 @@ export const CirclePromotersStore = signalStore(
             fetchCirclePromoters: rxMethod<{
                 programId: string;
                 circleId: string;
-                name?: string;
+                search?: string;
                 skip?: number;
                 take?: number;
             }>(
@@ -59,19 +59,23 @@ export const CirclePromotersStore = signalStore(
                         patchState(store, { status: Status.LOADING, promoters: [] });
                     }),
 
-                    switchMap(({ programId, circleId, name, skip = 0, take = 5 }) =>
-                        circlesService.getCirclePromoters(programId, circleId, name, skip, take).pipe(
+                    switchMap(({ programId, circleId, search, skip = 0, take = 5 }) =>
+                        circlesService.getCirclePromoters(programId, circleId, search, skip, take).pipe(
                             tapResponse({
                                 next: (response) => {
                                     try {
-                                        const result = response?.data;
-                                        const promoters = Array.isArray(result)
-                                            ? result.map((item: any) => plainToInstance(PromoterDto, item))
-                                            : [];
+                                        const paginatedResult = plainToInstance(
+                                            PaginatedList<PromoterDto>,
+                                            response?.data
+                                        );
+
+                                        const promoters = paginatedResult.getItems()?.map((item: any) =>
+                                            plainToInstance(PromoterDto, item)
+                                        ) ?? [];
 
                                         patchState(store, {
                                             promoters,
-                                            total: promoters.length,
+                                            total: paginatedResult.getCount() ?? 0,
                                             skip,
                                             take,
                                             error: null,

@@ -1,15 +1,15 @@
-import { Component, inject, effect, OnInit, signal } from '@angular/core';
+import { Component, inject, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { ReactiveFormsModule, FormControl } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
+import { FormatCurrencyPipe, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 import { CircleSummaryStore } from './store/circle-summary.store';
 import { CircleFunctionsStore } from './store/circle-functions.store';
@@ -25,9 +25,10 @@ import { CirclePromotersStore } from './store/circle.promoters.store';
         MatIconModule,
         MatButtonModule,
         MatInputModule,
-        MatPaginatorModule,
+        MatTooltipModule,
         NgxSkeletonLoaderModule,
         FormatCurrencyPipe,
+        OrdinalDatePipe
     ],
     providers: [CircleSummaryStore, CircleFunctionsStore, CirclePromotersStore],
     templateUrl: './circle-summary.component.html',
@@ -44,12 +45,7 @@ export class CircleSummaryComponent implements OnInit {
     programId!: string;
     circleId!: string;
 
-    searchControl = new FormControl('');
-
-    paginationOptions = signal({
-        pageIndex: 0,
-        pageSize: 5,
-    });
+    promoterSearchControl = new FormControl('');
 
     private lastProgramId: string | null = null;
     private lastCircleId: string | null = null;
@@ -95,12 +91,9 @@ export class CircleSummaryComponent implements OnInit {
             this.programId = params['program_id'];
         });
 
-        this.searchControl.valueChanges
-            .pipe(debounceTime(500), distinctUntilChanged())
-            .subscribe((value) => {
-                this.paginationOptions.set({ pageIndex: 0, pageSize: 5 });
-                this.loadPromoters();
-            });
+        this.promoterSearchControl.valueChanges
+            .pipe(debounceTime(400), distinctUntilChanged())
+            .subscribe(() => this.loadPromoters());
     }
 
     private loadAllData() {
@@ -129,18 +122,10 @@ export class CircleSummaryComponent implements OnInit {
         this.circlePromotersStore.fetchCirclePromoters({
             programId: this.programId,
             circleId: this.circleId,
-            name: this.searchControl.value?.trim() || undefined,
-            skip: this.paginationOptions().pageIndex * this.paginationOptions().pageSize,
-            take: this.paginationOptions().pageSize,
+            search: this.promoterSearchControl.value?.trim() || undefined,
+            skip: 0,
+            take: 5,
         });
-    }
-
-    onPageChange(event: PageEvent) {
-        this.paginationOptions.set({
-            pageIndex: event.pageIndex,
-            pageSize: event.pageSize,
-        });
-        this.loadPromoters();
     }
 
     viewAllFunctions() {
@@ -183,5 +168,28 @@ export class CircleSummaryComponent implements OnInit {
             return `Switch to ${effect?.targetCircleName}`;
         }
         return func.effectType?.replace('_', ' ');
+    }
+
+    private readonly operatorSymbolMap: Record<string, string> = {
+        greater_than_or_equal_to: '>=',
+        less_than_or_equal_to: '<=',
+        greater_than: '>',
+        less_than: '<',
+        equals: '=',
+        contains: 'contains',
+    };
+
+    getConditionsTooltip(func: any): string {
+        const conditions = func.conditions as any[];
+        if (!conditions || conditions.length === 0) return '';
+        return conditions
+            .map((c: any) => {
+                const cond = c.condition ?? c;
+                const param = cond.parameter ?? '';
+                const op = this.operatorSymbolMap[cond.operator] ?? cond.operator;
+                const val = cond.value ?? '';
+                return `${param} ${op} ${val}`;
+            })
+            .join('\n');
     }
 }

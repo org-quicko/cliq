@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ApiResponse, CircleDto, PaginatedList, FunctionDto } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, CircleDto, PaginatedList, FunctionDto, PromoterDto } from '@org.quicko.cliq/ngx-core';
 import { CircleWorkbook } from '@org-quicko/cliq-sheet-core/Circle/beans';
 
 @Injectable({
@@ -70,12 +70,12 @@ export class CirclesService {
         name?: string,
         skip?: number,
         take?: number,
-    ): Observable<ApiResponse<any>> {
+    ): Observable<ApiResponse<PaginatedList<PromoterDto>>> {
         const url = `${this.endpoint}/${programId}/circles/${circleId}/promoters`;
 
         let params = new HttpParams();
         if (name) {
-            params = params.set('promoter_name', name);
+            params = params.set('name', name);
         }
         if (skip !== undefined) {
             params = params.set('skip', skip.toString());
@@ -84,6 +84,6 @@ export class CirclesService {
             params = params.set('take', take.toString());
         }
 
-        return this.httpClient.get<ApiResponse<any>>(url, { params });
+        return this.httpClient.get<ApiResponse<PaginatedList<PromoterDto>>>(url, { params });
     }
 }

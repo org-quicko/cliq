@@ -111,7 +111,7 @@
 
       <!-- Commission -->
       <div class="mat-body-large text-on-surface">
-        ₹{{ referral.totalCommission || 0 }}
+        {{ referral.totalCommission || 0 | formatCurrency:program()?.currency }}
       </div>
 
       <!-- Updated At -->

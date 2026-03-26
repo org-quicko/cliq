@@ -5,7 +5,11 @@ import { ConverterException } from '@org-quicko/core';
 
 @Injectable()
 export class PromoterConverter {
-	public convert(promoter: Promoter, acceptedTermsAndConditions: boolean): PromoterDto {
+	public convert(
+		promoter: Promoter,
+		acceptedTermsAndConditions: boolean,
+		adminMemberEmail?: string,
+	): PromoterDto {
 		try {
 			const promoterDto = new PromoterDto();
 
@@ -15,6 +19,7 @@ export class PromoterConverter {
 			promoterDto.logoUrl = promoter.logoUrl;
 			promoterDto.status = promoter.status;
 			promoterDto.acceptedTermsAndConditions = acceptedTermsAndConditions;
+			promoterDto.adminMemberEmail = adminMemberEmail;
 
 			promoterDto.createdAt = new Date(promoter.createdAt);
 			promoterDto.updatedAt = new Date(promoter.updatedAt);

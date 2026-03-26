@@ -16,7 +16,8 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { PromotersStore } from './store/promoters.store';
-import { sortOrderEnum } from '@org.quicko.cliq/ngx-core';
+import { sortOrderEnum, FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
+import { ProgramStore } from '../../../../store/program.store';
 
 @Component({
   selector: 'app-promoters',
@@ -30,6 +31,7 @@ import { sortOrderEnum } from '@org.quicko.cliq/ngx-core';
     MatButtonModule,
     MatMenuModule,
     NgxSkeletonLoaderModule,
+    FormatCurrencyPipe,
   ],
   templateUrl: './promoters.component.html',
   providers: [PromotersStore],
@@ -48,6 +50,7 @@ export class PromotersComponent implements OnInit {
   readonly SortOrder = sortOrderEnum;
 
   promotersStore = inject(PromotersStore);
+  programStore = inject(ProgramStore);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -58,6 +61,8 @@ export class PromotersComponent implements OnInit {
   total = this.promotersStore.total;
   isLoading = this.promotersStore.isLoading;
   error = this.promotersStore.error;
+
+  program = this.programStore.program;
 
   programId!: string;
 

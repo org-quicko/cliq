@@ -9,9 +9,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsRelations, DataSource, FindOptionsWhere, ILike } from 'typeorm';
 import { AddPromoterToCircleDto, CreateCircleDto, SwitchCircleDto, UpdateCircleDto } from '../dtos';
 import { Circle, CirclePromoter } from '../entities';
+import { memberRoleEnum } from '../enums';
 import { ProgramService } from './program.service';
 import { CircleConverter } from '../converters/circle.converter';
-import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
+import { PromoterPaginatedConverter } from '../converters/promoter/promoter.paginated.converter';
 import { CircleWorkbookConverter } from '../converters/circle/circle.workbook.converter';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import { defaultQueryOptions } from '../constants';
@@ -31,7 +32,7 @@ export class CircleService {
 		private programService: ProgramService,
 
 		private circleConverter: CircleConverter,
-		private promoterConverter: PromoterConverter,
+		private promoterPaginatedConverter: PromoterPaginatedConverter,
 		private circleWorkbookConverter: CircleWorkbookConverter,
 
 		private datasource: DataSource,
@@ -141,36 +142,51 @@ export class CircleService {
 	async getAllPromoters(
 		programId: string,
 		circleId: string,
-		whereOptions: FindOptionsWhere<Circle> = {},
+		name?: string,
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllPromoters service');
 
-		const circlePromoters = await this.circlePromoterRepository.find({
-			where: {
-				circle: {
-					circleId,
-					programId,
-				},
-				...whereOptions,
-			},
-			relations: {
-				promoter: true
-			},
-			...queryOptions,
-		});
+		const qb = this.circlePromoterRepository
+			.createQueryBuilder('cp')
+			.innerJoin('cp.circle', 'circle')
+			.innerJoinAndSelect('cp.promoter', 'promoter')
+			.leftJoinAndSelect(
+				'promoter.promoterMembers',
+				'pm',
+				'pm.role = :adminRole',
+				{ adminRole: memberRoleEnum.ADMIN },
+			)
+			.leftJoinAndSelect('pm.member', 'member')
+			.where('circle.circleId = :circleId', { circleId })
+			.andWhere('circle.programId = :programId', { programId });
 
-		if (!circlePromoters || circlePromoters.length === 0) {
+		if (name) {
+			qb.andWhere(
+				'(promoter.name ILIKE :search OR member.email ILIKE :search)',
+				{ search: `%${name}%` },
+			);
+		}
+
+		const [circlePromoters, totalCount] = await qb
+			.skip(queryOptions.skip)
+			.take(queryOptions.take)
+			.getManyAndCount();
+
+		if (circlePromoters.length === 0) {
 			this.logger.warn(`No promoters found for Circle ${circleId}`);
 			throw new NotFoundException(
 				`No promoters found for Circle ${circleId}`,
 			);
 		}
 
-		const promotersDto = circlePromoters.map((circlePromoter) => this.promoterConverter.convert(circlePromoter.promoter, true));
+		const promoterData = circlePromoters.map((cp) => ({
+			promoter: cp.promoter,
+			adminMemberEmail: cp.promoter.promoterMembers?.[0]?.member?.email,
+		}));
 
 		this.logger.info('END: getAllPromoters service');
-		return promotersDto;
+		return this.promoterPaginatedConverter.convert(promoterData, queryOptions.skip, queryOptions.take, totalCount);
 	}
 
 	/**

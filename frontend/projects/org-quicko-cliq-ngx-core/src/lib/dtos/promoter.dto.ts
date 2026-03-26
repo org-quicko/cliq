@@ -18,6 +18,15 @@ export class PromoterDto {
 	@IsBoolean()
 	acceptedTermsAndConditions: boolean;
 
+	@IsOptional()
+	@IsString()
+	status?: string;
+
+	@Expose({ name: 'admin_member_email' })
+	@IsOptional()
+	@IsString()
+	adminMemberEmail?: string;
+
 	@Expose({ name: 'created_at' })
 	@IsDate()
 	createdAt: Date;

@@ -89,7 +89,7 @@ export class CircleController {
 	async getAllPromoters(
 		@Param('program_id') programId: string,
 		@Param('circle_id') circleId: string,
-		@Query('promoter_name') name?: string,
+		@Query('name') name?: string,
 		@Query('skip') skip: number = 0,
 		@Query('take') take: number = 10,
 	) {
@@ -98,9 +98,7 @@ export class CircleController {
 		const result = await this.circleService.getAllPromoters(
 			programId,
 			circleId,
-			{
-				name,
-			},
+			name,
 			{
 				skip,
 				take,

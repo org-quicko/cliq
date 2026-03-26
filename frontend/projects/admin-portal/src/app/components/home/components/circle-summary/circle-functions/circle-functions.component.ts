@@ -5,7 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 
 import { ProgramStore } from '../../../../../store/program.store';
 import { CircleSummaryStore } from '../store/circle-summary.store';
@@ -20,7 +22,9 @@ import { CircleFunctionsStore } from '../store/circle-functions.store';
         MatButtonModule,
         MatMenuModule,
         MatPaginatorModule,
+        MatTooltipModule,
         NgxSkeletonLoaderModule,
+        FormatCurrencyPipe,
     ],
     providers: [CircleSummaryStore, CircleFunctionsStore],
     templateUrl: './circle-functions.component.html',
@@ -109,19 +113,56 @@ export class CircleFunctionsComponent implements OnInit {
         this.router.navigate(['../../'], { relativeTo: this.route });
     }
 
+    isFixedCommissionEffect(func: any): boolean {
+        return (
+            func?.effectType === 'generate_commission' &&
+            func?.effect?.commission?.commissionType === 'fixed'
+        );
+    }
+
+    getFixedCommissionValue(func: any): number | null {
+        if (!this.isFixedCommissionEffect(func)) {
+            return null;
+        }
+
+        return func?.effect?.commission?.value ?? null;
+    }
+
     getEffectDisplay(func: any): string {
         if (func.effectType === 'generate_commission') {
             const effect = func.effect as any;
             if (effect?.commission?.commissionType === 'percentage') {
-                return `${effect.commission.commissionValue}% Commission`;
+                return `${effect.commission.value}% Commission`;
             } else if (effect?.commission?.commissionType === 'fixed') {
-                const currency = this.program()?.currency || '';
-                return `${currency} ${effect.commission.commissionValue} Commission`;
+                return `${effect.commission.value} Commission`;
             }
         } else if (func.effectType === 'switch_circle') {
             const effect = func.effect as any;
-            return `Switch to ${effect?.targetCircleName || 'Another Circle'}`;
+            return `Switch to ${effect?.targetCircleName}`;
         }
         return func.effectType?.replace('_', ' ');
+    }
+
+    private readonly operatorSymbolMap: Record<string, string> = {
+        greater_than_or_equal_to: '>=',
+        less_than_or_equal_to: '<=',
+        greater_than: '>',
+        less_than: '<',
+        equals: '=',
+        contains: 'contains',
+    };
+
+    getConditionsTooltip(func: any): string {
+        const conditions = func.conditions as any[];
+        if (!conditions || conditions.length === 0) return '';
+        return conditions
+            .map((c: any) => {
+                const cond = c.condition ?? c;
+                const param = cond.parameter ?? '';
+                const op = this.operatorSymbolMap[cond.operator] ?? cond.operator;
+                const val = cond.value ?? '';
+                return `${param} ${op} ${val}`;
+            })
+            .join('\n');
     }
 }

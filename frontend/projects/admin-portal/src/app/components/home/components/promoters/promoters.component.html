@@ -117,11 +117,11 @@
       </div>
 
       <div class="mat-body-large text-on-surface text-center">
-        ₹{{ promoter.getTotalCommission() }}
+        {{ promoter.getTotalCommission() | formatCurrency:program()?.currency }}
       </div>
 
       <div class="mat-body-large text-on-surface text-center">
-        ₹{{ promoter.getTotalRevenue() }}
+        {{ promoter.getTotalRevenue() | formatCurrency:program()?.currency }}
       </div>
 
       <div class="flex justify-center">

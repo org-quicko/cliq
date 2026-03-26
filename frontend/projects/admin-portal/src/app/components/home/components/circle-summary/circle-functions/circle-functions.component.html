@@ -27,15 +27,15 @@
         <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
 
             <!-- Table Header -->
-            <div class="grid grid-cols-[2fr_1fr_2fr] items-center bg-surface-container-lowest px-6 py-4">
+            <div class="grid grid-cols-[2fr_1fr_1fr] items-center bg-surface-container-lowest px-6 py-4">
                 <div class="mat-body-medium text-on-surface-variant text-left">Function Name</div>
-                <div class="mat-body-medium text-on-surface-variant text-center">Triggers</div>
+                <div class="mat-body-medium text-on-surface-variant text-left">Triggers</div>
                 <div class="mat-body-medium text-on-surface-variant text-center">Effect</div>
             </div>
 
             @if (isFunctionsLoading()) {
             @for (item of [].constructor(10); track $index) {
-            <div class="grid grid-cols-[2fr_1fr_2fr] items-center px-6 py-4 border-t border-outline-variant">
+            <div class="grid grid-cols-[2fr_1fr_1fr] items-center px-6 py-4 border-t border-outline-variant">
                 <div class="flex flex-col gap-1">
                     <ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
                 </div>
@@ -50,16 +50,38 @@
             } @else {
             @for (func of functions(); track func.functionId) {
             <div
-                class="grid grid-cols-[2fr_1fr_2fr_auto] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
+                class="grid grid-cols-[2fr_1fr_1fr] items-center px-6 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
                 <div class="mat-body-large text-on-surface text-left">
                     {{ func.name }}
                 </div>
-                <div class="mat-body-large text-on-surface text-center capitalize">
-                    {{ func.trigger }}
+                <div class="mat-body-large text-on-surface text-left">
+                    <span class="mat-label-small px-2 py-1 inline-flex items-center justify-center rounded-sm" [ngClass]="{
+                        'bg-secondary-container text-on-secondary-container': func.trigger === 'purchase',
+                        'bg-surface-container text-on-surface': func.trigger === 'signup'
+                    }">
+                        {{ func.trigger | titlecase }}
+                    </span>
                 </div>
-                <div class="mat-body-large text-on-surface text-center">
+                <div class="mat-body-medium text-on-surface text-center">
+              @if (func.conditions && func.conditions.length > 0) {
+                <span class="underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] cursor-pointer"
+                  [matTooltip]="getConditionsTooltip(func)"
+                  matTooltipPosition="right"
+                  matTooltipClass="whitespace-pre-line">
+                  @if (isFixedCommissionEffect(func)) {
+                    {{ getFixedCommissionValue(func) | formatCurrency:program()?.currency }} Commission
+                  } @else {
                     {{ getEffectDisplay(func) }}
-                </div>
+                  }<sup>*</sup>
+                </span>
+              } @else {
+                @if (isFixedCommissionEffect(func)) {
+                  {{ getFixedCommissionValue(func) | formatCurrency:program()?.currency }} Commission
+                } @else {
+                  {{ getEffectDisplay(func) }}
+                }
+              }
+            </div>
             </div>
             }
 
