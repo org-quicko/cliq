@@ -7,8 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
-
+import { FormatCurrencyPipe, ConditionDto, GenerateCommissionEffect, SwitchCircleEffect, FunctionDto, effectEnum, commissionTypeEnum, BaseConditionDto } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../../store/program.store';
 import { CircleSummaryStore } from '../store/circle-summary.store';
 import { CircleFunctionsStore } from '../store/circle-functions.store';
@@ -56,13 +55,10 @@ export class CircleFunctionsComponent implements OnInit {
     readonly program = this.programStore.program;
 
     ngOnInit(): void {
-        // Get circle_id from parent route (circles/:circle_id)
         this.route.parent?.params.subscribe((params: Params) => {
             this.circleId = params['circle_id'];
             this.tryLoadData();
         });
-
-        // Get program_id from ancestor route (/:program_id)
         this.route.parent?.parent?.parent?.params.subscribe((params: Params) => {
             this.programId = params['program_id'];
             this.tryLoadData();
@@ -113,31 +109,31 @@ export class CircleFunctionsComponent implements OnInit {
         this.router.navigate(['../../'], { relativeTo: this.route });
     }
 
-    isFixedCommissionEffect(func: any): boolean {
+    isFixedCommissionEffect(func: FunctionDto): boolean {
         return (
-            func?.effectType === 'generate_commission' &&
-            func?.effect?.commission?.commissionType === 'fixed'
+            func?.effectType === effectEnum.GENERATE_COMMISSION &&
+            (func?.effect as GenerateCommissionEffect)?.commission?.commissionType === commissionTypeEnum.FIXED
         );
     }
 
-    getFixedCommissionValue(func: any): number | null {
+    getFixedCommissionValue(func: FunctionDto): number | null {
         if (!this.isFixedCommissionEffect(func)) {
             return null;
         }
 
-        return func?.effect?.commission?.value ?? null;
+        return (func?.effect as GenerateCommissionEffect)?.commission?.commissionValue;
     }
 
-    getEffectDisplay(func: any): string {
-        if (func.effectType === 'generate_commission') {
-            const effect = func.effect as any;
-            if (effect?.commission?.commissionType === 'percentage') {
-                return `${effect.commission.value}% Commission`;
-            } else if (effect?.commission?.commissionType === 'fixed') {
-                return `${effect.commission.value} Commission`;
+   getEffectDisplay(func: FunctionDto): string {
+        if (func.effectType === effectEnum.GENERATE_COMMISSION) {
+            const effect = func.effect as GenerateCommissionEffect;
+            if (effect?.commission?.commissionType === commissionTypeEnum.PERCENTAGE) {
+                return `${effect.commission.commissionValue}% Commission`;
+            } else if (effect?.commission?.commissionType === commissionTypeEnum.FIXED) {
+                return `${effect.commission.commissionValue} Commission`;
             }
-        } else if (func.effectType === 'switch_circle') {
-            const effect = func.effect as any;
+        } else if (func.effectType === effectEnum.SWITCH_CIRCLE) {
+            const effect = func.effect as SwitchCircleEffect;
             return `Switch to ${effect?.targetCircleName}`;
         }
         return func.effectType?.replace('_', ' ');
@@ -152,12 +148,12 @@ export class CircleFunctionsComponent implements OnInit {
         contains: 'contains',
     };
 
-    getConditionsTooltip(func: any): string {
-        const conditions = func.conditions as any[];
+    getConditionsTooltip(func: FunctionDto): string {
+        const conditions = func.conditions;
         if (!conditions || conditions.length === 0) return '';
         return conditions
-            .map((c: any) => {
-                const cond = c.condition ?? c;
+            .map((c: ConditionDto) => {
+                const cond: BaseConditionDto = c.condition;
                 const param = cond.parameter ?? '';
                 const op = this.operatorSymbolMap[cond.operator] ?? cond.operator;
                 const val = cond.value ?? '';
