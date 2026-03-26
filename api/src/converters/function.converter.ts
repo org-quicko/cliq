@@ -16,8 +16,6 @@ export class FunctionConverter {
 			const functionDto = new FunctionDto();
 
 			functionDto.functionId = func.functionId;
-			console.log('Converting function:', JSON.stringify(func, null, 2));
-
 			functionDto.name = func.name;
 			functionDto.circleId = func.circle.circleId;
 			functionDto.circleName = func.circle.name;

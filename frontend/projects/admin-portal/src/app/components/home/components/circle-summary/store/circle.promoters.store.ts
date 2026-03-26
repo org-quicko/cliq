@@ -34,7 +34,6 @@ export const CirclePromotersStore = signalStore(
 
     withComputed((store) => ({
         isLoading: computed(() => store.status() === Status.LOADING),
-        hasMore: computed(() => store.skip() + store.take() < store.total()),
     })),
 
     withMethods(
@@ -62,36 +61,26 @@ export const CirclePromotersStore = signalStore(
                     switchMap(({ programId, circleId, search, skip = 0, take = 5 }) =>
                         circlesService.getCirclePromoters(programId, circleId, search, skip, take).pipe(
                             tapResponse({
-                                next: (response) => {
-                                    try {
-                                        const paginatedResult = plainToInstance(
-                                            PaginatedList<PromoterDto>,
-                                            response?.data
-                                        );
+                                next(response) {
+                                    const paginatedResult = plainToInstance(
+                                        PaginatedList<PromoterDto>,
+                                        response?.data
+                                    );
 
-                                        const promoters = paginatedResult.getItems()?.map((item: any) =>
-                                            plainToInstance(PromoterDto, item)
-                                        ) ?? [];
+                                    const promoters = paginatedResult.getItems()?.map((item: any) =>
+                                        plainToInstance(PromoterDto, item)
+                                    ) ?? [];
 
-                                        patchState(store, {
-                                            promoters,
-                                            total: paginatedResult.getCount() ?? 0,
-                                            skip,
-                                            take,
-                                            error: null,
-                                            status: Status.SUCCESS,
-                                        });
-                                    } catch (error) {
-                                        patchState(store, {
-                                            promoters: [],
-                                            total: 0,
-                                            error,
-                                            status: Status.ERROR,
-                                        });
-                                        snackbarService.openSnackBar('Error parsing promoters data', '');
-                                    }
+                                    patchState(store, {
+                                        promoters,
+                                        total: paginatedResult.getCount() ?? 0,
+                                        skip,
+                                        take,
+                                        error: null,
+                                        status: Status.SUCCESS,
+                                    });
                                 },
-                                error: (error: HttpErrorResponse) => {
+                                error(error: HttpErrorResponse) {
                                     if (error.status === 404) {
                                         patchState(store, {
                                             promoters: [],

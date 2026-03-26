@@ -36,7 +36,6 @@ export class CirclePromotersComponent implements OnInit {
 
 	programId!: string;
 	circleId!: string;
-	private dataLoaded = false;
 
 	searchControl = new FormControl('');
 
@@ -54,12 +53,12 @@ export class CirclePromotersComponent implements OnInit {
 	ngOnInit(): void {
 		this.route.parent?.params.subscribe((params: Params) => {
 			this.circleId = params['circle_id'];
-			this.tryLoadData();
 		});
 
 		this.route.parent?.parent?.parent?.params.subscribe((params: Params) => {
 			this.programId = params['program_id'];
-			this.tryLoadData();
+			this.circleSummaryStore.fetchCircle({ programId: this.programId, circleId: this.circleId });
+			this.loadPromoters();
 		});
 
 		this.searchControl.valueChanges
@@ -68,21 +67,6 @@ export class CirclePromotersComponent implements OnInit {
 				this.paginationOptions.set({ pageIndex: 0, pageSize: this.paginationOptions().pageSize });
 				this.loadPromoters();
 			});
-	}
-
-	private tryLoadData() {
-		if (this.programId && this.circleId && !this.dataLoaded) {
-			this.dataLoaded = true;
-			this.loadData();
-		}
-	}
-
-	private loadData() {
-		this.circleSummaryStore.fetchCircle({
-			programId: this.programId,
-			circleId: this.circleId,
-		});
-		this.loadPromoters();
 	}
 
 	loadPromoters() {

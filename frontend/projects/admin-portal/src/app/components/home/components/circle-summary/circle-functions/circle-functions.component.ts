@@ -38,7 +38,6 @@ export class CircleFunctionsComponent implements OnInit {
 
     programId!: string;
     circleId!: string;
-    private dataLoaded = false;
 
     paginationOptions = signal({
         pageIndex: 0,
@@ -57,30 +56,11 @@ export class CircleFunctionsComponent implements OnInit {
     ngOnInit(): void {
         this.route.parent?.params.subscribe((params: Params) => {
             this.circleId = params['circle_id'];
-            this.tryLoadData();
         });
         this.route.parent?.parent?.parent?.params.subscribe((params: Params) => {
             this.programId = params['program_id'];
-            this.tryLoadData();
-        });
-    }
-
-    private tryLoadData() {
-        if (this.programId && this.circleId && !this.dataLoaded) {
-            this.dataLoaded = true;
-            this.loadData();
-        }
-    }
-
-    private loadData() {
-        this.loadCircle();
-        this.loadFunctions();
-    }
-
-    loadCircle() {
-        this.circleSummaryStore.fetchCircle({
-            programId: this.programId,
-            circleId: this.circleId,
+            this.circleSummaryStore.fetchCircle({ programId: this.programId, circleId: this.circleId });
+            this.loadFunctions();
         });
     }
 

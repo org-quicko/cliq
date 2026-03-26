@@ -29,7 +29,6 @@ export const CircleSummaryStore = signalStore(
     withComputed((store) => ({
         isLoading: computed(() => store.status() === Status.LOADING),
         circleName: computed(() => store.circle()?.name ?? ''),
-        circleId: computed(() => store.circle()?.circleId ?? ''),
         isDefaultCircle: computed(() => store.circle()?.isDefaultCircle ?? false),
     })),
 
@@ -55,25 +54,15 @@ export const CircleSummaryStore = signalStore(
                     switchMap(({ programId, circleId }) =>
                         circlesService.getCircle(programId, circleId).pipe(
                             tapResponse({
-                                next: (response) => {
-                                    try {
-                                        const circle = plainToInstance(CircleDto, response?.data);
-
-                                        patchState(store, {
-                                            circle,
-                                            error: null,
-                                            status: Status.SUCCESS,
-                                        });
-                                    } catch (error) {
-                                        patchState(store, {
-                                            circle: null,
-                                            error,
-                                            status: Status.ERROR,
-                                        });
-                                        snackbarService.openSnackBar('Error parsing circle data', '');
-                                    }
+                                next(response) {
+                                    const circle = plainToInstance(CircleDto, response?.data);
+                                    patchState(store, {
+                                        circle,
+                                        error: null,
+                                        status: Status.SUCCESS,
+                                    });
                                 },
-                                error: (error: HttpErrorResponse) => {
+                                error(error: HttpErrorResponse) {
                                     patchState(store, {
                                         circle: null,
                                         error,

@@ -1,4 +1,4 @@
-import { Component, inject, effect, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -47,25 +47,6 @@ export class CircleSummaryComponent implements OnInit {
 
     promoterSearchControl = new FormControl('');
 
-    private lastProgramId: string | null = null;
-    private lastCircleId: string | null = null;
-
-    constructor() {
-        effect(() => {
-            if (
-                this.lastProgramId === this.programId &&
-                this.lastCircleId === this.circleId
-            ) {
-                return;
-            }
-
-            this.lastProgramId = this.programId;
-            this.lastCircleId = this.circleId;
-
-            this.loadAllData();
-        });
-    }
-
     readonly isCircleLoading = this.circleSummaryStore.isLoading;
     readonly isFunctionsLoading = this.circleFunctionsStore.isLoading;
     readonly isPromotersLoading = this.circlePromotersStore.isLoading;
@@ -89,6 +70,7 @@ export class CircleSummaryComponent implements OnInit {
 
         this.route.parent?.parent?.params.subscribe((params: Params) => {
             this.programId = params['program_id'];
+            this.loadAllData();
         });
 
         this.promoterSearchControl.valueChanges

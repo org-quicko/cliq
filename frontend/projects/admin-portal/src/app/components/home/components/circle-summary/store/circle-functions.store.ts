@@ -34,7 +34,6 @@ export const CircleFunctionsStore = signalStore(
 
     withComputed((store) => ({
         isLoading: computed(() => store.status() === Status.LOADING),
-        hasMore: computed(() => store.skip() + store.take() < store.total()),
     })),
 
     withMethods(
@@ -61,36 +60,26 @@ export const CircleFunctionsStore = signalStore(
                     switchMap(({ programId, circleId, skip = 0, take = 5 }) =>
                         circlesService.getCircleFunctions(programId, circleId, skip, take).pipe(
                             tapResponse({
-                                next: (response) => {
-                                    try {
-                                        const paginatedResult = plainToInstance(
-                                            PaginatedList<FunctionDto>,
-                                            response?.data
-                                        );
+                                next(response) {
+                                    const paginatedResult = plainToInstance(
+                                        PaginatedList<FunctionDto>,
+                                        response?.data
+                                    );
 
-                                        const functions = paginatedResult.getItems()?.map((item: any) =>
-                                            plainToInstance(FunctionDto, item)
-                                        ) ?? [];
+                                    const functions = paginatedResult.getItems()?.map((item: any) =>
+                                        plainToInstance(FunctionDto, item)
+                                    ) ?? [];
 
-                                        patchState(store, {
-                                            functions,
-                                            total: paginatedResult.getCount() ?? 0,
-                                            skip,
-                                            take,
-                                            error: null,
-                                            status: Status.SUCCESS,
-                                        });
-                                    } catch (error) {
-                                        patchState(store, {
-                                            functions: [],
-                                            total: 0,
-                                            error,
-                                            status: Status.ERROR,
-                                        });
-                                        snackbarService.openSnackBar('Error parsing functions data', '');
-                                    }
+                                    patchState(store, {
+                                        functions,
+                                        total: paginatedResult.getCount() ?? 0,
+                                        skip,
+                                        take,
+                                        error: null,
+                                        status: Status.SUCCESS,
+                                    });
                                 },
-                                error: (error: HttpErrorResponse) => {
+                                error(error: HttpErrorResponse) {
                                     if (error.status === 404) {
                                         patchState(store, {
                                             functions: [],
