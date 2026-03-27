@@ -11,6 +11,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { CircleSummaryStore } from '../store/circle-summary.store';
 import { CirclePromotersStore } from '../store/circle.promoters.store';
 import { OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
+import { ProgramStore } from '../../../../../store/program.store';
 
 @Component({
 	selector: 'app-circle-promoters',
@@ -31,6 +32,7 @@ import { OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
 export class CirclePromotersComponent implements OnInit {
 	readonly circleSummaryStore = inject(CircleSummaryStore);
 	readonly circlePromotersStore = inject(CirclePromotersStore);
+	readonly programStore = inject(ProgramStore);
 	private route = inject(ActivatedRoute);
 	private router = inject(Router);
 
@@ -46,7 +48,6 @@ export class CirclePromotersComponent implements OnInit {
 
 	readonly isCircleLoading = this.circleSummaryStore.isLoading;
 	readonly isPromotersLoading = this.circlePromotersStore.isLoading;
-	readonly circleName = this.circleSummaryStore.circleName;
 	readonly promoters = this.circlePromotersStore.promoters;
 	readonly promotersTotal = this.circlePromotersStore.total;
 
@@ -55,11 +56,9 @@ export class CirclePromotersComponent implements OnInit {
 			this.circleId = params['circle_id'];
 		});
 
-		this.route.parent?.parent?.parent?.params.subscribe((params: Params) => {
-			this.programId = params['program_id'];
-			this.circleSummaryStore.fetchCircle({ programId: this.programId, circleId: this.circleId });
-			this.loadPromoters();
-		});
+		this.programId = this.programStore.program()?.programId!;
+		this.circleSummaryStore.fetchCircle({ programId: this.programId, circleId: this.circleId });
+		this.loadPromoters();
 
 		this.searchControl.valueChanges
 			.pipe(debounceTime(400), distinctUntilChanged())

@@ -52,8 +52,6 @@ export class CircleSummaryComponent implements OnInit {
     readonly isPromotersLoading = this.circlePromotersStore.isLoading;
 
     readonly circle = this.circleSummaryStore.circle;
-    readonly circleName = this.circleSummaryStore.circleName;
-    readonly isDefaultCircle = this.circleSummaryStore.isDefaultCircle;
 
     readonly functions = this.circleFunctionsStore.functions;
     readonly functionsTotal = this.circleFunctionsStore.total;
@@ -68,10 +66,8 @@ export class CircleSummaryComponent implements OnInit {
             this.circleId = params['circle_id'];
         });
 
-        this.route.parent?.parent?.params.subscribe((params: Params) => {
-            this.programId = params['program_id'];
-            this.loadAllData();
-        });
+        this.programId = this.programStore.program()?.programId!;
+        this.loadAllData();
 
         this.promoterSearchControl.valueChanges
             .pipe(debounceTime(400), distinctUntilChanged())

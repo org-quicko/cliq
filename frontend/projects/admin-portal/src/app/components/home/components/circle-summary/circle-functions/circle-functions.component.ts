@@ -47,7 +47,6 @@ export class CircleFunctionsComponent implements OnInit {
     readonly isCircleLoading = this.circleSummaryStore.isLoading;
     readonly isFunctionsLoading = this.circleFunctionsStore.isLoading;
 
-    readonly circleName = this.circleSummaryStore.circleName;
     readonly functions = this.circleFunctionsStore.functions;
     readonly functionsTotal = this.circleFunctionsStore.total;
 
@@ -57,11 +56,10 @@ export class CircleFunctionsComponent implements OnInit {
         this.route.parent?.params.subscribe((params: Params) => {
             this.circleId = params['circle_id'];
         });
-        this.route.parent?.parent?.parent?.params.subscribe((params: Params) => {
-            this.programId = params['program_id'];
-            this.circleSummaryStore.fetchCircle({ programId: this.programId, circleId: this.circleId });
-            this.loadFunctions();
-        });
+
+        this.programId = this.programStore.program()?.programId!;
+        this.circleSummaryStore.fetchCircle({ programId: this.programId, circleId: this.circleId });
+        this.loadFunctions();
     }
 
     loadFunctions() {

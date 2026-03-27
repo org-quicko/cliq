@@ -28,8 +28,6 @@ export const CircleSummaryStore = signalStore(
 
     withComputed((store) => ({
         isLoading: computed(() => store.status() === Status.LOADING),
-        circleName: computed(() => store.circle()?.name ?? ''),
-        isDefaultCircle: computed(() => store.circle()?.isDefaultCircle ?? false),
     })),
 
     withMethods(

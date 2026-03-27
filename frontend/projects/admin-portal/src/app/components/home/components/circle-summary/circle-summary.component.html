@@ -10,7 +10,7 @@
           @if (isCircleLoading()) {
             <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
           } @else {
-            {{ circleName() }}
+            {{ circleSummaryStore.circle()?.name }}
           }
         </span>
       </div>
@@ -19,10 +19,10 @@
           @if (isCircleLoading()) {
             <ngx-skeleton-loader [theme]="{ height: '1.6em', width: '200px', margin: '0' }"></ngx-skeleton-loader>
           } @else {
-            {{ circleName() }}
+            {{ circleSummaryStore.circle()?.name }}
           }
         </span>
-        @if (!isCircleLoading() && isDefaultCircle()) {
+        @if (!isCircleLoading() && circleSummaryStore.circle()?.isDefaultCircle) {
           <span class="px-2 py-1 rounded bg-surface-container text-on-surface mat-label-small">Default</span>
         }
       </div>
@@ -88,7 +88,7 @@
 
       @if (isFunctionsLoading()) {
         @for (item of [].constructor(3); track $index) {
-          <div class="grid grid-cols-[2fr_1fr_1fr] items-center px-6 py-5 border-t border-outline-variant">
+          <div class="grid grid-cols-[2fr_1.5fr_0.6fr] items-center px-6 py-5 border-t border-outline-variant">
             <div class="flex flex-col gap-1">
               <ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
             </div>
@@ -174,7 +174,7 @@
 
       @if (isPromotersLoading()) {
         @for (item of [].constructor(5); track $index) {
-          <div class="grid grid-cols-[2fr_0.8fr_1fr] items-center px-6 py-4 border-t border-outline-variant">
+          <div class="grid grid-cols-[2fr_1.5fr_0.6fr] items-center px-6 py-4 border-t border-outline-variant">
             <div class="flex flex-col gap-1">
               <ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
             </div>

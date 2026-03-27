@@ -10,7 +10,7 @@
                     @if (isCircleLoading()) {
                     <ngx-skeleton-loader [theme]="{ height: '1em', width: '80px', margin: '0' }"></ngx-skeleton-loader>
                     } @else {
-                    {{ circleName() }}
+                    {{ circleSummaryStore.circle()?.name }}
                     }
                 </span>
                 <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
@@ -35,7 +35,7 @@
 
             @if (isFunctionsLoading()) {
             @for (item of [].constructor(10); track $index) {
-            <div class="grid grid-cols-[2fr_1fr_1fr] items-center px-6 py-4 border-t border-outline-variant">
+            <div class="grid grid-cols-[2fr_1.3fr_0.7fr] items-center px-6 py-4 border-t border-outline-variant">
                 <div class="flex flex-col gap-1">
                     <ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
                 </div>

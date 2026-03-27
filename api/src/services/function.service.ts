@@ -16,7 +16,7 @@ import {
 import { SwitchCircleEffect } from "../classes";
 import { ProgramService } from './program.service';
 import { FunctionConverter } from '../converters/function.converter';
-import { FunctionPaginatedConverter } from '../converters/functionPaginated.converter';
+import { FunctionListConverter } from '../converters/function-list.converter';
 import { CircleService } from './circle.service';
 import { defaultQueryOptions } from 'src/constants';
 import winston from 'winston';
@@ -36,7 +36,7 @@ export class FunctionService {
 		private circleService: CircleService,
 
 		private functionConverter: FunctionConverter,
-		private functionPaginatedConverter: FunctionPaginatedConverter,
+		private functionListConverter: FunctionListConverter,
 
 		private datasource: DataSource,
 	) { }
@@ -126,10 +126,6 @@ export class FunctionService {
 			...queryOptions,
 		});
 
-		if (!functionsResult) {
-			this.logger.error(`Error. Failed to fetch functions of program ${programId}.`);
-			throw new NotFoundException(`Error. Failed to fetch functions of program ${programId}.`);
-		}
 
 		const targetCircleIds = functionsResult
         .filter(f => f.effectType === effectEnum.SWITCH_CIRCLE)
@@ -146,7 +142,7 @@ export class FunctionService {
 
 		this.logger.info('END: getAllFunctions service');
 
-		return this.functionPaginatedConverter.convert(
+		return this.functionListConverter.convert(
 			functionsResult,
 			queryOptions.skip,
 			queryOptions.take,
