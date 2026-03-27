@@ -152,13 +152,13 @@ export class CircleService {
 			.createQueryBuilder('cp')
 			.innerJoin('cp.circle', 'circle')
 			.innerJoinAndSelect('cp.promoter', 'promoter')
-			.innerJoinAndSelect(
+			.leftJoinAndSelect(
 				'promoter.promoterMembers',
 				'pm',
 				'pm.role = :adminRole',
 				{ adminRole: memberRoleEnum.ADMIN },
 			)
-			.innerJoinAndSelect('pm.member', 'member')
+			.leftJoinAndSelect('pm.member', 'member')
 			.where('circle.circleId = :circleId', { circleId })
 			.andWhere('circle.programId = :programId', { programId });
 
