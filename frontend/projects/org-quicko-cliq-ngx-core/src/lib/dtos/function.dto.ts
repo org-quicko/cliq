@@ -37,6 +37,12 @@ export class FunctionDto {
 	status?: functionStatusEnum;
 
 	@IsDefined()
+	@ValidateNested()
+	@Type((object) => {
+		return object?.object?.['effect_type'] === effectEnum.GENERATE_COMMISSION
+			? GenerateCommissionEffect
+			: SwitchCircleEffect;
+	})
 	effect: Effect;
 
 	@IsOptional()

@@ -20,7 +20,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { ReferralStore } from './store/referrals.store';
-import { ReferralDto, referralSortByEnum, referralKeyTypeEnum, OrdinalDatePipe } from '@org.quicko.cliq/ngx-core';
+import { ReferralDto, referralSortByEnum, referralKeyTypeEnum, OrdinalDatePipe, FormatCurrencyPipe } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../../store/program.store';
 
 @Component({
@@ -36,7 +36,8 @@ import { ProgramStore } from '../../../../store/program.store';
     MatIconModule,
     MatButtonModule,
     NgxSkeletonLoaderModule,
-    OrdinalDatePipe
+    OrdinalDatePipe,
+    FormatCurrencyPipe
   ],
   templateUrl: './referrals.component.html',
 })
@@ -67,6 +68,7 @@ export class ReferralsComponent implements OnInit {
   isSorting = this.referralStore.isSorting;
   error = this.referralStore.error;
 
+  program = this.programStore.program;
   readonly referralKeyTypeEnum = referralKeyTypeEnum;
   readonly referralKeyType = computed(() => this.programStore.program()?.referralKeyType);
   readonly isEmailKeyType = computed(() => this.referralKeyType() === referralKeyTypeEnum.EMAIL || !this.referralKeyType());

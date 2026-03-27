@@ -1,0 +1,88 @@
+<div class="super-admin-programs w-full flex flex-col gap-8 bg-surface-container-lowest">
+
+	<header class="flex justify-between items-center">
+		<div class="flex flex-col gap-6">
+			<div class="flex items-center gap-1 text-on-surface-variant mat-body-medium">
+				<span class="cursor-pointer hover:underline" (click)="goToCircles()">Circles</span>
+				<mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
+				<span class="cursor-pointer hover:underline" (click)="goBack()">
+					@if (isCircleLoading()) {
+						<ngx-skeleton-loader [theme]="{ height: '1em', width: '80px', margin: '0' }"></ngx-skeleton-loader>
+					} @else {
+						{{ circleSummaryStore.circle()?.name }}
+					}
+				</span>
+				<mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
+				<span class="text-on-surface">Promoters</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<span class="text-on-surface mat-headline-medium">Promoters</span>
+			</div>
+		</div>
+	</header>
+
+	<div class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3">
+		<mat-icon class="text-on-surface-variant mr-3">search</mat-icon>
+		<input matInput [formControl]="searchControl" placeholder="Search in Circles"
+			class="w-full mat-body-large text-on-surface placeholder:text-outline focus:outline-none bg-transparent" />
+	</div>
+
+	<div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
+		<div class="grid grid-cols-[2fr_1fr_1fr] items-center bg-surface-container-lowest px-6 py-4">
+			<div class="mat-body-medium text-on-surface-variant text-left">Name</div>
+			<div class="mat-body-medium text-on-surface-variant text-left">Joined At</div>
+			<div class="mat-body-medium text-on-surface-variant text-center">Status</div>
+		</div>
+
+		@if (isPromotersLoading()) {
+			@for (item of [].constructor(10); track $index) {
+				<div class="grid grid-cols-[2fr_1.5fr_0.5fr] items-center px-6 py-4 border-t border-outline-variant">
+					<div class="flex flex-col gap-1">
+						<ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
+						<ngx-skeleton-loader [theme]="{ height: '1em', width: '180px', margin: '0' }"></ngx-skeleton-loader>
+					</div>
+					<div>
+						<ngx-skeleton-loader [theme]="{ height: '1em', width: '100px', margin: '0' }"></ngx-skeleton-loader>
+					</div>
+					<div>
+						<ngx-skeleton-loader [theme]="{ height: '1em', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+					</div>
+				</div>
+			}
+		} @else {
+			@for (promoter of promoters(); track promoter.promoterId) {
+				<div class="grid grid-cols-[2fr_1.2fr_1fr] items-center px-6 py-4 border-t border-outline-variant transition-colors min-h-[80px]">
+				<div class="flex flex-col text-left truncate">
+					<span class="mat-body-large text-on-surface truncate">{{ promoter.name }}</span>
+					<span class="mat-body-large text-on-surface-variant truncate">{{ promoter.adminMemberEmail}}</span>
+					</div>
+					<div class="mat-body-large text-on-surface text-left">
+						{{ promoter.createdAt | ordinalDate }}
+					</div>
+					<div class="flex justify-center">
+						<span class="mat-label-small px-2 py-1 flex items-center justify-center rounded-sm min-w-[48px]" [ngClass]="{
+							'bg-secondary-container text-on-secondary-container': promoter.status === 'active',
+							'bg-surface-container text-on-surface': promoter.status === 'archived'
+						}">
+							{{ promoter.status === 'archived' ? 'Inactive' : (promoter.status | titlecase) }}
+						</span>
+					</div>
+				</div>
+			}
+
+			@if (promoters().length === 0) {
+				<div class="flex justify-center items-center py-16 border-t border-outline-variant">
+					<p class="mat-body-large text-on-surface-variant">No promoters in this circle</p>
+				</div>
+			}
+		}
+	</div>
+
+	@if (promotersTotal() > 0) {
+	<div class="mt-auto">
+		<mat-paginator [length]="promotersTotal()" [pageIndex]="paginationOptions().pageIndex"
+			[pageSize]="paginationOptions().pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"
+			(page)="onPageChange($event)"></mat-paginator>
+	</div>
+	}
+</div>

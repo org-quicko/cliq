@@ -22,6 +22,9 @@ import { PromotersComponent } from './components/home/components/promoters/promo
 import { PromoterSummaryComponent } from './components/home/components/promoter-summary/promoter-summary.component';
 import { PromoterLinksComponent } from './components/home/components/promoter-summary/promoter-links.component';
 import { CirclesComponent } from './components/home/components/circles/circles.component';
+import { CircleSummaryComponent } from './components/home/components/circle-summary/circle-summary.component';
+import { CircleFunctionsComponent } from './components/home/components/circle-summary/circle-functions/circle-functions.component';
+import { CirclePromotersComponent } from './components/home/components/circle-summary/circle-promoters/circle-promoters.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { ProfileComponent } from './components/settings/profile/profile.component';
 import { TeamComponent } from './components/settings/team/team.component';
@@ -76,6 +79,14 @@ export const routes: Routes = [
                             { path: 'dashboard', component: DashboardComponent },
                             { path: 'referrals' , component: ReferralsComponent},
                             { path: 'circles', component: CirclesComponent },
+                            {
+                                path: 'circles/:circle_id',
+                                children: [
+                                    { path: '', component: CircleSummaryComponent },
+                                    { path: 'functions', component: CircleFunctionsComponent },
+                                    { path: 'promoters', component: CirclePromotersComponent },
+                                ]
+                            },
                             {path: 'promoters', component: PromotersComponent},
                             {path: 'promoters/:promoter_id', component: PromoterSummaryComponent},
                             {path: 'promoters/:promoter_id/links', component: PromoterLinksComponent},

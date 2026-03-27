@@ -6,19 +6,22 @@ import {
 } from '@nestjs/common';
 import { CreateFunctionDto, UpdateFunctionDto } from 'src/dtos';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, FindOptionsWhere } from 'typeorm';
+import { Repository, DataSource, FindOptionsWhere, In } from 'typeorm';
 import { QueryOptionsInterface } from '../interfaces/queryOptions.interface';
 import {
 	Condition,
 	Function,
+	Circle,
 } from '../entities';
 import { SwitchCircleEffect } from "../classes";
 import { ProgramService } from './program.service';
 import { FunctionConverter } from '../converters/function.converter';
+import { FunctionListConverter } from '../converters/function-list.converter';
 import { CircleService } from './circle.service';
 import { defaultQueryOptions } from 'src/constants';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
+import { effectEnum } from 'src/enums';
 
 @Injectable()
 export class FunctionService {
@@ -26,11 +29,14 @@ export class FunctionService {
 	constructor(
 		@InjectRepository(Function)
 		private readonly functionRepository: Repository<Function>,
+		@InjectRepository(Circle)
+		private readonly circleRepository: Repository<Circle>,
 
 		private programService: ProgramService,
 		private circleService: CircleService,
 
 		private functionConverter: FunctionConverter,
+		private functionListConverter: FunctionListConverter,
 
 		private datasource: DataSource,
 	) { }
@@ -104,7 +110,7 @@ export class FunctionService {
 		// will throw error in case the program doesn't exist
 		await this.programService.getProgramEntity(programId);
 
-		const functionsResult = await this.functionRepository.find({
+		const [functionsResult, count] = await this.functionRepository.findAndCount({
 			where: {
 				program: {
 					programId,
@@ -120,15 +126,28 @@ export class FunctionService {
 			...queryOptions,
 		});
 
-		if (!functionsResult) {
-			this.logger.error(`Error. Failed to fetch functions of program ${programId}.`);
-			throw new NotFoundException(`Error. Failed to fetch functions of program ${programId}.`);
+
+		const targetCircleIds = functionsResult
+        .filter(f => f.effectType === effectEnum.SWITCH_CIRCLE)
+        .map(f => (f.effect as SwitchCircleEffect)?.targetCircleId)
+
+		let targetCircleNameMap = new Map<string, string>();
+		if (targetCircleIds.length > 0) {
+			const targetCircles = await this.circleRepository.find({
+				where: { circleId: In(targetCircleIds) },
+				select: ['circleId', 'name'],
+			});
+			targetCircleNameMap = new Map(targetCircles.map(c => [c.circleId, c.name]));
 		}
 
 		this.logger.info('END: getAllFunctions service');
 
-		return functionsResult.map((func) =>
-			this.functionConverter.convert(func),
+		return this.functionListConverter.convert(
+			functionsResult,
+			queryOptions.skip,
+			queryOptions.take,
+			count,
+			targetCircleNameMap,
 		);
 	}
 

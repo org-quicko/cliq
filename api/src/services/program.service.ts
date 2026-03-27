@@ -30,7 +30,7 @@ import { userRoleEnum, statusEnum, visibilityEnum, referralSortByEnum, memberRol
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 import { defaultQueryOptions } from 'src/constants';
-import { formatDate } from 'src/utils';
+import { formatDate, buildPrefixTsQuery } from 'src/utils';
 import { subjectsType } from 'src/types';
 import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
 import { ReferralConverter } from 'src/converters/referral.converter';
@@ -515,7 +515,7 @@ export class ProgramService {
 			.where('pav.programId = :programId', { programId });
 		if (name?.trim()) {
 
-			const tsQuery = this.buildPrefixTsQuery(name);
+			const tsQuery = buildPrefixTsQuery(name);
 
 			baseQuery.andWhere(`
 	(
@@ -745,23 +745,6 @@ export class ProgramService {
 		return commissionsDto;
 	}
 
-	private buildPrefixTsQuery(input: string): string {
-		if (!input) return '';
-
-		const normalized = input
-			.toLowerCase()
-			.replace(/[._\-\/\\+]+/g, ' ')
-			.replace(/[&|!:*()'"<>]/g, ' ')
-			.replace(/\s+/g, ' ')
-			.trim();
-		if (!normalized) return '';
-
-		return normalized
-			.split(' ')
-			.map(t => `${t}:*`)
-			.join(' & ');
-	}
-
 	async getAllProgramReferrals(
 		programId: string,
 		search?: string,
@@ -782,7 +765,7 @@ export class ProgramService {
 
 		if (search?.trim()) {
 
-			const tsQuery = this.buildPrefixTsQuery(search);
+			const tsQuery = buildPrefixTsQuery(search);
 
 			query.andWhere(
 				`referral.search_vector @@ to_tsquery('simple', :tsQuery)`,

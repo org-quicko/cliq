@@ -6,6 +6,7 @@ import { CirclePromoter, Circle } from '../entities';
 import { ProgramModule } from './program.module';
 import { CircleConverter } from '../converters/circle.converter';
 import { CircleWorkbookConverter } from '../converters/circle/circle.workbook.converter';
+import { PromoterListConverter } from '../converters/promoter/promoter-list.converter';
 import { PromoterModule } from './promoter.module';
 
 @Module({
@@ -18,7 +19,7 @@ import { PromoterModule } from './promoter.module';
 		PromoterModule,
 	],
 	controllers: [CircleController],
-	providers: [CircleService, CircleConverter, CircleWorkbookConverter],
+	providers: [CircleService, CircleConverter, CircleWorkbookConverter, PromoterListConverter],
 	exports: [CircleService, CircleConverter],
 })
 export class CircleModule {}

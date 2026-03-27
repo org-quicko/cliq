@@ -97,7 +97,7 @@
     @for (referral of referrals(); track referral.contactId) {
 
     <div
-      class="grid grid-cols-[2.2fr_1.8fr_1fr_1.5fr_0.8fr] items-center text-center px-4 py-4 border-t border-outline-variant hover:bg-surface-container-low transition-colors">
+      class="grid grid-cols-[2.2fr_1.8fr_1fr_1.5fr_0.8fr] items-center text-center px-4 py-4 border-t border-outline-variant transition-colors">
 
       <!-- Referral -->
       <div class="mat-body-large text-on-surface-variant text-left truncate">
@@ -111,7 +111,7 @@
 
       <!-- Commission -->
       <div class="mat-body-large text-on-surface">
-        ₹{{ referral.totalCommission || 0 }}
+        {{ referral.totalCommission || 0 | formatCurrency:program()?.currency }}
       </div>
 
       <!-- Updated At -->

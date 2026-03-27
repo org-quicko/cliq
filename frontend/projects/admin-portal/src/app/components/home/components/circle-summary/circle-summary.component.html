@@ -1,0 +1,225 @@
+<div class="w-full flex flex-col gap-6 bg-surface-container-lowest">
+
+  <!-- Breadcrumb + Header -->
+  <header class="flex justify-between items-center">
+    <div class="flex flex-col gap-6">
+      <div class="flex items-center gap-1 text-on-surface-variant mat-body-medium">
+        <span class="cursor-pointer hover:underline" (click)="goBack()">Circles</span>
+        <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
+        <span class="text-on-surface">
+          @if (isCircleLoading()) {
+            <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+          } @else {
+            {{ circleSummaryStore.circle()?.name }}
+          }
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-on-surface mat-title-large">
+          @if (isCircleLoading()) {
+            <ngx-skeleton-loader [theme]="{ height: '1.6em', width: '200px', margin: '0' }"></ngx-skeleton-loader>
+          } @else {
+            {{ circleSummaryStore.circle()?.name }}
+          }
+        </span>
+        @if (!isCircleLoading() && circleSummaryStore.circle()?.isDefaultCircle) {
+          <span class="px-2 py-1 rounded bg-surface-container text-on-surface mat-label-small">Default</span>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Statistics Cards -->
+  <div class="w-full flex flex-row gap-4">
+    @if (isCircleLoading() || isFunctionsLoading() || isPromotersLoading()) {
+      <div class="w-1/2 h-[122px] flex flex-col gap-4">
+        <ngx-skeleton-loader [theme]="{
+          width: '100%',
+          height: '122px',
+          borderRadius: '8px',
+          backgroundColor: 'surface-container-low'
+        }" />
+      </div>
+      <div class="w-1/2 h-[122px] flex flex-col gap-4">
+        <ngx-skeleton-loader [theme]="{
+          width: '100%',
+          height: '122px',
+          borderRadius: '8px',
+          backgroundColor: 'surface-container-low'
+        }" />
+      </div>
+    } @else {
+      <!-- Promoters Count -->
+      <div class="w-1/2 border border-outline-variant rounded-[4px] px-6 py-6 flex flex-col gap-6">
+        <p class="mat-body-large text-on-surface m-0">
+          Promoters
+        </p>
+        <p class="mat-title-large text-on-surface m-0">
+          {{ promotersTotal() }}
+        </p>
+      </div>
+
+      <!-- Functions Count -->
+      <div class="w-1/2 border border-outline-variant rounded-[4px] px-6 py-6 flex flex-col gap-6">
+        <p class="mat-body-large text-on-surface m-0">
+          Functions
+        </p>
+        <p class="mat-title-large text-on-surface m-0">
+          {{ functionsTotal() }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <!-- Functions List -->
+  <div class="flex flex-col gap-6">
+    <p class="mat-title-large text-on-surface m-0">
+      Functions
+    </p>
+
+    <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
+
+      <!-- Table Header -->
+      <div class="grid grid-cols-[2fr_1fr_1fr] items-center bg-surface-container-lowest px-6 py-4">
+        <div class="mat-body-medium text-on-surface-variant text-left">Function Name</div>
+        <div class="mat-body-medium text-on-surface-variant text-left">Triggers</div>
+        <div class="mat-body-medium text-on-surface-variant text-center">Effect</div>
+      </div>
+
+      @if (isFunctionsLoading()) {
+        @for (item of [].constructor(3); track $index) {
+          <div class="grid grid-cols-[2fr_1.5fr_0.6fr] items-center px-6 py-5 border-t border-outline-variant">
+            <div class="flex flex-col gap-1">
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div>
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '80px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div>
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+          </div>
+        }
+      } @else {
+        @for (func of functions(); track func.functionId) {
+          <div class="grid grid-cols-[2fr_1fr_1fr] items-center px-6 py-5 border-t border-outline-variant transition-colors">
+            <div class="mat-body-large text-on-surface text-left">
+              {{ func.name }}
+            </div>
+            <div class="mat-body-large text-on-surface text-left">
+              <span class="mat-label-small px-2 py-1 inline-flex items-center justify-center rounded-sm" [ngClass]="{
+                'bg-secondary-container text-on-secondary-container': func.trigger === 'purchase',
+                'bg-surface-container text-on-surface': func.trigger === 'signup'
+              }">
+                {{ func.trigger | titlecase }}
+              </span>
+            </div>
+            <div class="mat-body-medium text-on-surface text-center">
+              @if (func.conditions && func.conditions.length > 0) {
+                <span class="underline decoration-dotted decoration-outline decoration-[10%] underline-offset-[40%] cursor-pointer"
+                  [matTooltip]="getConditionsTooltip(func)"
+                  matTooltipPosition="right"
+                  matTooltipClass="whitespace-pre-line">
+                  @if (isFixedCommissionEffect(func)) {
+                    {{ getFixedCommissionValue(func) | formatCurrency:program()?.currency }} Commission
+                  } @else {
+                    {{ getEffectDisplay(func) }}
+                  }<sup>*</sup>
+                </span>
+              } @else {
+                @if (isFixedCommissionEffect(func)) {
+                  {{ getFixedCommissionValue(func) | formatCurrency:program()?.currency }} Commission
+                } @else {
+                  {{ getEffectDisplay(func) }}
+                }
+              }
+            </div>
+          </div>
+        }
+
+        @if (functions().length === 0) {
+          <div class="flex justify-center items-center py-16 border-t border-outline-variant">
+            <p class="mat-body-large text-on-surface-variant">No functions in this circle</p>
+          </div>
+        }
+
+        @if (functionsTotal()) {
+          <div class="flex items-center gap-2 px-6 py-4 border-t border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors" (click)="viewAllFunctions()">
+            <span class="mat-body-large text-primary">View all functions</span>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+ 
+  <div class="flex flex-col gap-6">
+    <p class="mat-title-large text-on-surface m-0">
+      Promoters in this circle
+    </p>
+
+    <div class="w-full border border-outline-variant rounded-[4px] flex items-center px-4 py-3">
+      <mat-icon class="text-on-surface-variant mr-3">search</mat-icon>
+      <input matInput [formControl]="promoterSearchControl" placeholder="Search in Circles"
+        class="w-full mat-body-large text-on-surface placeholder:text-outline focus:outline-none bg-transparent" />
+    </div>
+
+    <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
+
+      <div class="grid grid-cols-[2fr_1fr_1fr] items-center bg-surface-container-lowest px-6 py-4">
+        <div class="mat-body-medium text-on-surface-variant text-left">Name</div>
+        <div class="mat-body-medium text-on-surface-variant text-left">Joined At</div>
+        <div class="mat-body-medium text-on-surface-variant text-center">Status</div>
+      </div>
+
+      @if (isPromotersLoading()) {
+        @for (item of [].constructor(5); track $index) {
+          <div class="grid grid-cols-[2fr_1.5fr_0.6fr] items-center px-6 py-4 border-t border-outline-variant">
+            <div class="flex flex-col gap-1">
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div>
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '100px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+            <div>
+              <ngx-skeleton-loader [theme]="{ height: '1em', width: '60px', margin: '0' }"></ngx-skeleton-loader>
+            </div>
+          </div>
+        }
+      } @else {
+        @for (promoter of promoters(); track promoter.promoterId) {
+          <div class="grid grid-cols-[2fr_1.2fr_1fr] items-center px-6 py-4 border-t border-outline-variant transition-colors min-h-[80px]">
+            <div class="flex flex-col text-left truncate">
+              <span class="mat-body-large text-on-surface truncate">{{ promoter.name }}</span>
+              <span class="mat-body-large text-on-surface-variant truncate">{{ promoter.adminMemberEmail}}</span>
+            </div>
+            <div class="mat-body-large text-on-surface text-left">
+              {{ promoter.createdAt | ordinalDate }}
+            </div>
+            <div class="flex justify-center">
+              <span class="mat-label-small px-2 py-1 flex items-center justify-center rounded-sm min-w-[48px]" [ngClass]="{
+                'bg-secondary-container text-on-secondary-container': promoter.status === 'active',
+                'bg-surface-container text-on-surface': promoter.status === 'archived'
+              }">
+                {{ promoter.status === 'archived' ? 'Inactive' : (promoter.status | titlecase) }}
+              </span>
+            </div>
+          </div>
+        }
+
+        @if (promoters().length === 0) {
+          <div class="flex justify-center items-center py-16 border-t border-outline-variant">
+            <p class="mat-body-large text-on-surface-variant">No promoters in this circle</p>
+          </div>
+        }
+
+        @if (promoters().length > 0) {
+          <div class="flex items-center gap-2 px-6 py-4 border-t border-outline-variant cursor-pointer hover:bg-surface-container-low transition-colors" (click)="viewAllPromoters()">
+            <span class="mat-body-large text-primary">View all promoters</span>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+</div>
