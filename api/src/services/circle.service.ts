@@ -143,7 +143,7 @@ export class CircleService {
 	async getAllPromoters(
 		programId: string,
 		circleId: string,
-		name?: string,
+		query?: string,
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
 		this.logger.info('START: getAllPromoters service');
@@ -152,18 +152,18 @@ export class CircleService {
 			.createQueryBuilder('cp')
 			.innerJoin('cp.circle', 'circle')
 			.innerJoinAndSelect('cp.promoter', 'promoter')
-			.leftJoinAndSelect(
+			.innerJoinAndSelect(
 				'promoter.promoterMembers',
 				'pm',
 				'pm.role = :adminRole',
 				{ adminRole: memberRoleEnum.ADMIN },
 			)
-			.leftJoinAndSelect('pm.member', 'member')
+			.innerJoinAndSelect('pm.member', 'member')
 			.where('circle.circleId = :circleId', { circleId })
 			.andWhere('circle.programId = :programId', { programId });
 
-		if (name) {
-			const tsQuery = buildPrefixTsQuery(name);
+		if (query) {
+			const tsQuery = buildPrefixTsQuery(query);
 			qb.andWhere(
 				`(promoter.search_vector @@ to_tsquery('simple', :tsQuery) OR member.search_vector @@ to_tsquery('simple', :tsQuery))`,
 				{ tsQuery },

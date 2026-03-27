@@ -64,8 +64,4 @@ export class ConditionConverter {
 		}
 		return conditionDto;
 	}
-
-	convertMany(conditions: Condition[]): ConditionDto[] {
-		return conditions.map((condition) => this.convert(condition));
-	}
 }

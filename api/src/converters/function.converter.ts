@@ -38,8 +38,8 @@ export class FunctionConverter {
       }
 
       functionDto.trigger = func.trigger;
-      functionDto.conditions = this.conditionConverter.convertMany(
-        func.conditions,
+      functionDto.conditions = func.conditions.map((condition) =>
+        this.conditionConverter.convert(condition),
       );
 
       functionDto.createdAt = new Date(func.createdAt);

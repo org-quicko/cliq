@@ -67,15 +67,15 @@ export class CirclesService {
     getCirclePromoters(
         programId: string,
         circleId: string,
-        name?: string,
+        query?: string,
         skip?: number,
         take?: number,
     ): Observable<ApiResponse<PaginatedList<PromoterDto>>> {
         const url = `${this.endpoint}/${programId}/circles/${circleId}/promoters`;
 
         let params = new HttpParams();
-        if (name) {
-            params = params.set('name', name);
+        if (query) {
+            params = params.set('query', query);
         }
         if (skip !== undefined) {
             params = params.set('skip', skip.toString());
