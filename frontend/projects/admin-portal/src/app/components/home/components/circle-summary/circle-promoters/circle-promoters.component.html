@@ -51,10 +51,10 @@
 			}
 		} @else {
 			@for (promoter of promoters(); track promoter.promoterId) {
-				<div class="grid grid-cols-[2fr_1.2fr_1fr] items-center px-6 py-4 border-t border-outline-variant transition-colors">
+				<div class="grid grid-cols-[2fr_1.2fr_1fr] items-center px-6 py-4 border-t border-outline-variant transition-colors min-h-[80px]">
 				<div class="flex flex-col text-left truncate">
 					<span class="mat-body-large text-on-surface truncate">{{ promoter.name }}</span>
-					<span class="mat-body-large text-on-surface-variant truncate">{{ promoter.adminMemberEmail || '-'}}</span>
+					<span class="mat-body-large text-on-surface-variant truncate">{{ promoter.adminMemberEmail}}</span>
 					</div>
 					<div class="mat-body-large text-on-surface text-left">
 						{{ promoter.createdAt | ordinalDate }}
