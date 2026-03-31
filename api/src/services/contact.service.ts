@@ -6,6 +6,9 @@ import { CreateContactDto } from '../dtos';
 import { ContactConverter } from '../converters/contact.converter';
 import { ProgramService } from './program.service';
 import { contactStatusEnum, referralKeyTypeEnum } from '../enums';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CONTACT_CREATED, ContactCreatedEvent } from 'src/events/ContactCreated.event';
+import { contactEntityName } from 'src/constants';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 
@@ -19,6 +22,8 @@ export class ContactService {
 		private programService: ProgramService,
 
 		private contactConverter: ContactConverter,
+
+		private eventEmitter: EventEmitter2,
 
 	) {}
 
@@ -43,6 +48,26 @@ export class ContactService {
 		});
 
 		const savedContact = await this.contactRepository.save(newContact);
+
+		const contactCreatedEvent = new ContactCreatedEvent(
+			programResult.programId,
+			'urn:org.quicko.cliq',
+			{
+				[contactEntityName]: {   
+					"@entity": contactEntityName,
+					contactId: savedContact.contactId,
+					email: savedContact.email,
+					firstName: savedContact.firstName,
+					lastName: savedContact.lastName,
+					phone: savedContact.phone,
+					createdAt: savedContact.createdAt,
+					updatedAt: savedContact.updatedAt,
+				}
+			},
+			savedContact.contactId
+		);
+
+		this.eventEmitter.emit(CONTACT_CREATED, contactCreatedEvent);
 
 		this.logger.info('END: createContact service');
 		return this.contactConverter.convert(savedContact);

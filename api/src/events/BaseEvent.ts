@@ -17,7 +17,10 @@ export abstract class BaseEvent {
     
     @Expose({ name: 'program_id' })
     public programId: string;
-    
+
+    @Expose({ name: 'promoter_id' })
+    public promoterId: string;
+
     @Expose({ name: 'source' })
     public source: string;
     

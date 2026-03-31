@@ -20,6 +20,9 @@ export class WebhookService {
     async createWebhook(programId: string, body: CreateWebhookDto) {
         this.logger.info(`START: createWebhook service`);
 
+        // Check if any of the events already exist on another webhook
+        await this.checkEventDuplicates(programId, body.events);
+
         const webhook = this.webhookRepository.create({
             programId,
             ...body
@@ -79,6 +82,8 @@ export class WebhookService {
             if (body.events.length === 0) {
                 throw new BadRequestException('Events array cannot be empty.');
             }
+            // Check if any of the events already exist on another webhook
+            await this.checkEventDuplicates(programId, body.events, webhookId);
         }
 
         await this.webhookRepository.update({ webhookId }, { ...body });
@@ -106,5 +111,25 @@ export class WebhookService {
 
         if (!webhookResult) return false;
         else return true;
+    }
+
+    private async checkEventDuplicates(programId: string, events: string[], excludeWebhookId?: string) {
+        const existingWebhooks = await this.webhookRepository.find({
+            where: { programId },
+        });
+
+        for (const webhook of existingWebhooks) {
+            if (excludeWebhookId && webhook.webhookId === excludeWebhookId) {
+                continue; // Skip the current webhook when updating
+            }
+
+            const duplicates = webhook.events.filter(event => events.includes(event));
+
+            if (duplicates.length > 0) {
+                throw new BadRequestException(
+                    `Events ${duplicates.join(', ')} are already assigned to another webhook in this program.`
+                );
+            }
+        }
     }
 }

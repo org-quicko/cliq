@@ -1,4 +1,4 @@
-import { commissionEntityName, purchaseEntityName, signUpEntityName } from "../constants";
+import { commissionEntityName, contactEntityName, purchaseEntityName, signUpEntityName } from "../constants";
 import { triggerEnum } from "../enums";
 import { conversionTypeEnum } from '../enums/conversionType.enum';
 
@@ -45,6 +45,19 @@ export interface PurchaseCreatedEventData extends TriggerEventData {
         createdAt: Date;
         updatedAt: Date;
         utmParams?: object;
+    }
+};
+
+export interface ContactCreatedEventData {
+    [contactEntityName]: {
+        "@entity": string;
+        contactId: string;
+        email?: string;
+        firstName?: string;
+        lastName?: string;
+        phone?: string;
+        createdAt: Date;
+        updatedAt: Date;
     }
 };
 

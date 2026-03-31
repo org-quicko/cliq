@@ -4,11 +4,14 @@ import axios, { AxiosInstance } from 'axios';
 import { InternalServerErrorException } from '@nestjs/common';
 import { eventQueueName } from '../constants';
 import { instanceToPlain } from 'class-transformer';
+import { LoggerFactory } from '@org-quicko/core';
+import winston from 'winston'
 
 export const webhookJobName = 'org-quicko-cliq-webhook-job';
 
 @Processor(eventQueueName)
 export class EventConsumer extends WorkerHost {
+     private logger: winston.Logger = LoggerFactory.getLogger(EventConsumer.name);
 
     private client: AxiosInstance;
 

@@ -1,5 +1,5 @@
 import { OnEvent } from "@nestjs/event-emitter";
-import { BaseEvent, COMMISSION_CREATED, PURCHASE_CREATED, SIGNUP_CREATED } from "../events";
+import { BaseEvent, COMMISSION_CREATED, PURCHASE_CREATED, SIGNUP_CREATED, CONTACT_CREATED } from "../events";
 import { generateSignature } from "../utils";
 import { InjectQueue } from "@nestjs/bullmq";
 import { eventQueueName } from "../constants";
@@ -41,12 +41,14 @@ export class WebhookPublisherService {
     @OnEvent(COMMISSION_CREATED)
     @OnEvent(SIGNUP_CREATED)
     @OnEvent(PURCHASE_CREATED)
+    @OnEvent(CONTACT_CREATED)
     private async handleEvent(event: BaseEvent): Promise<void> {
         this.logger.info(`START: handleEvent service`);
 
         // get the program's webhooks
         const webhooks = await this.getWebhooksForEvent(event.programId, event.type.split('org.quicko.cliq.')[1]);
         this.logger.info(`Dispatching event "${event.type}" to ${webhooks.length} webhook(s)`);
+        this.logger.info(`Event payload: ${JSON.stringify(event)}`);
 
         for (const webhook of webhooks) {
 

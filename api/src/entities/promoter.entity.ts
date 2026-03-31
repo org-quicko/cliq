@@ -14,6 +14,7 @@ import { PromoterMember } from './promoterMember.entity';
 import { Purchase } from './purchase.entity';
 import { Commission } from './commission.entity';
 import { promoterStatusEnum } from 'src/enums';
+import { PromoterWebhook } from './promoterWebhook.entity';
 
 @Entity()
 export class Promoter {
@@ -63,4 +64,7 @@ export class Promoter {
 
 	@OneToMany(() => Commission, (commission) => commission.promoter)
 	commissions: Commission[];
+
+	@OneToMany(() => PromoterWebhook, (promoterWebhook) => promoterWebhook.promoter)
+	promoterWebhooks: PromoterWebhook[];
 }

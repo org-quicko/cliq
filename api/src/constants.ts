@@ -11,6 +11,7 @@ export const linkAnalyticsMVName = 'link_analytics_mv';
 export const signUpEntityName = 'org.quicko.cliq.signup';
 export const purchaseEntityName = 'org.quicko.cliq.purchase';
 export const commissionEntityName = 'org.quicko.cliq.commission';
+export const contactEntityName = 'org.quicko.cliq.contact';
 
 export const eventTypePrefix = 'org.quicko.cliq';
 

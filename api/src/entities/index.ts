@@ -22,3 +22,4 @@ export * from './referralView.entity';
 export * from './signUp.entity';
 export * from './user.entity';
 export * from './webhook.entity';
+export * from './promoterWebhook.entity';
