@@ -27,6 +27,8 @@ export class SignUpSheetConverter {
 			const signUpTable = this.signUpTableConverter.convertFrom(signUps);
 			signUpSheet.replaceBlock(signUpTable);
 
+			console.log('signUpSheet', signUpSheet);
+
 			return signUpSheet;
 			
 		} catch (error) {

@@ -658,7 +658,8 @@ export class PromoterService {
 				...whereOptions
 			},
 			relations: {
-				contact: true
+				contact: true,
+				link:true
 			},
 		});
 
@@ -1154,7 +1155,8 @@ export class PromoterService {
 				...whereOptions
 			},
 			relations: {
-				contact: true
+				contact: true,
+				link:true
 			},
 		});
 

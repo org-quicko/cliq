@@ -27,6 +27,11 @@
 								<div class="mat-body-medium tracking-normal text-on-surface">API Keys</div>
 							</div>
 						</a>
+						<a mat-tab-link routerLink="webhooks" routerLinkActive #rlaWebhooks="routerLinkActive" [active]="rlaWebhooks.isActive" [class]="rlaWebhooks.isActive ? 'text-primary' : 'text-on-surface-variant'">
+							<div class="flex justify-start items-center gap-[8px] py-[12px]">
+								<div class="mat-body-medium tracking-normal text-on-surface">Webhooks</div>
+							</div>
+						</a>
 					</nav>
 					<mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 				</div>

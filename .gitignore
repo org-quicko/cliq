@@ -1,4 +1,5 @@
 .env
+mcp.json
 resources/**/test-results/
 local.postman_environment.json
 data

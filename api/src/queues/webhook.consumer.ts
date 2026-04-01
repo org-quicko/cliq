@@ -24,6 +24,8 @@ export class EventConsumer extends WorkerHost {
         
         const { url, event, signature } = job.data;
 
+        this.logger.info(`Processing job ${job.id} for URL: ${url}`);
+
         switch (job.name) {
             case webhookJobName:
                 try {

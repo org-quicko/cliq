@@ -1,0 +1,106 @@
+<div class="w-full h-auto min-h-[528px] flex flex-col gap-4">
+	<!-- Header -->
+	<div class="h-auto min-h-10 flex flex-row justify-between items-center">
+		<div>
+			<span class="text-on-surface mat-title-large">Webhooks</span>
+		</div>
+		<div>
+			<button mat-flat-button class="bg-primary text-on-primary rounded-full cursor-pointer" (click)="onCreateWebhook()">
+				<mat-icon class="material-symbols-outlined">add</mat-icon>
+				Create
+			</button>
+		</div>
+	</div>
+
+	<!-- Content -->
+	<div class="border border-outline-variant rounded-[5px] overflow-hidden">
+		@if (isLoading()) {
+			<!-- Loading Skeleton -->
+			<div class="flex flex-col">
+				<div class="flex px-6 py-3 bg-surface-container">
+					<div class="flex-1">
+						<ngx-skeleton-loader [theme]="{ height: '16px', width: '100px', margin: '0' }"></ngx-skeleton-loader>
+					</div>
+					<div class="flex-1">
+						<ngx-skeleton-loader [theme]="{ height: '16px', width: '80px', margin: '0' }"></ngx-skeleton-loader>
+					</div>
+				</div>
+				@for (i of [1, 2, 3]; track i) {
+					<div class="flex px-6 py-4 border-t border-outline-variant">
+						<div class="flex-1">
+							<ngx-skeleton-loader [theme]="{ height: '20px', width: '300px', margin: '0' }"></ngx-skeleton-loader>
+						</div>
+						<div class="flex-1">
+							<ngx-skeleton-loader [theme]="{ height: '24px', width: '120px', margin: '0' }"></ngx-skeleton-loader>
+						</div>
+					</div>
+				}
+			</div>
+		} @else if (webhooks().length === 0) {
+			<!-- Empty State -->
+			<div class="flex flex-col items-center justify-center py-16 gap-4">
+				<div class="scale-150 rounded-full inline-flex justify-start items-center gap-2.5 overflow-hidden bg-surface-container p-3">
+					<mat-icon class="material-symbols-outlined">webhook</mat-icon>
+				</div>
+				<div class="text-center">
+					<div class="mat-title-medium text-on-surface mb-2">No webhook endpoints found</div>
+					<div class="mat-body-medium text-on-surface-variant">
+						Create a webhook endpoint to receive events from Cliq.
+					</div>
+				</div>
+				<button mat-flat-button class="bg-primary text-on-primary rounded-full cursor-pointer" (click)="onCreateWebhook()">
+					<mat-icon class="material-symbols-outlined">add</mat-icon>
+					Create
+				</button>
+			</div>
+		} @else {
+			<!-- Webhook List -->
+			<div class="flex flex-col">
+				<!-- Table Header -->
+				<div class="flex items-center px-6 py-4 gap-8">
+					<div class="flex-1 mat-body-medium text-on-surface font-medium">Webhook URL</div>
+					<div class="flex-1 mat-body-medium text-on-surface font-medium">Events</div>
+					<div class="w-12"></div>
+				</div>
+
+				<!-- Table Rows -->
+				@for (webhook of webhooks(); track webhook.webhook_id) {
+					<div class="group flex items-center px-6 py-3 gap-8 border-t border-outline-variant hover:bg-surface-container-low">
+						<!-- URL -->
+						<div class="flex-1 flex items-center gap-1 min-w-0">
+							<span
+								class="text-base font-medium text-on-surface-variant truncate cursor-pointer hover:underline hover:underline-offset-5 hover:decoration-dotted"
+								(click)="copyWebhookUrl(webhook.webhook_id, webhook.url)">
+								{{ webhook.url }}
+							</span>
+							<mat-icon
+								class="material-symbols-outlined !text-[18px] !w-[18px] !h-[18px] !leading-[18px] text-on-surface-variant shrink-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+								(click)="copyWebhookUrl(webhook.webhook_id, webhook.url)">
+								{{ copiedWebhookId === webhook.webhook_id ? 'check' : 'content_copy' }}
+							</mat-icon>
+						</div>
+
+						<!-- Events -->
+						<div class="flex-1 flex flex-wrap gap-2">
+							@for (event of webhook.events; track event) {
+								<span class="inline-flex items-center px-2 py-1 rounded bg-secondary-container text-sm font-medium text-on-surface-variant">
+									{{ event }}
+								</span>
+							}
+						</div>
+
+						<!-- Delete -->
+						<div class="w-12 flex justify-end">
+							<button mat-icon-button
+								class="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+								matTooltip="Delete webhook"
+								(click)="onDeleteWebhook(webhook.webhook_id)">
+								<mat-icon class="material-symbols-outlined text-on-surface-variant">delete</mat-icon>
+							</button>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
+</div>

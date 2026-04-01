@@ -62,6 +62,7 @@ export class PromoterWebhookPublisherService {
         
 
         this.logger.info(`Dispatching event "${event.type}" to ${webhooks.length} promoter webhook(s)`);
+        this.logger.info('Event payload: ' + JSON.stringify(event));
 
         for (const webhook of webhooks) {
 
