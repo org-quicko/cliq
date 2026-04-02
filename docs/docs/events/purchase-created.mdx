@@ -1,0 +1,91 @@
+---
+id: purchase-created
+title: "purchase.created"
+sidebar_label: "purchase.created"
+hide_title: true
+hide_table_of_contents: false
+---
+
+import Heading from "@theme/Heading";
+
+<Heading as={"h1"}>purchase.created</Heading>
+
+Published when a contact successfully completes a purchase via a referral link.
+
+**Event type:** `in.org.quicko.cliq.purchase.created`
+
+## Event Schema
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (uuid) | Unique event ID |
+| `time` | string (ISO 8601) | Time the event occurred |
+| `specversion` | string | CloudEvents spec version |
+| `datacontenttype` | string | `application/json` |
+| `program_id` | string (uuid) | Program the purchase belongs to |
+| `source` | string | Originating endpoint |
+| `type` | string | Event type identifier |
+| `subject` | string (uuid) | Purchase ID |
+| `purchase_id` | string (uuid) | ID of the purchase (same as `subject`) |
+| `data` | object | Event data (see below) |
+
+### `data`
+
+| Field | Type | Description |
+|---|---|---|
+| `@entity` | string |`in.org.quicko.cliq.purchase` |
+| `trigger_type` | string |`purchase` |
+| `contact_id` | string (uuid) | ID of the contact who made the purchase |
+| `promoter_id` | string (uuid) | Promoter who owns the referral link |
+| `link_id` | string (uuid) | Referral link used for the purchase |
+| `item_id` | string | Identifier of the purchased item |
+| `amount` | number | Purchase amount |
+| `created_at` | string (ISO 8601) | Purchase creation timestamp |
+| `updated_at` | string (ISO 8601) | Purchase last updated timestamp |
+| `utm_params` | object | UTM tracking parameters (optional) |
+
+#### `utm_params`
+
+| Field | Type | Description |
+|---|---|---|
+| `utm_id` | string | UTM ID |
+| `utm_source` | string | UTM source (e.g. `instagram`) |
+| `utm_medium` | string | UTM medium (e.g. `social`) |
+| `utm_campaign` | string | UTM campaign name |
+| `utm_term` | string | UTM term |
+| `utm_content` | string | UTM content |
+
+## Example Payload
+
+```json
+{
+  "id": "12d0c401-395a-47b2-9235-3a85280a3402",
+  "time": "2026-04-01T12:53:13.546Z",
+  "specversion": "1.0",
+  "datacontenttype": "application/json",
+  "program_id": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+  "source": "urn:POST:/purchases",
+  "type": "in.org.quicko.cliq.purchase.created",
+  "subject": "311fcc58-03e3-4aef-9d53-cae41c33c62a",
+  "purchase_id": "311fcc58-03e3-4aef-9d53-cae41c33c62a",
+  "data": {
+    "@entity": "in.org.quicko.cliq.purchase",
+    "trigger_type": "purchase",
+    "contact_id": "7cfbc412-49d6-4132-bd38-7fabcfe342ce",
+    "promoter_id": "733dd245-d263-4544-8717-8af4bb67f15f",
+    "link_id": "4f037e65-7d06-4414-9510-ffad9d0f6ff0",
+    "item_id": "item1",
+    "amount": 420,
+    "created_at": "2026-04-01T12:53:13.250Z",
+    "updated_at": "2026-04-01T12:53:13.250Z",
+    "utm_params": {
+      "utm_id": "2345",
+      "utm_source": "instagram",
+      "utm_medium": "social",
+      "utm_campaign": "fireship",
+      "utm_term": "ok",
+      "utm_content": "logolink"
+    }
+  }
+}
+```

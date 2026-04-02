@@ -1,0 +1,87 @@
+---
+id: signup-created
+title: "signup.created"
+sidebar_label: "signup.created"
+hide_title: true
+hide_table_of_contents: false
+---
+
+import Heading from "@theme/Heading";
+
+<Heading as={"h1"}>signup.created</Heading>
+
+Published when a contact successfully signs up via a referral link.
+
+**Event type:** `in.org.quicko.cliq.signup.created`
+
+## Event Schema
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (uuid) | Unique event ID |
+| `time` | string (ISO 8601) | Time the event occurred |
+| `specversion` | string | CloudEvents spec version |
+| `datacontenttype` | string | `application/json` |
+| `program_id` | string (uuid) | Program the signup belongs to |
+| `source` | string | Originating endpoint |
+| `type` | string | Event type identifier |
+| `subject` | string (uuid) | Contact ID |
+| `signup_id` | string (uuid) | ID of the signup (same as `subject`) |
+| `data` | object | Event data (see below) |
+
+### `data`
+
+| Field | Type | Description |
+|---|---|---|
+| `@entity` | string | `in.org.quicko.cliq.signup` |
+| `contact_id` | string (uuid) | ID of the signed-up contact |
+| `trigger_type` | string | `signup` |
+| `promoter_id` | string (uuid) | Promoter who owns the referral link |
+| `link_id` | string (uuid) | Referral link used for the signup |
+| `created_at` | string (ISO 8601) | Signup creation timestamp |
+| `updated_at` | string (ISO 8601) | Signup last updated timestamp |
+| `utm_params` | object | UTM tracking parameters (optional) |
+
+#### `utm_params`
+
+| Field | Type | Description |
+|---|---|---|
+| `utm_id` | string | UTM ID |
+| `utm-source` | string | UTM source (e.g. `instagram`) |
+| `utm_medium` | string | UTM medium (e.g. `social`) |
+| `utm_campaign` | string | UTM campaign name |
+| `utm_term` | string | UTM term |
+| `utm_content` | string | UTM content |
+
+## Example Payload
+
+```json
+{
+  "id": "4cca9e1e-1a82-4312-b195-045575099a12",
+  "time": "2026-04-01T12:03:33.916Z",
+  "specversion": "1.0",
+  "datacontenttype": "application/json",
+  "program_id": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+  "source": "urn:POST:/signups",
+  "type": "in.org.quicko.cliq.signup.created",
+  "subject": "019d4ee2-5e4d-484f-a175-0a23c5318e55",
+  "signup_id": "019d4ee2-5e4d-484f-a175-0a23c5318e55",
+  "data": {
+    "@entity": "in.org.quicko.cliq.signup",
+    "contact_id": "019d4ee2-5e4d-484f-a175-0a23c5318e55",
+    "trigger_type": "signup",
+    "promoter_id": "d342c6dd-2ef5-4a76-9325-91906dcc560f",
+    "link_id": "92f75eee-ecc8-47c4-87d9-dea983114fef",
+    "created_at": "2026-04-01T12:03:33.679Z",
+    "updated_at": "2026-04-01T12:03:33.679Z",
+    "utm_params": {
+      "utm_id": "2345",
+      "utm_source": "instagram",
+      "utm_medium": "social",
+      "utm_campaign": "fireship",
+      "utm_term": "ok",
+      "utm_content": "logolink"
+    }
+  }
+}
+```

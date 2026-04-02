@@ -1,0 +1,41 @@
+---
+id: events-introduction
+title: "Events"
+sidebar_label: "Introduction"
+hide_title: true
+hide_table_of_contents: false
+---
+
+import Heading from "@theme/Heading";
+
+<Heading as={"h1"}>Events</Heading>
+
+Cliq publishes real-time events whenever key actions occur within a referral program. These events can be delivered to your system via webhooks.
+
+## What are Events?
+
+An event is a message emitted by Cliq after a state change. Each event follows the [CloudEvents](https://cloudevents.io/) specification and is delivered as a JSON payload to a configured webhook URL.
+
+Every event includes:
+- A unique `id` and `time` for traceability
+- A `type` that identifies what happened (e.g. `in.org.quicko.cliq.signup.created`)
+- A `programId` scoping the event to a specific referral program
+- A `data` object containing the details of the action
+
+## Event Types
+
+Cliq emits the following events:
+
+| Event type | Description |
+|---|---|
+| `in.org.quicko.cliq.signup.created` | A contact signed up via a referral link |
+| `in.org.quicko.cliq.purchase.created` | A contact completed a purchase via a referral link |
+| `in.org.quicko.cliq.commission.created` | A commission was generated for a promoter |
+
+## Delivery
+
+Events are delivered asynchronously. Cliq will POST the event payload to each webhook URL registered for the matching event type under your program. Delivery is retried up to 3 times with exponential backoff on failure.
+
+## Security
+
+Each event delivery includes an `x-webhook-signature` header. This is an HMAC signature computed from the event `data` payload using your webhook secret. Validate this signature on your server to confirm the request originated from Cliq.
