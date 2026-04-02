@@ -18,4 +18,4 @@ export class PurchaseCreatedEvent extends TriggerEvent {
 	}
 }
 
-export const PURCHASE_CREATED = 'org.quicko.cliq.purchase.created';
+export const PURCHASE_CREATED = 'in.org.quicko.cliq.purchase.created';

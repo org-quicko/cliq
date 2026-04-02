@@ -55,20 +55,18 @@ export class CommissionService {
 
 			const commissionCreatedEvent = new CommissionCreatedEvent(
 				commissionResult.contact.programId,
-				'urn:org.quicko.cliq',
+				'urn:in.org.quicko',
 				{
-					[commissionEntityName]: {
-						"@entity": commissionEntityName,
-						commissionId: commissionResult.commissionId,
-						contactId: commissionResult.contactId,
-						conversionType: commissionResult.conversionType,
-						promoterId: commissionResult.promoterId,
-						linkId: commissionResult.linkId,
-						amount: commissionResult.amount,
-						revenue: commissionResult.revenue,
-						createdAt: commissionResult.createdAt,
-						updatedAt: commissionResult.updatedAt,
-					}
+					"@entity": commissionEntityName,
+					commissionId: commissionResult.commissionId,
+					contactId: commissionResult.contactId,
+					conversionType: commissionResult.conversionType,
+					promoterId: commissionResult.promoterId,
+					linkId: commissionResult.linkId,
+					amount: commissionResult.amount,
+					revenue: commissionResult.revenue,
+					createdAt: commissionResult.createdAt,
+					updatedAt: commissionResult.updatedAt,
 				},
 				commissionResult.commissionId
 			);

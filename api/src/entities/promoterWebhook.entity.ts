@@ -42,8 +42,6 @@ export class PromoterWebhook {
     @Column('varchar')
     secret: string;
 
-    // Array of event types this webhook is subscribed to
-    // for example: ['offer.created', 'participant.updated']
     @Column('varchar', { array: true })
     events: string[];
 

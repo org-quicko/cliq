@@ -70,7 +70,7 @@ export class FunctionTriggerService {
 	private async loopThroughFunctions(event: TriggerEvent, funcs: Function[], functionType: effectEnum) {
         this.logger.info(`START: loopThroughFunctions service. Type of Functions- ${functionType}`);
 
-        const eventEntityPayload = Object.values(event.data)[0];
+        const eventEntityPayload = event.data;
 
         // function should not be triggered, if:
         // 1. Function is inactive
@@ -108,7 +108,7 @@ export class FunctionTriggerService {
     private async triggerFunction(func: Function, event: TriggerEvent) {
         this.logger.info(`START: triggerFunction service`);
 
-        const eventEntityPayload = Object.values(event.data)[0];
+        const eventEntityPayload = event.data;
 
         if (func.effect instanceof SwitchCircleEffect) {
 
@@ -183,7 +183,7 @@ export class FunctionTriggerService {
 
         let evalResult: boolean;
 
-        const eventEntityPayload = Object.values(event.data)[0];
+        const eventEntityPayload = event.data;
 
         let promoterAnalyticsView: PromoterAnalyticsView;
         let numOfSignUps: number = 0;

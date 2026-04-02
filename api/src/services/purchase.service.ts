@@ -147,18 +147,16 @@ export class PurchaseService {
 				associatedContact.programId,
 				'urn:POST:/purchases',
 				{
-					[purchaseEntityName]: {
-						"@entity": purchaseEntityName,
-						triggerType: triggerEnum.PURCHASE,
-						contactId: associatedContact.contactId,
-						promoterId,
-						linkId: linkResult.linkId,
-						itemId: savedPurchase.itemId,
-						amount: savedPurchase.amount,
-						createdAt: savedPurchase.createdAt,
-						updatedAt: savedPurchase.updatedAt,
-						utmParams: savedPurchase.utmParams,
-					}
+					"@entity": purchaseEntityName,
+					triggerType: triggerEnum.PURCHASE,
+					contactId: associatedContact.contactId,
+					promoterId,
+					linkId: linkResult.linkId,
+					itemId: savedPurchase.itemId,
+					amount: savedPurchase.amount,
+					createdAt: savedPurchase.createdAt,
+					updatedAt: savedPurchase.updatedAt,
+					utmParams: savedPurchase.utmParams,
 				},
 				savedPurchase.purchaseId,
 			);

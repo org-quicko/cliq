@@ -19,4 +19,4 @@ export class CommissionCreatedEvent extends BaseEvent {
     }
 }
 
-export const COMMISSION_CREATED = 'org.quicko.cliq.commission.created';
+export const COMMISSION_CREATED = 'in.org.quicko.cliq.commission.created';

@@ -19,4 +19,4 @@ export class SignUpCreatedEvent extends TriggerEvent {
     }
 }
 
-export const SIGNUP_CREATED = 'org.quicko.cliq.signup.created';
+export const SIGNUP_CREATED = 'in.org.quicko.cliq.signup.created';

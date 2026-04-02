@@ -143,16 +143,14 @@ export class SignUpService {
 				savedContact.programId,
 				'urn:POST:/signups',
 				{
-					[signUpEntityName]: {
-						"@entity": signUpEntityName,
-						contactId: savedContact.contactId,
-						triggerType: triggerEnum.SIGNUP,
-						promoterId: linkResult.promoterId,
-						linkId: linkResult.linkId,
-						createdAt: savedSignUp.createdAt,
-						updatedAt: savedSignUp.updatedAt,
-						utmParams: savedSignUp.utmParams,
-					}
+					"@entity": signUpEntityName,
+					contactId: savedContact.contactId,
+					triggerType: triggerEnum.SIGNUP,
+					promoterId: linkResult.promoterId,
+					linkId: linkResult.linkId,
+					createdAt: savedSignUp.createdAt,
+					updatedAt: savedSignUp.updatedAt,
+					utmParams: savedSignUp.utmParams,
 				},
 				savedSignUp.contactId,
 			);
