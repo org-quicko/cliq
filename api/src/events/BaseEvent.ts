@@ -47,6 +47,7 @@ export abstract class BaseEvent {
         this.type = type;
         this.data = data;
         this.subject = subject;
+        this.promoterId = data['promoterId'];
 
     }
 

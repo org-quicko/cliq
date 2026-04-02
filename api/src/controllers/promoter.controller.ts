@@ -296,12 +296,15 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getPromoterReferrals controller');
 
+		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
+
 		const result = await this.promoterService.getPromoterReferrals(
 			memberId,
 			programId,
 			promoterId,
 			sortBy,
 			sortOrder,
+			toUseSheetJsonFormat,
 			undefined,
 			{
 				skip,

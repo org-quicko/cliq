@@ -145,10 +145,10 @@ export class FunctionTriggerService {
             createCommissionDto.amount = commissionAmount;
             
             if (event instanceof PurchaseCreatedEvent) {
-                createCommissionDto.externalId = event.purchaseId!;
+                createCommissionDto.referenceId = event.purchaseId!;
                 
             } else if (event instanceof SignUpCreatedEvent) {
-                createCommissionDto.externalId = event.signUpId!;
+                createCommissionDto.referenceId = event.signUpId!;
             }
 
             await this.commissionService.createCommission(createCommissionDto);

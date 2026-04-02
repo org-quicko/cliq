@@ -694,6 +694,7 @@ export class PromoterService {
 		promoterId: string,
 		sortBy?: referralSortByEnum,
 		sortOrder: sortOrderEnum = sortOrderEnum.DESCENDING,
+		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<ReferralView> = {},
 		queryOptions: QueryOptionsInterface = defaultQueryOptions,
 	) {
@@ -717,15 +718,6 @@ export class PromoterService {
 		}
 
 		const [referralResult, count] = await this.referralViewRepository.findAndCount({
-			select: {
-				promoterId: true,
-				status: true,
-				contactId: true,
-				contactInfo: true,
-				totalRevenue: true,
-				totalCommission: true,
-				updatedAt: true,
-			},
 			where: {
 				programId,
 				promoterId,
@@ -735,18 +727,28 @@ export class PromoterService {
 			...queryOptions
 		});
 
-		const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
-			referralSheetInput: {
-				referrals: referralResult,
-				metadata: {
-					count
+		if (toUseSheetJsonFormat) {
+			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+				referralSheetInput: {
+					referrals: referralResult,
+					metadata: {
+						count
+					}
 				}
-			}
-		});
+			});
 
-		this.logger.info(`END: getPromoterReferrals service: Returning Workbook`);
-		return promoterWorkbook;
+			this.logger.info(`END: getPromoterReferrals service: Returning Workbook`);
+			return promoterWorkbook;
+		}
+
+		const referralDtos = referralResult.map((referral) =>
+			this.referralConverter.convertTo(referral)
+		);
+
+		this.logger.info(`END: getPromoterReferrals service`);
+		return referralDtos;
 	}
+
 
 	async getPromoterReferral(
 		programId: string,
