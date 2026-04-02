@@ -14,17 +14,18 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "API",
+      label: "Promoter",
       items: [
-        {
-          type: "doc",
-          id: "api-introduction",
-          label: "Introduction",
-        },
+
         {
           type: "category",
-          label: "Promoter Open API",
+          label: "Open API",
           items: [
+            {
+              type: "doc",
+              id: "api-introduction",
+              label: "Introduction",
+            },
             {
               type: "category",
               label: "Promoter",
@@ -233,6 +234,32 @@ const sidebar: SidebarsConfig = {
             },
 
 
+          ],
+        },
+        {
+          type: "category",
+          label: "Events",
+          items: [
+            {
+              type: "doc",
+              id: "events/events-introduction",
+              label: "Introduction",
+            },
+            {
+              type: "doc",
+              id: "events/signup-created",
+              label: "signup.created",
+            },
+            {
+              type: "doc",
+              id: "events/purchase-created",
+              label: "purchase.created",
+            },
+            {
+              type: "doc",
+              id: "events/commission-created",
+              label: "commission.created",
+            },
           ],
         },
       ],
