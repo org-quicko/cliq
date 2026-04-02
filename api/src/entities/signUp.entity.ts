@@ -62,6 +62,6 @@ export class SignUp {
 	@Column('uuid', { name: 'link_id' })
 	linkId: string;
 
-	// @Column('varchar', { name: 'external_id', nullable: true })
-	// externalId: string;
+	@Column('varchar', { name: 'external_id', nullable: true })
+	externalId: string;
 }

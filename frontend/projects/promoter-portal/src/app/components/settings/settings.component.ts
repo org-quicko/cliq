@@ -5,11 +5,12 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink, RouterOutlet, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { ApiKeysStore } from './store/api-keys.store';
+import { PromoterWebhooksStore } from './store/promoter-webhooks.store';
 
 @Component({
 	selector: 'app-settings',
 	imports: [MatTabsModule, MatDividerModule, RouterOutlet, RouterLink, RouterLinkActive, TitleCasePipe],
-	providers: [ApiKeysStore],
+	providers: [ApiKeysStore, PromoterWebhooksStore],
 	templateUrl: './settings.component.html',
 	styleUrl: './settings.component.css',
 
@@ -25,6 +26,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 		{ path: 'promoter', label: 'Promoter' },
 		{ path: 'team', label: 'Team' },
 		{ path: 'api-keys', label: 'API Keys' },
+		{ path: 'webhooks', label: 'Webhooks' },
 	];
 
 	selectedTab: string = '';

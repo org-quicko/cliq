@@ -379,7 +379,7 @@ export class AuthorizationService {
                 allow('manage', [Link, Circle, Function, ApiKey, Webhook], { programId });
 
             } else if (role === userRoleEnum.EDITOR) {
-                allow('manage', [Link, Circle, Function], { programId });
+                allow('manage', [Link, Circle, Function, Webhook], { programId });
             }
 
         }
@@ -441,6 +441,7 @@ export class AuthorizationService {
     allow(['read', 'read_all'], [Link, ReferralView, PromoterAnalyticsView, Commission, SignUp, Purchase], { promoterId });
     allow(['read', 'read_all'], LinkAnalyticsView);
     allow('manage', ApiKey, { programId });
+    allow('manage', PromoterWebhook, { promoterId });
 
     const ability = build({
         detectSubjectType: (item) =>
@@ -468,7 +469,7 @@ export class AuthorizationService {
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 
             if (role === memberRoleEnum.EDITOR) {
-                allow('manage', Link, { promoterId });
+                allow('manage', [Link, PromoterWebhook], { promoterId });
                 allow('update', Promoter);
 
             } else if (role === memberRoleEnum.ADMIN) {

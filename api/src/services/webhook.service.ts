@@ -25,6 +25,7 @@ export class WebhookService {
 
         const webhook = this.webhookRepository.create({
             programId,
+            
             ...body
         });
 

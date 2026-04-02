@@ -5,14 +5,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import { SnackbarService, Status, WebhookDto, NotAllowedDialogBoxComponent } from '@org.quicko.cliq/ngx-core';
-import { ProgramStore } from '../../../store/program.store';
-import { WebhooksStore } from '../store/webhooks.store';
+import { SnackbarService, Status, PromoterWebhookDto, NotAllowedDialogBoxComponent } from '@org.quicko.cliq/ngx-core';
+import { ProgramStore } from '../../../../store/program.store';
+import { PromoterStore } from '../../../../store/promoter.store';
+import { PromoterWebhooksStore } from '../../store/promoter-webhooks.store';
 import { WebhookDialogComponent } from './webhook-dialog/webhook-dialog.component';
-import { InfoDialogBoxComponent } from '../../common/info-dialog-box/info-dialog-box.component';
+import { InfoDialogBoxComponent } from '../../../common/info-dialog-box/info-dialog-box.component';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { AbilityServiceSignal } from '@casl/angular';
-import { UserAbility } from '../../../permissions/ability';
+import { MemberAbility } from '../../../../permissions/ability';
 
 @Component({
 	selector: 'app-webhooks',
@@ -25,31 +26,33 @@ import { UserAbility } from '../../../permissions/ability';
 		MatChipsModule,
 		NgxSkeletonLoaderModule,
 	],
-	providers: [WebhooksStore],
 	templateUrl: './webhooks.component.html',
 	styleUrl: './webhooks.component.css',
 })
 export class WebhooksComponent implements OnInit {
-	private readonly webhooksStore = inject(WebhooksStore);
+	private readonly webhooksStore = inject(PromoterWebhooksStore);
 	private readonly programStore = inject(ProgramStore);
+	private readonly promoterStore = inject(PromoterStore);
 	private readonly dialog = inject(MatDialog);
 	private readonly snackbarService = inject(SnackbarService);
-	private readonly abilityService = inject<AbilityServiceSignal<UserAbility>>(AbilityServiceSignal);
+	private readonly abilityService = inject<AbilityServiceSignal<MemberAbility>>(AbilityServiceSignal);
 	protected readonly can = this.abilityService.can;
 
 	readonly webhooks = this.webhooksStore.webhooks;
 	readonly isLoading = computed(() => this.webhooksStore.status() === Status.LOADING);
 	readonly programId = this.programStore.program()?.programId;
+	readonly promoterId = this.promoterStore.promoter()?.promoterId;
 
 	copiedWebhookId: string | null = null;
 
 	ngOnInit(): void {
 		const programId = this.programId!;
-		this.webhooksStore.fetchWebhooks({ programId });
+		const promoterId = this.promoterId!;
+		this.webhooksStore.fetchWebhooks({ programId, promoterId });
 	}
 
 	onCreateWebhook() {
-		if (!this.can('manage', WebhookDto)) {
+		if (!this.can('manage', PromoterWebhookDto)) {
 			this.dialog.open(NotAllowedDialogBoxComponent, {
 				data: { description: 'You do not have permission to create a webhook.' },
 			});
@@ -63,14 +66,15 @@ export class WebhooksComponent implements OnInit {
 				assignedEvents,
 				onCreate: (body: { url: string; secret: string; events: string[] }) => {
 					const programId = this.programId!;
-					this.webhooksStore.createWebhook({ programId, body });
+					const promoterId = this.promoterId!;
+					this.webhooksStore.createWebhook({ programId, promoterId, body });
 				},
 			},
 		});
 	}
 
 	onDeleteWebhook(webhookId: string) {
-		if (!this.can('manage', WebhookDto)) {
+		if (!this.can('manage', PromoterWebhookDto)) {
 			this.dialog.open(NotAllowedDialogBoxComponent, {
 				data: { description: 'You do not have permission to delete a webhook.' },
 			});
@@ -85,7 +89,8 @@ export class WebhooksComponent implements OnInit {
 				cancelButtonText: 'Cancel',
 				onSubmit: () => {
 					const programId = this.programId!;
-					this.webhooksStore.deleteWebhook({ programId, webhookId });
+					const promoterId = this.promoterId!;
+					this.webhooksStore.deleteWebhook({ programId, promoterId, webhookId });
 				},
 			},
 		});

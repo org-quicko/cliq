@@ -55,7 +55,7 @@ export class CommissionService {
 
 			const commissionCreatedEvent = new CommissionCreatedEvent(
 				commissionResult.contact.programId,
-				'urn:in.org.quicko',
+				'urn:in.org.quicko.cliq',
 				{
 					"@entity": commissionEntityName,
 					commissionId: commissionResult.commissionId,

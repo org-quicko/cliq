@@ -51,9 +51,8 @@ export class ContactService {
 
 		const contactCreatedEvent = new ContactCreatedEvent(
 			programResult.programId,
-			'urn:org.quicko.cliq',
+			'urn:in.org.quicko.cliq',
 			{
-				[contactEntityName]: {   
 					"@entity": contactEntityName,
 					contactId: savedContact.contactId,
 					email: savedContact.email,
@@ -62,7 +61,7 @@ export class ContactService {
 					phone: savedContact.phone,
 					createdAt: savedContact.createdAt,
 					updatedAt: savedContact.updatedAt,
-				}
+		
 			},
 			savedContact.contactId
 		);

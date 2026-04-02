@@ -53,3 +53,15 @@ export interface CommissionCreatedEventData {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export interface ContactCreatedEventData {
+    "@entity": string;
+    contactId: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    createdAt: Date;
+    updatedAt: Date;
+
+};

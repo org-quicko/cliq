@@ -236,12 +236,9 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getSignUpsForPromoter controller');
 
-		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
-
 		const result = await this.promoterService.getSignUpsForPromoter(
 			programId,
 			promoterId,
-			toUseSheetJsonFormat,
 		);
 
 		this.logger.info('END: getSignUpsForPromoter controller');
@@ -265,12 +262,9 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getPurchasesForPromoter controller');
 
-		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
-
 		const result = await this.promoterService.getPurchasesForPromoter(
 			programId,
 			promoterId,
-			toUseSheetJsonFormat,
 			{
 				...(itemId && { itemId }),
 			}
@@ -302,14 +296,12 @@ export class PromoterController {
 	) {
 		this.logger.info('START: getPromoterReferrals controller');
 
-		const toUseSheetJsonFormat = (acceptType === 'application/json;format=sheet-json');
 		const result = await this.promoterService.getPromoterReferrals(
 			memberId,
 			programId,
 			promoterId,
 			sortBy,
 			sortOrder,
-			toUseSheetJsonFormat,
 			undefined,
 			{
 				skip,

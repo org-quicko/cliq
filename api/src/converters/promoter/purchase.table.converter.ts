@@ -14,14 +14,14 @@ export class PurchaseTableConverter {
 			purchases.forEach((purchase) => {
 				const newPurchaseRow = new PurchaseRow([]);
 
-				newPurchaseRow.setContactId(purchase.contact.contactId);
+				newPurchaseRow.setContactId(purchase.contactId);
 				newPurchaseRow.setFirstName(purchase.contact.firstName);
 				newPurchaseRow.setLastName(purchase.contact.lastName);
 				newPurchaseRow.setEmail(maskInfo(purchase.contact.email));
 				newPurchaseRow.setPhone(maskInfo(purchase.contact.phone));
 				newPurchaseRow.setAmount(purchase.amount);
 				newPurchaseRow.setItemId(purchase.itemId);
-				newPurchaseRow.setLinkId(purchase.link.linkId);
+				newPurchaseRow.setLinkId(purchase.linkId);
 				newPurchaseRow.setCreatedAt(purchase.createdAt.toISOString());
 
 				purchaseTable.addRow(newPurchaseRow);

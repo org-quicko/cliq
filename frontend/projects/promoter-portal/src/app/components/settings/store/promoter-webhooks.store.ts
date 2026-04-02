@@ -6,41 +6,40 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { plainToInstance } from 'class-transformer';
-import { SnackbarService, Status, CreateWebhookDto, WebhookDto } from '@org.quicko.cliq/ngx-core';
-import { WebhookService } from '../../../services/webhook.service';
+import { SnackbarService, Status, CreatePromoterWebhookDto, PromoterWebhookDto } from '@org.quicko.cliq/ngx-core';
+import { WebhookService } from '../../../services/webhook.service'
 
-export interface WebhooksStoreState {
-	webhooks: WebhookDto[];
+export interface PromoterWebhooksStoreState {
+	webhooks: PromoterWebhookDto[];
 	error: any;
 	status: Status;
 }
 
-export const initialWebhooksState: WebhooksStoreState = {
+export const initialPromoterWebhooksState: PromoterWebhooksStoreState = {
 	webhooks: [],
 	error: null,
 	status: Status.PENDING,
 };
 
-export const WebhooksStore = signalStore(
-	withState(initialWebhooksState),
-	withDevtools('webhooks'),
+export const PromoterWebhooksStore = signalStore(
+	withState(initialPromoterWebhooksState),
+	withDevtools('promoter-webhooks'),
 	withMethods(
 		(
 			store,
 			webhookService = inject(WebhookService),
 			snackBarService = inject(SnackbarService),
 		) => ({
-			fetchWebhooks: rxMethod<{ programId: string }>(
+			fetchWebhooks: rxMethod<{ programId: string; promoterId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING, error: null })),
-					switchMap(({ programId }) =>
-						webhookService.getAllWebhooks(programId).pipe(
+					switchMap(({ programId, promoterId }) =>
+						webhookService.getAllWebhooks(programId, promoterId).pipe(
 							tapResponse({
 								next(response) {
 									const webhooks = response.data
-										? plainToInstance(WebhookDto, response.data)
+										? (response.data as any[]).map(w => plainToInstance(PromoterWebhookDto, w))
 										: [];
-
 									patchState(store, {
 										webhooks,
 										status: Status.SUCCESS,
@@ -49,11 +48,7 @@ export const WebhooksStore = signalStore(
 								},
 								error(error: HttpErrorResponse) {
 									patchState(store, { status: Status.ERROR, error });
-
-									snackBarService.openSnackBar(
-										'Failed to fetch webhooks',
-										undefined
-									);
+									snackBarService.openSnackBar('Failed to fetch webhooks', undefined);
 								},
 							})
 						)
@@ -61,14 +56,14 @@ export const WebhooksStore = signalStore(
 				)
 			),
 
-			createWebhook: rxMethod<{ programId: string; body: CreateWebhookDto }>(
+			createWebhook: rxMethod<{ programId: string; promoterId: string; body: CreatePromoterWebhookDto }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING, error: null })),
-					switchMap(({ programId, body }) =>
-						webhookService.createWebhook(programId, body).pipe(
+					switchMap(({ programId, promoterId, body }) =>
+						webhookService.createWebhook(programId, promoterId, body).pipe(
 							tapResponse({
 								next(response) {
-									const newWebhook = plainToInstance(WebhookDto, response.data);
+									const newWebhook = plainToInstance(PromoterWebhookDto, response.data);
 									patchState(store, {
 										webhooks: [...store.webhooks(), newWebhook],
 										status: Status.SUCCESS,
@@ -78,9 +73,7 @@ export const WebhooksStore = signalStore(
 								},
 								error(error: HttpErrorResponse) {
 									patchState(store, { status: Status.ERROR, error });
-									snackBarService.openSnackBar(
-										'Failed to create webhook', '',
-									);
+									snackBarService.openSnackBar('Failed to create webhook', '');
 								},
 							})
 						)
@@ -88,11 +81,11 @@ export const WebhooksStore = signalStore(
 				)
 			),
 
-			deleteWebhook: rxMethod<{ programId: string; webhookId: string }>(
+			deleteWebhook: rxMethod<{ programId: string; promoterId: string; webhookId: string }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING, error: null })),
-					switchMap(({ programId, webhookId }) =>
-						webhookService.deleteWebhook(programId, webhookId).pipe(
+					switchMap(({ programId, promoterId, webhookId }) =>
+						webhookService.deleteWebhook(programId, promoterId, webhookId).pipe(
 							tapResponse({
 								next() {
 									patchState(store, {
@@ -113,7 +106,7 @@ export const WebhooksStore = signalStore(
 			),
 
 			resetState() {
-				patchState(store, initialWebhooksState);
+				patchState(store, initialPromoterWebhooksState);
 			},
 		})
 	)

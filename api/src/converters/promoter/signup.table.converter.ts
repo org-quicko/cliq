@@ -18,7 +18,7 @@ export class SignUpTableConverter {
 				row.setLastName(signUp.contact.lastName);
 				row.setEmail(maskInfo(signUp.contact.email));
 				row.setPhone(maskInfo(signUp.contact.phone));
-				row.setLinkId(signUp.link.linkId);
+				row.setLinkId(signUp.linkId);
 				row.setCreatedAt(signUp.createdAt.toISOString());
 
 				signUpTable.addRow(row);

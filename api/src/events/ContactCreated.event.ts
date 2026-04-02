@@ -19,4 +19,4 @@ export class ContactCreatedEvent extends BaseEvent {
     }
 }
 
-export const CONTACT_CREATED = 'org.quicko.cliq.contact.created';
+export const CONTACT_CREATED = 'in.org.quicko.cliq.contact.created';

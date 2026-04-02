@@ -1,7 +1,6 @@
 import { ReferralRow, ReferralTable } from "@org-quicko/cliq-sheet-core/Promoter/beans";
 import { JSONObject } from "@org-quicko/core";
 import { ReferralView } from "../../entities";
-import { maskInfo } from "../../utils";
 import { ConverterException } from '@org-quicko/core';
 
 export class ReferralTableConverter {
@@ -20,7 +19,7 @@ export class ReferralTableConverter {
 				row.setPromoterId(referral.promoterId);
 				row.setStatus(referral.status);
 				row.setContactId(referral.contactId);
-				row.setContactInfo(maskInfo(referral.contactInfo));
+				row.setContactInfo(referral.contactInfo);
 				row.setTotalRevenue(Number(referral.totalRevenue));
 				row.setTotalCommission(Number(referral.totalCommission));
 				row.setUpdatedAt(referral.updatedAt.toISOString());

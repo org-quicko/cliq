@@ -1,23 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { ApiResponse } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse,CreateWebhookDto, WebhookDto  } from '@org.quicko.cliq/ngx-core';
 
-export interface WebhookDto {
-	webhook_id: string;
-	program_id: string;
-	url: string;
-	secret?: string;
-	events: string[];
-	created_at: string;
-	updated_at: string;
-}
-
-export interface CreateWebhookDto {
-	url: string;
-	secret: string;
-	events: string[];
-}
 
 @Injectable({
 	providedIn: 'root',
@@ -39,6 +24,6 @@ export class WebhookService {
 
 	deleteWebhook(programId: string, webhookId: string) {
 		const url = `${this.endpoint}/programs/${programId}/webhooks/${webhookId}`;
-		return this.httpClient.delete<ApiResponse<void>>(url);
+		return this.httpClient.delete<ApiResponse<null>>(url);
 	}
 }
