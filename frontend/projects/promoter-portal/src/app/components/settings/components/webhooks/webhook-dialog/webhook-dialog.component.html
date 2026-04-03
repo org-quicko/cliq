@@ -1,65 +1,84 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-8 p-6 p-6">
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col max-h-[calc(100vh-96px)]">
 
-	<!-- Header -->
-	<div class="flex items-start justify-between">
-		<div class="flex items-center gap-3">
-			<mat-icon class="material-symbols-outlined text-on-surface !text-[32px] !w-8 !h-8">webhook</mat-icon>
-			<span class="text-[22px] font-medium leading-7 text-on-surface">Create webhook endpoint</span>
+	<div class="flex flex-col gap-8 p-6 overflow-y-auto no-scrollbar">
+		<!-- Header -->
+		<div class="flex items-start justify-between">
+			<div class="flex flex-col gap-2">
+				<mat-icon class="material-symbols-outlined text-on-surface !text-[32px] !w-8 !h-8">webhook</mat-icon>
+				<span class="text-[22px] font-medium leading-7 text-on-surface">Create webhook endpoint</span>
+			</div>
+			<button type="button" mat-icon-button class="cursor-pointer !-mt-1 !-mr-2" (click)="closeDialog()">
+				<mat-icon class="material-symbols-outlined text-on-surface-variant">close</mat-icon>
+			</button>
 		</div>
-		<button type="button" mat-icon-button class="cursor-pointer !-mt-1 !-mr-2" (click)="closeDialog()">
-			<mat-icon class="material-symbols-outlined text-on-surface-variant">close</mat-icon>
-		</button>
-	</div>
 
-	<!-- Form Fields + Events -->
-	<div class="flex flex-col gap-8">
-
-		<!-- Text Fields -->
+		<!-- Form Fields + Events -->
 		<div class="flex flex-col gap-8">
 
-			<!-- Endpoint URL -->
-			<div class="flex flex-col gap-0">
-				<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-					<mat-label>Endpoint URL</mat-label>
-					<mat-icon matPrefix class="material-symbols-outlined mr-2">link</mat-icon>
-					<input matInput formControlName="url" placeholder="https://example.com/webhook" />
-					@if (form.get('url')?.hasError('required') && form.get('url')?.touched) {
-						<mat-error>URL is required</mat-error>
-					}
-					@if (form.get('url')?.hasError('pattern') && form.get('url')?.touched) {
-						<mat-error>Enter a valid URL starting with http:// or https://</mat-error>
-					}
-				</mat-form-field>
-				<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">We'll send event notifications to this URL.</span>
-			</div>
+			<!-- Text Fields -->
+			<div class="flex flex-col gap-8">
 
-			<!-- Secret -->
-			<div class="flex flex-col gap-0">
-				<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-					<mat-label>Secret</mat-label>
-					<mat-icon matPrefix class="material-symbols-outlined mr-2">key</mat-icon>
-					<input matInput type="password" formControlName="secret" placeholder="Enter a secret key" />
-					@if (form.get('secret')?.hasError('required') && form.get('secret')?.touched) {
+				<!-- Endpoint URL -->
+				<div class="flex flex-col gap-0">
+					<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+						<mat-label>Endpoint URL</mat-label>
+						<mat-icon matPrefix class="material-symbols-outlined mr-2">link</mat-icon>
+						<input matInput formControlName="url" placeholder="https://example.com/webhook" />
+					</mat-form-field>
+					@if (form.get('url')?.touched && form.get('url')?.hasError('required')) {
+					<span class="text-xs font-medium text-error px-4 pt-1">URL is required</span>
+					} @else if (form.get('url')?.touched && form.get('url')?.hasError('pattern')) {
+					<span class="text-xs font-medium text-error px-4 pt-1">Enter a valid URL starting with http:// or
+						https://</span>
+					} @else {
+					<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">We'll send event notifications
+						to
+						this URL.</span>
+					}
+				</div>
+
+				<!-- Secret -->
+				<div class="flex flex-col gap-0">
+					<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+						<mat-label>Secret</mat-label>
+						<mat-icon matPrefix class="material-symbols-outlined mr-2">key</mat-icon>
+						<input matInput type="password" formControlName="secret" placeholder="Enter your secret here" />
+					</mat-form-field>
+					@if (form.get('secret')?.touched && form.get('secret')?.hasError('required')) {
+					<span class="text-xs font-medium text-error px-4 pt-1">Add a secret to verify requests</span>
+					} @else {
+					<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">Used to verify that requests are
+						sent by Cliq.</span>
+					}
+				</div>
+
+				<!-- Secret -->
+				<div class="flex flex-col gap-0">
+					<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+						<mat-label>Secret</mat-label>
+						<mat-icon matPrefix class="material-symbols-outlined mr-2">key</mat-icon>
+						<input matInput type="password" formControlName="secret" placeholder="Enter a secret key" />
+						@if (form.get('secret')?.hasError('required') && form.get('secret')?.touched) {
 						<mat-error>Secret is required</mat-error>
-					}
-				</mat-form-field>
-				<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">Used to verify that requests are sent by Cliq.</span>
+						}
+					</mat-form-field>
+					<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">Used to verify that requests are
+						sent by Cliq.</span>
+				</div>
+
 			</div>
 
-		</div>
+			<!-- Events -->
+			<div class="flex flex-col gap-5">
+				<div class="flex flex-col gap-1">
+					<span class="text-base font-semibold text-on-surface">Events</span>
+					<span class="text-sm font-medium text-on-surface-variant">Select the events you want to
+						receive.</span>
+				</div>
 
-		<!-- Events -->
-		<div class="flex flex-col gap-5">
-			<div class="flex flex-col gap-1">
-				<span class="text-base font-semibold text-on-surface">Events</span>
-				<span class="text-sm font-medium text-on-surface-variant">Select the events you want to receive.</span>
-			</div>
-
-			<div class="flex flex-col gap-2">
-				@for (event of availableEvents; track event.value) {
-					<div class="flex items-center justify-between gap-3 p-4 rounded-[6px] border transition-colors"
-						[class.border-outline-variant]="!isEventDisabled(event.value)"
-						[class.border-outline-variant]="isEventDisabled(event.value)"
+				<div class="flex flex-col gap-2">
+					@for (event of availableEvents; track event.value) {
+					<div class="flex items-center justify-between gap-3 p-4 rounded-[6px] border border-outline-variant transition-colors"
 						[class.cursor-pointer]="!isEventDisabled(event.value)"
 						[class.cursor-not-allowed]="isEventDisabled(event.value)"
 						[class.hover:bg-surface-container-low]="!isEventDisabled(event.value)"
@@ -80,32 +99,28 @@
 									[class.text-outline]="isEventDisabled(event.value)">
 									{{ event.label }}
 								</span>
-								<span class="text-xs"
-									[class.text-outline]="!isEventDisabled(event.value)"
-									[class.text-outline-variant]="isEventDisabled(event.value)">
+								<span class="text-xs text-outline">
 									{{ event.description }}
 								</span>
 							</div>
 						</div>
-						<mat-checkbox
-							[checked]="isEventSelected(event.value)"
-							[disabled]="isEventDisabled(event.value)"
-							(change)="onEventToggle(event.value, $event.checked)"
-							(click)="$event.stopPropagation()">
+						<mat-checkbox [checked]="isEventSelected(event.value)" [disabled]="isEventDisabled(event.value)"
+							(change)="onEventToggle(event.value, $event.checked)" (click)="$event.stopPropagation()">
 						</mat-checkbox>
 					</div>
+					}
+				</div>
+
+				@if (form.get('events')?.touched && form.get('events')?.value.length === 0) {
+				<span class="text-xs text-error px-1">Select at least one event.</span>
 				}
 			</div>
-
-			@if (form.get('events')?.touched && form.get('events')?.value.length === 0) {
-				<span class="text-xs text-error px-1">Select at least one event.</span>
-			}
 		</div>
 
 	</div>
 
 	<!-- Footer -->
-	<div class="flex justify-end gap-2">
+	<div class="flex justify-end gap-2 px-6 py-4 border-t border-outline-variant shrink-0">
 		<button mat-button type="button" class="rounded-full !text-primary cursor-pointer" (click)="closeDialog()">
 			Cancel
 		</button>
