@@ -4,6 +4,7 @@ import { BaseEvent } from './BaseEvent';
 export class TriggerEvent extends BaseEvent {
 	constructor(
 		public programId: string,
+		public promoterId: string | undefined,
 		public source: string,
 		public type: string,
 		public data: TriggerEventData,
@@ -11,6 +12,7 @@ export class TriggerEvent extends BaseEvent {
 	) {
 		super(
 			programId,
+			promoterId,
 			source,
 			type,
 			data,

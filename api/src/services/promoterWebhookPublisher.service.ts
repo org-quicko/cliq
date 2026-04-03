@@ -11,6 +11,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import winston from 'winston';
 import { LoggerFactory } from "@org-quicko/core";
+import { instanceToPlain } from "class-transformer";
 
 @Injectable()
 export class PromoterWebhookPublisherService {
@@ -70,7 +71,7 @@ export class PromoterWebhookPublisherService {
 
             await this.eventQueue.add(
                 webhookJobName,
-                { url: webhook.url, event, signature },
+                { url: webhook.url,  event: instanceToPlain(event), signature },
                 {
                     attempts: 3,
                     backoff: {

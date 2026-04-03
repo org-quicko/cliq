@@ -17,10 +17,13 @@ import { referralKeyTypeEnum, linkStatusEnum, triggerEnum } from '../enums';
 import { ApiKeyService } from './apiKey.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProgramPromoterService } from './programPromoter.service';
-import { signUpEntityName } from '../constants';
+import { contactEntityName, signUpEntityName } from '../constants';
 import { SignUpConverter } from 'src/converters/signup/signUp.dto.converter';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
+import { instanceToPlain } from 'class-transformer';
+import { ContactCreatedEventData, SignUpCreatedEventData } from '../interfaces/eventData.interface';
+import { CONTACT_CREATED, ContactCreatedEvent } from '../events/ContactCreated.event';
 
 @Injectable()
 export class SignUpService {
@@ -141,23 +144,47 @@ export class SignUpService {
 
 			const signUpCreatedEvent = new SignUpCreatedEvent(
 				savedContact.programId,
+				linkResult.promoterId,
 				'urn:POST:/signups',
-				{
-					"@entity": signUpEntityName,
-					contactId: savedContact.contactId,
-					triggerType: triggerEnum.SIGNUP,
-					promoterId: linkResult.promoterId,
-					linkId: linkResult.linkId,
-					createdAt: savedSignUp.createdAt,
-					updatedAt: savedSignUp.updatedAt,
-					utmParams: savedSignUp.utmParams,
-				},
+				instanceToPlain(
+					Object.assign(new SignUpCreatedEventData(), {
+						"@entity": signUpEntityName,
+						contactId: savedContact.contactId,
+						triggerType: triggerEnum.SIGNUP,
+						promoterId: linkResult.promoterId,
+						linkId: linkResult.linkId,
+						createdAt: savedSignUp.createdAt,
+						updatedAt: savedSignUp.updatedAt,
+						utmParams: savedSignUp.utmParams,
+					}),
+					{ excludeExtraneousValues: true }
+				) as any,
 				savedSignUp.contactId,
 			);
 
 			this.eventEmitter.emit(SIGNUP_CREATED, signUpCreatedEvent);
+            const signUpDto = this.signUpConverter.convert(savedSignUp);
+		const contactCreatedEvent = new ContactCreatedEvent(
+			savedContact.programId,
+			linkResult.promoterId,
+			'urn:POST:/signups',
+			instanceToPlain(
+				Object.assign(new ContactCreatedEventData(), {
+					"@entity": contactEntityName,
+					contactId: savedContact.contactId,
+					email: savedContact.email,
+					firstName: savedContact.firstName,
+					lastName: savedContact.lastName,
+					phone: savedContact.phone,
+					createdAt: savedContact.createdAt,
+					updatedAt: savedContact.updatedAt,
+				}),
+				{ excludeExtraneousValues: true }
+			) as any,
+			savedContact.contactId,
+		);
 
-			const signUpDto = this.signUpConverter.convert(savedSignUp);
+		this.eventEmitter.emit(CONTACT_CREATED, contactCreatedEvent);
 
 			this.logger.info(`END: createSignUp service`);
 			return signUpDto;

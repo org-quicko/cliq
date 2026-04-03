@@ -13,6 +13,8 @@ import { commissionEntityName } from 'src/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import winston from 'winston';
 import {LoggerFactory} from '@org-quicko/core';
+import { instanceToPlain } from 'class-transformer';
+import { CommissionCreatedEventData } from '../interfaces/eventData.interface';
 
 @Injectable()
 export class CommissionService {
@@ -55,19 +57,23 @@ export class CommissionService {
 
 			const commissionCreatedEvent = new CommissionCreatedEvent(
 				commissionResult.contact.programId,
+				commissionResult.promoterId,
 				'urn:in.org.quicko.cliq',
-				{
-					"@entity": commissionEntityName,
-					commissionId: commissionResult.commissionId,
-					contactId: commissionResult.contactId,
-					conversionType: commissionResult.conversionType,
-					promoterId: commissionResult.promoterId,
-					linkId: commissionResult.linkId,
-					amount: commissionResult.amount,
-					revenue: commissionResult.revenue,
-					createdAt: commissionResult.createdAt,
-					updatedAt: commissionResult.updatedAt,
-				},
+				instanceToPlain(
+					Object.assign(new CommissionCreatedEventData(), {
+						"@entity": commissionEntityName,
+						commissionId: commissionResult.commissionId,
+						contactId: commissionResult.contactId,
+						conversionType: commissionResult.conversionType,
+						promoterId: commissionResult.promoterId,
+						linkId: commissionResult.linkId,
+						amount: commissionResult.amount,
+						revenue: commissionResult.revenue,
+						createdAt: commissionResult.createdAt,
+						updatedAt: commissionResult.updatedAt,
+					}),
+					{ excludeExtraneousValues: true }
+				) as any,
 				commissionResult.commissionId
 			);
 

@@ -31,7 +31,7 @@ export class EventConsumer extends WorkerHost {
                 try {
                     const response = await this.client.post(
                         url as string,
-                        { event: instanceToPlain(event, { excludeExtraneousValues: true }) },
+                        { event: instanceToPlain(event) },
                         {
                             timeout: 5000,
                             headers: {

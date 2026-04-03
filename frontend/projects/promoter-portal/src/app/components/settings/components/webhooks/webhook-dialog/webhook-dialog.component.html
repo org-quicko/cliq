@@ -38,34 +38,19 @@
 				</div>
 
 				<!-- Secret -->
-				<div class="flex flex-col gap-0">
-					<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-						<mat-label>Secret</mat-label>
-						<mat-icon matPrefix class="material-symbols-outlined mr-2">key</mat-icon>
-						<input matInput type="password" formControlName="secret" placeholder="Enter your secret here" />
-					</mat-form-field>
-					@if (form.get('secret')?.touched && form.get('secret')?.hasError('required')) {
+						<div class="flex flex-col gap-0">
+				<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+					<mat-label>Secret</mat-label>
+					<mat-icon matPrefix class="material-symbols-outlined mr-2">key</mat-icon>
+					<input matInput type="password" formControlName="secret" placeholder="Enter your secret here" />
+				</mat-form-field>
+				@if (form.get('secret')?.touched && form.get('secret')?.hasError('required')) {
 					<span class="text-xs font-medium text-error px-4 pt-1">Add a secret to verify requests</span>
-					} @else {
-					<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">Used to verify that requests are
-						sent by Cliq.</span>
-					}
-				</div>
-
-				<!-- Secret -->
-				<div class="flex flex-col gap-0">
-					<mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-						<mat-label>Secret</mat-label>
-						<mat-icon matPrefix class="material-symbols-outlined mr-2">key</mat-icon>
-						<input matInput type="password" formControlName="secret" placeholder="Enter a secret key" />
-						@if (form.get('secret')?.hasError('required') && form.get('secret')?.touched) {
-						<mat-error>Secret is required</mat-error>
-						}
-					</mat-form-field>
-					<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">Used to verify that requests are
-						sent by Cliq.</span>
-				</div>
-
+				} @else {
+					<span class="text-xs font-medium text-on-surface-variant px-4 pt-1">Used to verify that requests are sent by Cliq.</span>
+				}
+			</div>
+	
 			</div>
 
 			<!-- Events -->

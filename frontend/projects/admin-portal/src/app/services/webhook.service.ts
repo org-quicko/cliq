@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { ApiResponse,CreateWebhookDto, WebhookDto  } from '@org.quicko.cliq/ngx-core';
+import { ApiResponse, CreateWebhookDto, WebhookDto, PaginatedList } from '@org.quicko.cliq/ngx-core';
 
 
 @Injectable({
@@ -14,7 +14,7 @@ export class WebhookService {
 
 	getAllWebhooks(programId: string) {
 		const url = `${this.endpoint}/programs/${programId}/webhooks`;
-		return this.httpClient.get<ApiResponse<WebhookDto[]>>(url);
+		return this.httpClient.get<ApiResponse<PaginatedList<WebhookDto>>>(url);
 	}
 
 	createWebhook(programId: string, body: CreateWebhookDto) {

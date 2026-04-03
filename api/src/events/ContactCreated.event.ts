@@ -5,12 +5,14 @@ export class ContactCreatedEvent extends BaseEvent {
     
     constructor(
         public programId: string,
+        public promoterId: string | undefined,
         public source: string,
         public data: ContactCreatedEventData,
         public contactId?: string,
     ) {
         super(
             programId,
+            promoterId,
             source,
             CONTACT_CREATED,
             data,

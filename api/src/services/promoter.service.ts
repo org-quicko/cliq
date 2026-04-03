@@ -48,6 +48,7 @@ import { SALT_ROUNDS } from '../constants';
 import { subjectsType } from '../types';
 import { MemberConverter } from 'src/converters/member.converter';
 import { ReferralConverter } from 'src/converters/referral.converter';
+import { ReferralListConverter } from 'src/converters/referral.list.converter';
 import { PromoterWorkbookConverter } from 'src/converters/promoter/promoter.workbook.converter';
 import { SignUpWorkbookConverter } from 'src/converters/signup/signup.workbook.converter';
 import { PurchaseWorkbookConverter } from 'src/converters/purchase/purchase.workbook.converter';
@@ -114,6 +115,7 @@ export class PromoterService {
 		private memberConverter: MemberConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
+		private referralListConverter: ReferralListConverter,
 
 		private datasource: DataSource,
 	) { 
@@ -684,7 +686,7 @@ export class PromoterService {
 			}
 		});
 
-		this.logger.info('END: getSignUpsForPromoter service: Returning Workbook');
+		this.logger.info('END: getSignUpsForPromoter service');
 		return promoterWorkbook;
 	}
 
@@ -741,12 +743,15 @@ export class PromoterService {
 			return promoterWorkbook;
 		}
 
-		const referralDtos = referralResult.map((referral) =>
-			this.referralConverter.convertTo(referral)
+		const referralList = this.referralListConverter.convert(
+			referralResult,
+			queryOptions.skip,
+			queryOptions.take,
+			count,
 		);
 
 		this.logger.info(`END: getPromoterReferrals service`);
-		return referralDtos;
+		return referralList;
 	}
 
 

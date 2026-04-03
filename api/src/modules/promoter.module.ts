@@ -16,6 +16,8 @@ import {
 import { PromoterService } from '../services/promoter.service';
 import { PromoterMemberService } from '../services/promoterMember.service';
 import { PromoterConverter } from '../converters/promoter/promoter.dto.converter';
+import { ReferralConverter } from '../converters/referral.converter';
+import { ReferralListConverter } from '../converters/referral.list.converter';
 import { CommissionModule } from './commission.module';
 import { ProgramModule } from './program.module';
 import { LinkAnalyticsView } from 'src/entities';
@@ -52,7 +54,7 @@ import { PromoterAnalyticsModule } from './promoterAnalytics.module';
 		forwardRef(() => ProgramModule),
 	],
 	controllers: [PromoterController],
-	providers: [PromoterService, PromoterMemberService, PromoterConverter],
+	providers: [PromoterService, PromoterMemberService, PromoterConverter, ReferralConverter, ReferralListConverter],
 	exports: [PromoterService, PromoterConverter, PromoterMemberService],
 })
 export class PromoterModule { }

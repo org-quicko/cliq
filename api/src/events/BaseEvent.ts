@@ -19,7 +19,7 @@ export abstract class BaseEvent {
     public programId: string;
 
     @Expose({ name: 'promoter_id' })
-    public promoterId: string;
+    public promoterId?: string;
 
     @Expose({ name: 'source' })
     public source: string;
@@ -35,6 +35,7 @@ export abstract class BaseEvent {
 
     constructor(
         programId: string,
+        promoterId: string | undefined,
         source: string,
         type: string,
         data: object,
@@ -43,12 +44,11 @@ export abstract class BaseEvent {
         this.id = uuidv4();
         this.time = new Date();
         this.programId = programId;
+        this.promoterId = promoterId;
         this.source = source;
         this.type = type;
         this.data = data;
         this.subject = subject;
-        this.promoterId = data['promoterId'];
-
     }
 
 }

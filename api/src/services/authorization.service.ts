@@ -248,7 +248,7 @@ export class AuthorizationService {
                     return this.checkIfUserIsPartOfProgram(request, subject);
                 } 
                 else if(subject === PromoterWebhook) {
-                    if (entityType === entityTypeEnum.MEMBER) 
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) 
                         return this.checkIfMemberIsPartOfPromoter(request, subject);
                     }
                  else if (subject === LinkAnalyticsView) {

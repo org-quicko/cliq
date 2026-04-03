@@ -6,7 +6,7 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { plainToInstance } from 'class-transformer';
-import { SnackbarService, Status, CreatePromoterWebhookDto, PromoterWebhookDto } from '@org.quicko.cliq/ngx-core';
+import { SnackbarService, Status, CreatePromoterWebhookDto, PromoterWebhookDto, PaginatedList } from '@org.quicko.cliq/ngx-core';
 import { WebhookService } from '../../../services/webhook.service'
 
 export interface PromoterWebhooksStoreState {
@@ -37,9 +37,14 @@ export const PromoterWebhooksStore = signalStore(
 						webhookService.getAllWebhooks(programId, promoterId).pipe(
 							tapResponse({
 								next(response) {
-									const webhooks = response.data
-										? (response.data as any[]).map(w => plainToInstance(PromoterWebhookDto, w))
-										: [];
+								const paginatedResult = plainToInstance(
+									PaginatedList<PromoterWebhookDto>,
+									response?.data
+								);
+
+								const webhooks = paginatedResult.getItems()?.map((item: any) =>
+									plainToInstance(PromoterWebhookDto, item)
+								) ?? [];
 									patchState(store, {
 										webhooks,
 										status: Status.SUCCESS,

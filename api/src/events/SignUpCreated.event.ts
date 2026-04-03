@@ -5,12 +5,14 @@ export class SignUpCreatedEvent extends TriggerEvent {
     
     constructor(
         public programId: string,
+        public promoterId: string,
         public source: string,
         public data: SignUpCreatedEventData,
         public signUpId?: string,
     ) {
         super(
             programId,
+            promoterId,
             source,
             SIGNUP_CREATED,
             data,

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Webhook } from '../entities';
 import { CreateWebhookDto, UpdateWebhookDto } from '../dtos';
 import { WebhookConverter } from 'src/converters/webhook.converter';
+import { WebhookListConverter } from 'src/converters/webhook.list.converter';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 
@@ -15,6 +16,7 @@ export class WebhookService {
         private readonly webhookRepository: Repository<Webhook>,
 
         private webhookConverter: WebhookConverter,
+        private webhookListConverter: WebhookListConverter,
     ) { }
 
     async createWebhook(programId: string, body: CreateWebhookDto) {
@@ -57,14 +59,14 @@ export class WebhookService {
     async getAllWebhooks(programId: string) {
         this.logger.info(`START: getAllWebhooks service`);
 
-        const webhooks = await this.webhookRepository.find({
+        const [webhooks, count] = await this.webhookRepository.findAndCount({
             where: { programId },
         });
 
-        const webhooksDto = webhooks.map((webhook) => this.webhookConverter.convert(webhook));
+        const webhookList = this.webhookListConverter.convert(webhooks, 0, count, count);
 
         this.logger.info(`END: getAllWebhooks service`);
-        return webhooksDto;
+        return webhookList;
     }
 
     async updateWebhook(programId: string, webhookId: string, body: UpdateWebhookDto) {

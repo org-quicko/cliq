@@ -19,6 +19,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { purchaseEntityName } from 'src/constants';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
+import { instanceToPlain } from 'class-transformer';
+import { PurchaseCreatedEventData } from '../interfaces/eventData.interface';
 
 @Injectable()
 export class PurchaseService {
@@ -145,19 +147,23 @@ export class PurchaseService {
 	
 			const purchaseCreatedEvent = new PurchaseCreatedEvent(
 				associatedContact.programId,
+				promoterId,
 				'urn:POST:/purchases',
-				{
-					"@entity": purchaseEntityName,
-					triggerType: triggerEnum.PURCHASE,
-					contactId: associatedContact.contactId,
-					promoterId,
-					linkId: linkResult.linkId,
-					itemId: savedPurchase.itemId,
-					amount: savedPurchase.amount,
-					createdAt: savedPurchase.createdAt,
-					updatedAt: savedPurchase.updatedAt,
-					utmParams: savedPurchase.utmParams,
-				},
+				instanceToPlain(
+					Object.assign(new PurchaseCreatedEventData(), {
+						"@entity": purchaseEntityName,
+						triggerType: triggerEnum.PURCHASE,
+						contactId: associatedContact.contactId,
+						promoterId,
+						linkId: linkResult.linkId,
+						itemId: savedPurchase.itemId,
+						amount: savedPurchase.amount,
+						createdAt: savedPurchase.createdAt,
+						updatedAt: savedPurchase.updatedAt,
+						utmParams: savedPurchase.utmParams,
+					}),
+					{ excludeExtraneousValues: true }
+				) as any,
 				savedPurchase.purchaseId,
 			);
 	
