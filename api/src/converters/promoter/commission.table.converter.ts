@@ -22,7 +22,7 @@ export class CommissionTableConverter {
 					row.setCommissionId(commission.commissionId);
 					row.setContactId(commission.contact.contactId);
 					row.setLinkId(commission.linkId);
-					row.setReferral(maskInfo(referral));
+					row.setReferral(referral);
 					row.setCommission(Number(commission.amount));
 					row.setConversionType(commission.conversionType);
 					row.setRevenue(Number(commission.revenue ?? 0));
