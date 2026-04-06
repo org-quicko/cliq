@@ -35,7 +35,7 @@ export class AuthService {
 	}
 
 	public setToken(token: string): void {
-		this.cookieService.set('CLIQ_ACCESS_TOKEN', 'Bearer ' + token, undefined, '/', undefined, false, 'Lax');
+		this.cookieService.set('CLIQ_ACCESS_TOKEN', 'Bearer ' + token, undefined, '/admin', undefined, false, 'Lax');
 	}
 
 	public deleteToken() {

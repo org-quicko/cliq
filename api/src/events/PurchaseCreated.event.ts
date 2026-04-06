@@ -7,7 +7,6 @@ export class PurchaseCreatedEvent extends TriggerEvent {
 		public promoterId: string,
 		public source: string,
 		public data: PurchaseCreatedEventData,
-		public purchaseId?: string,
 	) {
 		super(
 			programId,
@@ -15,7 +14,7 @@ export class PurchaseCreatedEvent extends TriggerEvent {
 			source,
 			PURCHASE_CREATED,
 			data,
-			purchaseId,
+			data['purchase_id']
 		);
 	}
 }

@@ -23,10 +23,11 @@ Published when a commission is generated for a promoter following a signup or pu
 | `specversion` | string | CloudEvents spec version |
 | `datacontenttype` | string |`application/json` |
 | `program_id` | string (uuid) | Program the commission belongs to |
+| `promoter_id` | string (uuid) | Promoter who earned the commission |
 | `source` | string | Originating endpoint |
 | `type` | string | Event type identifier |
-| `subject` | string (uuid) | Commission ID |
 | `data` | object | Event data (see below) |
+| `subject` | string (uuid) | Commission ID |
 
 ### `data`
 
@@ -47,25 +48,27 @@ Published when a commission is generated for a promoter following a signup or pu
 
 ```json
 {
-  "id": "a3bfc9a7-8f07-4c35-9149-f443289bd78b",
-  "time": "2026-04-01T13:40:47.055Z",
+  "id": "ba1b2326-5c26-4ed8-b7fd-c3ffad43a5f5",
+  "time": "2026-04-06T06:23:08.397Z",
   "specversion": "1.0",
   "datacontenttype": "application/json",
   "program_id": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+  "promoter_id": "c06d4f0f-ccfb-4d6e-8bed-eea28460b698",
   "source": "urn:in.org.quicko.cliq",
   "type": "in.org.quicko.cliq.commission.created",
-  "subject": "ec3f2e27-8f37-4f92-a3a9-41be34f483b3",
+  "subject": "eb8c32ce-7f3e-4fad-8b61-3c246ef69ba9",
   "data": {
     "@entity": "in.org.quicko.cliq.commission",
-    "commission_id": "ec3f2e27-8f37-4f92-a3a9-41be34f483b3",
-    "contact_id": "d342c6dd-2ef5-4a76-9325-91906dcc560f",
+    "commission_id": "eb8c32ce-7f3e-4fad-8b61-3c246ef69ba9",
+    "contact_id": "34fcf008-d537-409d-a10f-c9625bb5d8e7",
     "conversion_type": "signup",
     "promoter_id": "c06d4f0f-ccfb-4d6e-8bed-eea28460b698",
     "link_id": "92f75eee-ecc8-47c4-87d9-dea983114fef",
-    "amount": 19,
+    "amount": 10,
     "revenue": 0,
-    "created_at": "2026-04-01T13:40:46.969Z",
-    "updated_at": "2026-04-01T13:40:46.969Z"
-  }
+    "created_at": "2026-04-06T06:23:08.309Z",
+    "updated_at": "2026-04-06T06:23:08.309Z"
+  },
+  "subject": "eb8c32ce-7f3e-4fad-8b61-3c246ef69ba9"
 }
 ```

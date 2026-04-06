@@ -55,7 +55,6 @@ export class WebhookPublisherService {
             // event payload signature
             const signature = generateSignature(event.data, webhook.secret);
 
-            console.log(instanceToPlain(event), signature);
 
             await this.eventQueue.add(
                 webhookJobName, // Job name

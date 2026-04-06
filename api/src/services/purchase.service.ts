@@ -152,6 +152,7 @@ export class PurchaseService {
 				instanceToPlain(
 					Object.assign(new PurchaseCreatedEventData(), {
 						"@entity": purchaseEntityName,
+						purchaseId: savedPurchase.purchaseId,
 						triggerType: triggerEnum.PURCHASE,
 						contactId: associatedContact.contactId,
 						promoterId,
@@ -164,18 +165,17 @@ export class PurchaseService {
 					}),
 					{ excludeExtraneousValues: true }
 				) as any,
-				savedPurchase.purchaseId,
 			);
 	
 			this.eventEmitter.emit(PURCHASE_CREATED, purchaseCreatedEvent);
 	
 			return this.purchaseConverter.convert(savedPurchase);
 		} catch (error) {
-			this.logger.error(`Error while creating purchase: ${error.message}`);
+			this.logger.error(`Error while creating purchase: ${(error as Error).message}`);
 			if (error instanceof NotFoundException || error instanceof ForbiddenException) {
 				throw error;
 			} else {
-				throw new InternalServerErrorException(`Error while creating purchase: ${error.message}`);
+				throw new InternalServerErrorException(`Error while creating purchase: ${(error as Error).message}`);
 			}
 		}
 	}

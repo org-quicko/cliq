@@ -8,7 +8,6 @@ export class CommissionCreatedEvent extends BaseEvent {
         public promoterId: string,
         public source: string,
         public data: CommissionCreatedEventData,
-        commissionId?: string,
     ) {
         super(
             programId,
@@ -16,7 +15,7 @@ export class CommissionCreatedEvent extends BaseEvent {
             source,
             COMMISSION_CREATED,
             data,
-            commissionId
+            data['commission_id']
         );
     }
 }

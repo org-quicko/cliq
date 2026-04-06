@@ -74,7 +74,6 @@ export class CommissionService {
 					}),
 					{ excludeExtraneousValues: true }
 				) as any,
-				commissionResult.commissionId
 			);
 
 			this.eventEmitter.emit(COMMISSION_CREATED, commissionCreatedEvent);
@@ -82,14 +81,14 @@ export class CommissionService {
 			this.logger.info(`END: createCommission service`);
 			return savedCommission;
 		} catch (error) {
-			this.logger.error(`Error while creating commission: ${error.message}`);
+			this.logger.error(`Error while creating commission: ${(error as Error).message}`);
 			if (error instanceof NotFoundException ||
 				error instanceof BadRequestException ||
 				error instanceof InternalServerErrorException
 			) {
 				throw error;
 			} else {
-				throw new InternalServerErrorException(`Error while creating commission: ${error.message}`);
+				throw new InternalServerErrorException(`Error while creating commission: ${(error as Error).message}`);
 			}
 		}
 	}

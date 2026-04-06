@@ -8,7 +8,6 @@ export class SignUpCreatedEvent extends TriggerEvent {
         public promoterId: string,
         public source: string,
         public data: SignUpCreatedEventData,
-        public signUpId?: string,
     ) {
         super(
             programId,
@@ -16,7 +15,7 @@ export class SignUpCreatedEvent extends TriggerEvent {
             source,
             SIGNUP_CREATED,
             data,
-            signUpId
+            data['signup_id']
         );
     }
 }

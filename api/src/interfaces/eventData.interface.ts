@@ -9,7 +9,17 @@ export class TriggerEventData {
 
     @Expose({ name: 'trigger_type' })
     @IsEnum(triggerEnum)
-    triggerType: triggerEnum;
+    triggerType!: triggerEnum;
+
+    @Expose({ name: 'signup_id' })
+    @IsOptional()
+    @IsString()
+    signUpId?: string;
+
+    @Expose({ name: 'purchase_id' })
+    @IsOptional()
+    @IsString()
+    purchaseId?: string;
 
     @Expose({ name: 'conversion_type' })
     @IsOptional()
@@ -18,11 +28,11 @@ export class TriggerEventData {
 
     @Expose({ name: 'contact_id' })
     @IsString()
-    contactId: string;
+    contactId!: string;
 
     @Expose({ name: 'promoter_id' })
     @IsString()
-    promoterId: string;
+    promoterId!: string;
 
     @Expose({ name: 'commission_id' })
     @IsOptional()
@@ -31,7 +41,7 @@ export class TriggerEventData {
 
     @Expose({ name: 'link_id' })
     @IsString()
-    linkId: string;
+    linkId!: string;
 
     @Expose({ name: 'item_id' })
     @IsOptional()
@@ -50,26 +60,22 @@ export class TriggerEventData {
 
     @Expose({ name: 'created_at' })
     @IsDate()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Expose({ name: 'updated_at' })
     @IsDate()
-    updatedAt: Date;
+    updatedAt!: Date;
 
     @Expose({ name: 'utm_params' })
     @IsOptional()
     @IsObject()
     utmParams?: object;
-};
-
-export class SignUpCreatedEventData extends TriggerEventData {
-
 
 };
 
-export class PurchaseCreatedEventData extends TriggerEventData {
+export class SignUpCreatedEventData extends TriggerEventData {};
 
-};
+export class PurchaseCreatedEventData extends TriggerEventData {};
 
 export class CommissionCreatedEventData {
     @Expose({ name: '@entity' })
@@ -77,39 +83,39 @@ export class CommissionCreatedEventData {
 
     @Expose({ name: 'commission_id' })
     @IsString()
-    commissionId: string;
+    commissionId!: string;
 
     @Expose({ name: 'contact_id' })
     @IsString()
-    contactId: string;
+    contactId!: string;
 
     @Expose({ name: 'conversion_type' })
     @IsEnum(conversionTypeEnum)
-    conversionType: conversionTypeEnum;
+    conversionType!: conversionTypeEnum;
 
     @Expose({ name: 'promoter_id' })
     @IsString()
-    promoterId: string;
+    promoterId!: string;
 
     @Expose({ name: 'link_id' })
     @IsString()
-    linkId: string;
+    linkId!: string;
 
     @Expose({ name: 'amount' })
     @IsNumber()
-    amount: number;
+    amount!: number;
 
     @Expose({ name: 'revenue' })
     @IsNumber()
-    revenue: number;
+    revenue!: number;
 
     @Expose({ name: 'created_at' })
     @IsDate()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Expose({ name: 'updated_at' })
     @IsDate()
-    updatedAt: Date;
+    updatedAt!: Date;
 };
 
 export class ContactCreatedEventData {
@@ -118,7 +124,7 @@ export class ContactCreatedEventData {
 
     @Expose({ name: 'contact_id' })
     @IsString()
-    contactId: string;
+    contactId!: string;
 
     @Expose({ name: 'email' })
     @IsOptional()
@@ -142,9 +148,9 @@ export class ContactCreatedEventData {
 
     @Expose({ name: 'created_at' })
     @IsDate()
-    createdAt: Date;
+    createdAt!: Date;
 
     @Expose({ name: 'updated_at' })
     @IsDate()
-    updatedAt: Date;
+    updatedAt!: Date;
 };

@@ -149,6 +149,7 @@ export class SignUpService {
 				instanceToPlain(
 					Object.assign(new SignUpCreatedEventData(), {
 						"@entity": signUpEntityName,
+						signUpId: savedSignUp.contactId,
 						contactId: savedContact.contactId,
 						triggerType: triggerEnum.SIGNUP,
 						promoterId: linkResult.promoterId,
@@ -159,7 +160,6 @@ export class SignUpService {
 					}),
 					{ excludeExtraneousValues: true }
 				) as any,
-				savedSignUp.contactId,
 			);
 
 			this.eventEmitter.emit(SIGNUP_CREATED, signUpCreatedEvent);
@@ -189,7 +189,7 @@ export class SignUpService {
 			this.logger.info(`END: createSignUp service`);
 			return signUpDto;
 		} catch (error) {
-			this.logger.error(`Error while creating sign up: ${error.message}`);
+			this.logger.error(`Error while creating sign up: ${(error as Error).message}`);
 			if (error instanceof NotFoundException ||
 				error instanceof ConflictException ||
 				error instanceof ForbiddenException ||
@@ -197,7 +197,7 @@ export class SignUpService {
 			) {
 				throw error;
 			} else {
-				throw new InternalServerErrorException(`Error while creating sign up: ${error.message}`);
+				throw new InternalServerErrorException(`Error while creating sign up: ${(error as Error).message}`);
 			}
 		}
 	}
