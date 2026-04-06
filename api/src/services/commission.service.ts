@@ -81,14 +81,14 @@ export class CommissionService {
 			this.logger.info(`END: createCommission service`);
 			return savedCommission;
 		} catch (error) {
-			this.logger.error(`Error while creating commission: ${(error as Error).message}`);
+			this.logger.error(`Error while creating commission: ${error.message}`);
 			if (error instanceof NotFoundException ||
 				error instanceof BadRequestException ||
 				error instanceof InternalServerErrorException
 			) {
 				throw error;
 			} else {
-				throw new InternalServerErrorException(`Error while creating commission: ${(error as Error).message}`);
+				throw new InternalServerErrorException(`Error while creating commission: ${error.message}`);
 			}
 		}
 	}
