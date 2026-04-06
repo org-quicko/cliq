@@ -1,4 +1,6 @@
 import {
+	BeforeInsert,
+	BeforeUpdate,
 	Column,
 	CreateDateColumn,
 	Entity,
@@ -23,6 +25,9 @@ export class Promoter {
 
 	@Column('varchar')
 	name: string;
+
+	@Column('varchar', { name: 'normalized_name', nullable: true })
+	normalizedName: string;
 
 	@Column('varchar', { name: 'logo_url', nullable: true })
 	logoUrl: string;
@@ -67,4 +72,17 @@ export class Promoter {
 
 	@OneToMany(() => PromoterWebhook, (promoterWebhook) => promoterWebhook.promoter)
 	promoterWebhooks: PromoterWebhook[];
+
+	@BeforeInsert()
+	@BeforeUpdate()
+	setNormalizedName() {
+		if (this.name) {
+			this.normalizedName = this.name
+				.toLowerCase()
+				.replace(/[._\-\/\\+]+/g, ' ')
+				.replace(/[&|!:*()'\"<>@]/g, ' ')
+				.replace(/\s+/g, ' ')
+				.trim();
+		}
+	}
 }

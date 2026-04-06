@@ -25,6 +25,9 @@ export class ReferralView {
 	@Column({ name: 'contact_info', type: 'varchar' })
 	contactInfo: string;
 
+	@Column({ name: 'normalized_contact_info', type: 'varchar', nullable: true })
+	normalizedContactInfo: string;
+
 	@Column({ name: 'total_revenue', type: 'numeric', transformer: NumericToNumber, default: 0 })
 	totalRevenue: number;
 

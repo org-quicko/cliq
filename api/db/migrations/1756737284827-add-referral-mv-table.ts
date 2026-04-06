@@ -43,6 +43,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				link_promoter_id UUID;
 				contact_status contact_status_enum;
 				contact_info_val VARCHAR;
+				normalized_contact_info_val VARCHAR;
 				contact_created_at TIMESTAMPTZ;
 				contact_updated_at TIMESTAMPTZ;
 				v_contact_id UUID;
@@ -77,18 +78,22 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					RETURN COALESCE(NEW, OLD);
 				END IF;
 
+				-- Normalize contact info
+				normalized_contact_info_val := TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(LOWER(contact_info_val), '[._\-/\+]+', ' ', 'g'), '[&|!:*()''"<>@]', ' ', 'g'), '\s+', ' ', 'g'));
+
 				-- Insert or update referral_mv directly
 				INSERT INTO referral_mv (
-					program_id, promoter_id, contact_id, status, contact_info, 
+					program_id, promoter_id, contact_id, status, contact_info, normalized_contact_info,
 					total_revenue, total_commission, created_at, updated_at
 				) VALUES (
 					link_program_id, link_promoter_id, v_contact_id, 
-					contact_status, contact_info_val, 0, 0, contact_created_at, contact_updated_at
+					contact_status, contact_info_val, normalized_contact_info_val, 0, 0, contact_created_at, contact_updated_at
 				)
 				ON CONFLICT (program_id, promoter_id, contact_id)
 				DO UPDATE SET
 					status = EXCLUDED.status,
 					contact_info = EXCLUDED.contact_info,
+					normalized_contact_info = EXCLUDED.normalized_contact_info,
 					updated_at = now();
 
 				RETURN COALESCE(NEW, OLD);
@@ -105,6 +110,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				link_promoter_id UUID;
 				contact_status contact_status_enum;
 				contact_info_val VARCHAR;
+				normalized_contact_info_val VARCHAR;
 				total_revenue_calc NUMERIC;
 				total_commission_calc NUMERIC;
 				contact_created_at TIMESTAMPTZ;
@@ -136,6 +142,9 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					RETURN COALESCE(NEW, OLD);
 				END IF;
 
+				-- Normalize contact info
+				normalized_contact_info_val := TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(LOWER(contact_info_val), '[._\-/\+]+', ' ', 'g'), '[&|!:*()''"<>@]', ' ', 'g'), '\s+', ' ', 'g'));
+
 				-- Calculate total revenue for this contact
 				SELECT COALESCE(SUM(amount), 0)
 				INTO total_revenue_calc
@@ -156,11 +165,11 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 
 				-- Insert or update referral_mv directly
 				INSERT INTO referral_mv (
-					program_id, promoter_id, contact_id, status, contact_info, 
+					program_id, promoter_id, contact_id, status, contact_info, normalized_contact_info,
 					total_revenue, total_commission, created_at, updated_at
 				) VALUES (
 					link_program_id, link_promoter_id, v_contact_id, 
-					contact_status, contact_info_val, total_revenue_calc, total_commission_calc, contact_created_at, contact_updated_at
+					contact_status, contact_info_val, normalized_contact_info_val, total_revenue_calc, total_commission_calc, contact_created_at, contact_updated_at
 				)
 				ON CONFLICT (program_id, promoter_id, contact_id)
 				DO UPDATE SET
@@ -168,6 +177,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					total_commission = EXCLUDED.total_commission,
 					status = EXCLUDED.status,
 					contact_info = EXCLUDED.contact_info,
+					normalized_contact_info = EXCLUDED.normalized_contact_info,
 					updated_at = now();
 
 				RETURN COALESCE(NEW, OLD);
@@ -184,6 +194,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				link_promoter_id UUID;
 				contact_status contact_status_enum;
 				contact_info_val VARCHAR;
+				normalized_contact_info_val VARCHAR;
 				total_revenue_calc NUMERIC;
 				total_commission_calc NUMERIC;
 				contact_created_at TIMESTAMPTZ;
@@ -215,6 +226,9 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					RETURN COALESCE(NEW, OLD);
 				END IF;
 
+				-- Normalize contact info
+				normalized_contact_info_val := TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(LOWER(contact_info_val), '[._\\-/\\+]+', ' ', 'g'), '[&|!:*()''\"<>@]', ' ', 'g'), '\\s+', ' ', 'g'));
+
 				-- Calculate total revenue for this contact
 				SELECT COALESCE(SUM(amount), 0)
 				INTO total_revenue_calc
@@ -235,11 +249,11 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 
 				-- Insert or update referral_mv directly
 				INSERT INTO referral_mv (
-					program_id, promoter_id, contact_id, status, contact_info, 
+					program_id, promoter_id, contact_id, status, contact_info, normalized_contact_info,
 					total_revenue, total_commission, created_at, updated_at
 				) VALUES (
 					link_program_id, link_promoter_id, v_contact_id, 
-					contact_status, contact_info_val, total_revenue_calc, total_commission_calc, contact_created_at, contact_updated_at
+					contact_status, contact_info_val, normalized_contact_info_val, total_revenue_calc, total_commission_calc, contact_created_at, contact_updated_at
 				)
 				ON CONFLICT (program_id, promoter_id, contact_id)
 				DO UPDATE SET
@@ -247,6 +261,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 					total_commission = EXCLUDED.total_commission,
 					status = EXCLUDED.status,
 					contact_info = EXCLUDED.contact_info,
+					normalized_contact_info = EXCLUDED.normalized_contact_info,
 					updated_at = now();
 
 				RETURN COALESCE(NEW, OLD);
