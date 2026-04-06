@@ -8,7 +8,6 @@ export class ContactCreatedEvent extends BaseEvent {
         public promoterId: string | undefined,
         public source: string,
         public data: ContactCreatedEventData,
-        public contactId?: string,
     ) {
         super(
             programId,
@@ -16,7 +15,7 @@ export class ContactCreatedEvent extends BaseEvent {
             source,
             CONTACT_CREATED,
             data,
-            contactId
+            data['contact_id']
         );
     }
 }

@@ -181,7 +181,6 @@ export class SignUpService {
 				}),
 				{ excludeExtraneousValues: true }
 			) as any,
-			savedContact.contactId,
 		);
 
 		this.eventEmitter.emit(CONTACT_CREATED, contactCreatedEvent);
