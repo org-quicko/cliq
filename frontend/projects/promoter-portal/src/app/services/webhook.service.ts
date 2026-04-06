@@ -11,9 +11,9 @@ export class WebhookService {
 
 	constructor(private httpClient: HttpClient) {}
 
-	getAllWebhooks(programId: string, promoterId: string) {
+	getAllWebhooks(programId: string, promoterId: string, skip: number = 0, take: number = 10) {
 		const url = `${this.endpoint}/programs/${programId}/promoters/${promoterId}/webhooks`;
-		return this.httpClient.get<ApiResponse<PaginatedList<PromoterWebhookDto>>>(url);
+		return this.httpClient.get<ApiResponse<PaginatedList<PromoterWebhookDto>>>(url, { params: { skip, take } });
 	}
 
 	createWebhook(programId: string, promoterId: string, body: CreatePromoterWebhookDto) {

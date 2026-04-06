@@ -12,9 +12,9 @@ export class WebhookService {
 
 	constructor(private httpClient: HttpClient) {}
 
-	getAllWebhooks(programId: string) {
+	getAllWebhooks(programId: string, skip: number = 0, take: number = 10) {
 		const url = `${this.endpoint}/programs/${programId}/webhooks`;
-		return this.httpClient.get<ApiResponse<PaginatedList<WebhookDto>>>(url);
+		return this.httpClient.get<ApiResponse<PaginatedList<WebhookDto>>>(url, { params: { skip, take } });
 	}
 
 	createWebhook(programId: string, body: CreateWebhookDto) {

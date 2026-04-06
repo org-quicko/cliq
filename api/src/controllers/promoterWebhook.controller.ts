@@ -6,6 +6,7 @@ import {
     Delete,
     Param,
     Body,
+    Query,
 } from "@nestjs/common";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Permissions } from "../decorators/permissions.decorator";
@@ -52,13 +53,17 @@ export class PromoterWebhookController {
     @Get()
     async getAllPromoterWebhooks(
         @Param('program_id') programId: string,
-        @Param('promoter_id') promoterId: string
+        @Param('promoter_id') promoterId: string,
+        @Query('skip') skip: number = 0,
+        @Query('take') take: number = 10
     ) {
         this.logger.info(`START: getAllPromoterWebhooks controller`);
 
         const result = await this.promoterWebhookService.getAllPromoterWebhooks(
             programId,
-            promoterId
+            promoterId,
+            Number(skip),
+            Number(take)
         );
 
         this.logger.info(`END: getAllPromoterWebhooks controller`);

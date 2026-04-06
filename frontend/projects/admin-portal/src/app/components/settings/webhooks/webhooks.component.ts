@@ -1,11 +1,12 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
-import { SnackbarService, Status, WebhookDto, NotAllowedDialogBoxComponent } from '@org.quicko.cliq/ngx-core';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { SnackbarService, Status, WebhookDto, NotAllowedDialogBoxComponent, PaginationOptions } from '@org.quicko.cliq/ngx-core';
 import { ProgramStore } from '../../../store/program.store';
 import { WebhooksStore } from '../store/webhooks.store';
 import { WebhookDialogComponent } from './webhook-dialog/webhook-dialog.component';
@@ -23,6 +24,7 @@ import { UserAbility } from '../../../permissions/ability';
 		MatDialogModule,
 		MatTooltipModule,
 		MatChipsModule,
+		MatPaginatorModule,
 		NgxSkeletonLoaderModule,
 	],
 	providers: [WebhooksStore],
@@ -38,14 +40,26 @@ export class WebhooksComponent implements OnInit {
 	protected readonly can = this.abilityService.can;
 
 	readonly webhooks = this.webhooksStore.webhooks;
+	readonly count = this.webhooksStore.count;
 	readonly isLoading = computed(() => this.webhooksStore.status() === Status.LOADING);
 	readonly programId = this.programStore.program()?.programId;
 
+	paginationOptions = signal<PaginationOptions>({ pageIndex: 0, pageSize: 10 });
 	copiedWebhookId: string | null = null;
 
 	ngOnInit(): void {
+		this.fetchWebhooks();
+	}
+
+	fetchWebhooks(): void {
 		const programId = this.programId!;
-		this.webhooksStore.fetchWebhooks({ programId });
+		const { pageIndex, pageSize } = this.paginationOptions();
+		this.webhooksStore.fetchWebhooks({ programId, skip: pageIndex * pageSize, take: pageSize });
+	}
+
+	onPageChange(event: PageEvent): void {
+		this.paginationOptions.set({ pageIndex: event.pageIndex, pageSize: event.pageSize });
+		this.fetchWebhooks();
 	}
 
 	onCreateWebhook() {

@@ -11,12 +11,14 @@ import { WebhookService } from '../../../services/webhook.service';
 
 export interface WebhooksStoreState {
 	webhooks: WebhookDto[];
+	count: number;
 	error: any;
 	status: Status;
 }
 
 export const initialWebhooksState: WebhooksStoreState = {
 	webhooks: [],
+	count: 0,
 	error: null,
 	status: Status.PENDING,
 };
@@ -30,30 +32,30 @@ export const WebhooksStore = signalStore(
 			webhookService = inject(WebhookService),
 			snackBarService = inject(SnackbarService),
 		) => ({
-			fetchWebhooks: rxMethod<{ programId: string }>(
+			fetchWebhooks: rxMethod<{ programId: string; skip?: number; take?: number }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING, error: null })),
-					switchMap(({ programId }) =>
-						webhookService.getAllWebhooks(programId).pipe(
+					switchMap(({ programId, skip = 0, take = 10 }) =>
+						webhookService.getAllWebhooks(programId, skip, take).pipe(
 							tapResponse({
 								next(response) {
-								const paginatedResult = plainToInstance(
-									PaginatedList<WebhookDto>,
-									response?.data
-								);
+									const paginatedResult = plainToInstance(
+										PaginatedList<WebhookDto>,
+										response?.data
+									);
 
-								const webhooks = paginatedResult.getItems()?.map((item: any) =>
-									plainToInstance(WebhookDto, item)
-								) ?? [];
+									const webhooks = paginatedResult.getItems()?.map((item: any) =>
+										plainToInstance(WebhookDto, item)
+									) ?? [];
 									patchState(store, {
 										webhooks,
+										count: paginatedResult.getCount(),
 										status: Status.SUCCESS,
 										error: null,
 									});
 								},
 								error(error: HttpErrorResponse) {
 									patchState(store, { status: Status.ERROR, error });
-
 									snackBarService.openSnackBar(
 										'Failed to fetch webhooks',
 										undefined

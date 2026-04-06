@@ -11,12 +11,14 @@ import { WebhookService } from '../../../services/webhook.service'
 
 export interface PromoterWebhooksStoreState {
 	webhooks: PromoterWebhookDto[];
+	count: number;
 	error: any;
 	status: Status;
 }
 
 export const initialPromoterWebhooksState: PromoterWebhooksStoreState = {
 	webhooks: [],
+	count: 0,
 	error: null,
 	status: Status.PENDING,
 };
@@ -30,23 +32,24 @@ export const PromoterWebhooksStore = signalStore(
 			webhookService = inject(WebhookService),
 			snackBarService = inject(SnackbarService),
 		) => ({
-			fetchWebhooks: rxMethod<{ programId: string; promoterId: string }>(
+			fetchWebhooks: rxMethod<{ programId: string; promoterId: string; skip?: number; take?: number }>(
 				pipe(
 					tap(() => patchState(store, { status: Status.LOADING, error: null })),
-					switchMap(({ programId, promoterId }) =>
-						webhookService.getAllWebhooks(programId, promoterId).pipe(
+					switchMap(({ programId, promoterId, skip = 0, take = 10 }) =>
+						webhookService.getAllWebhooks(programId, promoterId, skip, take).pipe(
 							tapResponse({
 								next(response) {
-								const paginatedResult = plainToInstance(
-									PaginatedList<PromoterWebhookDto>,
-									response?.data
-								);
+									const paginatedResult = plainToInstance(
+										PaginatedList<PromoterWebhookDto>,
+										response?.data
+									);
 
-								const webhooks = paginatedResult.getItems()?.map((item: any) =>
-									plainToInstance(PromoterWebhookDto, item)
-								) ?? [];
+									const webhooks = paginatedResult.getItems()?.map((item: any) =>
+										plainToInstance(PromoterWebhookDto, item)
+									) ?? [];
 									patchState(store, {
 										webhooks,
+										count: paginatedResult.getCount(),
 										status: Status.SUCCESS,
 										error: null,
 									});

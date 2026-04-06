@@ -56,14 +56,16 @@ export class WebhookService {
         return webhookDto;
     }
 
-    async getAllWebhooks(programId: string) {
+    async getAllWebhooks(programId: string, skip: number = 0, take: number = 10) {
         this.logger.info(`START: getAllWebhooks service`);
 
         const [webhooks, count] = await this.webhookRepository.findAndCount({
             where: { programId },
+            skip,
+            take,
         });
 
-        const webhookList = this.webhookListConverter.convert(webhooks, 0, count, count);
+        const webhookList = this.webhookListConverter.convert(webhooks, skip, take, count);
 
         this.logger.info(`END: getAllWebhooks service`);
         return webhookList;

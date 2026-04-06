@@ -1,4 +1,4 @@
-<div class="w-full h-auto min-h-[528px] flex flex-col gap-4">
+<div class="super-admin-programs w-full h-auto min-h-[528px] flex flex-col gap-4">
 	<!-- Header -->
 	<div class="h-auto min-h-10 flex flex-row justify-between items-center">
 		<div>
@@ -103,4 +103,14 @@
 			</div>
 		}
 	</div>
+
+	@if ((count() ?? 0) > 0) {
+		<mat-paginator
+			[length]="count()"
+			[pageIndex]="paginationOptions().pageIndex"
+			[pageSize]="paginationOptions().pageSize"
+			[pageSizeOptions]="[10, 25, 50]"
+			(page)="onPageChange($event)">
+		</mat-paginator>
+	}
 </div>

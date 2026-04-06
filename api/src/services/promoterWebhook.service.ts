@@ -65,14 +65,16 @@ export class PromoterWebhookService {
         return dto;
     }
 
-    async getAllPromoterWebhooks(programId: string, promoterId: string) {
+    async getAllPromoterWebhooks(programId: string, promoterId: string, skip: number = 0, take: number = 10) {
         this.logger.info(`START: getAllPromoterWebhooks service`);
 
         const [webhooks, count] = await this.promoterWebhookRepository.findAndCount({
             where: { programId, promoterId },
+            skip,
+            take,
         });
 
-        const webhookList = this.promoterWebhookListConverter.convert(webhooks, 0, count, count);
+        const webhookList = this.promoterWebhookListConverter.convert(webhooks, skip, take, count);
 
         this.logger.info(`END: getAllPromoterWebhooks service`);
         return webhookList;
