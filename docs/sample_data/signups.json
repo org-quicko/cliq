@@ -1,0 +1,195 @@
+ {
+    "sheets": [
+      {
+        "blocks": [
+          {
+            "header": [
+              "contact_id",
+              "first_name",
+              "last_name",
+              "email",
+              "phone",
+              "amount",
+              "item_id",
+              "link_id",
+              "created_at"
+            ],
+            "rows": [],
+            "name": "purchase_table",
+            "@entity": "table"
+          }
+        ],
+        "name": "purchase_sheet",
+        "@entity": "sheet"
+      },
+      {
+        "blocks": [
+          {
+            "header": [
+              "contact_id",
+              "first_name",
+              "last_name",
+              "email",
+              "phone",
+              "link_id",
+              "created_at"
+            ],
+            "rows": [
+              [
+                "d9a2c7e4-3b51-4f8d-a6c2-5e1b7d9f3a12",
+                "Steve",
+                "Iron",
+                "st***@example.com",
+                "+1234***021",
+                "8f2c1a7b-4e6d-4b9c-a2f3-5d7e1c8a9b33",
+                "2026-01-27T00:00:00.000Z"
+              ],
+              [
+                "2a5d7c9e-4b31-4f8a-9c6d-3e1b7a2f5c81",
+                "Zack",
+                "Titanium",
+                "za***@example.com",
+                "+1234***027",
+                "00026565-0001-0001-0001-000000000001",
+                "2026-02-02T00:00:00.000Z"
+              ],
+              [
+                "c3f8b1e2-7d42-4a6e-b9c1-1f3e5d8a7b44",
+                "Alice",
+                "Johnson",
+                "al***@example.com",
+                "+1234***042",
+                "d4e5f6a7-b8c9-0123-defa-123456789012",
+                "2026-02-18T00:00:00.000Z"
+              ]
+            ],
+            "name": "signup_table",
+            "@entity": "table"
+          }
+        ],
+        "name": "signup_sheet",
+        "@entity": "sheet"
+      },
+      {
+        "blocks": [
+          {
+            "header": [
+              "promoter_id",
+              "status",
+              "contact_id",
+              "contact_info",
+              "total_revenue",
+              "total_commission",
+              "updated_at"
+            ],
+            "rows": [],
+            "name": "referral_table",
+            "@entity": "table"
+          }
+        ],
+        "name": "referral_sheet",
+        "@entity": "sheet"
+      },
+      {
+        "blocks": [
+          {
+            "header": [
+              "commission_id",
+              "contact_id",
+              "link_id",
+              "referral",
+              "commission",
+              "conversion_type",
+              "revenue",
+              "created_at",
+              "updated_at"
+            ],
+            "rows": [],
+            "name": "commission_table",
+            "@entity": "table"
+          }
+        ],
+        "name": "commission_sheet",
+        "@entity": "sheet"
+      },
+      {
+        "blocks": [
+          {
+            "header": [
+              "link_id",
+              "link_name",
+              "ref_val",
+              "promoter_id",
+              "signups",
+              "purchases",
+              "commission",
+              "created_at",
+              "program_website"
+            ],
+            "rows": [],
+            "name": "link_analytics_table",
+            "@entity": "table"
+          }
+        ],
+        "name": "link_analytics_sheet",
+        "@entity": "sheet"
+      },
+      {
+        "blocks": [
+          {
+            "header": [
+              "program_id",
+              "promoter_id",
+              "promoter_name",
+              "total_signups",
+              "total_purchases",
+              "total_revenue",
+              "total_commission",
+              "signup_commission",
+              "purchase_commission"
+            ],
+            "rows": [],
+            "name": "promoter_analytics_table",
+            "@entity": "table"
+          },
+          {
+            "header": [
+              "date",
+              "signups",
+              "purchases",
+              "revenue",
+              "commission",
+              "signup_commission",
+              "purchase_commission"
+            ],
+            "rows": [],
+            "name": "date_wise_promoter_analytics_table",
+            "@entity": "table"
+          }
+        ],
+        "name": "promoter_analytics_sheet",
+        "@entity": "sheet"
+      },
+      {
+        "blocks": [
+          {
+            "header": [
+              "member_id",
+              "first_name",
+              "last_name",
+              "email",
+              "role",
+              "added_on"
+            ],
+            "rows": [],
+            "name": "member_table",
+            "@entity": "table"
+          }
+        ],
+        "name": "member_sheet",
+        "@entity": "sheet"
+      }
+    ],
+    "name": "PromoterWorkbook",
+    "@entity": "workbook"
+}
