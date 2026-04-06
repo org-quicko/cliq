@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/constants';
 import {
 	BeforeInsert,
+	BeforeUpdate,
 	Column,
 	CreateDateColumn,
 	Entity,
@@ -23,6 +24,9 @@ export class Member {
 
 	@Column('varchar')
 	email: string;
+
+	@Column('varchar', { name: 'normalized_email', nullable: true })
+	normalizedEmail: string;
 
 	@Column('varchar')
 	password: string;
@@ -62,6 +66,19 @@ export class Member {
 		referencedColumnName: 'programId',
 	})
 	program: Program;
+
+	@BeforeInsert()
+	@BeforeUpdate()
+	setNormalizedEmail() {
+		if (this.email) {
+			this.normalizedEmail = this.email
+				.toLowerCase()
+				.replace(/[._\-\/\\+]+/g, ' ')
+				.replace(/[&|!:*()'\"<>@]/g, ' ')
+				.replace(/\s+/g, ' ')
+				.trim();
+		}
+	}
 
 	@BeforeInsert()
 	async hashPassword() {

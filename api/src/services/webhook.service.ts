@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Webhook } from '../entities';
 import { CreateWebhookDto, UpdateWebhookDto } from '../dtos';
 import { WebhookConverter } from 'src/converters/webhook.converter';
+import { WebhookListConverter } from 'src/converters/webhook.list.converter';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
 
@@ -15,13 +16,18 @@ export class WebhookService {
         private readonly webhookRepository: Repository<Webhook>,
 
         private webhookConverter: WebhookConverter,
+        private webhookListConverter: WebhookListConverter,
     ) { }
 
     async createWebhook(programId: string, body: CreateWebhookDto) {
         this.logger.info(`START: createWebhook service`);
 
+        // Check if any of the events already exist on another webhook
+        await this.checkEventDuplicates(programId, body.events);
+
         const webhook = this.webhookRepository.create({
             programId,
+            
             ...body
         });
 
@@ -50,17 +56,19 @@ export class WebhookService {
         return webhookDto;
     }
 
-    async getAllWebhooks(programId: string) {
+    async getAllWebhooks(programId: string, skip: number = 0, take: number = 10) {
         this.logger.info(`START: getAllWebhooks service`);
 
-        const webhooks = await this.webhookRepository.find({
+        const [webhooks, count] = await this.webhookRepository.findAndCount({
             where: { programId },
+            skip,
+            take,
         });
 
-        const webhooksDto = webhooks.map((webhook) => this.webhookConverter.convert(webhook));
+        const webhookList = this.webhookListConverter.convert(webhooks, skip, take, count);
 
         this.logger.info(`END: getAllWebhooks service`);
-        return webhooksDto;
+        return webhookList;
     }
 
     async updateWebhook(programId: string, webhookId: string, body: UpdateWebhookDto) {
@@ -79,6 +87,8 @@ export class WebhookService {
             if (body.events.length === 0) {
                 throw new BadRequestException('Events array cannot be empty.');
             }
+            // Check if any of the events already exist on another webhook
+            await this.checkEventDuplicates(programId, body.events, webhookId);
         }
 
         await this.webhookRepository.update({ webhookId }, { ...body });
@@ -106,5 +116,25 @@ export class WebhookService {
 
         if (!webhookResult) return false;
         else return true;
+    }
+
+    private async checkEventDuplicates(programId: string, events: string[], excludeWebhookId?: string) {
+        const existingWebhooks = await this.webhookRepository.find({
+            where: { programId },
+        });
+
+        for (const webhook of existingWebhooks) {
+            if (excludeWebhookId && webhook.webhookId === excludeWebhookId) {
+                continue; // Skip the current webhook when updating
+            }
+
+            const duplicates = webhook.events.filter(event => events.includes(event));
+
+            if (duplicates.length > 0) {
+                throw new BadRequestException(
+                    `Events ${duplicates.join(', ')} are already assigned to another webhook in this program.`
+                );
+            }
+        }
     }
 }

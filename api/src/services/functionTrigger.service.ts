@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { commissionTypeEnum, conditionParameterEnum, conversionTypeEnum, effectEnum, functionStatusEnum, triggerEnum } from "../enums";
-import { PURCHASE_CREATED, PurchaseCreatedEvent, SIGNUP_CREATED, SignUpCreatedEvent, TriggerEvent } from "../events";
+import { PURCHASE_CREATED, SIGNUP_CREATED, TriggerEvent } from "../events";
 import { OnEvent } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -14,6 +14,7 @@ import { roundedNumber } from "../utils";
 import { GenerateCommissionEffect, SwitchCircleEffect } from "../classes";
 import winston from "winston";
 import { LoggerFactory } from "@org-quicko/core";
+import { TriggerEventData } from "src/interfaces";
 
 
 @Injectable()
@@ -32,7 +33,6 @@ export class FunctionTriggerService {
     @OnEvent(PURCHASE_CREATED)
     private async triggerProgramFunctions(event: TriggerEvent) {
         this.logger.info('START: triggerProgramFunctions service');
-
 		// First triggering the functions that generate commissions, then switching circles.
 
         const generateCommissionFunctions = await this.functionRepository.find({
@@ -69,8 +69,7 @@ export class FunctionTriggerService {
 
 	private async loopThroughFunctions(event: TriggerEvent, funcs: Function[], functionType: effectEnum) {
         this.logger.info(`START: loopThroughFunctions service. Type of Functions- ${functionType}`);
-
-        const eventEntityPayload = Object.values(event.data)[0];
+        const eventEntityPayload = plainToInstance(TriggerEventData, event.data, { excludeExtraneousValues: true });
 
         // function should not be triggered, if:
         // 1. Function is inactive
@@ -108,7 +107,7 @@ export class FunctionTriggerService {
     private async triggerFunction(func: Function, event: TriggerEvent) {
         this.logger.info(`START: triggerFunction service`);
 
-        const eventEntityPayload = Object.values(event.data)[0];
+        const eventEntityPayload = plainToInstance(TriggerEventData, event.data, { excludeExtraneousValues: true });
 
         if (func.effect instanceof SwitchCircleEffect) {
 
@@ -144,11 +143,10 @@ export class FunctionTriggerService {
             createCommissionDto.revenue = revenue;
             createCommissionDto.amount = commissionAmount;
             
-            if (event instanceof PurchaseCreatedEvent) {
-                createCommissionDto.externalId = event.purchaseId!;
-                
-            } else if (event instanceof SignUpCreatedEvent) {
-                createCommissionDto.externalId = event.signUpId!;
+            if (eventEntityPayload.triggerType === triggerEnum.PURCHASE) {
+                createCommissionDto.referenceId = eventEntityPayload.purchaseId!;
+            } else if (eventEntityPayload.triggerType === triggerEnum.SIGNUP) {
+                createCommissionDto.referenceId = eventEntityPayload.signUpId!;
             }
 
             await this.commissionService.createCommission(createCommissionDto);
@@ -183,7 +181,7 @@ export class FunctionTriggerService {
 
         let evalResult: boolean;
 
-        const eventEntityPayload = Object.values(event.data)[0];
+        const eventEntityPayload = plainToInstance(TriggerEventData, event.data, { excludeExtraneousValues: true });
 
         let promoterAnalyticsView: PromoterAnalyticsView;
         let numOfSignUps: number = 0;

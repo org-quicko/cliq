@@ -20,6 +20,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { TermsAndConditionsComponent } from './components/terms-and-conditions/terms-and-conditions.component';
 import { TncResolver } from './resolver/tnc.resolver';
 import { ApiKeysComponent } from './components/settings/components/api-keys/api-keys.component';
+import { WebhooksComponent } from './components/settings/components/webhooks/webhooks.component';
 
 export const routes: Routes = [
 	{ path: '404', component: NotFoundComponent },
@@ -104,6 +105,10 @@ export const routes: Routes = [
 									{
 										path: 'api-keys',
 										component: ApiKeysComponent
+									},
+									{
+										path: 'webhooks',
+										component: WebhooksComponent
 									}
 								]
 							},

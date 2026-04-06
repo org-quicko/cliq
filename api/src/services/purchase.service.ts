@@ -19,6 +19,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { purchaseEntityName } from 'src/constants';
 import winston from 'winston';
 import { LoggerFactory } from '@org-quicko/core';
+import { instanceToPlain } from 'class-transformer';
+import { PurchaseCreatedEventData } from '../interfaces/eventData.interface';
 
 @Injectable()
 export class PurchaseService {
@@ -145,10 +147,12 @@ export class PurchaseService {
 	
 			const purchaseCreatedEvent = new PurchaseCreatedEvent(
 				associatedContact.programId,
+				promoterId,
 				'urn:POST:/purchases',
-				{
-					[purchaseEntityName]: {
+				instanceToPlain(
+					Object.assign(new PurchaseCreatedEventData(), {
 						"@entity": purchaseEntityName,
+						purchaseId: savedPurchase.purchaseId,
 						triggerType: triggerEnum.PURCHASE,
 						contactId: associatedContact.contactId,
 						promoterId,
@@ -158,20 +162,20 @@ export class PurchaseService {
 						createdAt: savedPurchase.createdAt,
 						updatedAt: savedPurchase.updatedAt,
 						utmParams: savedPurchase.utmParams,
-					}
-				},
-				savedPurchase.purchaseId,
+					}),
+					{ excludeExtraneousValues: true }
+				) as any,
 			);
 	
 			this.eventEmitter.emit(PURCHASE_CREATED, purchaseCreatedEvent);
 	
 			return this.purchaseConverter.convert(savedPurchase);
 		} catch (error) {
-			this.logger.error(`Error while creating purchase: ${error.message}`);
+			this.logger.error(`Error while creating purchase: ${(error as Error).message}`);
 			if (error instanceof NotFoundException || error instanceof ForbiddenException) {
 				throw error;
 			} else {
-				throw new InternalServerErrorException(`Error while creating purchase: ${error.message}`);
+				throw new InternalServerErrorException(`Error while creating purchase: ${(error as Error).message}`);
 			}
 		}
 	}

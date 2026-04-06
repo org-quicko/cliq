@@ -5,18 +5,19 @@ export class SignUpCreatedEvent extends TriggerEvent {
     
     constructor(
         public programId: string,
+        public promoterId: string,
         public source: string,
         public data: SignUpCreatedEventData,
-        public signUpId?: string,
     ) {
         super(
             programId,
+            promoterId,
             source,
             SIGNUP_CREATED,
             data,
-            signUpId
+            data['signup_id']
         );
     }
 }
 
-export const SIGNUP_CREATED = 'org.quicko.cliq.signup.created';
+export const SIGNUP_CREATED = 'in.org.quicko.cliq.signup.created';

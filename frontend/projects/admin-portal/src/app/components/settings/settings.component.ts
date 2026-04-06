@@ -4,11 +4,12 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
 import { TeamStore } from './store/team.store';
 import { ApiKeysStore } from './store/api-keys.store';
+import { WebhooksStore } from './store/webhooks.store';
 
 @Component({
 	selector: 'app-settings',
 	imports: [MatTabsModule, MatDividerModule, RouterOutlet, RouterLink, RouterLinkActive],
-	providers: [TeamStore, ApiKeysStore],
+	providers: [TeamStore, ApiKeysStore, WebhooksStore],
 	templateUrl: './settings.component.html',
 	styleUrl: './settings.component.css',
 })

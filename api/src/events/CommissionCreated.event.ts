@@ -5,18 +5,19 @@ export class CommissionCreatedEvent extends BaseEvent {
     
     constructor(
         public programId: string,
+        public promoterId: string,
         public source: string,
         public data: CommissionCreatedEventData,
-        commissionId?: string,
     ) {
         super(
             programId,
+            promoterId,
             source,
             COMMISSION_CREATED,
             data,
-            commissionId
+            data['commission_id']
         );
     }
 }
 
-export const COMMISSION_CREATED = 'org.quicko.cliq.commission.created';
+export const COMMISSION_CREATED = 'in.org.quicko.cliq.commission.created';

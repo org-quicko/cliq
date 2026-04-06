@@ -32,3 +32,12 @@ th {
 .info-dialog-shadow {
 	box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.15);
 }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

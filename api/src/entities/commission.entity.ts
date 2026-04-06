@@ -21,8 +21,8 @@ export class Commission {
 	@Column('enum', { name: 'conversion_type', enum: conversionTypeEnum })
 	conversionType: conversionTypeEnum;
 
-	@Column('uuid', { name: 'external_id' })
-	externalId: string;
+	@Column('uuid', { name: 'reference_id' })
+	referenceId: string;
 
 	@Column('decimal', { transformer: NumericToNumber })
 	amount: number;

@@ -16,6 +16,7 @@ import { ProgramUser } from './programUser.entity';
 import { visibilityEnum, referralKeyTypeEnum, dateFormatEnum } from '../enums';
 import { ApiKey } from './apiKey.entity';
 import { Webhook } from './webhook.entity';
+import { PromoterWebhook } from './promoterWebhook.entity';
 
 @Entity()
 export class Program {
@@ -61,6 +62,9 @@ export class Program {
 
 	@OneToMany(() => Webhook, (webhook) => webhook.program)
 	webhooks: Webhook[];
+
+	@OneToMany(() => PromoterWebhook, (promoterWebhook) => promoterWebhook.program)
+    promoterWebhooks: PromoterWebhook[];
 
 	@CreateDateColumn({
 		type: 'timestamp with time zone',

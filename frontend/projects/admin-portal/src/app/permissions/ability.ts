@@ -13,6 +13,7 @@ import {
   ApiKeyDto,
   UserDto,
   UpdateUserRoleDto,
+  WebhookDto,
   userRoleEnum,
   actionsType
 } from '@org.quicko.cliq/ngx-core';
@@ -32,9 +33,9 @@ export type subjectsType =
     | typeof ApiKeyDto
     | typeof UserDto
     | typeof UpdateUserRoleDto
+    | typeof WebhookDto
     | 'ProgramSummaryMv'
     | 'PromoterAnalyticsView'
-    | 'Webhook'
   >
   | 'all';
 
@@ -63,7 +64,7 @@ export function defineUserAbilities(role: userRoleEnum): UserAbility {
     LinkDto,
     CircleDto,
     FunctionDto,
-    'Webhook',
+    WebhookDto,
     ApiKeyDto,
     CommissionDto,
     SignUpDto,
@@ -81,7 +82,7 @@ export function defineUserAbilities(role: userRoleEnum): UserAbility {
 
     allow('manage', PromoterDto);
 
-    allow('manage', [LinkDto, CircleDto, FunctionDto, ApiKeyDto, 'Webhook']);
+    allow('manage', [LinkDto, CircleDto, FunctionDto, ApiKeyDto, WebhookDto]);
 
     allow(['change_role', 'remove_user', 'invite_user'], ProgramUserDto);
 
@@ -90,7 +91,7 @@ export function defineUserAbilities(role: userRoleEnum): UserAbility {
   }
 
   if (role === userRoleEnum.EDITOR) {
-    allow('manage', [LinkDto, CircleDto, FunctionDto]);
+    allow('manage', [LinkDto, CircleDto, FunctionDto, WebhookDto]);
   }
 
   forbid('read_all', 'ProgramSummaryMv')

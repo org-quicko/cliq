@@ -27,6 +27,7 @@ import {
     Webhook,
     LinkAnalyticsView,
     ProgramSummaryView,
+    PromoterWebhook,
 } from '../entities';
 import { memberRoleEnum, userRoleEnum, statusEnum, entityTypeEnum } from '../enums';
 import { UserService } from './user.service';
@@ -245,7 +246,12 @@ export class AuthorizationService {
                 } else if (subject === Webhook) {
                     if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
                     return this.checkIfUserIsPartOfProgram(request, subject);
-                } else if (subject === LinkAnalyticsView) {
+                } 
+                else if(subject === PromoterWebhook) {
+                    if (entityType === entityTypeEnum.MEMBER || entityType === entityTypeEnum.PROMOTER_API_USER) 
+                        return this.checkIfMemberIsPartOfPromoter(request, subject);
+                    }
+                 else if (subject === LinkAnalyticsView) {
                     return this.checkIfMemberIsPartOfPromoter(request, subject);
                 } else if (subject === ProgramSummaryView) {
                     if (entityType === entityTypeEnum.PROMOTER_API_USER) return null;
@@ -373,7 +379,7 @@ export class AuthorizationService {
                 allow('manage', [Link, Circle, Function, ApiKey, Webhook], { programId });
 
             } else if (role === userRoleEnum.EDITOR) {
-                allow('manage', [Link, Circle, Function], { programId });
+                allow('manage', [Link, Circle, Function, Webhook], { programId });
             }
 
         }
@@ -435,6 +441,7 @@ export class AuthorizationService {
     allow(['read', 'read_all'], [Link, ReferralView, PromoterAnalyticsView, Commission, SignUp, Purchase], { promoterId });
     allow(['read', 'read_all'], LinkAnalyticsView);
     allow('manage', ApiKey, { programId });
+    allow('manage', PromoterWebhook, { promoterId });
 
     const ability = build({
         detectSubjectType: (item) =>
@@ -455,20 +462,20 @@ export class AuthorizationService {
 
         for (const [promoterId, role] of Object.entries(promoterMemberPermissions)) {
             allow(['read', 'leave'], Promoter, { promoterId });
-            allow(['read', 'read_all'], [PromoterAnalyticsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link], { promoterId });
+            allow(['read', 'read_all'], [PromoterAnalyticsView, Commission, PromoterMember, ReferralView, Purchase, SignUp, Link, PromoterWebhook], { promoterId });
             allow(['read', 'read_all'], LinkAnalyticsView);
             allow('read', ApiKey, { promoterId });
 
             allow('read', Member, { promoterMembers: { $elemMatch: { promoterId } } });
 
             if (role === memberRoleEnum.EDITOR) {
-                allow('manage', Link, { promoterId });
+                allow('manage', [Link, PromoterWebhook], { promoterId });
                 allow('update', Promoter);
 
             } else if (role === memberRoleEnum.ADMIN) {
                 // allow update program or invite other users to the program
                 // also, can only register on behalf of the promoter if member is the admin of that promoter
-                allow('manage', [Promoter, PromoterMember, Link, ApiKey], { promoterId });
+                allow('manage', [Promoter, PromoterMember, Link, ApiKey, PromoterWebhook], { promoterId });
 
                 // can only manage the program-promoter relations if you are admin of this promoter
                 allow('manage', ProgramPromoter, { promoterId });

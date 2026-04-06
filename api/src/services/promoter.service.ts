@@ -48,6 +48,7 @@ import { SALT_ROUNDS } from '../constants';
 import { subjectsType } from '../types';
 import { MemberConverter } from 'src/converters/member.converter';
 import { ReferralConverter } from 'src/converters/referral.converter';
+import { ReferralListConverter } from 'src/converters/referral.list.converter';
 import { PromoterWorkbookConverter } from 'src/converters/promoter/promoter.workbook.converter';
 import { SignUpWorkbookConverter } from 'src/converters/signup/signup.workbook.converter';
 import { PurchaseWorkbookConverter } from 'src/converters/purchase/purchase.workbook.converter';
@@ -114,6 +115,7 @@ export class PromoterService {
 		private memberConverter: MemberConverter,
 		private commissionConverter: CommissionConverter,
 		private referralConverter: ReferralConverter,
+		private referralListConverter: ReferralListConverter,
 
 		private datasource: DataSource,
 	) { 
@@ -641,7 +643,6 @@ export class PromoterService {
 	async getSignUpsForPromoter(
 		programId: string,
 		promoterId: string,
-		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<SignUp> = {},
 	) {
 		this.logger.info('START: getSignUpsForPromoter service');
@@ -650,6 +651,17 @@ export class PromoterService {
 
 		// getting signups for: program -> promoter -> signups
 		const signUpsResult = await this.signUpRepository.find({
+			select: {
+				contactId: true,
+				createdAt: true,
+				linkId: true,
+				contact: {
+					firstName: true,
+					lastName: true,
+					email: true,
+					phone: true,
+				},
+			},
 			where: {
 				promoterId,
 				contact: {
@@ -658,11 +670,9 @@ export class PromoterService {
 				...whereOptions
 			},
 			relations: {
-				contact: true
+				contact: true,
 			},
 		});
-
-		
 
 		if (!signUpsResult || signUpsResult.length === 0) {
 			this.logger.warn(
@@ -670,19 +680,14 @@ export class PromoterService {
 			);
 		}
 
-		if (toUseSheetJsonFormat) {
-			const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
-				signUpSheetInput: {
-					signUps: signUpsResult
-				}
-			});
-
-			this.logger.info('END: getSignUpsForPromoter service: Returning Workbook');
-			return promoterWorkbook;
-		}
+		const promoterWorkbook = this.promoterWorkbookConverter.convertTo({
+			signUpSheetInput: {
+				signUps: signUpsResult
+			}
+		});
 
 		this.logger.info('END: getSignUpsForPromoter service');
-		return signUpsResult;
+		return promoterWorkbook;
 	}
 
 	async getPromoterReferrals(
@@ -738,10 +743,17 @@ export class PromoterService {
 			return promoterWorkbook;
 		}
 
+		const referralList = this.referralListConverter.convert(
+			referralResult,
+			queryOptions.skip,
+			queryOptions.take,
+			count,
+		);
 
 		this.logger.info(`END: getPromoterReferrals service`);
-		return referralResult;
+		return referralList;
 	}
+
 
 	async getPromoterReferral(
 		programId: string,
@@ -1138,7 +1150,6 @@ export class PromoterService {
 	async getPurchasesForPromoter(
 		programId: string,
 		promoterId: string,
-		toUseSheetJsonFormat: boolean = true,
 		whereOptions: FindOptionsWhere<Purchase> = {},
 	) {
 		this.logger.info('START: getPurchasesForPromoter service');
@@ -1146,6 +1157,19 @@ export class PromoterService {
 		await this.hasAcceptedTermsAndConditions(programId, promoterId);
 
 		const purchases = await this.purchaseRepository.find({
+			select: {
+				contactId: true,
+				amount: true,
+				itemId: true,
+				linkId: true,
+				createdAt: true,
+				contact: {
+					firstName: true,
+					lastName: true,
+					email: true,
+					phone: true,
+				},
+			},
 			where: {
 				promoterId,
 				contact: {
@@ -1154,31 +1178,22 @@ export class PromoterService {
 				...whereOptions
 			},
 			relations: {
-				contact: true
+				contact: true,
 			},
 		});
 
-		if (!purchases) {
+		if (!purchases || purchases.length === 0) {
 			this.logger.warn(`failed to get purchases for promoter ${promoterId}`);
-			throw new NotFoundException(`No purchases found for ${promoterId}`);
 		}
 
+		const purchaseSheetJson = this.promoterWorkbookConverter.convertTo({
+			purchaseSheetInput: {
+				purchases,
+			}
+		});
 
-		if (toUseSheetJsonFormat) {
-			const purchaseSheetJson = this.promoterWorkbookConverter.convertTo({
-				purchaseSheetInput: {
-					purchases,
-
-				}
-			});
-
-			this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
-
-			return purchaseSheetJson;
-		}
-
-		this.logger.info('END: getPurchasesForPromoter service');
-		return purchases;
+		this.logger.info('END: getPurchasesForPromoter service: Returning Workbook');
+		return purchaseSheetJson;
 	}
 
 	/**

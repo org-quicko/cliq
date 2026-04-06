@@ -42,9 +42,9 @@ export class CreateCommissionDto {
 	@IsEnum(conversionTypeEnum)
 	conversionType: conversionTypeEnum;
 
-	@Expose({ name: 'external_id' })
+	@Expose({ name: 'reference_id' })
 	@IsUUID()
-	externalId: string;
+	referenceId: string;
 
 	@Expose({ name: 'promoter_id' })
 	@IsUUID()

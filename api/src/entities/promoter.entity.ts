@@ -1,4 +1,6 @@
 import {
+	BeforeInsert,
+	BeforeUpdate,
 	Column,
 	CreateDateColumn,
 	Entity,
@@ -14,6 +16,7 @@ import { PromoterMember } from './promoterMember.entity';
 import { Purchase } from './purchase.entity';
 import { Commission } from './commission.entity';
 import { promoterStatusEnum } from 'src/enums';
+import { PromoterWebhook } from './promoterWebhook.entity';
 
 @Entity()
 export class Promoter {
@@ -22,6 +25,9 @@ export class Promoter {
 
 	@Column('varchar')
 	name: string;
+
+	@Column('varchar', { name: 'normalized_name', nullable: true })
+	normalizedName: string;
 
 	@Column('varchar', { name: 'logo_url', nullable: true })
 	logoUrl: string;
@@ -63,4 +69,20 @@ export class Promoter {
 
 	@OneToMany(() => Commission, (commission) => commission.promoter)
 	commissions: Commission[];
+
+	@OneToMany(() => PromoterWebhook, (promoterWebhook) => promoterWebhook.promoter)
+	promoterWebhooks: PromoterWebhook[];
+
+	@BeforeInsert()
+	@BeforeUpdate()
+	setNormalizedName() {
+		if (this.name) {
+			this.normalizedName = this.name
+				.toLowerCase()
+				.replace(/[._\-\/\\+]+/g, ' ')
+				.replace(/[&|!:*()'\"<>@]/g, ' ')
+				.replace(/\s+/g, ' ')
+				.trim();
+		}
+	}
 }

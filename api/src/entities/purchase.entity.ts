@@ -73,4 +73,7 @@ export class Purchase {
 	})
 	contact: Contact;
 
+	@Column('varchar', { name: 'external_id', nullable: true })
+	externalId: string;
+
 }

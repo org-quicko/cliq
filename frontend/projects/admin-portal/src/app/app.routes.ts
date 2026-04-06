@@ -30,6 +30,7 @@ import { ProfileComponent } from './components/settings/profile/profile.componen
 import { TeamComponent } from './components/settings/team/team.component';
 import { ProgramProfileComponent } from './components/settings/program-profile/program-profile.component';
 import { ApiKeysComponent } from './components/settings/api-keys/api-keys.component';
+import { WebhooksComponent } from './components/settings/webhooks/webhooks.component';
 export const routes: Routes = [
     { path: '404', component: NotFoundComponent },
     { path: 'setup', component: SuperAdminSetupComponent },
@@ -102,6 +103,7 @@ export const routes: Routes = [
                                     { path: 'Program', component: ProgramProfileComponent },
                                     { path: 'Team', component: TeamComponent },
                                     { path: 'api-keys', component: ApiKeysComponent },
+                                    { path: 'webhooks', component: WebhooksComponent },
                                 ]
                             }
                         ]
