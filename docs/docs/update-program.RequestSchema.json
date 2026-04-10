@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"type":"object","properties":{"name":{"type":"string"},"visibility":{"type":"string"}},"required":["name","visibility"]},"example":{"name":"Zerodha","visibility":"private"}}}}}

@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"","content":{"application/json":{"schema":{"type":"object","properties":{"code":{"type":"integer"},"message":{"type":"string"}},"required":["code","message"]},"example":{"code":200,"message":"Successfully left program 930433e7-591c-4dda-a300-d3bfe17bd03d."}}},"headers":{}}}}

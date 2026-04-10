@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string"},"events":{"type":"array","items":{"type":"string"}},"secret":{"type":"string"}}},"example":{"url":"https://webhook.site/ba58a794-336a-4b10-ac46-f83309212eb4","events":["signup.created","commission.created"],"secret":"updated_secret"}}}}}

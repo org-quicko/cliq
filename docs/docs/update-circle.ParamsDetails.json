@@ -1,0 +1,1 @@
+{"parameters":[{"name":"program_id","in":"path","description":"","required":true,"example":"930433e7-591c-4dda-a300-d3bfe17bd03d","schema":{"type":"string"}},{"name":"circle_id","in":"path","description":"","required":true,"example":"f0e1d2c3-b4a5-4789-8c7d-6e5f4a3b2c11","schema":{"type":"string"}}]}
