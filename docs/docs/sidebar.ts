@@ -35,19 +35,7 @@ const sidebar: SidebarsConfig = {
                   label: "Create program",
                   className: "api-method post",
                 },
-                {
-                  type: "doc",
-                  id: "get-programs",
-                  label: "Get all programs",
-                  className: "api-method get",
-                },
-                {
-                  type: "doc",
-                  id: "get-program-summary",
-                  label: "Get programs summary list",
-                  className: "api-method get",
-                },
-                {
+                                {
                   type: "doc",
                   id: "get-program",
                   label: "Get program",
@@ -64,6 +52,18 @@ const sidebar: SidebarsConfig = {
                   id: "delete-program",
                   label: "Delete program",
                   className: "api-method delete",
+                },
+                {
+                  type: "doc",
+                  id: "get-programs",
+                  label: "Get all programs",
+                  className: "api-method get",
+                },
+                {
+                  type: "doc",
+                  id: "get-program-summary",
+                  label: "Get programs summary list",
+                  className: "api-method get",
                 },
                 {
                   type: "doc",
@@ -612,6 +612,11 @@ const sidebar: SidebarsConfig = {
           type: "doc",
           id: "events/commission-created",
           label: "commission.created",
+        },
+        {
+          type: "doc",
+          id: "events/contact-created",
+          label: "contact.created",
         },
       ],
     },

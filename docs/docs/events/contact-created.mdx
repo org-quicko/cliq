@@ -1,0 +1,71 @@
+---
+id: contact-created
+title: "contact.created"
+sidebar_label: "contact.created"
+hide_title: true
+hide_table_of_contents: false
+---
+
+import Heading from "@theme/Heading";
+
+<Heading as={"h1"}>contact.created</Heading>
+
+Published when a new contact is created via a referral link in a program.
+
+**Event type:** `in.org.quicko.cliq.contact.created`
+
+**Available for:** Program side only
+
+## Event Schema
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string (uuid) | Unique event ID |
+| `time` | string (ISO 8601) | Time the event occurred |
+| `specversion` | string | CloudEvents spec version |
+| `datacontenttype` | string | `application/json` |
+| `program_id` | string (uuid) | Program the contact belongs to |
+| `promoter_id` | string (uuid) | Promoter who owns the referral link |
+| `source` | string | Originating endpoint |
+| `type` | string | Event type identifier |
+| `data` | object | Event data (see below) |
+| `subject` | string (uuid) | Contact ID |
+
+### `data`
+
+| Field | Type | Description |
+|---|---|---|
+| `@entity` | string | `in.org.quicko.cliq.contact` |
+| `contact_id` | string (uuid) | ID of the created contact |
+| `email` | string | Email address of the contact |
+| `first_name` | string | First name of the contact |
+| `last_name` | string | Last name of the contact |
+| `phone` | string | Phone number of the contact |
+| `created_at` | string (ISO 8601) | Contact creation timestamp |
+| `updated_at` | string (ISO 8601) | Contact last updated timestamp |
+
+## Example Payload
+
+```json
+{
+  "id": "ab95cb64-454a-4727-aa28-ecd65428e012",
+  "time": "2026-04-13T05:04:35.324Z",
+  "specversion": "1.0",
+  "datacontenttype": "application/json",
+  "program_id": "000966a7-e8f9-4a1f-9521-ba52ec0f4b47",
+  "promoter_id": "0c3f134d-3c93-4ecd-b7df-5feb97c0cdc8",
+  "source": "urn:POST:/signups",
+  "type": "in.org.quicko.cliq.contact.created",
+  "data": {
+    "@entity": "in.org.quicko.cliq.contact",
+    "contact_id": "19ec1355-2fd3-47f6-957b-c893f814ff3f",
+    "email": "Emmet_Satterfield78@hotmail.com",
+    "first_name": "Ayush",
+    "last_name": "Pandita",
+    "phone": "1284892354",
+    "created_at": "2026-04-13T05:04:35.251Z",
+    "updated_at": "2026-04-13T05:04:35.251Z"
+  },
+  "subject": "19ec1355-2fd3-47f6-957b-c893f814ff3f"
+}
+```
