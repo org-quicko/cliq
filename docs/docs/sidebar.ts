@@ -55,12 +55,6 @@ const sidebar: SidebarsConfig = {
                 },
                 {
                   type: "doc",
-                  id: "get-program-summary",
-                  label: "Get programs summary list",
-                  className: "api-method get",
-                },
-                {
-                  type: "doc",
                   id: "program-signups",
                   label: "Get signups in program",
                   className: "api-method get",
