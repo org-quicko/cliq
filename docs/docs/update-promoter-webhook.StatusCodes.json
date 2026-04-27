@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"","content":{"application/json":{"schema":{"type":"object","properties":{"code":{"type":"integer"},"message":{"type":"string"}},"required":["code","message"]},"example":{"code":200,"message":"Successfully updated webhook 07259144-bb3e-4c7b-89d1-5a69199f2f97 for Promoter a1b2c3d4-e5f6-7890-abcd-ef1234567890"}}},"headers":{}}}}

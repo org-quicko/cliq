@@ -1,0 +1,1 @@
+{"responses":{"201":{"description":"","content":{"application/json":{"schema":{"type":"object","properties":{"code":{"type":"integer"},"message":{"type":"string"}},"required":["code","message"]},"example":{"code":201,"message":"Successfully added promoters to circle."}}},"headers":{}}}}

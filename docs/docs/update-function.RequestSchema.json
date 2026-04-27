@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"type":"object","properties":{"circle_id":{"type":"string"}},"required":["circle_id"]},"example":{"circle_id":"ffc7fd9b-8714-4ffd-a08c-b53ae3578b73"}}}}}

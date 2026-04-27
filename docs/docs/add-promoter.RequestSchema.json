@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"type":"object","properties":{"promoters":{"type":"array","items":{"type":"string"}}},"required":["promoters"]},"example":{"promoters":["d4e5f6a7-1b2c-4d8e-9f0a-b1c2d3e4f666","c3f1a9b7-8e24-4d6c-a2b5-7f9e1d3a5c44"]}}}}}

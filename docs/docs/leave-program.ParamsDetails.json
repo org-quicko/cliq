@@ -1,0 +1,1 @@
+{"parameters":[{"name":"user_id","in":"path","description":"","required":true,"example":"563f0308-9a19-4893-b495-0025549e2ca9","schema":{"type":"string"}},{"name":"program_id","in":"path","description":"","required":true,"example":"930433e7-591c-4dda-a300-d3bfe17bd03d","schema":{"type":"string"}}]}
