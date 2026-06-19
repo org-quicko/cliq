@@ -27,6 +27,8 @@ export class PromoterAnalyticsTableConverter {
 				row.setPromoterId(referralAgg.promoterId);
 				if (referralAgg.promoterName) {
 					row.setPromoterName(referralAgg.promoterName);
+				} else {
+					row.setPromoterName(null);
 				}
 				row.setTotalSignups(Number(referralAgg.totalSignUps));
 				row.setTotalPurchases(Number(referralAgg.totalPurchases));
