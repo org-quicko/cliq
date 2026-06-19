@@ -1020,7 +1020,10 @@
                                 ]
                               },
                               {
-                                "type": "string"
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
                               },
                               {
                                 "type": "number",
