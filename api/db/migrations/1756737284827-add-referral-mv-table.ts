@@ -79,14 +79,14 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				END IF;
 
 				-- Normalize contact info
-				normalized_contact_info_val := TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(LOWER(contact_info_val), '[._\-/\+]+', ' ', 'g'), '[&|!:*()''"<>@]', ' ', 'g'), '\s+', ' ', 'g'));
+				normalized_contact_info_val := TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(LOWER(contact_info_val), '[._\\-/\\+]+', ' ', 'g'), '[&|!:*()''\"<>@]', ' ', 'g'), '\\s+', ' ', 'g'));
 
 				-- Insert or update referral_mv directly
 				INSERT INTO referral_mv (
 					program_id, promoter_id, contact_id, status, contact_info, normalized_contact_info,
 					total_revenue, total_commission, created_at, updated_at
 				) VALUES (
-					link_program_id, link_promoter_id, v_contact_id, 
+					link_program_id, link_promoter_id, v_contact_id,
 					contact_status, contact_info_val, normalized_contact_info_val, 0, 0, contact_created_at, contact_updated_at
 				)
 				ON CONFLICT (program_id, promoter_id, contact_id)
@@ -143,7 +143,7 @@ export class AddReferralMvTable1756737284827 implements MigrationInterface {
 				END IF;
 
 				-- Normalize contact info
-				normalized_contact_info_val := TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(LOWER(contact_info_val), '[._\-/\+]+', ' ', 'g'), '[&|!:*()''"<>@]', ' ', 'g'), '\s+', ' ', 'g'));
+				normalized_contact_info_val := TRIM(REGEXP_REPLACE(REGEXP_REPLACE(REGEXP_REPLACE(LOWER(contact_info_val), '[._\\-/\\+]+', ' ', 'g'), '[&|!:*()''\"<>@]', ' ', 'g'), '\\s+', ' ', 'g'));
 
 				-- Calculate total revenue for this contact
 				SELECT COALESCE(SUM(amount), 0)
