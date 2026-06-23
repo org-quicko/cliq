@@ -131,7 +131,7 @@ export class PurchaseService {
 					link: linkResult,
 					promoter: promoterResult,
 					itemId: body.itemId,
-					utmParams: body.utmParams,
+					utmParams: instanceToPlain(body.utmParams),
 				});
 	
 				const savedPurchase = await purchaseRepository.save(newPurchase);
