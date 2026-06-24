@@ -124,14 +124,14 @@ export class SignUpService {
 					this.logger.error(`Error. Failed to create new contact.`);
 					throw new InternalServerErrorException(`Error. Failed to create new contact.`);
 				}
-	
+					
 				const newSignUp = signUpRepository.create({
 					contact: savedContact,
 					link: linkResult,
 					promoterId: linkResult.promoterId,
-					utmParams: body.utmParams
+					utmParams: instanceToPlain(body.utmParams)
 				});
-	
+
 				const savedSignUp = await signUpRepository.save(newSignUp);
 	
 				if (!savedSignUp) {
