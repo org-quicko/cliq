@@ -37,6 +37,7 @@ Published when a contact successfully signs up via a referral link.
 | `trigger_type` | string | `signup` |
 | `signup_id` | string (uuid) | ID of the signup |
 | `contact_id` | string (uuid) | ID of the signed-up contact |
+| `external_id` | string |  External identifier sent while posting signup or purchase |
 | `promoter_id` | string (uuid) | Promoter who owns the referral link |
 | `link_id` | string (uuid) | Referral link used for the signup |
 | `created_at` | string (ISO 8601) | Signup creation timestamp |
@@ -71,6 +72,7 @@ Published when a contact successfully signs up via a referral link.
     "trigger_type": "signup",
     "signup_id": "34fcf008-d537-409d-a10f-c9625bb5d8e7",
     "contact_id": "34fcf008-d537-409d-a10f-c9625bb5d8e7",
+    "external_id": "1da19dc5-860e-408b-844f-bbd16813bf83",
     "promoter_id": "c06d4f0f-ccfb-4d6e-8bed-eea28460b698",
     "link_id": "92f75eee-ecc8-47c4-87d9-dea983114fef",
     "created_at": "2026-04-06T06:23:07.787Z",

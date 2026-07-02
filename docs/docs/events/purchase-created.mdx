@@ -37,6 +37,7 @@ Published when a contact successfully completes a purchase via a referral link.
 | `trigger_type` | string |`purchase` |
 | `purchase_id` | string (uuid) | ID of the purchase |
 | `contact_id` | string (uuid) | ID of the contact who made the purchase |
+| `external_id` | string |  External identifier sent while posting signup or purchase |
 | `promoter_id` | string (uuid) | Promoter who owns the referral link |
 | `link_id` | string (uuid) | Referral link used for the purchase |
 | `item_id` | string | Identifier of the purchased item |
@@ -73,6 +74,7 @@ Published when a contact successfully completes a purchase via a referral link.
     "trigger_type": "purchase",
     "purchase_id": "9aafd54c-03f5-40c0-8dba-df50e974e731",
     "contact_id": "6a3e05ae-a0c1-4d09-9d8c-112929601246",
+    "external_id": "1da19dc5-860e-408b-844f-bbd16813bf83",
     "promoter_id": "c06d4f0f-ccfb-4d6e-8bed-eea28460b698",
     "link_id": "92f75eee-ecc8-47c4-87d9-dea983114fef",
     "item_id": "item1",

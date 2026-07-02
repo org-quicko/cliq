@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { CreateCommissionDto } from '../dtos';
-import { Commission } from '../entities';
+import { Commission, Contact } from '../entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { COMMISSION_CREATED, CommissionCreatedEvent } from 'src/events/CommissionCreated.event';
 import { commissionEntityName } from 'src/constants';
@@ -55,6 +55,17 @@ export class CommissionService {
 				return { commissionResult, savedCommission };
 			});
 
+			const contact = await this.datasource.getRepository(Contact).findOne({
+				where: {
+					contactId: commissionResult.contactId
+				},
+				select: {
+					externalId: true
+				}
+			});
+
+			this.logger.info(JSON.stringify(contact));
+
 			const commissionCreatedEvent = new CommissionCreatedEvent(
 				commissionResult.contact.programId,
 				commissionResult.promoterId,
@@ -64,6 +75,7 @@ export class CommissionService {
 						"@entity": commissionEntityName,
 						commissionId: commissionResult.commissionId,
 						contactId: commissionResult.contactId,
+						externalId: contact?.externalId,
 						conversionType: commissionResult.conversionType,
 						promoterId: commissionResult.promoterId,
 						linkId: commissionResult.linkId,

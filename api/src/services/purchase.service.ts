@@ -155,6 +155,7 @@ export class PurchaseService {
 						purchaseId: savedPurchase.purchaseId,
 						triggerType: triggerEnum.PURCHASE,
 						contactId: associatedContact.contactId,
+						externalId: associatedContact.externalId,
 						promoterId,
 						linkId: linkResult.linkId,
 						itemId: savedPurchase.itemId,
