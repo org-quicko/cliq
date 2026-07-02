@@ -64,8 +64,6 @@ export class CommissionService {
 				}
 			});
 
-			this.logger.info(JSON.stringify(contact));
-
 			const commissionCreatedEvent = new CommissionCreatedEvent(
 				commissionResult.contact.programId,
 				commissionResult.promoterId,
