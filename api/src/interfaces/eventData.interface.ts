@@ -30,6 +30,11 @@ export class TriggerEventData {
     @IsString()
     contactId!: string;
 
+    @Expose({ name: 'external_id' })
+    @IsOptional()
+    @IsString()
+    externalId?: string;
+
     @Expose({ name: 'promoter_id' })
     @IsString()
     promoterId!: string;
@@ -89,6 +94,11 @@ export class CommissionCreatedEventData {
     @IsString()
     contactId!: string;
 
+    @Expose({ name: 'external_id' })
+    @IsOptional()
+    @IsString()
+    externalId?: string;
+
     @Expose({ name: 'conversion_type' })
     @IsEnum(conversionTypeEnum)
     conversionType!: conversionTypeEnum;
@@ -145,6 +155,11 @@ export class ContactCreatedEventData {
     @IsOptional()
     @IsString()
     phone?: string;
+
+    @Expose({ name: 'external_id' })
+    @IsOptional()
+    @IsString()
+    externalId?: string;
 
     @Expose({ name: 'created_at' })
     @IsDate()

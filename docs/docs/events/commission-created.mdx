@@ -36,6 +36,7 @@ Published when a commission is generated for a promoter following a signup or pu
 | `@entity` | string |`in.org.quicko.cliq.commission` |
 | `commission_id` | string (uuid) | ID of the generated commission |
 | `contact_id` | string (uuid) | ID of the contact whose action triggered the commission |
+| `external_id` | string |  External identifier sent while posting signup or purchase  |
 | `conversion_type` | string | Conversion that triggered the commission — `signup` or `purchase` |
 | `promoter_id` | string (uuid) | Promoter who earned the commission |
 | `link_id` | string (uuid) | Referral link associated with the conversion |
@@ -61,6 +62,7 @@ Published when a commission is generated for a promoter following a signup or pu
     "@entity": "in.org.quicko.cliq.commission",
     "commission_id": "eb8c32ce-7f3e-4fad-8b61-3c246ef69ba9",
     "contact_id": "34fcf008-d537-409d-a10f-c9625bb5d8e7",
+    "external_id": "1da19dc5-860e-408b-844f-bbd16813bf83",
     "conversion_type": "signup",
     "promoter_id": "c06d4f0f-ccfb-4d6e-8bed-eea28460b698",
     "link_id": "92f75eee-ecc8-47c4-87d9-dea983114fef",
