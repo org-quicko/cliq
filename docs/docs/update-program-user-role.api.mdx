@@ -1,0 +1,70 @@
+---
+id: update-program-user-role
+title: "Update role"
+description: "Update a user's role in a program"
+sidebar_label: "Update role"
+hide_title: true
+hide_table_of_contents: true
+api: eJztWE1v2zgQ/SsEL7sLSLH81dS+ZYssNocFijTdS2AsKHJksaFJhaSceAX998WQki3XbhugwZ5ysi1xZt68eRxz2FABlQXOPAi6LJhykFABjltZeWk0XdLPlWAeCCO1A/uLI9YoIFITRipr1pZtaEJNBZbh+htBl7QOFh/j288O7K1RQBPq2drR5T1FR3SV0IpZtgEPFp82VLMN0CXtvP4jBU2oRAQV8yX9GhZNqIXHWloE7m0NCYVntqkU+lhMs9l0CpfpfDHm6UwIlrJplqVimhcwvsxFNkXvjpewYXTZUL+r0M55K/Watm2yh4NgfwpLzqbvFlM+T8ezd/N0tpgu0veL9/O0KPLJYpLNJ3n2fSyr6B2c/92IHa7gRnvQHr+yqlKSB+5HXxyiaU5dmfwLcE8T5LYC6yU4fIuVPJv8IJv7uGrVDlLqLelWwhNY2rbRxlVGu+h6kmX4cUzTJMvIp5pzcK6oldqRKBQRJWWKoLALmrxWftyIYX5Se1gj3IRuwDm2fkHywcVh/Vc0xACTLBt4pC/IMPBVAhNB+g3+mp0j7K4E0pWecFMrQbTxJAfceRgDBMmBs9oBkZ4UTCoQZMuUFIEwYizZSqMCAkby2kkNzhFbK/gpmo9RXm/B7vroPVzpiAMrmZIB5Y74EshamZwpAs8cgjEppPJgidTeEF+iTcmqgO3nK5lQsNbY0zcJ1bVSLMca4mb9Uc0T6qUPer8ODg8aCNhuu4xzI3bI+GONdBx622ld0GrLVD3Q0OxYQ38fahiScMuooE3tQv2NDmpCTgujlHmSek2CS7ckTGykTggI6Y1NSNykQXRtVNr4VGlXtS9B+04CHeQLggLMgVmwxJsH0FjWjXQOwxmsW0gqwe+I5erjDXmAHWFaEAfcgicVk/ZYu1uwspAg3hT4Wgr8q6vIsFJnNTYeaqy3Yselj9aI6C+mCmM32DtqXxor/40rYuP6cYCbqI5OOeiK+eD4+rnCTAcKeinmszINPvtgvQSN7RT4cpwnpsM9Mz3fnTlTCuXjhjSi3OogQJQ8w/0JmCKpwCINUWiMxx6t408LztSWvzXmV9sWN9rVRSG5BO2R+tC4jHZnFTEdKuIPY3MpBOh9VQZKmH33fzowHW2IMBAlAM/S+dAlO01YYLzERIkvranXZSQZD5dv9X+t+uPk0RNeMev7f8x+bDkng9lQBsHrBQl+ZjnMxYyN00uBE0WR5emCT6fpu2KSj1km5sXlJQboph7ykgkkICtMrcWh08zPnQOvNKk1PFfAUV+BPWI4ry120adSqv2JEBu6P6jxTUyv10w8WM0U+QR2C5Zc91G/ktD8+CC3N3PRLIJt+2o74LWVfhfm3/j3TZf3Kxz5NuBLI+LEyXHkDJPnko5YJUedhN2oOUzL7QiHCzdquom1xaEyRMXxenUI9gkrHrPqQ+7JK72v+mE0DK9xAWJFwdwe5tDrk2nwUBKpCxOcdowau04fa8kfTMqVfDw3PyPM+GN8kV1k6KUyzm9YEGk3i3dXETZeJxz5GAzFL7qx6PL18OxHlWJSY8TaKvQUmb6nrJJRo4FrmtDl0d1EoBuf9lcEq4SWxnk0bZqcOfhsVdvi4zATxCpsmZVRlfcNFdLh929cvQxz+vW20+5v5Fvou4dM75DPKEuk9gF2x9cqeLvxP0bu6WlX+6k3JB/ffoiB0jv0cbA+aVUIOlpccWws31073D8fr+4+/EkTmneXJ5uwT6llT3htw54iVBMyj9ci+Kyhiul1HXdxdIqbAE95g+3SbY/ksHeb82Q0TVxxh+fctt1z0522V23b/gdmZ77N
+sidebar_class_name: "patch api-method"
+info_path: org-quicko-cliq
+custom_edit_url: null
+hide_send_button: true
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update role"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"patch"}
+  path={"/api/programs/{program_id}/users/{user_id}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Update a user's role in a program
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./update-program-user-role.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./update-program-user-role.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./update-program-user-role.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

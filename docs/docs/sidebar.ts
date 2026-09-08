@@ -163,7 +163,7 @@ const sidebar: SidebarsConfig = {
                 },
                 {
                   type: "doc",
-                  id: "update-role",
+                  id: "update-program-user-role",
                   label: "Update role",
                   className: "api-method patch",
                 },
@@ -185,6 +185,12 @@ const sidebar: SidebarsConfig = {
               type:"category",
               label:"Promoter",
               items:[
+                {
+                  type: "doc",
+                  id: "get-program-promoters",
+                  label: "Get all promoters",
+                  className: "api-method get",
+                },
                 {
                   type: "doc",
                   id: "get-top-promoters",
@@ -370,6 +376,12 @@ const sidebar: SidebarsConfig = {
                   type: "doc",
                   id: "remove-member",
                   label: "Remove member",
+                  className: "api-method patch",
+                },
+                {
+                  type: "doc",
+                  id: "update-role",
+                  label: "Update member role",
                   className: "api-method patch",
                 },
                 {
