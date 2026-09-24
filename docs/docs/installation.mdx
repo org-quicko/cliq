@@ -41,15 +41,13 @@ docker compose up -d
 
 <div style={{fontSize: '12px'}}>
 
-| Variable         | Description                        | Example                        |
-|------------------|------------------------------------|--------------------------------|
-| DB_USERNAME      | Database username                  | cliq_user                      |
-| DB_PASSWORD      | Database password                  | strongpassword                 |
-| DB_NAME          | Database name                      | cliq_db                        |
-| DB_HOST          | Database host                      | db (use `db` for Docker)       |
-| JWT_SECRET       | JWT signing secret                 | any-random-string              |
-| REDIS_HOST       | Redis host                         | redis (use `redis` for Docker) |
-| REDIS_PORT       | Redis port                         | 6379                           |
+| Variable         | Description                        | Example                                       |
+|------------------|------------------------------------|------------------------------------------------|
+| DB_URL           | PostgreSQL connection URL          | postgres://cliq_user:strongpassword@db:5432/cliq_db (use `db` for Docker) |
+| DB_SCHEMA        | Database schema to use             | public                                        |
+| JWT_SECRET       | JWT signing secret                 | any-random-string                             |
+| REDIS_HOST       | Redis host                         | redis (use `redis` for Docker)                |
+| REDIS_PORT       | Redis port                         | 6379                                          |
 
 </div>
 

@@ -3,6 +3,10 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 export class RemoveMaterializedViews1756737141436 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        const schema = process.env.DB_SCHEMA || 'public';
+        if (schema !== 'public') {
+            await queryRunner.query(`SET search_path TO "${schema}", public`);
+        }
         await queryRunner.query(`DROP MATERIALIZED VIEW "promoter_analytics_mv"`);
         await queryRunner.query(`DROP MATERIALIZED VIEW "link_analytics_mv"`);
         await queryRunner.query(`DROP MATERIALIZED VIEW "referral_mv"`);
@@ -10,6 +14,10 @@ export class RemoveMaterializedViews1756737141436 implements MigrationInterface 
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        const schema = process.env.DB_SCHEMA || 'public';
+        if (schema !== 'public') {
+            await queryRunner.query(`SET search_path TO "${schema}", public`);
+        }
         await queryRunner.query(`CREATE MATERIALIZED VIEW "referral_mv"`);
         await queryRunner.query(`CREATE MATERIALIZED VIEW "link_analytics_mv"`);
         await queryRunner.query(`CREATE MATERIALIZED VIEW "promoter_analytics_mv"`);
