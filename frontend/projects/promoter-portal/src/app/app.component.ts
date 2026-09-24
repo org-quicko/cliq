@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
 
 		effect(() => {
 			const themeColor = this.programStore.program()?.themeColor;
-			ColorUtil.setThemeFromSeed(themeColor ?? '#4D5C92');
+			ColorUtil.setThemeFromSeed(themeColor || '#4D5C92');
 
 			const programName = this.programStore.program()?.name;
 			if (programName) {

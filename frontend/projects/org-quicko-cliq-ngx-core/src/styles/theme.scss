@@ -19,12 +19,19 @@ body {
 	@include overrides.mat-overrides();
 	@include overrides.typography-overrides();
 
+	// Ensure every element has a correct color to inherit by default instead of
+	// falling back to the browser's initial (black) color, and let the browser
+	// render native form controls/scrollbars to match the active theme.
+	color: var(--sys-on-surface);
+	color-scheme: light;
 
 	.light-theme {
+		color-scheme: light;
 		@include overrides.typography-overrides();
 	}
 
 	.dark-theme {
+		color-scheme: dark;
 		//sytem level colors
 		@include mat.system-level-colors(theme.$dark-theme);
 		//component theme

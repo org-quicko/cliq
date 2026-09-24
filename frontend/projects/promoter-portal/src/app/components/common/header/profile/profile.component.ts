@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { EllipsisPipe, memberRoleEnum, Theme, ThemeService } from '@org.quicko.cliq/ngx-core';
+import { memberRoleEnum, Theme, ThemeService } from '@org.quicko.cliq/ngx-core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
 import { MemberStore } from '../../../../store/member.store';
@@ -24,7 +24,6 @@ import { Observable, Subject, takeUntil } from 'rxjs';
 		MatButtonModule,
 		MatButtonToggleModule,
 		RouterLink,
-		EllipsisPipe,
 	],
 	templateUrl: './profile.component.html',
 	styleUrl: './profile.component.css'

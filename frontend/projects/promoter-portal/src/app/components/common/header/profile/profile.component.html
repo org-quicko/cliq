@@ -13,14 +13,14 @@
 					class="w-full max-w-[300px] h-auto min-h-[144px] border-b flex flex-col p-4 gap-4 border-b-outline-variant">
 
 					<!-- Member name, role and email -->
-					<div class="w-[175px] h-auto min-w-12 flex flex-col gap-1">
+					<div class="w-full h-auto min-w-12 flex flex-col gap-1">
 
 						<!-- name and role -->
-						<div class="w-[150px] h-auto min-h-6 flex gap-2 justify-between text-on-surface">
+						<div class="w-full h-auto flex gap-2 items-start justify-between text-on-surface">
 
-							<p class="h-6 mat-body-large">{{ displayName() | titlecase | ellipsis:10 }}</p>
+							<p class="mat-body-large min-w-0 break-words">{{ displayName() | titlecase }}</p>
 
-							<p class="w-auto min-w-[50px] h-auto min-h-6 flex bg-surface-container justify-center items-center mat-label-small px-2 py-1 rounded-[4px]">
+							<p class="shrink-0 w-auto min-w-[50px] h-auto min-h-6 flex bg-surface-container justify-center items-center mat-label-small px-2 py-1 rounded-[4px]">
 								{{ member()?.role | titlecase }}
 							</p>
 

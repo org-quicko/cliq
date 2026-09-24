@@ -200,7 +200,11 @@ export class MemberService {
 				.where({ memberId })
 				.execute();
 
-			const memberDto = this.memberConverter.convert(member);
+			const promoterMember = await manager
+				.getRepository(PromoterMember)
+				.findOne({ where: { memberId } });
+
+			const memberDto = this.memberConverter.convert(member, promoterMember ?? undefined);
 
 			this.logger.info('END: updateMemberInfo service');
 			return memberDto
