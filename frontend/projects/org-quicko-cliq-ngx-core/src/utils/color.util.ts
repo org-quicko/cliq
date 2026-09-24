@@ -4,7 +4,13 @@ export class ColorUtil {
 
 	static identifiers = ['0', '4', '6', '12', '11', '13', '14', '15', '17', '22', '10', '20', '24', '25', '30', '35', '40', '50', '60', '70', '80', '87', '90', '92', '94', '95', '96', '98', '99', '100'];
 
+	static defaultSeedColor = '#4D5C92';
+
 	static setThemeFromSeed(seedColor: string) {
+
+		if (!/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(seedColor)) {
+			seedColor = ColorUtil.defaultSeedColor;
+		}
 
 		const corePalette = CorePalette.of(argbFromHex(seedColor));
 
