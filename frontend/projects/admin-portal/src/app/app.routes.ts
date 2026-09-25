@@ -68,6 +68,7 @@ export const routes: Routes = [
                     programs: ProgramUserResolver
                  },
                 children: [
+                    { path: '', pathMatch: 'full', redirectTo: 'home/dashboard' },
                     {
                         path: 'home',
                         component: HomeComponent,
