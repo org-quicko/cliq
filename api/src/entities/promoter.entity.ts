@@ -79,8 +79,8 @@ export class Promoter {
 		if (this.name) {
 			this.normalizedName = this.name
 				.toLowerCase()
-				.replace(/[._\-\/\\+]+/g, ' ')
-				.replace(/[&|!:*()'\"<>@]/g, ' ')
+				.replace(/[._\-/\\+]+/g, ' ')
+				.replace(/[&|!:*()'"<>@]/g, ' ')
 				.replace(/\s+/g, ' ')
 				.trim();
 		}

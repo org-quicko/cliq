@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import type { DataSourceOptions } from 'typeorm';
 
 /**
  * Postgres does not create a non-"public" schema on demand: TypeORM (both `synchronize`
@@ -10,7 +10,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 export const ensureSchemaExists = async ({
     url,
     schema,
-}: Pick<PostgresConnectionOptions, 'url' | 'schema'>): Promise<void> => {
+}: Pick<Extract<DataSourceOptions, { type: 'postgres' }>, 'url' | 'schema'>): Promise<void> => {
     if (!schema || schema === 'public') {
         return;
     }

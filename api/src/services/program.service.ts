@@ -1141,7 +1141,10 @@ export class ProgramService {
 		// Fetch promoter name
 		const promoter = await this.datasource.getRepository(Promoter).findOne({
 			where: { promoterId },
-			select: ['promoterId', 'name'],
+			select: {
+				promoterId: true,
+				name: true,
+			},
 		});
 
 

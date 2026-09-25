@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 export abstract class BaseEvent {
 
@@ -41,7 +41,7 @@ export abstract class BaseEvent {
         data: object,
         subject?: string,
     ) {
-        this.id = uuidv4();
+        this.id = randomUUID();
         this.time = new Date();
         this.programId = programId;
         this.promoterId = promoterId;

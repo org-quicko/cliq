@@ -101,12 +101,9 @@ export class SignUpService {
 	
 				const contactExists = await this.contactService.contactExists(
 					programResult.programId,
-					{
-						...(programResult.referralKeyType ===
-							referralKeyTypeEnum.EMAIL
-							? { email: body.email }
-							: { phone: body.phone }),
-					},
+					programResult.referralKeyType === referralKeyTypeEnum.EMAIL
+						? { email: body.email }
+						: { phone: body.phone },
 				);
 	
 				if (contactExists) {

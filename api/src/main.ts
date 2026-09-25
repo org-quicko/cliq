@@ -1,16 +1,9 @@
 import 'reflect-metadata';
-import { NestFactory, Reflector } from '@nestjs/core';
-import {
-	BadRequestException,
-	ClassSerializerInterceptor,
-	ValidationPipe,
-} from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { utilities, WinstonModule } from 'nest-winston';
-import { useContainer } from 'class-validator';
 import * as winston from 'winston';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './exceptionFilters/globalExceptionFilter';
-import { TransformInterceptor } from './interceptors/response.interceptor';
+import { configureApp } from './app-setup';
 
 async function bootstrap() {
 
@@ -36,46 +29,7 @@ async function bootstrap() {
 		}),
 	});
 
-	app.getHttpAdapter().getInstance().use((req:any, res:any, next:any) => {
-		if(req.method === 'GET' && req.path === '/') {
-			return res.redirect(302, '/admin');
-		}
-		next();
-	});
-
-	useContainer(app.select(AppModule), { fallbackOnErrors: true });
-
-	app.useGlobalPipes(
-		new ValidationPipe({
-			whitelist: true,
-			forbidNonWhitelisted: true,
-			transform: true,
-			transformOptions: { enableImplicitConversion: true },
-			exceptionFactory: (errors) => {
-				console.error(
-					'Validation Errors:',
-					JSON.stringify(errors, null, 2),
-				);
-				return new BadRequestException({
-					validationErrors: errors
-				});
-			},
-		}),
-	);
-
-	app.setGlobalPrefix('/api');
-
-	app.enableCors({
-		exposedHeaders: ['Content-Disposition'],
-		origin: '*',
-	});
-
-	app.useGlobalFilters(new HttpExceptionFilter());
-
-	app.useGlobalInterceptors(
-		new ClassSerializerInterceptor(app.get(Reflector)),
-		new TransformInterceptor(app.get(Reflector)),
-	);
+	configureApp(app);
 
 	await app.listen(process.env.PORT ?? 3000);
 

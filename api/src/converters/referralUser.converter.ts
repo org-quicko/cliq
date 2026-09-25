@@ -11,7 +11,7 @@ export class ReferralUserConverter {
             referralDto.contactId = referral.contactId;
             referralDto.programId = referral.programId;
             referralDto.promoterId = referral.promoterId;
-            referralDto.promoterName = promoterNameMap?.get(referral.contactId)!;
+            referralDto.promoterName = promoterNameMap?.get(referral.contactId);
             referralDto.contactInfo = referral.contactInfo;
             referralDto.status = referral.status;
             referralDto.totalCommission = referral.totalCommission;

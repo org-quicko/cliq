@@ -5,9 +5,10 @@ import { getDatabaseConnectionOptions } from '../src/config/database.config';
 import { ensureSchemaExists } from '../src/config/migration-utils';
 
 const configService = new ConfigService();
+const connectionOptions = getDatabaseConnectionOptions(configService);
 
 const options: DataSourceOptions = {
-	...getDatabaseConnectionOptions(configService),
+	...connectionOptions,
 	synchronize: false,
 	logging: configService.get('NODE_ENV') === 'production' ? ['info'] : true,
 	poolSize: 10,
@@ -25,6 +26,6 @@ export const AppDataSource = new DataSource({
 // so DB_SCHEMA must be created here, before that connection is used.
 const initialize = AppDataSource.initialize.bind(AppDataSource);
 AppDataSource.initialize = async () => {
-	await ensureSchemaExists(options);
+	await ensureSchemaExists(connectionOptions);
 	return initialize();
 };
