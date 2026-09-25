@@ -45,6 +45,8 @@ docker compose up -d
 |------------------|------------------------------------|------------------------------------------------|
 | DB_URL           | PostgreSQL connection URL          | postgres://cliq_user:strongpassword@db:5432/cliq_db (use `db` for Docker) |
 | DB_SCHEMA        | Database schema to use             | public                                        |
+| DB_SSL           | Enable TLS for the Postgres connection (needed for most managed Postgres, e.g. RDS/Aurora) | true |
+| DB_SSL_REJECT_UNAUTHORIZED | Verify the server certificate against Node's trusted CAs (defaults to false) | false |
 | JWT_SECRET       | JWT signing secret                 | any-random-string                             |
 | REDIS_HOST       | Redis host                         | redis (use `redis` for Docker)                |
 | REDIS_PORT       | Redis port                         | 6379                                          |

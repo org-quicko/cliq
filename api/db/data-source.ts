@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { getDatabaseConnectionOptions } from '../src/config/database.config';
-import { ensureSchemaExists } from '../src/config/ensure-schema';
+import { ensureSchemaExists } from '../src/config/migration-utils';
 
 const configService = new ConfigService();
 

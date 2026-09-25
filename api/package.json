@@ -25,6 +25,7 @@
     "db:generate": "npm run build && node ./node_modules/typeorm/cli.js migration:generate --dataSource ./dist/db/data-source.js",
     "db:migration-run": "npm run typeorm -- migration:run",
     "db:fake-migration-run": "npm run typeorm -- migration:run --fake",
+    "db:seed": "npm run build && node dist/db/seed.js",
     "typeorm": "npm run build && node ./node_modules/typeorm/cli.js --dataSource ./dist/db/data-source.js"
   },
   "dependencies": {
