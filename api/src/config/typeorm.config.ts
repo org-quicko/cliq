@@ -9,7 +9,6 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
     subscribers: [ProgramSubscriber],
     synchronize: configService.get('NODE_ENV') !== 'production',
     logging: configService.get('NODE_ENV') === 'production' ? ['info'] : true,
-    poolSize: 20,
     maxQueryExecutionTime: 30000,
     connectTimeoutMS: 30000,
 });

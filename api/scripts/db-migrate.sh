@@ -5,9 +5,9 @@ echo -e "\n=====================================================================
 echo -e "\n=========================\n\nMigrating Data\n\n==========================\n"
 
 if [ "$NODE_ENV" = "production" ]; then
-    if [ -d "/app/db/migrations" ]; then
+    if [ -d "/app/dist/db/migrations" ]; then
         echo "Running migrations for production..."
-        npm run db:migration-run
+        npm run db:migration-run:prod
     else
         echo "No migrations folder found, skipping migration."
     fi

@@ -11,7 +11,10 @@ describe('getDatabaseConnectionOptions', () => {
 		);
 
 		expect(options.schema).toBe('public');
-		expect(options.extra).toEqual({ options: '-c search_path=public' });
+		expect(options.extra).toEqual({
+			options: '-c search_path=public',
+			min: 0,
+		});
 		expect(options.ssl).toBeUndefined();
 	});
 
@@ -23,6 +26,7 @@ describe('getDatabaseConnectionOptions', () => {
 		expect(options.schema).toBe('cliq');
 		expect(options.extra).toEqual({
 			options: '-c search_path=cliq,public',
+			min: 0,
 		});
 	});
 
@@ -39,6 +43,31 @@ describe('getDatabaseConnectionOptions', () => {
 				}),
 			).ssl,
 		).toEqual({ rejectUnauthorized: true });
+	});
+
+	it('defaults the pool to max 5 / min 0 and reads overrides from env', () => {
+		const defaults = getDatabaseConnectionOptions(configWith({}));
+		expect(defaults.poolSize).toBe(5);
+		expect(defaults.extra).toMatchObject({ min: 0 });
+
+		const custom = getDatabaseConnectionOptions(
+			configWith({ DB_POOL_MAX: '20', DB_POOL_MIN: '2' }),
+		);
+		expect(custom.poolSize).toBe(20);
+		expect(custom.extra).toMatchObject({ min: 2 });
+	});
+
+	it('falls back on invalid pool values and caps min at max', () => {
+		const invalid = getDatabaseConnectionOptions(
+			configWith({ DB_POOL_MAX: 'abc', DB_POOL_MIN: '-1' }),
+		);
+		expect(invalid.poolSize).toBe(5);
+		expect(invalid.extra).toMatchObject({ min: 0 });
+
+		const capped = getDatabaseConnectionOptions(
+			configWith({ DB_POOL_MAX: '3', DB_POOL_MIN: '9' }),
+		);
+		expect(capped.extra).toMatchObject({ min: 3 });
 	});
 
 	it('ignores undefined where-values, as TypeORM 0.3 did', () => {
