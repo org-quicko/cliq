@@ -1,0 +1,52 @@
+name: cliq-e2e
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: cliq
+      POSTGRES_PASSWORD: cliq
+      POSTGRES_DB: cliq
+    tmpfs:
+      # Postgres 18 stores a versioned cluster below this directory.
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cliq -d cliq"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  app:
+    image: ${CLIQ_IMAGE:-cliq:e2e}
+    build:
+      context: ..
+    ports:
+      - "${CLIQ_PORT:-3001}:3001"
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      DB_URL: postgres://cliq:cliq@db:5432/cliq
+      DB_SCHEMA: public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: e2e-only-secret
+      JWT_EXPIRES_IN: 1h
+      SALT_ROUNDS: 4
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3001/admin', r => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 2s
+      timeout: 5s
+      retries: 60

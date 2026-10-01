@@ -1,0 +1,20 @@
+{
+  "name": "cliq-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright end-to-end tests for the Cliq admin portal",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "typecheck": "tsc --noEmit",
+    "report": "playwright show-report",
+    "stack:up": "docker compose -f docker-compose.e2e.yml up -d --build --wait",
+    "stack:down": "docker compose -f docker-compose.e2e.yml down -v"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.4",
+    "dotenv": "^18.0.3",
+    "typescript": "^6.0.3"
+  }
+}
