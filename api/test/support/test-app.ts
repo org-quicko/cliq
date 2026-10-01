@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../../src/app.module';
-import { configureApp } from '../../src/app-setup';
+import { setupApp } from '../../src/app.setup';
 
 /**
  * Tables the migrations create, including the trigger-maintained `*_mv`
@@ -38,7 +38,7 @@ const TABLES = [
 
 export interface CreateTestAppOptions {
 	/**
-	 * Apply the production globals from `configureApp`: validation pipe, error
+	 * Apply the production globals from `setupApp`: validation pipe, error
 	 * filter, response envelope, `/api` prefix. Required for anything driving
 	 * the app over HTTP; skip it when calling providers directly.
 	 */
@@ -61,7 +61,7 @@ export async function createTestApp(
 	const app = moduleFixture.createNestApplication({ logger: false });
 
 	if (options.http) {
-		configureApp(app);
+		setupApp(app);
 	}
 
 	await app.init();

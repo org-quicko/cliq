@@ -47,8 +47,8 @@ docker compose up -d
 | DB_SCHEMA        | Database schema to use             | public                                        |
 | DB_SSL           | Enable TLS for the Postgres connection (needed for most managed Postgres, e.g. RDS/Aurora) | true |
 | DB_SSL_REJECT_UNAUTHORIZED | Verify the server certificate against Node's trusted CAs (defaults to false) | false |
-| DB_POOL_MAX      | Maximum connections in the database pool (defaults to 5) | 5 |
-| DB_POOL_MIN      | Minimum connections kept in the database pool (defaults to 0) | 0 |
+| MAX_DB_POOL_SIZE      | Maximum connections in the database pool (defaults to 5) | 5 |
+| MIN_DB_POOL_SIZE      | Minimum connections kept in the database pool (defaults to 0) | 0 |
 | JWT_SECRET       | JWT signing secret                 | any-random-string                             |
 | REDIS_HOST       | Redis host                         | redis (use `redis` for Docker)                |
 | REDIS_PORT       | Redis port                         | 6379                                          |

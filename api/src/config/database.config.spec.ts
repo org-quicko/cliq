@@ -51,7 +51,7 @@ describe('getDatabaseConnectionOptions', () => {
 		expect(defaults.extra).toMatchObject({ min: 0 });
 
 		const custom = getDatabaseConnectionOptions(
-			configWith({ DB_POOL_MAX: '20', DB_POOL_MIN: '2' }),
+			configWith({ MAX_DB_POOL_SIZE: '20', MIN_DB_POOL_SIZE: '2' }),
 		);
 		expect(custom.poolSize).toBe(20);
 		expect(custom.extra).toMatchObject({ min: 2 });
@@ -59,13 +59,13 @@ describe('getDatabaseConnectionOptions', () => {
 
 	it('falls back on invalid pool values and caps min at max', () => {
 		const invalid = getDatabaseConnectionOptions(
-			configWith({ DB_POOL_MAX: 'abc', DB_POOL_MIN: '-1' }),
+			configWith({ MAX_DB_POOL_SIZE: 'abc', MIN_DB_POOL_SIZE: '-1' }),
 		);
 		expect(invalid.poolSize).toBe(5);
 		expect(invalid.extra).toMatchObject({ min: 0 });
 
 		const capped = getDatabaseConnectionOptions(
-			configWith({ DB_POOL_MAX: '3', DB_POOL_MIN: '9' }),
+			configWith({ MAX_DB_POOL_SIZE: '3', MIN_DB_POOL_SIZE: '9' }),
 		);
 		expect(capped.extra).toMatchObject({ min: 3 });
 	});

@@ -13,8 +13,8 @@ export const getDatabaseConnectionOptions = (
     // 'public' stays in the search_path as a fallback: some historical migrations hardcode
     // "public".<type> for enum types, so they must remain resolvable when DB_SCHEMA is customized.
     const searchPath = schema === 'public' ? 'public' : `${schema},public`;
-    const poolMax = readInt(configService.get<string>('DB_POOL_MAX'), 5);
-    const poolMin = Math.min(readInt(configService.get<string>('DB_POOL_MIN'), 0), poolMax);
+    const poolMax = readInt(configService.get<string>('MAX_DB_POOL_SIZE'), 5);
+    const poolMin = Math.min(readInt(configService.get<string>('MIN_DB_POOL_SIZE'), 0), poolMax);
     const sslEnabled = configService.get<string>('DB_SSL') === 'true';
 
     return {

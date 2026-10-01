@@ -5,7 +5,7 @@ import { App } from 'supertest/types';
 import { createTestApp } from '../support/test-app';
 
 /**
- * The globals `configureApp` applies to every request, checked on the paths
+ * The globals `setupApp` applies to every request, checked on the paths
  * that need no data: the root redirect, the `/api` prefix, the error envelope,
  * CORS and the auth wall.
  */

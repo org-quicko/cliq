@@ -76,7 +76,7 @@ api/
 | `npm run test:all` | All three, in that order |
 | `npm run test:cov` | Unit tests with coverage |
 
-The integration and e2e suites need Docker. Each run starts one `postgres:18` and one `redis:7` container with [Testcontainers](https://testcontainers.com/), applies the real migrations, and boots the app exactly as `main.ts` does (see `src/app-setup.ts`). Most tests run inside a transaction that is rolled back afterwards (`test/support/transaction.ts`), so they don't leak data into each other. Shared helpers live in `test/support/`.
+The integration and e2e suites need Docker. Each run starts one `postgres:18` and one `redis:7` container with [Testcontainers](https://testcontainers.com/), applies the real migrations, and boots the app exactly as `main.ts` does (see `src/app.setup.ts`). Most tests run inside a transaction that is rolled back afterwards (`test/support/transaction.ts`), so they don't leak data into each other. Shared helpers live in `test/support/`.
 
 
 ## Linting & Formatting 🧹

@@ -21,7 +21,7 @@ import { TransformInterceptor } from './interceptors/response.interceptor';
  * `Test.createTestingModule(...).createNestApplication()` has none of these
  * globals unless they're applied here.
  */
-export function configureApp(app: INestApplication): INestApplication {
+export function setupApp(app: INestApplication): INestApplication {
 	app.getHttpAdapter()
 		.getInstance()
 		.use((req: any, res: any, next: any) => {
