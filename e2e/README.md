@@ -30,6 +30,12 @@ that the portal writes at login; login tests explicitly start without it.
 The suite covers both portals: super-admin authentication and program settings
 in `/admin`, and member authentication, links, referrals and settings in the
 promoter portal. It covers live tables and trigger-maintained analytics,
-including promoters, referrals and links. It intentionally does **not** assert the
-super-admin program summary: that page reads `program_summary_mv`, which is
-refreshed on a cron and can be stale immediately after setup.
+including promoters, referrals and links.
+
+The super-admin program summary reads `program_summary_mv`, a materialized view
+that production refreshes on a cron. The e2e stack disables that cron
+(`REFRESH_MV_CRON`), and tests call the `refreshProgramSummary` fixture to
+refresh the view over a direct Postgres connection, so results don't depend on
+runner speed. The stack publishes Postgres on `localhost:55432` (override with
+`E2E_DB_PORT`). Against a remote `BASE_URL`, set `DB_URL` or these tests skip.
+The cron itself is covered by the API integration tests.

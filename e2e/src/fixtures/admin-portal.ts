@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test as base } from '@playwright/test';
+import { Client } from 'pg';
 import { CliqApi, type Link, type Program, type Promoter } from '../api/cliq-api';
 import { credentials, env } from '../env';
 
@@ -8,6 +9,8 @@ type Fixtures = {
   program: Program;
   promoter: Promoter;
   link: Link;
+  /** Refreshes program_summary_mv now; skips the test when the database is unreachable. */
+  refreshProgramSummary: () => Promise<void>;
 };
 
 export const unique = (prefix: string): string => `${prefix} ${randomUUID().slice(0, 8)}`;
@@ -45,6 +48,18 @@ export const test = base.extend<Fixtures>({
   link: async ({ superAdmin, program, promoter }, use) => {
     const refVal = `e2e-${randomUUID().slice(0, 8)}`;
     await use(await superAdmin.createLink(program.programId, promoter.promoterId, unique('E2E Link'), refVal));
+  },
+
+  // The e2e stack disables the refresh cron, so tests decide when the
+  // materialized view is rebuilt instead of racing a timer.
+  refreshProgramSummary: async ({}, use) => {
+    test.skip(!env.dbURL, 'Needs DB_URL to refresh program_summary_mv');
+    const client = new Client({ connectionString: env.dbURL });
+    await client.connect();
+    await use(async () => {
+      await client.query('REFRESH MATERIALIZED VIEW program_summary_mv WITH DATA');
+    });
+    await client.end();
   },
 });
 

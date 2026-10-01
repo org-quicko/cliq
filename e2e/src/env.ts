@@ -16,6 +16,8 @@ function setting(name: string, localDefault: string): string {
 export const env = {
   baseURL,
   apiURL: (process.env.API_URL ?? `${baseURL}/api`).replace(/\/$/, ''),
+  /** Undefined against a remote target unless set; tests that need it skip. */
+  dbURL: process.env.DB_URL ?? (isLocalTarget ? 'postgres://cliq:cliq@localhost:55432/cliq' : undefined),
 };
 
 export const credentials = {

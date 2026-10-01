@@ -7,6 +7,9 @@ services:
       POSTGRES_USER: cliq
       POSTGRES_PASSWORD: cliq
       POSTGRES_DB: cliq
+    ports:
+      # Tests connect directly to refresh materialized views (see src/env.ts).
+      - "${E2E_DB_PORT:-55432}:5432"
     tmpfs:
       # Postgres 18 stores a versioned cluster below this directory.
       - /var/lib/postgresql
@@ -40,6 +43,9 @@ services:
       JWT_SECRET: e2e-only-secret
       JWT_EXPIRES_IN: 1h
       SALT_ROUNDS: 4
+      # Never fires during a run: tests refresh program_summary_mv explicitly
+      # so they don't depend on runner speed.
+      REFRESH_MV_CRON: "0 0 0 1 1 *"
     depends_on:
       db:
         condition: service_healthy
