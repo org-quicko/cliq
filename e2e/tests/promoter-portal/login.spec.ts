@@ -1,4 +1,4 @@
-import { expect, promoterTest as test } from '../../src/fixtures';
+import { expect, promoterTest as test } from '../../helpers/fixtures';
 
 test.describe('Promoter authentication', () => {
   test.use({ signedIn: false });

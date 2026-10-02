@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { credentials } from '../../src/env';
+import { credentials } from '../../helpers/env';
 
 test.describe('Admin authentication', () => {
   test('signs the super admin into the portal', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { expect, test } from '../../src/fixtures';
+import { expect, test } from '../../helpers/fixtures';
 
 test.describe('Program screens backed by trigger-maintained analytics', () => {
   test('shows the default circle from the live circle table', async ({ page, program }) => {

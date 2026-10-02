@@ -1,4 +1,4 @@
-import { expect, test } from '../../src/fixtures';
+import { expect, test } from '../../helpers/fixtures';
 
 test.describe('Super-admin program summary backed by program_summary_mv', () => {
   test('shows promoter and referral totals after the view refreshes', async ({

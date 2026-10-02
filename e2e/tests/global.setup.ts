@@ -1,6 +1,6 @@
 import { test as setup } from '@playwright/test';
-import { CliqApi } from '../src/api/cliq-api';
-import { credentials, env } from '../src/env';
+import { CliqApi } from '../helpers/api/cliq-api';
+import { credentials, env } from '../helpers/env';
 
 /** Creates the one reusable platform account when the e2e database is empty. */
 setup('bootstrap the e2e super admin', async ({ request }) => {

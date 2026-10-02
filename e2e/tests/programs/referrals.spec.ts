@@ -1,4 +1,4 @@
-import { expect, test, unique } from '../../src/fixtures';
+import { expect, test, unique } from '../../helpers/fixtures';
 
 test.describe('Referral analytics', () => {
   test('shows a referral created through a tracked link', async ({

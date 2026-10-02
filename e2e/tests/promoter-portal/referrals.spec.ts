@@ -1,4 +1,4 @@
-import { expect, promoterTest as test, promoterUnique as unique } from '../../src/fixtures';
+import { expect, promoterTest as test, promoterUnique as unique } from '../../helpers/fixtures';
 
 test.describe('Promoter referrals', () => {
   test('shows a signup attributed to the promoter link', async ({

@@ -1,4 +1,4 @@
-import { expect, promoterTest as test } from '../../src/fixtures';
+import { expect, promoterTest as test } from '../../helpers/fixtures';
 
 test.describe('Promoter settings', () => {
   test('shows the member profile and promoter identity', async ({ page, program, member, promoter }) => {

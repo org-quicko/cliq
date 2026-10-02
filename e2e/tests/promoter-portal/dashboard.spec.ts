@@ -1,4 +1,4 @@
-import { expect, promoterTest as test } from '../../src/fixtures';
+import { expect, promoterTest as test } from '../../helpers/fixtures';
 
 test.describe('Promoter dashboard', () => {
   test('shows a promoter-created referral link and its tracked URL', async ({ page, program, link }) => {

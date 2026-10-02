@@ -1,4 +1,4 @@
-import { expect, test, unique } from '../../src/fixtures';
+import { expect, test, unique } from '../../helpers/fixtures';
 
 test.describe('Program creation', () => {
   test('validates required fields before creating a program', async ({ page }) => {

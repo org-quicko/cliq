@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: cliq
       POSTGRES_DB: cliq
     ports:
-      # Tests connect directly to refresh materialized views (see src/env.ts).
+      # Tests connect directly to refresh materialized views (see helpers/env.ts).
       - "${E2E_DB_PORT:-55432}:5432"
     tmpfs:
       # Postgres 18 stores a versioned cluster below this directory.
