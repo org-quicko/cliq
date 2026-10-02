@@ -73,8 +73,8 @@ export class Member {
 		if (this.email) {
 			this.normalizedEmail = this.email
 				.toLowerCase()
-				.replace(/[._\-\/\\+]+/g, ' ')
-				.replace(/[&|!:*()'\"<>@]/g, ' ')
+				.replace(/[._\-/\\+]+/g, ' ')
+				.replace(/[&|!:*()'"<>@]/g, ' ')
 				.replace(/\s+/g, ' ')
 				.trim();
 		}

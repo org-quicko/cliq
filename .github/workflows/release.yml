@@ -3,10 +3,21 @@ name: Release Docker Image on Docker Hub
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
+      # Stable releases only (vX.Y.Z); every match is also pushed as `latest`.
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: read
 
 jobs:
+  # main doesn't require passing checks, so a tag can point at an untested
+  # commit; run the full CI suite on it before anything is pushed.
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
   docker-release:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

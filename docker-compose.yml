@@ -8,11 +8,8 @@ services:
       - ./.env
     environment:
       - PORT=3001
-      - DB_PORT=5432
-      - DB_HOST=cliq-db
-      - DB_USERNAME=root
-      - DB_PASSWORD=admin
-      - DB_NAME=cliq
+      - DB_URL=postgres://root:admin@cliq-db:5432/cliq
+      - DB_SCHEMA=public
       - REDIS_HOST=cliq-redis
       - REDIS_PORT=6379
       - SALT_ROUNDS=10
@@ -28,13 +25,13 @@ services:
       - cliq-network
 
   cliq-db:
-    image: postgres:17
+    image: postgres:18
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=cliq
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql
     ports:
       - 5432:5432
     restart: unless-stopped

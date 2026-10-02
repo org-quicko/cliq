@@ -3,5 +3,6 @@ mcp.json
 resources/**/test-results/
 local.postman_environment.json
 data
+postgres_data
 redis_data
 node_modules

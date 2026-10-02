@@ -128,7 +128,7 @@ export class AuthorizationService {
         let subjectObjects: (subjectsType | null | undefined)[] = [];
         this.logger.info(`START: getSubjects service`);
         subjectObjects = await Promise.all(
-            requiredPermissions.map(({ action, subject }) => {
+            requiredPermissions.map(async ({ action, subject }) => {
                 const subjectUserId = request.params.user_id as string | undefined;
                 const subjectProgramId = request.params.program_id as string | undefined;
                 const subjectMemberId = request.params.member_id as string | undefined;
