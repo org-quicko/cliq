@@ -46,10 +46,16 @@ export class ProgramSubscriber implements EntitySubscriberInterface<Program> {
             REFRESH MATERIALIZED VIEW program_summary_mv WITH DATA;
     `);
 
+    // TypeORM clears an entity's primary key once it's removed, so
+    // `event.entity.programId` is always undefined here; read it from the
+    // pre-removal snapshot instead.
+    const programId = event.databaseEntity?.programId;
+    if (!programId) {
+      return;
+    }
+
     await event.manager.transaction(async (manager) => {
-      await manager.delete(ProgramUser, {
-        programId: event.entity?.programId,
-      });
+      await manager.delete(ProgramUser, { programId });
     });
   }
 }

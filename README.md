@@ -54,7 +54,7 @@ Cliq is a self-hosted affiliate software solution designed for startups. It enab
 ### Common 🌐
 - **Monorepo Management:** Custom folder structure
 - **Containerization:** Docker, Docker Compose
-- **Linting & Formatting:** ESLint, Prettier
+- **Linting & Formatting:** oxlint, oxfmt
 
 
 ## Project Structure 🗂️
@@ -88,7 +88,7 @@ These resources help with development, testing, and integration workflows.
 
 ### Prerequisites 📦
 
-- Node.js (v18+ recommended)
+- Node.js 22.12+ (NestJS 12 requires it)
 - npm or yarn
 - Docker (for containerized deployment)
 - PostgreSQL (or your configured database)

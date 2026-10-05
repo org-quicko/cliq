@@ -3,7 +3,7 @@ export function buildPrefixTsQuery(input: string): string {
 
 	const normalized = input
 		.toLowerCase()
-		.replace(/[._\-\/\\+]+/g, ' ')
+		.replace(/[._\-/\\+]+/g, ' ')
 		.replace(/[&|!:*()'"<>]/g, ' ')
 		.replace(/\s+/g, ' ')
 		.trim();

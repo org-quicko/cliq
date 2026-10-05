@@ -135,7 +135,10 @@ export class FunctionService {
 		if (targetCircleIds.length > 0) {
 			const targetCircles = await this.circleRepository.find({
 				where: { circleId: In(targetCircleIds) },
-				select: ['circleId', 'name'],
+				select: {
+					circleId: true,
+					name: true,
+				},
 			});
 			targetCircleNameMap = new Map(targetCircles.map(c => [c.circleId, c.name]));
 		}
