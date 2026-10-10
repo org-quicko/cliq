@@ -1,0 +1,183 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Cliq",
+  "theme": "luma",
+  "colors": {
+    "primary": "#ea2845",
+    "light": "#8e8e8e",
+    "dark": "#d7d7d7"
+  },
+  "favicon": "https://media.brand.dev/8e218e42-f3c8-4270-a624-4806b1a44ad5.png",
+  "logo": {
+    "light": "https://media.brand.dev/b86de107-2fba-489e-a757-90594797cbb8.png",
+    "dark": "https://media.brand.dev/b86de107-2fba-489e-a757-90594797cbb8.png"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/org-quicko/cliq"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/org-quicko/cliq"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "concepts"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/environment-variables",
+              "configuration/authentication"
+            ]
+          },
+          {
+            "group": "Webhooks & Events",
+            "pages": [
+              "events/overview",
+              "events/signup-created",
+              "events/purchase-created",
+              "events/commission-created",
+              "events/contact-created"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Programs",
+            "pages": [
+              "api-reference/programs/create-program",
+              "api-reference/programs/get-programs",
+              "api-reference/programs/get-program",
+              "api-reference/programs/update-program",
+              "api-reference/programs/delete-program",
+              "api-reference/programs/program-analytics",
+              "api-reference/programs/program-signups",
+              "api-reference/programs/program-purchases",
+              "api-reference/programs/program-commissions",
+              "api-reference/programs/program-referrals",
+              "api-reference/programs/program-report"
+            ]
+          },
+          {
+            "group": "Promoters",
+            "pages": [
+              "api-reference/promoters/create-promoter",
+              "api-reference/promoters/get-promoters",
+              "api-reference/promoters/get-promoter",
+              "api-reference/promoters/update-promoter",
+              "api-reference/promoters/delete-promoter",
+              "api-reference/promoters/promoter-analytics",
+              "api-reference/promoters/promoter-signups",
+              "api-reference/promoters/promoter-purchases",
+              "api-reference/promoters/promoter-commissions",
+              "api-reference/promoters/promoter-referrals",
+              "api-reference/promoters/promoter-links",
+              "api-reference/promoters/promoter-reports"
+            ]
+          },
+          {
+            "group": "Users & Members",
+            "pages": [
+              "api-reference/users/user-signup",
+              "api-reference/users/user-login",
+              "api-reference/users/get-user",
+              "api-reference/users/update-user",
+              "api-reference/users/delete-user",
+              "api-reference/users/invite-user",
+              "api-reference/users/get-all-users",
+              "api-reference/users/update-role",
+              "api-reference/users/remove-user",
+              "api-reference/members/get-member",
+              "api-reference/members/update-member",
+              "api-reference/members/delete-member",
+              "api-reference/members/member-signup",
+              "api-reference/members/member-login",
+              "api-reference/members/member-promoter",
+              "api-reference/members/invite-member",
+              "api-reference/members/all-members",
+              "api-reference/members/remove-member",
+              "api-reference/members/update-member-role"
+            ]
+          },
+          {
+            "group": "Circles",
+            "pages": [
+              "api-reference/circles/create-circle",
+              "api-reference/circles/get-circles",
+              "api-reference/circles/get-circle",
+              "api-reference/circles/update-circle",
+              "api-reference/circles/delete-circle",
+              "api-reference/circles/add-promoter-to-circle",
+              "api-reference/circles/get-circle-promoters",
+              "api-reference/circles/remove-promoter-from-circle"
+            ]
+          },
+          {
+            "group": "Links",
+            "pages": [
+              "api-reference/links/create-link",
+              "api-reference/links/get-links",
+              "api-reference/links/get-link",
+              "api-reference/links/delete-link"
+            ]
+          },
+          {
+            "group": "Functions & Webhooks",
+            "pages": [
+              "api-reference/functions/create-function",
+              "api-reference/functions/get-functions",
+              "api-reference/functions/get-function",
+              "api-reference/functions/update-function",
+              "api-reference/functions/delete-function",
+              "api-reference/webhooks/create-webhook",
+              "api-reference/webhooks/get-webhooks",
+              "api-reference/webhooks/get-webhook",
+              "api-reference/webhooks/update-webhook",
+              "api-reference/webhooks/delete-webhook"
+            ]
+          },
+          {
+            "group": "API Keys",
+            "pages": [
+              "api-reference/api-keys/generate-program-key",
+              "api-reference/api-keys/get-program-key",
+              "api-reference/api-keys/delete-program-key",
+              "api-reference/api-keys/generate-promoter-key",
+              "api-reference/api-keys/get-promoter-key",
+              "api-reference/api-keys/delete-promoter-key"
+            ]
+          },
+          {
+            "group": "Signups & Purchases",
+            "pages": [
+              "api-reference/conversions/create-signup",
+              "api-reference/conversions/create-purchase"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

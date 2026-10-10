@@ -1,0 +1,99 @@
+---
+title: "Create a Referral Link for a Promoter — Cliq API"
+sidebarTitle: "Create Link"
+description: "POST /api/programs/:program_id/promoters/:promoter_id/links — Create a new referral link with a unique ref_val used to attribute signups and purchases."
+---
+
+Use this endpoint to create a new referral link for a promoter within a program. Each link has a unique `ref_val` — the referral code that is passed to `POST /api/signups` and `POST /api/purchases` to attribute conversions back to the correct promoter. A promoter can hold multiple active links, enabling campaign-level tracking.
+
+## Method and Path
+
+```bash
+POST /api/programs/:program_id/promoters/:promoter_id/links
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it in every request as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program the promoter belongs to.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter for whom the link is being created.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="name" type="string" required>
+  Human-readable label for the link (e.g. `"Summer Campaign 2024"`). Used for identification in dashboards and reports.
+</ParamField>
+
+<ParamField body="ref_val" type="string" required>
+  The referral code embedded in this link. This value is passed as the `ref_val` parameter in conversion events (`POST /api/signups`, `POST /api/purchases`) to attribute the conversion to this promoter. Must be unique within the program.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Initial status of the link. Accepted values: `active` | `archived`. Defaults to `active` if omitted.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `201 Created`.
+
+<ResponseField name="message" type="string">
+  `"Successfully created link."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="link_id" type="string (uuid)">
+      Unique identifier for the newly created link.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Display name of the link.
+    </ResponseField>
+    <ResponseField name="ref_val" type="string">
+      The referral code used to attribute conversions to this link.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current status of the link. One of `active` | `archived`.
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the link was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp when the link was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p1a2b3c4-0000-0000-0000-000000000010/links \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Summer Campaign 2024",
+    "ref_val": "JANE-SUMMER24",
+    "status": "active"
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `201 Created` | Link was successfully created. |
+| `400 Bad Request` | Validation failed — check that `name` and `ref_val` are present and `status` is a valid enum value. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated caller lacks permission to create links for this promoter. |
+| `409 Conflict` | A link with the same `ref_val` already exists within this program. |

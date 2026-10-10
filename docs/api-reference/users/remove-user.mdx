@@ -1,0 +1,63 @@
+---
+title: "Remove User — Remove a User from a Cliq Program"
+sidebarTitle: "Remove User"
+description: "Remove a Cliq admin user from a specific program without deleting their account. Requires Bearer token with remove_user permission on the program."
+---
+
+The Remove User endpoint removes a user's membership from a specific program without deleting their Cliq account. After removal the user loses access to the program's dashboard, data, and settings, but their global user account remains intact. To permanently delete a user account, use the [Delete User](/api-reference/users/delete-user) endpoint instead. The caller must hold `remove_user` permission on the target program.
+
+## Endpoint
+
+```bash
+DELETE /api/programs/:program_id/users/:user_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program from which the user will be removed.
+</ParamField>
+
+<ParamField path="user_id" type="string (UUID)" required>
+  The unique identifier of the user to remove from the program.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully removed user from program."`
+</ResponseField>
+
+<Note>
+  This endpoint returns HTTP `204 No Content` on success. The user's global Cliq account is not deleted.
+</Note>
+
+## Example Request
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/users/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully removed user from program."
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `204`       | No Content — user removed from program successfully.                   |
+| `401`       | Unauthorized — missing or invalid Bearer token.                        |
+| `403`       | Forbidden — caller does not have `remove_user` permission on this program. |
+| `404`       | Not Found — the specified `program_id` or `user_id` does not exist.    |

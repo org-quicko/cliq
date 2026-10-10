@@ -1,0 +1,67 @@
+---
+title: "Delete (Soft-Delete) a Referral Link — Cliq API"
+sidebarTitle: "Delete Link"
+description: "PATCH /api/programs/:program_id/promoters/:promoter_id/links/:link_id — Soft-delete a referral link, archiving it so existing conversion history is preserved."
+---
+
+Use this endpoint to soft-delete a referral link belonging to a promoter within a program. Unlike a hard delete, this operation marks the link as archived rather than permanently removing it from the database, ensuring that historical conversion records tied to the link's `ref_val` remain intact and auditable.
+
+<Warning>
+  This endpoint uses the **`PATCH`** HTTP method, not `DELETE`. The operation is a soft delete — the link is archived and its `ref_val` can no longer be used to record new conversions, but all historical data is retained.
+</Warning>
+
+## Method and Path
+
+```bash
+PATCH /api/programs/:program_id/promoters/:promoter_id/links/:link_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it in every request as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program the promoter belongs to.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter who owns the link.
+</ParamField>
+
+<ParamField path="link_id" type="string (uuid)" required>
+  Unique identifier of the referral link to soft-delete.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully deleted link."`
+</ResponseField>
+
+<Tip>
+  After soft-deleting a link, use `GET /api/programs/:program_id/promoters/:promoter_id/links/:link_id` to confirm the link's `status` has been set to `archived`.
+</Tip>
+
+## Example
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p1a2b3c4-0000-0000-0000-000000000010/links/l1f2e3d4-0000-0000-0000-000000000020 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Link was successfully soft-deleted (archived). |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated caller lacks permission to delete this link. |
+| `404 Not Found` | No link exists with the provided `link_id` for this promoter and program. |

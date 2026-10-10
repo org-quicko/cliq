@@ -1,0 +1,152 @@
+---
+title: "Cliq API Authentication: JWT Tokens and API Keys Guide"
+sidebarTitle: "Authentication"
+description: "Cliq supports two auth methods: Bearer JWT tokens for interactive users and members, and API key pairs for server-to-server conversion tracking."
+---
+
+Cliq protects every API route with authentication. There are two supported methods: **Bearer Token (JWT)** for human-operated flows such as managing programs and promoters, and **API Key** authentication for server-to-server calls such as recording signups and purchases. Most endpoints accept either method; the conversion endpoints (`POST /api/signups`, `POST /api/purchases`) require API key authentication because they are called from your backend, not from a logged-in user session.
+
+<Tabs>
+  <Tab title="Bearer Token (JWT)">
+    ## Bearer Token Authentication
+
+    A Bearer token is a short-lived JWT signed with your `JWT_SECRET`. You obtain one by logging in, then attach it to every request in the `Authorization` header.
+
+    ### How to obtain a token
+
+    **For program users** (team members who manage programs):
+
+    ```bash
+    curl -s -X POST https://your-cliq-instance/api/users/login \
+      -H "Content-Type: application/json" \
+      -d '{
+        "email": "admin@example.com",
+        "password": "your-password"
+      }'
+    ```
+
+    ```json
+    {
+      "message": "Successfully logged in user.",
+      "result": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      }
+    }
+    ```
+
+    **For promoter members** (affiliates logging into the promoter portal):
+
+    ```bash
+    curl -s -X POST https://your-cliq-instance/api/programs/PROGRAM_ID/members/login \
+      -H "Content-Type: application/json" \
+      -d '{
+        "email": "jane@promoter.com",
+        "password": "member-password"
+      }'
+    ```
+
+    ### How to use the token
+
+    Include the token in the `Authorization` header as a Bearer credential on every authenticated request:
+
+    ```bash
+    curl -s https://your-cliq-instance/api/programs \
+      -H "Authorization: Bearer YOUR_TOKEN"
+    ```
+
+    ```http
+    GET /api/programs HTTP/1.1
+    Host: your-cliq-instance
+    Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    ```
+
+    ### Token lifetime
+
+    Tokens expire after the duration set in `JWT_EXPIRES_IN` (e.g. `30d`). When a token expires, re-authenticate by calling the login endpoint again. The API returns `401 Unauthorized` with the message `"Authentication failed"` for expired or malformed tokens.
+
+    ### When to use Bearer tokens
+
+    Use JWT Bearer tokens for any operation performed by a logged-in human: creating and configuring programs, managing promoters and team members, viewing dashboards and reports, and all admin-level operations.
+  </Tab>
+
+  <Tab title="API Key">
+    ## API Key Authentication
+
+    API keys are long-lived credentials intended for server-to-server integration. Use them from your backend application when recording conversion events — signups and purchases — that occur in your product.
+
+    ### How to generate an API key
+
+    Call `POST /api/programs/:program_id/api-keys` with a valid Bearer token. This creates a new key-secret pair scoped to the specified program.
+
+    ```bash
+    curl -s -X POST https://your-cliq-instance/api/programs/PROGRAM_ID/api-keys \
+      -H "Authorization: Bearer YOUR_TOKEN"
+    ```
+
+    ```json
+    {
+      "result": {
+        "api_key_id": "a1b2c3d4-...",
+        "api_key": "YOUR_API_KEY",
+        "api_secret": "YOUR_API_SECRET",
+        "program_id": "PROGRAM_ID"
+      }
+    }
+    ```
+
+    <Warning>
+      The `api_secret` is returned **only once** at generation time. Copy it immediately and store it in a secret manager (e.g. AWS Secrets Manager, HashiCorp Vault, or an encrypted `.env` file). If you lose the secret, you must generate a new key pair — there is no way to retrieve the secret later.
+    </Warning>
+
+    ### How to use API key credentials
+
+    Pass both the key and the secret as custom request headers on every API key-authenticated request:
+
+    ```bash
+    curl -s -X POST https://your-cliq-instance/api/signups \
+      -H "Content-Type: application/json" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "x-api-secret: YOUR_API_SECRET" \
+      -d '{
+        "ref_val": "jane-abc123",
+        "email": "newuser@example.com",
+        "external_id": "usr_789"
+      }'
+    ```
+
+    ```http
+    POST /api/signups HTTP/1.1
+    Host: your-cliq-instance
+    Content-Type: application/json
+    x-api-key: YOUR_API_KEY
+    x-api-secret: YOUR_API_SECRET
+    ```
+
+    Cliq's `AuthGuard` checks for the presence of both `x-api-key` and `x-api-secret` headers first. If both are present, it delegates to the `ApiKeyGuard` which validates the pair and injects the resolved `program_id` and `promoter_id` (if applicable) into the request context.
+
+    ### When to use API keys
+
+    Use API keys for any automated, server-side call:
+
+    - **Recording signups** — `POST /api/signups`
+    - **Recording purchases** — `POST /api/purchases`
+    - Any backend integration where no human user is present in the request flow
+
+    Never expose your `api_secret` in client-side code (browser JavaScript, mobile apps). Keep all API key calls server-side.
+  </Tab>
+</Tabs>
+
+## Choosing the Right Method
+
+| Scenario | Recommended Method |
+|---|---|
+| User logging into the admin panel | Bearer Token (user login) |
+| Promoter member logging into the portal | Bearer Token (member login) |
+| Backend recording a signup conversion | API Key |
+| Backend recording a purchase conversion | API Key |
+| CI/CD or script managing program settings | Bearer Token |
+| Third-party webhook reading commissions | Bearer Token or API Key |
+
+<Tip>
+  A single Cliq program can have multiple API key pairs — generate one per integration or environment (staging, production) so you can rotate or revoke them independently without affecting other consumers.
+</Tip>

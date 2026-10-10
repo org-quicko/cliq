@@ -1,0 +1,94 @@
+---
+title: "Generate a Program API Key | Cliq API Reference"
+sidebarTitle: "Generate Program Key"
+description: "Generate a new API key and secret for a program. The key pair is used to authenticate conversion requests from your backend to Cliq."
+---
+
+Program API keys are used to authenticate server-to-server requests that report conversions (signups and purchases) to Cliq. When you generate a key, Cliq returns both an `api_key` and an `api_secret`. These are passed as request headers (`x-api-key` and `x-api-secret`) when calling the conversion endpoints.
+
+<Warning>
+  The `api_secret` is shown **only once** at the time of generation. It is never returned again by any API endpoint. Store it securely in your application's environment configuration immediately after generation. If you lose the secret, you must delete the key and generate a new one.
+</Warning>
+
+## Endpoint
+
+```bash
+POST /api/programs/:program_id/api-keys
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program to generate an API key for.
+</ParamField>
+
+## Request Body
+
+No request body is required.
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully generated api key and secret for program {program_id}"`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The generated key pair. **Save the `api_secret` immediately — it will not be shown again.**
+
+  <Expandable title="result fields">
+    <ResponseField name="api_key" type="string">
+      The public API key identifier. This is used as the `x-api-key` header value.
+    </ResponseField>
+    <ResponseField name="api_secret" type="string">
+      The secret credential for this key pair. Used as the `x-api-secret` header value. **Shown only once.**
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog_abc123/api-keys \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully generated api key and secret for program prog_abc123",
+  "result": {
+    "api_key": "cliq_key_a1b2c3d4e5f6...",
+    "api_secret": "cliq_secret_9z8y7x6w5v4u..."
+  }
+}
+```
+
+## How to use the key pair
+
+Once generated, pass both values as request headers when calling the conversion endpoints:
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/signups \
+  -H "x-api-key: cliq_key_a1b2c3d4e5f6..." \
+  -H "x-api-secret: cliq_secret_9z8y7x6w5v4u..." \
+  -H "Content-Type: application/json" \
+  -d '{ "ref_val": "abc123" }'
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `201 Created` | API key generated successfully. |
+| `400 Bad Request` | Invalid program ID or request. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to generate API keys for this program. |

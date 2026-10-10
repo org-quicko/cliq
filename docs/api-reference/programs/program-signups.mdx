@@ -1,0 +1,95 @@
+---
+title: "List Program Signups — Cliq API Reference"
+sidebarTitle: "Signups"
+description: "GET /api/programs/:program_id/signups — Retrieve a paginated list of referral signups attributed to an affiliate program. Requires Bearer Token authentication."
+---
+
+Retrieve all referral signups that have been attributed to the specified affiliate program. Results are paginated. This endpoint is useful for auditing new user acquisitions driven by your promoters.
+
+## Method and Path
+
+```http
+GET /api/programs/:program_id/signups
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program whose signups you want to retrieve.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="skip" type="number" default="0">
+  Number of records to skip. Use with `take` for pagination.
+</ParamField>
+
+<ParamField query="take" type="number" default="10">
+  Maximum number of signup records to return per page.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched all signups of program."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="items" type="array">
+      Array of signup objects.
+      <Expandable title="signup object">
+        <ResponseField name="signup_id" type="string (uuid)">
+          Unique identifier for the signup event.
+        </ResponseField>
+        <ResponseField name="program_id" type="string (uuid)">
+          Program the signup belongs to.
+        </ResponseField>
+        <ResponseField name="promoter_id" type="string (uuid)">
+          Identifier of the promoter whose referral link drove this signup.
+        </ResponseField>
+        <ResponseField name="referral_key" type="string">
+          The referral key value (email or phone) used to attribute this signup.
+        </ResponseField>
+        <ResponseField name="created_at" type="string (ISO 8601)">
+          Timestamp when the signup was recorded.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      Total number of signups for this program (before pagination).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/signups?skip=0&take=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Fetch the second page (records 11–20)
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/signups?skip=10&take=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Signups returned successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks read permission for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |

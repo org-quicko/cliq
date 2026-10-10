@@ -1,0 +1,208 @@
+---
+title: "Core Concepts: Programs, Promoters, Links, and Commissions"
+sidebarTitle: "Concepts"
+description: "Learn the Cliq entity model — programs, promoters, circles, links, functions, contacts, commissions, and webhooks — and how they fit together."
+---
+
+Understanding the Cliq data model makes it much easier to integrate the API correctly and reason about how commissions are calculated. This page explains each core entity, what properties it carries, and how it relates to the other entities around it. Read through the hierarchy overview first, then dive into whichever concept you need more detail on.
+
+## Entity Hierarchy
+
+Cliq organises its data in a clear parent-child tree. Working from the top down:
+
+1. **Program** — the root object. Everything else lives inside a program.
+2. **User** — a team member who manages the program (not a promoter).
+3. **Promoter** — an affiliate enrolled in a program who earns commissions.
+4. **Member** — a person on a promoter's team who can log into the promoter portal.
+5. **Circle** — a labelled segment of promoters within a program, used for applying commission rules.
+6. **Link** — a referral link belonging to a promoter, identified by its `ref_val`.
+7. **Function** — a commission rule scoped to a program (or circle) that fires on conversions.
+8. **Contact** — an end user who arrived via a referral link and performed a conversion.
+9. **Signup / Purchase** — the two conversion event types recorded when a contact acts.
+10. **Commission** — a reward record generated automatically when a function's conditions are met.
+11. **Webhook** — a URL endpoint that receives CloudEvents when conversions happen.
+
+---
+
+## Concepts in Detail
+
+<AccordionGroup>
+
+  <Accordion title="Program" icon="building">
+    A **Program** is the top-level container for an affiliate campaign. All other entities — promoters, links, functions, contacts, and commissions — belong to exactly one program.
+
+    **Key fields:**
+
+    | Field | Type | Description |
+    |---|---|---|
+    | `program_id` | UUID | Unique identifier |
+    | `name` | string | Display name of the program |
+    | `website` | URL | The canonical URL of the product being promoted |
+    | `currency` | string | ISO 4217 currency code used for commission amounts (e.g. `USD`) |
+    | `visibility` | `public` \| `private` | Whether promoters can self-register (`public`) or must be invited (`private`) |
+    | `referral_key_type` | `email` \| `phone` | The identifier type used to build referral link keys |
+    | `theme_color` | string | Hex color used to brand the promoter portal for this program |
+    | `time_zone` | string | IANA time zone identifier for date-based reporting |
+    | `terms_and_conditions` | string | Optional T&C text that promoters must accept before going live |
+
+    Programs are created by authenticated **Users** via `POST /api/programs`. The creating user becomes the first admin of the program.
+  </Accordion>
+
+  <Accordion title="User" icon="user">
+    A **User** is a team member who manages one or more programs through the Cliq API or admin panel. Users are distinct from promoters — they are the operators of the platform, not the affiliates.
+
+    Users authenticate with `POST /api/users/login` and receive a JWT `access_token`. Within each program a user can hold one of two roles:
+
+    - **Admin** — full access: create/edit the program, manage users and promoters, view all reports.
+    - **Manager** — limited access: view data and manage promoters, but cannot change program settings or manage other users.
+
+    Users are created via the public `POST /api/users/signup` endpoint, then added to a specific program by an existing admin using `POST /api/programs/:program_id/invite`.
+  </Accordion>
+
+  <Accordion title="Promoter" icon="megaphone">
+    A **Promoter** is an affiliate enrolled in a program. Promoters share referral links with their audience and earn commissions when their referrals convert.
+
+    **Key fields:**
+
+    | Field | Type | Description |
+    |---|---|---|
+    | `promoter_id` | UUID | Unique identifier |
+    | `name` | string | Display name |
+    | `logo_url` | string (URL) | Optional logo shown in the promoter portal |
+    | `status` | enum | Active/inactive status of the promoter |
+    | `accepted_terms_and_conditions` | boolean | Whether the promoter has accepted the program's T&C |
+
+    Promoters are created by program users via `POST /api/programs/:program_id/promoters`. Once created, Cliq automatically generates a default referral link for the promoter.
+
+    <Note>
+      Promoters are separate from Users. A promoter logs into the **promoter portal** via a Member account; a user logs into the admin API directly.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Member" icon="users">
+    A **Member** is a person who belongs to a promoter's team and can log into the promoter portal to view their referrals, conversions, and commissions.
+
+    A promoter can have multiple members with different roles (e.g. an admin member who manages the team, and read-only members who just view reports). Members authenticate via `POST /api/programs/:program_id/members/login` and receive their own JWT, scoped to the promoter they belong to.
+
+    Members are invited to a promoter by program users via `POST /api/programs/:program_id/promoters/:promoter_id/members`.
+  </Accordion>
+
+  <Accordion title="Circle" icon="circle-dot">
+    A **Circle** is a named segment of promoters within a program. Circles let you apply different commission rules (Functions) to different groups of affiliates.
+
+    For example, you might have a `"VIP"` circle for top-performing promoters who earn a higher commission rate, and a `"Standard"` circle for everyone else. When a promoter is placed into a circle, any Functions scoped to that circle apply to their conversions instead of the program-level defaults.
+
+    Circles also support a `switch_circle` effect type in Functions, meaning a conversion event can automatically move a promoter from one circle to another — useful for milestone-based tier upgrades.
+  </Accordion>
+
+  <Accordion title="Link" icon="link">
+    A **Link** is a referral URL that belongs to a specific promoter within a program. When a contact clicks a referral link, the `ref_val` embedded in the URL is passed back to Cliq when recording a conversion.
+
+    **Key fields:**
+
+    | Field | Type | Description |
+    |---|---|---|
+    | `link_id` | UUID | Unique identifier |
+    | `ref_val` | string | The short referral code embedded in the link URL (e.g. `jane-abc123`) |
+    | `promoter_id` | UUID | The promoter this link belongs to |
+
+    Every signup and purchase conversion must include the `ref_val` of the link that originated the referral. Cliq uses this value to look up the promoter and apply the correct commission functions.
+
+    A promoter can have multiple links — useful for tracking performance across different channels (email, Twitter, blog, etc.).
+  </Accordion>
+
+  <Accordion title="Function" icon="function">
+    A **Function** is a commission rule that Cliq evaluates automatically every time a conversion event (signup or purchase) is recorded for a promoter in a program.
+
+    **Key fields:**
+
+    | Field | Type | Description |
+    |---|---|---|
+    | `trigger` | `signup` \| `purchase` | The conversion event type that activates this function |
+    | `effect_type` | `generate_commission` \| `switch_circle` | What happens when the function fires |
+    | `conditions` | array | Optional conditions that must be true for the function to fire (e.g. minimum purchase amount) |
+
+    When `effect_type` is `generate_commission`, Cliq creates a Commission record for the promoter. When it is `switch_circle`, the promoter is moved into a different Circle.
+
+    Functions can be scoped at the program level (applying to all promoters) or at the circle level (applying only to promoters in that circle). Circle-level functions take precedence over program-level ones.
+  </Accordion>
+
+  <Accordion title="Contact" icon="address-book">
+    A **Contact** is an end user who arrived via a referral link and performed at least one conversion action — either a signup or a purchase.
+
+    Contacts are created implicitly by Cliq when `POST /api/signups` or `POST /api/purchases` is called. You do not create them directly. Each contact is associated with the promoter whose link was used, and a contact record is reused if the same `external_id` or email appears in a later conversion for the same program.
+
+    **Common fields passed when recording a conversion:**
+
+    | Field | Required | Description |
+    |---|---|---|
+    | `ref_val` | Yes | The referral link code |
+    | `email` | No | Contact's email address |
+    | `first_name` | No | Contact's first name |
+    | `last_name` | No | Contact's last name |
+    | `external_id` | No | Your system's identifier for this user |
+  </Accordion>
+
+  <Accordion title="Signup" icon="user-plus">
+    A **Signup** is a conversion event recorded when a contact registers or creates an account via a referral link. It is the lighter of the two conversion types — no monetary amount is required.
+
+    Record a signup via `POST /api/signups` using API key authentication. The `ref_val` field is required; all other contact fields are optional but recommended for deduplication and reporting.
+
+    ```json
+    {
+      "ref_val": "jane-abc123",
+      "email": "newuser@example.com",
+      "first_name": "New",
+      "last_name": "User",
+      "external_id": "usr_456"
+    }
+    ```
+
+    If a Function with `trigger: signup` exists for the promoter's program or circle, Cliq evaluates it immediately and may generate a commission.
+  </Accordion>
+
+  <Accordion title="Purchase" icon="credit-card">
+    A **Purchase** is a conversion event recorded when a contact makes a monetary transaction via a referral link. Unlike a signup, a purchase requires an `amount` and an `item_id`.
+
+    Record a purchase via `POST /api/purchases` using API key authentication.
+
+    ```json
+    {
+      "ref_val": "jane-abc123",
+      "amount": 49.99,
+      "item_id": "plan_pro_monthly",
+      "email": "customer@example.com",
+      "external_id": "usr_456"
+    }
+    ```
+
+    Cliq evaluates any Function with `trigger: purchase` for the promoter's program or circle, checking conditions like minimum `amount`, and generates a commission if the conditions are satisfied.
+  </Accordion>
+
+  <Accordion title="Commission" icon="coins">
+    A **Commission** is a reward record generated automatically by Cliq when a conversion event satisfies the conditions of a Function with `effect_type: generate_commission`.
+
+    Commissions are read-only from your perspective — Cliq creates them; you report on them. They are accessible at:
+    - `GET /api/programs/:program_id/commissions` — all commissions across a program
+    - `GET /api/programs/:program_id/promoters/:promoter_id/commissions` — commissions for a specific promoter
+
+    Commissions carry the `conversion_type` (signup or purchase), the amount calculated, and references to the underlying contact and link.
+
+    <Note>
+      Cliq calculates commission amounts based on the rules defined in your Functions. The actual payout process (bank transfer, PayPal, etc.) is handled outside of Cliq.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Webhook" icon="satellite-dish">
+    A **Webhook** is a URL endpoint registered to receive CloudEvents when conversion events occur in Cliq. Webhooks let your downstream systems (CRMs, email platforms, payment processors) react to referral activity in real time.
+
+    Register a webhook via `POST /api/programs/:program_id/webhooks`. Cliq sends an HTTP `POST` to your URL with a CloudEvents-formatted JSON payload each time a qualifying event fires.
+
+    Webhooks can be scoped per promoter (promoter-level webhooks) or at the program level. Promoter-level webhooks are managed via `POST /api/programs/:program_id/promoters/:promoter_id/webhooks`.
+
+    <Tip>
+      Use a service like [webhook.site](https://webhook.site) to inspect incoming payloads during development before wiring up your production endpoint.
+    </Tip>
+  </Accordion>
+
+</AccordionGroup>

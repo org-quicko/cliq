@@ -1,0 +1,78 @@
+---
+title: "Update Role — Change a User's Role in a Program"
+sidebarTitle: "Update Role"
+description: "Update the role or status of a Cliq admin user within a specific program. Requires Bearer token with change_role permission on the program."
+---
+
+The Update Role endpoint allows a program administrator to change the role or status of any user within a specific program. This is useful for promoting a viewer to an editor, or temporarily deactivating a user's access by setting their status to `inactive`. The caller must hold the `change_role` permission on the target program.
+
+## Endpoint
+
+```bash
+PATCH /api/programs/:program_id/users/:user_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program in which to update the user's role.
+</ParamField>
+
+<ParamField path="user_id" type="string (UUID)" required>
+  The unique identifier of the user whose role should be updated.
+</ParamField>
+
+## Request Body
+
+<ParamField body="role" type="string">
+  The new role to assign to the user within this program. One of: `super_admin`, `admin`, `editor`, `viewer`, `regular`.
+</ParamField>
+
+<ParamField body="status" type="string">
+  The new status for the user's program membership. One of: `active`, `inactive`.
+</ParamField>
+
+<Note>
+  At least one of `role` or `status` must be provided.
+</Note>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully updated role of user."`
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/users/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "role": "admin"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully updated role of user."
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `204`       | No Content — role updated successfully.                                |
+| `400`       | Bad Request — invalid role or status value.                            |
+| `401`       | Unauthorized — missing or invalid Bearer token.                        |
+| `403`       | Forbidden — caller does not have `change_role` permission on this program. |
+| `404`       | Not Found — the specified `program_id` or `user_id` does not exist.    |

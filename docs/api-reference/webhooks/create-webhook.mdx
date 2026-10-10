@@ -1,0 +1,133 @@
+---
+title: "Create a Program Webhook | Cliq API Reference"
+sidebarTitle: "Create Webhook"
+description: "Register a webhook endpoint for a program. Cliq sends signed HTTP POST requests to your URL whenever a subscribed event occurs in the program."
+---
+
+Program webhooks allow your backend to receive real-time notifications when activity occurs in a Cliq program. When a subscribed event fires — such as a new signup, purchase, commission, or contact — Cliq delivers a signed HTTP POST to your registered URL. The `secret` you provide is used to sign each request so you can verify its authenticity.
+
+<Note>
+  These are **program-level** webhooks. They fire for all activity across the program regardless of which promoter was involved. For per-promoter webhooks, see the Promoter Webhooks section.
+</Note>
+
+## Endpoint
+
+```text
+POST /api/programs/:program_id/webhooks
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```text
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program to register the webhook for.
+</ParamField>
+
+## Request Body
+
+<ParamField body="url" type="string" required>
+  The HTTPS endpoint Cliq will POST event payloads to.
+</ParamField>
+
+<ParamField body="secret" type="string" required>
+  A secret string used to sign outgoing webhook payloads. Choose a random, high-entropy value and store it securely in your application — you'll use it to verify that incoming requests genuinely originated from Cliq.
+</ParamField>
+
+<ParamField body="events" type="array" required>
+  Array of event type strings to subscribe to. At least one event is required. Available program-level events:
+
+  | Event | Description |
+  |-------|-------------|
+  | `in.org.quicko.cliq.signup.created` | A new signup conversion was recorded. |
+  | `in.org.quicko.cliq.purchase.created` | A new purchase conversion was recorded. |
+  | `in.org.quicko.cliq.commission.created` | A commission was generated. |
+  | `in.org.quicko.cliq.contact.created` | A new contact was created in the program. |
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully created webhook for Program {program_id}"`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The created webhook object.
+
+  <Expandable title="result fields">
+    <ResponseField name="webhook_id" type="string">
+      UUID of the created webhook.
+    </ResponseField>
+    <ResponseField name="program_id" type="string">
+      UUID of the program this webhook belongs to.
+    </ResponseField>
+    <ResponseField name="url" type="string">
+      The registered endpoint URL.
+    </ResponseField>
+    <ResponseField name="events" type="array">
+      List of event type strings this webhook subscribes to.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 creation timestamp.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      ISO 8601 last-updated timestamp.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<Note>
+  The `secret` is **not returned** in any API response for security reasons. Store it at creation time.
+</Note>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog_abc123/webhooks \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://yourapp.com/webhooks/cliq",
+    "secret": "whsec_a8f3b2c1d0e9...",
+    "events": [
+      "in.org.quicko.cliq.signup.created",
+      "in.org.quicko.cliq.purchase.created",
+      "in.org.quicko.cliq.commission.created"
+    ]
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully created webhook for Program prog_abc123",
+  "result": {
+    "webhook_id": "wh_uuid_here",
+    "program_id": "prog_abc123",
+    "url": "https://yourapp.com/webhooks/cliq",
+    "events": [
+      "in.org.quicko.cliq.signup.created",
+      "in.org.quicko.cliq.purchase.created",
+      "in.org.quicko.cliq.commission.created"
+    ],
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `201 Created` | Webhook registered successfully. |
+| `400 Bad Request` | Validation error — check `url`, `secret`, and `events` fields. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to create webhooks for this program. |

@@ -1,0 +1,109 @@
+---
+title: "Get All Users — List Users Belonging to a Program"
+sidebarTitle: "Get All Users"
+description: "Retrieve a paginated list of all admin users associated with a specific Cliq program, with optional filtering by role and status. Requires Bearer token."
+---
+
+The Get All Users endpoint returns a paginated list of all admin users who are members of a specific program. You can filter the results by user role or account status, and control pagination with `skip` and `take` query parameters. This endpoint is useful for building team management UIs or auditing access. A valid Bearer token is required.
+
+## Endpoint
+
+```bash
+GET /api/programs/:program_id/users
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program whose users should be listed.
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="role" type="string">
+  Filter users by their program role. One of: `super_admin`, `admin`, `editor`, `viewer`, `regular`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter users by account status. One of: `active`, `inactive`.
+</ParamField>
+
+<ParamField query="skip" type="number" default="0">
+  The number of records to skip for pagination.
+</ParamField>
+
+<ParamField query="take" type="number" default="10">
+  The maximum number of records to return per page.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully fetched all users of program."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  Paginated list of program users.
+
+  <Expandable title="result fields">
+    <ResponseField name="data" type="array">
+      Array of user objects. Each object contains `user_id`, `email`, `first_name`, `last_name`, `role`, `status`, `created_at`, and `updated_at`.
+    </ResponseField>
+    <ResponseField name="total" type="number">
+      Total number of users matching the filter criteria.
+    </ResponseField>
+    <ResponseField name="skip" type="number">
+      The current pagination offset.
+    </ResponseField>
+    <ResponseField name="take" type="number">
+      The current page size limit.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/users?role=editor&status=active&skip=0&take=20" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully fetched all users of program.",
+  "result": {
+    "data": [
+      {
+        "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "email": "john.smith@example.com",
+        "first_name": "John",
+        "last_name": "Smith",
+        "role": "editor",
+        "status": "active",
+        "created_at": "2024-01-10T08:00:00.000Z",
+        "updated_at": "2024-01-10T08:00:00.000Z"
+      }
+    ],
+    "total": 1,
+    "skip": 0,
+    "take": 20
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                   |
+|-------------|---------------------------------------------------------------|
+| `200`       | OK — list of users returned successfully.                     |
+| `401`       | Unauthorized — missing or invalid Bearer token.               |
+| `403`       | Forbidden — caller does not have read access to program users. |
+| `404`       | Not Found — the specified `program_id` does not exist.        |

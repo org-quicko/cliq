@@ -1,0 +1,164 @@
+---
+title: "purchase.created — Referral Purchase Event Reference"
+sidebarTitle: "purchase.created"
+description: "The purchase.created event fires when a contact completes a purchase via a referral link. Includes purchase amount, item, contact, promoter, and UTM data."
+---
+
+The `purchase.created` event is published by Cliq whenever a contact successfully completes a purchase using a referral link. It is delivered to every webhook — both program-level and promoter-level — that is subscribed to this event type.
+
+**Event type:** `in.org.quicko.cliq.purchase.created`
+
+## Event Schema
+
+<ResponseField name="id" type="string (uuid)" required>
+  Unique identifier for this event. Use this field for deduplication.
+</ResponseField>
+
+<ResponseField name="time" type="string (ISO 8601)" required>
+  The timestamp at which the event was emitted.
+</ResponseField>
+
+<ResponseField name="specversion" type="string" required>
+  The CloudEvents specification version. Always `"1.0"`.
+</ResponseField>
+
+<ResponseField name="datacontenttype" type="string" required>
+  The content type of the `data` field. Always `"application/json"`.
+</ResponseField>
+
+<ResponseField name="program_id" type="string (uuid)" required>
+  The ID of the referral program this purchase belongs to.
+</ResponseField>
+
+<ResponseField name="promoter_id" type="string (uuid)" required>
+  The ID of the promoter who owns the referral link used for this purchase.
+</ResponseField>
+
+<ResponseField name="source" type="string" required>
+  The originating endpoint that produced the event (e.g. `"urn:POST:/purchases"`).
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  The event type identifier. Always `"in.org.quicko.cliq.purchase.created"`.
+</ResponseField>
+
+<ResponseField name="subject" type="string (uuid)" required>
+  The ID of the purchase that triggered this event.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  The full details of the purchase action.
+
+  <Expandable title="data fields">
+    <ResponseField name="@entity" type="string" required>
+      The entity type identifier. Always `"in.org.quicko.cliq.purchase"`.
+    </ResponseField>
+
+    <ResponseField name="trigger_type" type="string" required>
+      The type of trigger that caused this event. Always `"purchase"`.
+    </ResponseField>
+
+    <ResponseField name="purchase_id" type="string (uuid)" required>
+      The unique ID of the purchase record.
+    </ResponseField>
+
+    <ResponseField name="contact_id" type="string (uuid)" required>
+      The ID of the contact who made the purchase.
+    </ResponseField>
+
+    <ResponseField name="external_id" type="string">
+      An external identifier supplied by your system when the purchase was posted.
+    </ResponseField>
+
+    <ResponseField name="promoter_id" type="string (uuid)" required>
+      The ID of the promoter who owns the referral link used for this purchase.
+    </ResponseField>
+
+    <ResponseField name="link_id" type="string (uuid)" required>
+      The ID of the referral link through which this purchase occurred.
+    </ResponseField>
+
+    <ResponseField name="item_id" type="string">
+      The identifier of the purchased item, as provided when the purchase was recorded.
+    </ResponseField>
+
+    <ResponseField name="amount" type="number" required>
+      The monetary amount of the purchase.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string (ISO 8601)" required>
+      The timestamp when the purchase record was created.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="string (ISO 8601)" required>
+      The timestamp when the purchase record was last updated.
+    </ResponseField>
+
+    <ResponseField name="utm_params" type="object">
+      UTM tracking parameters associated with the referral link click. Present only when UTM data was captured.
+
+      <Expandable title="utm_params fields">
+        <ResponseField name="utm_id" type="string">
+          The UTM ID value.
+        </ResponseField>
+
+        <ResponseField name="utm_source" type="string">
+          The UTM source value (e.g. `"newsletter"`, `"instagram"`).
+        </ResponseField>
+
+        <ResponseField name="utm_medium" type="string">
+          The UTM medium value (e.g. `"email"`, `"social"`).
+        </ResponseField>
+
+        <ResponseField name="utm_campaign" type="string">
+          The UTM campaign name.
+        </ResponseField>
+
+        <ResponseField name="utm_term" type="string">
+          The UTM term value.
+        </ResponseField>
+
+        <ResponseField name="utm_content" type="string">
+          The UTM content value.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Payload
+
+```json
+{
+  "id": "fbae5207-0cc7-4a42-8dd3-b58aa6a44f8c",
+  "time": "2026-04-06T06:23:54.991Z",
+  "specversion": "1.0",
+  "datacontenttype": "application/json",
+  "program_id": "930433e7-591c-4dda-a300-d3bfe17bd03d",
+  "promoter_id": "c06d4f0f-ccfb-4d6e-8bed-eea28460b698",
+  "source": "urn:POST:/purchases",
+  "type": "in.org.quicko.cliq.purchase.created",
+  "data": {
+    "@entity": "in.org.quicko.cliq.purchase",
+    "trigger_type": "purchase",
+    "purchase_id": "9aafd54c-03f5-40c0-8dba-df50e974e731",
+    "contact_id": "6a3e05ae-a0c1-4d09-9d8c-112929601246",
+    "external_id": "1da19dc5-860e-408b-844f-bbd16813bf83",
+    "promoter_id": "c06d4f0f-ccfb-4d6e-8bed-eea28460b698",
+    "link_id": "92f75eee-ecc8-47c4-87d9-dea983114fef",
+    "item_id": "item1",
+    "amount": 420,
+    "created_at": "2026-04-06T06:23:54.793Z",
+    "updated_at": "2026-04-06T06:23:54.793Z",
+    "utm_params": {
+      "utm_id": "email_apr_newsletter",
+      "utm_source": "newsletter",
+      "utm_medium": "email",
+      "utm_campaign": "product_update_april",
+      "utm_term": "existing_users",
+      "utm_content": "cta_button_top"
+    }
+  },
+  "subject": "9aafd54c-03f5-40c0-8dba-df50e974e731"
+}
+```

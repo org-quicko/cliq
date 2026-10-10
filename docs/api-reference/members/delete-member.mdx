@@ -1,0 +1,63 @@
+---
+title: "Delete Member — Permanently Delete a Member Account"
+sidebarTitle: "Delete Member"
+description: "Permanently delete a member account from a Cliq program by member ID. This action is irreversible. Requires Bearer token with delete permission."
+---
+
+The Delete Member endpoint permanently removes a member account from a Cliq program. Once deleted, the member's account and all associated data within the program are gone and cannot be recovered. This is distinct from removing a member from a promoter team — this fully deletes the member's account. A valid Bearer token with delete permission on the `Member` resource is required.
+
+## Endpoint
+
+```bash
+DELETE /api/programs/:program_id/members/:member_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program to which the member belongs.
+</ParamField>
+
+<ParamField path="member_id" type="string (UUID)" required>
+  The unique identifier of the member to delete.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully deleted member."`
+</ResponseField>
+
+<Note>
+  This endpoint returns HTTP `204 No Content` on success. The member account and its data within the program are permanently removed.
+</Note>
+
+## Example Request
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/members/mem-9abc-def0-1234-5678 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully deleted member."
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                       |
+|-------------|-------------------------------------------------------------------|
+| `204`       | No Content — member deleted successfully.                         |
+| `401`       | Unauthorized — missing or invalid Bearer token.                   |
+| `403`       | Forbidden — caller does not have delete access to this member.    |
+| `404`       | Not Found — no member exists with the given `member_id`.          |

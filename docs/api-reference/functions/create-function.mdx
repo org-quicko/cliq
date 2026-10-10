@@ -1,0 +1,214 @@
+---
+title: "Create a Function in Cliq | API Reference"
+sidebarTitle: "Create Function"
+description: "Create a commission function for a program. Define a trigger, effect type, and effect configuration to generate commissions or switch circles on events."
+---
+
+Functions are the commission engine of Cliq. When you create a function, you define a trigger (either `signup` or `purchase`), an effect type (`generate_commission` or `switch_circle`), and the specific effect configuration that determines what happens when the trigger fires. Optionally you can attach conditions and scope the function to a specific circle.
+
+## Endpoint
+
+```text
+POST /api/programs/:program_id/functions
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```text
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program under which the function will be created.
+</ParamField>
+
+## Request Body
+
+<ParamField body="name" type="string" required>
+  A human-readable name for the function (e.g. `"10% on first purchase"`).
+</ParamField>
+
+<ParamField body="trigger" type="string" required>
+  The event that triggers this function. One of:
+  - `signup` — fires when a referred user completes a sign-up
+  - `purchase` — fires when a referred user completes a purchase
+</ParamField>
+
+<ParamField body="effect_type" type="string" required>
+  Determines the kind of effect applied when the trigger fires. One of:
+  - `generate_commission` — creates a commission for the referring promoter
+  - `switch_circle` — moves the promoter to a different circle
+</ParamField>
+
+<ParamField body="status" type="string">
+  Initial status of the function. One of `active` or `inactive`. Defaults to `active` if omitted.
+</ParamField>
+
+<ParamField body="effect" type="object" required>
+  Configuration object for the effect. Shape depends on `effect_type`.
+
+  <Expandable title="When effect_type is generate_commission">
+    <ParamField body="effect.commission" type="object" required>
+      Commission definition.
+
+      <Expandable title="Fixed commission">
+        <ParamField body="effect.commission.commission_type" type="string" required>
+          Set to `fixed`.
+        </ParamField>
+        <ParamField body="effect.commission.commission_value" type="number" required>
+          The flat amount of commission to award. Must be ≥ `0.01`.
+        </ParamField>
+      </Expandable>
+
+      <Expandable title="Percentage commission">
+        <ParamField body="effect.commission.commission_type" type="string" required>
+          Set to `percentage`.
+        </ParamField>
+        <ParamField body="effect.commission.commission_value" type="number" required>
+          Percentage of the purchase amount to award as commission. Must be between `0.01` and `100`.
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+
+  <Expandable title="When effect_type is switch_circle">
+    <ParamField body="effect.target_circle_id" type="string" required>
+      UUID of the circle the promoter should be moved into when the trigger fires.
+    </ParamField>
+    <ParamField body="effect.target_circle_name" type="string">
+      Display name of the target circle. Optional.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="conditions" type="array">
+  An optional array of condition objects that must all be satisfied for the function to fire. If omitted, the function fires on every matching trigger event.
+
+  Each condition object has a `condition` field with the following shape:
+
+  | Field | Type | Description |
+  |-------|------|-------------|
+  | `parameter` | string | One of `revenue`, `no. of signups`, `no. of purchases`, `item_id` |
+  | `operator` | string | One of `greater_than_or_equal_to`, `less_than_or_equal_to`, `greater_than`, `less_than`, `equals`, `contains` |
+  | `value` | string or number | The threshold value to compare against |
+</ParamField>
+
+<ParamField body="circle_id" type="string">
+  UUID of the circle this function applies to. Defaults to the program's default circle when omitted.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully created function."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The newly created function object.
+
+  <Expandable title="result fields">
+    <ResponseField name="function_id" type="string">
+      UUID of the created function.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The function name.
+    </ResponseField>
+    <ResponseField name="trigger" type="string">
+      The trigger type: `signup` or `purchase`.
+    </ResponseField>
+    <ResponseField name="effect_type" type="string">
+      The effect type: `generate_commission` or `switch_circle`.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current status: `active` or `inactive`.
+    </ResponseField>
+    <ResponseField name="effect" type="object">
+      The effect configuration as stored.
+    </ResponseField>
+    <ResponseField name="conditions" type="array">
+      List of condition objects attached to this function, if any.
+    </ResponseField>
+    <ResponseField name="circle_id" type="string">
+      UUID of the circle this function is scoped to.
+    </ResponseField>
+    <ResponseField name="circle_name" type="string">
+      Display name of the circle.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 timestamp of when the function was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      ISO 8601 timestamp of the last update.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+### Create a fixed-commission function on purchase
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog_abc123/functions \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Flat $20 on purchase",
+    "trigger": "purchase",
+    "effect_type": "generate_commission",
+    "status": "active",
+    "effect": {
+      "commission": {
+        "commission_type": "fixed",
+        "commission_value": 20
+      }
+    }
+  }'
+```
+
+### Create a percentage-commission function on signup
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog_abc123/functions \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "10% referral commission",
+    "trigger": "signup",
+    "effect_type": "generate_commission",
+    "effect": {
+      "commission": {
+        "commission_type": "percentage",
+        "commission_value": 10
+      }
+    }
+  }'
+```
+
+### Create a circle-switch function
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog_abc123/functions \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Upgrade to Gold on first purchase",
+    "trigger": "purchase",
+    "effect_type": "switch_circle",
+    "effect": {
+      "target_circle_id": "circle_uuid_here"
+    }
+  }'
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `201 Created` | Function was created successfully. |
+| `400 Bad Request` | Validation error — check your request body. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to create functions in this program. |

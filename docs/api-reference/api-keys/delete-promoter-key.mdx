@@ -1,0 +1,70 @@
+---
+title: "Delete a Promoter API Key | Cliq API Reference"
+sidebarTitle: "Delete Promoter Key"
+description: "Permanently revoke an API key scoped to a promoter. Conversion requests using this key will fail immediately. Generate a new key to replace it."
+---
+
+Revokes and permanently deletes an API key associated with a specific promoter. Once deleted, any conversion requests (`POST /signups` or `POST /purchases`) that use the revoked credentials will fail immediately. Use this to rotate a promoter's credentials or disable access for a compromised key.
+
+<Warning>
+  Deleting an API key is **irreversible** and takes effect immediately. Ensure the promoter's application has been updated with replacement credentials before deleting the old key.
+</Warning>
+
+## Endpoint
+
+```bash
+DELETE /api/programs/:program_id/promoters/:promoter_id/api-keys/:api_key_id
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the promoter belongs to.
+</ParamField>
+
+<ParamField path="promoter_id" type="string" required>
+  The UUID of the promoter whose API key you want to delete.
+</ParamField>
+
+<ParamField path="api_key_id" type="string" required>
+  The UUID of the API key record to delete. Retrieve this from the [Get Promoter Key](/api-reference/api-keys/get-promoter-key) endpoint.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully deleted promoter api key."`
+</ResponseField>
+
+## Example
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/prog_abc123/promoters/promo_xyz789/api-keys/key_record_uuid \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully deleted promoter api key."
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | API key deleted successfully. |
+| `400 Bad Request` | Invalid program, promoter, or key ID. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to delete this API key. |
+| `404 Not Found` | No API key found with the given ID for this promoter. |

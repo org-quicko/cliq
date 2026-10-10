@@ -1,0 +1,86 @@
+---
+title: "Create a Circle in a Program — Cliq API Reference"
+sidebarTitle: "Create Circle"
+description: "POST /api/programs/:program_id/circles — Create a new promoter segment (circle) inside a program to apply targeted commission rules."
+---
+
+Use this endpoint to create a new circle within an existing program. Circles are named segments that group promoters together, allowing you to apply different commission functions to each segment. When a promoter joins a program they are placed in the default circle; you can then move them into custom circles to control which commission rules apply to them.
+
+## Method and Path
+
+```bash
+POST /api/programs/:program_id/circles
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it in every request as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program in which the circle will be created.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="name" type="string" required>
+  Display name for the new circle (e.g. `"VIP Partners"` or `"Tier 1"`).
+</ParamField>
+
+<ParamField body="is_default_circle" type="boolean">
+  When `true`, designates this circle as the default circle for the program. Promoters are automatically placed in the default circle when they join. Defaults to `false` if omitted.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `201 Created`.
+
+<ResponseField name="message" type="string">
+  `"Circle created successfully"`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="circle_id" type="string (uuid)">
+      Unique identifier for the newly created circle.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Display name of the circle.
+    </ResponseField>
+    <ResponseField name="is_default_circle" type="boolean">
+      Whether this circle is the default circle for the program.
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the circle was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp when the circle was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/circles \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "VIP Partners",
+    "is_default_circle": false
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `201 Created` | Circle was successfully created. |
+| `400 Bad Request` | Validation failed — check required fields and value formats. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated caller lacks permission to create circles in this program. |

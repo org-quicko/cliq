@@ -1,0 +1,67 @@
+---
+title: "Delete a Promoter from a Program — Cliq API Reference"
+sidebarTitle: "Delete Promoter"
+description: "DELETE /api/programs/:program_id/promoters/:promoter_id — Permanently remove a promoter from a program. Requires a Bearer Token and member_id header."
+---
+
+Use this endpoint to permanently remove a promoter from a program. The calling member must have the appropriate permissions to delete promoters. Once deleted, the promoter's data — including links, commissions, and referrals — will no longer be accessible under this program.
+
+## Method and Path
+
+```http
+DELETE /api/programs/:program_id/promoters/:promoter_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`. The acting member must also pass their UUID via the `member_id` header.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program from which the promoter will be deleted.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter to delete.
+</ParamField>
+
+### Headers
+
+<ParamField header="member_id" type="string (uuid)" required>
+  The UUID of the member performing this delete action.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK` with a confirmation message. No body content is included beyond the message envelope.
+
+<ResponseField name="message" type="string">
+  `"Successfully deleted promoter."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  Deletion result metadata returned by the service (affected row count or similar confirmation).
+</ResponseField>
+
+## Example
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Promoter deleted successfully. |
+| `400 Bad Request` | Invalid UUID format or missing required parameters. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated member lacks permission to delete this promoter. |
+| `404 Not Found` | No promoter found for the provided IDs. |

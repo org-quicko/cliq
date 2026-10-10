@@ -1,0 +1,66 @@
+---
+title: "Delete a Program API Key | Cliq API Reference"
+sidebarTitle: "Delete Program Key"
+description: "Permanently revoke a program API key. Any conversion requests using this key will immediately begin failing. Generate a new key to replace it."
+---
+
+Revokes and permanently deletes a program API key. Once deleted, any calls to the conversion endpoints (`POST /signups` or `POST /purchases`) that use the revoked `api_key` and `api_secret` will fail immediately. Use this to rotate credentials or disable a compromised key.
+
+<Warning>
+  Deleting an API key is **irreversible** and takes effect immediately. Make sure you have replaced the key in all your backend services before deleting the old one, or your conversion tracking will stop working.
+</Warning>
+
+## Endpoint
+
+```bash
+DELETE /api/programs/:program_id/api-keys/:api_key_id
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the API key belongs to.
+</ParamField>
+
+<ParamField path="api_key_id" type="string" required>
+  The UUID of the API key record to delete. Retrieve this from the [Get Program Key](/api-reference/api-keys/get-program-key) endpoint.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully deleted api key."`
+</ResponseField>
+
+## Example
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/prog_abc123/api-keys/key_record_uuid \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully deleted api key."
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | API key deleted successfully. |
+| `400 Bad Request` | Invalid program or key ID. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to delete API keys for this program. |
+| `404 Not Found` | No API key found with the given ID. |

@@ -1,0 +1,62 @@
+---
+title: "Cliq: Self-Hosted Affiliate & Referral Management"
+sidebarTitle: "Home"
+description: "Cliq is a self-hosted affiliate software for startups. Deploy on your own infrastructure and manage referral programs, promoters, commissions, and analytics via REST API."
+---
+
+Cliq is an open-source, self-hosted affiliate and referral management platform built for startups. Run it on your own servers, connect it to your product via a simple REST API, and start tracking signups, purchases, and commissions in minutes.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Deploy Cliq with Docker and make your first API call in under 10 minutes.
+  </Card>
+  <Card title="Core Concepts" icon="book-open" href="/concepts">
+    Understand programs, promoters, circles, functions, and referral links.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore every endpoint with request/response schemas and examples.
+  </Card>
+  <Card title="Webhooks & Events" icon="bolt" href="/events/overview">
+    Receive real-time CloudEvents for signups, purchases, and commissions.
+  </Card>
+</CardGroup>
+
+## Why Cliq?
+
+<CardGroup cols={3}>
+  <Card title="Self-Hosted" icon="server">
+    Full control over your data. Deploy on any infrastructure using Docker Compose.
+  </Card>
+  <Card title="Multi-Tenant" icon="building">
+    Manage multiple affiliate programs, each with its own promoters, users, and analytics.
+  </Card>
+  <Card title="Real-Time Events" icon="signal">
+    CloudEvents-spec webhooks fire on every signup, purchase, and commission.
+  </Card>
+  <Card title="Role-Based Access" icon="shield">
+    Granular permissions for program admins, users, promoters, and members.
+  </Card>
+  <Card title="Referral Tracking" icon="link">
+    Track signups and purchases attributed to individual referral links.
+  </Card>
+  <Card title="Analytics & Reports" icon="chart-bar">
+    Program and promoter analytics with CSV export for commissions.
+  </Card>
+</CardGroup>
+
+## Get Up and Running
+
+<Steps>
+  <Step title="Deploy with Docker Compose">
+    Pull the compose file, configure your `.env`, and run `docker compose up -d`. Cliq needs PostgreSQL and Redis.
+  </Step>
+  <Step title="Create your first program">
+    Sign up as a user, then call `POST /programs` to create an affiliate program with a name, slug, and visibility.
+  </Step>
+  <Step title="Add promoters">
+    Invite promoters to your program. Each promoter gets a unique referral link to share with their audience.
+  </Step>
+  <Step title="Track conversions">
+    Send `POST /signups` and `POST /purchases` from your product whenever a referred user takes an action. Cliq calculates commissions automatically.
+  </Step>
+</Steps>

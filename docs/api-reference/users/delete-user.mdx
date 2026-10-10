@@ -1,0 +1,59 @@
+---
+title: "Delete User — Remove a Cliq Admin User Account"
+sidebarTitle: "Delete User"
+description: "Permanently delete a Cliq admin user account by user ID. This action is irreversible. Requires a valid Bearer token with delete permissions."
+---
+
+The Delete User endpoint permanently removes an admin user account from Cliq. Once deleted, the user loses access to all programs and the account cannot be recovered. This action should be used with caution and is typically reserved for off-boarding team members or removing test accounts. A valid Bearer token with delete permissions is required.
+
+## Endpoint
+
+```bash
+DELETE /api/users/:user_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="user_id" type="string (UUID)" required>
+  The unique identifier of the user to delete.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully deleted user."`
+</ResponseField>
+
+<Note>
+  This endpoint returns HTTP `204 No Content` on success. The response body contains a confirmation message but no `result` object.
+</Note>
+
+## Example Request
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/users/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully deleted user."
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                        |
+|-------------|---------------------------------------------------------------------|
+| `204`       | No Content — user deleted successfully.                            |
+| `401`       | Unauthorized — missing or invalid Bearer token.                    |
+| `403`       | Forbidden — caller does not have permission to delete this user.   |
+| `404`       | Not Found — no user exists with the given `user_id`.               |

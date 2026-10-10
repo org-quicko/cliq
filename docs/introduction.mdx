@@ -1,0 +1,59 @@
+---
+title: "Cliq: Self-Hosted Affiliate Management for Startups"
+sidebarTitle: "Introduction"
+description: "Cliq is a self-hosted affiliate platform for startups. Own your data, run it with Docker, and manage referrals via a full REST API with real-time events."
+---
+
+Cliq is a self-hosted affiliate and referral management platform designed for startups that want full control over their data and infrastructure. Built on NestJS and PostgreSQL, it gives your team a complete REST API to create programs, onboard promoters, issue referral links, track conversions, and automatically calculate commissions — all without sending your data to a third-party SaaS vendor.
+
+## Why Cliq?
+
+Most affiliate platforms are closed SaaS products: you hand over your conversion data, pay per event, and accept whatever features the vendor ships. Cliq is different. You deploy it to your own servers with Docker Compose in minutes, own the database, and extend it however you need. It ships with a promoter-facing portal (Angular) and a fully documented REST API, so you can integrate it with your product's existing auth flows or build custom dashboards on top of it.
+
+## Key Features
+
+<CardGroup cols={3}>
+  <Card title="Self-Hosted" icon="server" href="/quickstart">
+    Deploy on your own infrastructure using Docker Compose. Your data never leaves your servers. PostgreSQL and Redis are the only runtime dependencies.
+  </Card>
+  <Card title="REST API" icon="code" href="/api-reference/introduction">
+    Every action — creating programs, enrolling promoters, recording conversions — is available over a documented REST API with JSON responses and standard HTTP status codes.
+  </Card>
+  <Card title="Multi-Tenant Programs" icon="building" href="/concepts">
+    Run multiple independent affiliate programs from a single Cliq instance. Each program has its own promoters, links, commissions, and conversion history.
+  </Card>
+  <Card title="Role-Based Access Control" icon="shield-check" href="/configuration/authentication">
+    Team members on a program can be admins or managers. Promoters have their own member hierarchy. Every API route is protected by granular permission checks.
+  </Card>
+  <Card title="Referral Tracking" icon="chart-line" href="/concepts">
+    Track signup and purchase conversions attributed to a referral link. Each contact is associated with the promoter whose link they used, with full history preserved.
+  </Card>
+  <Card title="Real-Time Events" icon="bolt" href="/events/overview">
+    Webhook endpoints receive CloudEvents payloads the moment a conversion is recorded, so your downstream systems — CRMs, payment processors, email tools — stay in sync automatically.
+  </Card>
+</CardGroup>
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Deploy Cliq with Docker Compose, create a program, and record your first referral conversion in under 10 minutes.
+  </Card>
+  <Card title="Core Concepts" icon="book-open" href="/concepts">
+    Understand the entity model: programs, promoters, circles, links, functions, contacts, and commissions.
+  </Card>
+  <Card title="API Reference" icon="square-terminal" href="/api-reference/introduction">
+    Full reference for every endpoint, with request/response schemas and authentication details.
+  </Card>
+  <Card title="Events Overview" icon="satellite-dish" href="/events/overview">
+    Learn how Cliq emits CloudEvents on conversions and how to register webhook listeners.
+  </Card>
+</CardGroup>
+
+## Tech Stack
+
+Cliq is built entirely in TypeScript. The API layer is a **NestJS** application backed by **PostgreSQL** (via TypeORM) and **Redis** (for caching and background job queues). The promoter-facing portal is an **Angular** single-page app styled with Angular Material and Tailwind CSS. The entire stack ships as Docker images, so there is nothing to compile or install beyond Docker itself.
+
+<Tip>
+  Cliq exposes its API under the `/api` global prefix. All endpoints documented in this site are relative to that prefix, for example `POST /api/users/signup`.
+</Tip>

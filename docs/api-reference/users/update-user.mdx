@@ -1,0 +1,100 @@
+---
+title: "Update User — Modify a Cliq Admin User's Profile"
+sidebarTitle: "Update User"
+description: "Update a Cliq admin user's profile information including first name, last name, email, or password. All fields are optional. Requires Bearer token."
+---
+
+The Update User endpoint allows you to modify an existing admin user's profile. All fields in the request body are optional — only the fields you provide will be updated. To change a user's password, supply both `current_password` and `new_password`. A valid Bearer token with update permissions is required.
+
+## Endpoint
+
+```bash
+PATCH /api/users/:user_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="user_id" type="string (UUID)" required>
+  The unique identifier of the user to update.
+</ParamField>
+
+## Request Body
+
+All fields are optional. Include only the fields you wish to change.
+
+<ParamField body="email" type="string">
+  A new email address for the user. Must be a valid email format.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  A new first name for the user.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  A new last name for the user.
+</ParamField>
+
+<ParamField body="current_password" type="string">
+  The user's current password. Required when changing the password.
+</ParamField>
+
+<ParamField body="new_password" type="string">
+  The new password to set for the user. Requires `current_password` to also be provided.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully updated user information."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The updated user object reflecting the new values.
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/users/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Janet",
+    "last_name": "Doe",
+    "current_password": "SuperSecure@123",
+    "new_password": "EvenMoreSecure@456"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully updated user information.",
+  "result": {
+    "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "email": "jane.doe@example.com",
+    "first_name": "Janet",
+    "last_name": "Doe",
+    "role": "super_admin",
+    "status": "active",
+    "updated_at": "2024-01-16T09:00:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                        |
+|-------------|---------------------------------------------------------------------|
+| `204`       | No Content — user information updated successfully.                |
+| `400`       | Bad Request — invalid field values or mismatched password.         |
+| `401`       | Unauthorized — missing or invalid Bearer token.                    |
+| `403`       | Forbidden — caller does not have permission to update this user.   |
+| `404`       | Not Found — no user exists with the given `user_id`.               |

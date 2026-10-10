@@ -1,0 +1,67 @@
+---
+title: "Remove Member — Remove a Member from a Promoter Team"
+sidebarTitle: "Remove Member"
+description: "Remove a member from a specific promoter's team within a Cliq program without deleting their account. Requires Bearer token with remove_member permission."
+---
+
+The Remove Member endpoint removes a member from a specific promoter's team within a program. This action does not delete the member's account — it only disassociates them from the promoter team. The member's account continues to exist in Cliq. To permanently delete the account, use the [Delete Member](/api-reference/members/delete-member) endpoint. The caller must hold `remove_member` permission on the `PromoterMember` resource.
+
+## Endpoint
+
+```bash
+PATCH /api/programs/:program_id/promoters/:promoter_id/members/:member_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (UUID)" required>
+  The unique identifier of the promoter team from which the member will be removed.
+</ParamField>
+
+<ParamField path="member_id" type="string (UUID)" required>
+  The unique identifier of the member to remove from the promoter team.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully removed member from promoter."`
+</ResponseField>
+
+<Note>
+  This endpoint returns HTTP `204 No Content` on success. The member's Cliq account is not deleted.
+</Note>
+
+## Example Request
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/promoters/prom-aaaa-bbbb-cccc-dddd/members/mem-9abc-def0-1234-5678 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully removed member from promoter."
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `204`       | No Content — member removed from the promoter team successfully.       |
+| `401`       | Unauthorized — missing or invalid Bearer token.                        |
+| `403`       | Forbidden — caller does not have `remove_member` permission.           |
+| `404`       | Not Found — the specified `promoter_id` or `member_id` does not exist. |

@@ -1,0 +1,83 @@
+---
+title: "Get a Program API Key | Cliq API Reference"
+sidebarTitle: "Get Program Key"
+description: "Retrieve the existing API key for a program. Returns the api_key identifier only — the secret is never returned after initial generation."
+---
+
+Retrieve the API key currently associated with a program. This endpoint returns the public `api_key` identifier so you can verify a key exists and look up its ID for deletion. The `api_secret` is never returned by this or any other endpoint — if you need the secret, you must generate a new key.
+
+## Endpoint
+
+```bash
+GET /api/programs/:program_id/api-keys
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program whose API key you want to retrieve.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully fetched API key of Program {program_id}."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The API key record.
+
+  <Expandable title="result fields">
+    <ResponseField name="api_key_id" type="string">
+      UUID identifier of the API key record. Use this when calling the delete endpoint.
+    </ResponseField>
+    <ResponseField name="api_key" type="string">
+      The public API key identifier used in the `x-api-key` request header.
+    </ResponseField>
+    <ResponseField name="program_id" type="string">
+      UUID of the program this key belongs to.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 timestamp of when the key was generated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X GET https://your-cliq-instance.com/api/programs/prog_abc123/api-keys \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully fetched API key of Program prog_abc123.",
+  "result": {
+    "api_key_id": "key_record_uuid",
+    "api_key": "cliq_key_a1b2c3d4e5f6...",
+    "program_id": "prog_abc123",
+    "created_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | API key returned successfully. |
+| `400 Bad Request` | Invalid program ID. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to view API keys for this program. |
+| `404 Not Found` | No API key found for this program. |

@@ -1,0 +1,149 @@
+---
+title: "Get Referrals for a Promoter — Cliq API Reference"
+sidebarTitle: "Promoter Referrals"
+description: "GET /api/programs/:program_id/promoters/:promoter_id/referrals — List all contacts referred by a promoter, or fetch a single referral by contact ID."
+---
+
+These endpoints let you retrieve referral data for a specific promoter within a program. Use the list endpoint to page through all contacts referred by the promoter, or use the single-referral endpoint to look up the referral status of one particular contact. Both endpoints share the same base path and differ only by whether a `contact_id` is appended.
+
+## Endpoints
+
+### List All Referrals
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/referrals
+```
+
+### Get a Single Referral
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/referrals/:contact_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required for both endpoints. Include it as `Authorization: Bearer <token>`. A `member_id` header identifying the acting member is also required.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter whose referrals are being listed.
+</ParamField>
+
+<ParamField path="contact_id" type="string (uuid)">
+  *(Single-referral endpoint only)* Unique identifier of the referred contact to look up.
+</ParamField>
+
+### Headers
+
+<ParamField header="member_id" type="string (uuid)" required>
+  UUID of the member performing this request.
+</ParamField>
+
+### Query Parameters (List Endpoint Only)
+
+<ParamField query="sort_by" type="string">
+  Field to sort referrals by. Accepted values:
+
+  - `updatedAt` — Sort by the time the referral was last updated. *(default)*
+  - `createdAt` — Sort by the time the referral was created.
+</ParamField>
+
+<ParamField query="sort_order" type="string">
+  Sort direction. Accepted values: `ASC` | `DESC`. Defaults to `DESC` (newest first).
+</ParamField>
+
+<ParamField query="skip" type="number">
+  Number of records to skip for pagination. Defaults to `0`.
+</ParamField>
+
+<ParamField query="take" type="number">
+  Maximum number of records to return per page. Defaults to `10`.
+</ParamField>
+
+## Response
+
+Both endpoints return HTTP `200 OK` on success.
+
+### List Response
+
+<ResponseField name="message" type="string">
+  `"Successfully got promoter referrals."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="data" type="array">
+      Array of referral view records.
+      <Expandable title="referral">
+        <ResponseField name="contact_id" type="string (uuid)">
+          Unique identifier of the referred contact.
+        </ResponseField>
+        <ResponseField name="promoter_id" type="string (uuid)">
+          Promoter who referred this contact.
+        </ResponseField>
+        <ResponseField name="program_id" type="string (uuid)">
+          Program the referral belongs to.
+        </ResponseField>
+        <ResponseField name="status" type="string">
+          Current status of the referral contact.
+        </ResponseField>
+        <ResponseField name="created_at" type="string (ISO 8601)">
+          Timestamp when the referral was created.
+        </ResponseField>
+        <ResponseField name="updated_at" type="string (ISO 8601)">
+          Timestamp when the referral was last updated.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      Total number of referrals for this promoter in the program.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Single Referral Response
+
+<ResponseField name="message" type="string">
+  `"Successfully got promoter referral {contact_id}."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  A single referral view object with the same fields as the list items above.
+</ResponseField>
+
+## Examples
+
+### List All Referrals
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/referrals?sort_by=updatedAt&sort_order=DESC&skip=0&take=10" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001"
+```
+
+### Get a Single Referral
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/referrals/c1d2e3f4-0000-0000-0000-000000000003" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Referrals retrieved successfully. |
+| `400 Bad Request` | Invalid path or query parameters. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated member lacks access to this promoter's referrals. |
+| `404 Not Found` | Promoter, program, or contact not found. |

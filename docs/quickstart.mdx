@@ -1,0 +1,249 @@
+---
+title: "Get Started with Cliq: Deploy and Track Referrals Fast"
+sidebarTitle: "Quickstart"
+description: "Deploy Cliq with Docker Compose, create a program, add a promoter, and record your first referral signup conversion — all in under 10 minutes."
+---
+
+This guide walks you through deploying a fully functional Cliq instance, creating your first affiliate program, enrolling a promoter, and recording a referral conversion via the REST API. You will need Docker and Docker Compose installed on your machine. No other dependencies are required.
+
+<Steps>
+
+  <Step title="Deploy with Docker Compose">
+    Cliq ships as a pre-built Docker image. The compose file starts three services: the Cliq API (`labsatquicko/cliq:latest`), a PostgreSQL 17 database, and a Redis instance. Download the compose file and a template `.env` file, fill in your secrets, and start the stack.
+
+    ```bash
+    # Download the compose file
+    curl -LO https://github.com/org-quicko/cliq/raw/main/docker-compose.yml
+
+    # Download the environment variable template
+    curl -LO https://github.com/org-quicko/cliq/raw/main/.env.example
+
+    # Copy the template and set your secrets
+    cp .env.example .env
+    ```
+
+    Open `.env` in your editor and set at minimum `JWT_SECRET` and `JWT_EXPIRES_IN`. The database and Redis credentials in the compose file default to `root` / `admin` — change them for any environment exposed to the internet.
+
+    ```bash
+    # Start all services in the background
+    docker compose up -d
+    ```
+
+    The API will be available at `http://localhost:3001/api` once the database health check passes (usually within 30 seconds). Visit `http://localhost:3001` to be redirected to the admin panel.
+
+    <Tip>
+      Run `docker compose logs -f cliq-app` to tail the API logs and confirm the service started successfully.
+    </Tip>
+  </Step>
+
+  <Step title="Sign Up as a User">
+    Users are the team members who manage programs through the API or admin panel. Create your first user account with `POST /api/users/signup`. This endpoint is public and does not require authentication.
+
+    ```bash
+    curl -s -X POST http://localhost:3001/api/users/signup \
+      -H "Content-Type: application/json" \
+      -d '{
+        "email": "admin@example.com",
+        "password": "your-secure-password",
+        "first_name": "Ada",
+        "last_name": "Lovelace"
+      }'
+    ```
+
+    A successful response returns HTTP `201 Created`:
+
+    ```json
+    {
+      "message": "Successfully signed up user.",
+      "result": {
+        "user_id": "a1b2c3d4-...",
+        "email": "admin@example.com",
+        "first_name": "Ada",
+        "last_name": "Lovelace"
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Log In and Get a JWT Token">
+    Log in with the credentials you just created. Cliq returns a short-lived JWT `access_token` that you include in the `Authorization` header for all subsequent authenticated requests.
+
+    ```bash
+    curl -s -X POST http://localhost:3001/api/users/login \
+      -H "Content-Type: application/json" \
+      -d '{
+        "email": "admin@example.com",
+        "password": "your-secure-password"
+      }'
+    ```
+
+    Response:
+
+    ```json
+    {
+      "message": "Successfully logged in user.",
+      "result": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      }
+    }
+    ```
+
+    Export the token to a shell variable so you can reuse it in the steps below:
+
+    ```bash
+    export TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    ```
+  </Step>
+
+  <Step title="Create Your First Program">
+    A program is the top-level container for an affiliate campaign. Set `visibility` to `public` so promoters can discover and self-register, or `private` to invite them manually. The `referral_key_type` controls whether referral links are tied to an email address or a phone number.
+
+    ```bash
+    curl -s -X POST http://localhost:3001/api/programs \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $TOKEN" \
+      -d '{
+        "name": "Launch Referral Program",
+        "website": "https://example.com",
+        "currency": "USD",
+        "visibility": "public",
+        "referral_key_type": "email",
+        "theme_color": "#6366f1",
+        "time_zone": "America/New_York"
+      }'
+    ```
+
+    Response:
+
+    ```json
+    {
+      "message": "Successfully created program.",
+      "result": {
+        "program_id": "PROGRAM_ID",
+        "name": "Launch Referral Program",
+        "website": "https://example.com",
+        "currency": "USD",
+        "visibility": "public"
+      }
+    }
+    ```
+
+    Save the `program_id` — you will need it throughout the rest of this guide:
+
+    ```bash
+    export PROGRAM_ID="PROGRAM_ID"
+    ```
+  </Step>
+
+  <Step title="Add a Promoter to the Program">
+    Promoters are the affiliates who will share referral links and earn commissions. Create a promoter within your program by posting to `POST /api/programs/:program_id/promoters`.
+
+    ```bash
+    curl -s -X POST http://localhost:3001/api/programs/$PROGRAM_ID/promoters \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $TOKEN" \
+      -d '{
+        "name": "Jane Smith"
+      }'
+    ```
+
+    Response:
+
+    ```json
+    {
+      "message": "Successfully created promoter.",
+      "result": {
+        "promoter_id": "PROMOTER_ID",
+        "name": "Jane Smith",
+        "status": "active"
+      }
+    }
+    ```
+
+    Once the promoter is created, Cliq automatically generates a default referral link for them. The `ref_val` on that link is the unique code that contacts will use when signing up or purchasing.
+
+    <Note>
+      To retrieve the promoter's referral links and their `ref_val` codes, call `GET /api/programs/{program_id}/promoters/{promoter_id}/links`.
+    </Note>
+  </Step>
+
+  <Step title="Track a Signup Conversion">
+    When a contact signs up via a referral link, your application calls `POST /api/signups` using API key authentication (not a JWT). Generate an API key for the program first, then use `x-api-key` and `x-api-secret` headers on conversion requests.
+
+    **Generate an API key:**
+
+    ```bash
+    curl -s -X POST http://localhost:3001/api/programs/$PROGRAM_ID/api-keys \
+      -H "Authorization: Bearer $TOKEN"
+    ```
+
+    ```json
+    {
+      "result": {
+        "api_key": "YOUR_API_KEY",
+        "api_secret": "YOUR_API_SECRET"
+      }
+    }
+    ```
+
+    <Warning>
+      The `api_secret` is only returned once at generation time. Store it securely — it cannot be retrieved again.
+    </Warning>
+
+    **Record a signup conversion:**
+
+    ```bash
+    curl -s -X POST http://localhost:3001/api/signups \
+      -H "Content-Type: application/json" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "x-api-secret: YOUR_API_SECRET" \
+      -d '{
+        "ref_val": "PROMOTER_REF_VAL",
+        "email": "contact@example.com",
+        "first_name": "Bob",
+        "last_name": "Jones",
+        "external_id": "user_123"
+      }'
+    ```
+
+    Response:
+
+    ```json
+    {
+      "message": "Successfully created signup.",
+      "result": {
+        "contact_id": "...",
+        "link_id": "...",
+        "email": "contact@example.com"
+      }
+    }
+    ```
+
+    If a commission function is configured on the program for signup events, Cliq will automatically calculate and record a commission for the promoter.
+
+    **Record a purchase conversion:**
+
+    ```bash
+    curl -s -X POST http://localhost:3001/api/purchases \
+      -H "Content-Type: application/json" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -H "x-api-secret: YOUR_API_SECRET" \
+      -d '{
+        "ref_val": "PROMOTER_REF_VAL",
+        "amount": 99.00,
+        "item_id": "plan_pro",
+        "email": "contact@example.com"
+      }'
+    ```
+  </Step>
+
+</Steps>
+
+## What's Next?
+
+You now have a running Cliq instance with a program, a promoter, and your first recorded conversion. From here you can:
+
+- **Configure commission functions** — define rules that generate commissions when signups or purchases occur.
+- **Set up webhooks** — register URLs to receive CloudEvents in real time when conversions are recorded.
+- **Explore the API reference** — every endpoint is documented with full request/response schemas.
+- **Add team members** — invite other users to your program with admin or manager roles.

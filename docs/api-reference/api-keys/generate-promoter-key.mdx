@@ -1,0 +1,86 @@
+---
+title: "Generate a Promoter API Key | Cliq API Reference"
+sidebarTitle: "Generate Promoter Key"
+description: "Generate an API key and secret scoped to a specific promoter. Lets the promoter's own application submit conversions directly to Cliq."
+---
+
+Promoter API keys work the same way as program API keys but are scoped to a specific promoter within a program. They are useful when you want to give a promoter direct access to report conversions (for example, in a white-label or partner integration scenario). The resulting `api_key` and `api_secret` are used as the `x-api-key` and `x-api-secret` headers on conversion requests, just like program-level keys.
+
+<Warning>
+  The `api_secret` is shown **only once** at the time of generation. It is never returned again by any API endpoint. Store it securely immediately. If you lose the secret, you must delete the key and generate a new one.
+</Warning>
+
+## Endpoint
+
+```bash
+POST /api/programs/:program_id/promoters/:promoter_id/api-keys
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the promoter belongs to.
+</ParamField>
+
+<ParamField path="promoter_id" type="string" required>
+  The UUID of the promoter to generate an API key for.
+</ParamField>
+
+## Request Body
+
+No request body is required.
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully generated API key for Promoter {promoter_id} in Program {program_id}"`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The generated key pair. **Save the `api_secret` immediately — it will not be shown again.**
+
+  <Expandable title="result fields">
+    <ResponseField name="api_key" type="string">
+      The public API key identifier. Use as the `x-api-key` header value.
+    </ResponseField>
+    <ResponseField name="api_secret" type="string">
+      The secret credential for this key pair. Use as the `x-api-secret` header value. **Shown only once.**
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog_abc123/promoters/promo_xyz789/api-keys \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully generated API key for Promoter promo_xyz789 in Program prog_abc123",
+  "result": {
+    "api_key": "cliq_key_p1r2o3m4o5...",
+    "api_secret": "cliq_secret_q9w8e7r6t5..."
+  }
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `201 Created` | API key generated successfully. |
+| `400 Bad Request` | Invalid program or promoter ID. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to generate API keys for this promoter. |

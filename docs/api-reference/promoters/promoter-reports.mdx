@@ -1,0 +1,260 @@
+---
+title: "Download Promoter CSV Reports — Cliq API Reference"
+sidebarTitle: "Promoter Reports"
+description: "Download CSV reports for a promoter's signups, purchases, commissions, links, and referrals. Requires the x-accept-type sheet-json header on every request."
+---
+
+Cliq provides five CSV report endpoints for promoters — one each for signups, purchases, commissions, links, and referrals. Each endpoint streams a `.csv` file directly to the response and requires a specific `x-accept-type` header. Use these endpoints to power data exports, external spreadsheet imports, or automated reporting pipelines.
+
+<Warning>
+  All report endpoints require the header `x-accept-type: application/json;format=sheet-json`. Requests that omit this header or supply an incorrect value will receive a `400 Bad Request` error.
+</Warning>
+
+## Endpoints at a Glance
+
+| Report | Method | Path |
+|---|---|---|
+| Signups | `GET` | `/api/programs/:program_id/promoters/:promoter_id/reports/signups` |
+| Purchases | `GET` | `/api/programs/:program_id/promoters/:promoter_id/reports/purchases` |
+| Commissions | `GET` | `/api/programs/:program_id/promoters/:promoter_id/reports/commissions` |
+| Links | `GET` | `/api/programs/:program_id/promoters/:promoter_id/reports/links` |
+| Referrals | `GET` | `/api/programs/:program_id/promoters/:promoter_id/reports/referrals` |
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required for all report endpoints. Include it as `Authorization: Bearer <token>`. The `member_id` header identifying the requesting member is also required.
+</Note>
+
+---
+
+## Signups Report
+
+Downloads a CSV file of all signups attributed to the promoter, optionally filtered by date range.
+
+### Method and Path
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/reports/signups
+```
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="start_date" type="string (ISO 8601)">
+  Start of the date range for filtering signup records. Optional.
+</ParamField>
+
+<ParamField query="end_date" type="string (ISO 8601)">
+  End of the date range for filtering signup records. Optional.
+</ParamField>
+
+### Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/reports/signups?start_date=2024-01-01&end_date=2024-03-31" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001" \
+  -H "x-accept-type: application/json;format=sheet-json" \
+  --output signups-report.csv
+```
+
+---
+
+## Purchases Report
+
+Downloads a CSV file of all purchases attributed to the promoter, optionally filtered by date range.
+
+### Method and Path
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/reports/purchases
+```
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="start_date" type="string (ISO 8601)">
+  Start of the date range for filtering purchase records. Optional.
+</ParamField>
+
+<ParamField query="end_date" type="string (ISO 8601)">
+  End of the date range for filtering purchase records. Optional.
+</ParamField>
+
+### Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/reports/purchases?start_date=2024-01-01&end_date=2024-03-31" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001" \
+  -H "x-accept-type: application/json;format=sheet-json" \
+  --output purchases-report.csv
+```
+
+---
+
+## Commissions Report
+
+Downloads a CSV file of all commission records for the promoter, optionally filtered by date range.
+
+### Method and Path
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/reports/commissions
+```
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="start_date" type="string (ISO 8601)">
+  Start of the date range for filtering commission records. Optional.
+</ParamField>
+
+<ParamField query="end_date" type="string (ISO 8601)">
+  End of the date range for filtering commission records. Optional.
+</ParamField>
+
+### Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/reports/commissions?start_date=2024-01-01&end_date=2024-03-31" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001" \
+  -H "x-accept-type: application/json;format=sheet-json" \
+  --output commissions-report.csv
+```
+
+---
+
+## Links Report
+
+Downloads a CSV file of link analytics for the promoter's referral links, optionally filtered by date range.
+
+### Method and Path
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/reports/links
+```
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="start_date" type="string (ISO 8601)">
+  Start of the date range for filtering link analytics records. Optional.
+</ParamField>
+
+<ParamField query="end_date" type="string (ISO 8601)">
+  End of the date range for filtering link analytics records. Optional.
+</ParamField>
+
+### Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/reports/links?start_date=2024-01-01&end_date=2024-03-31" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001" \
+  -H "x-accept-type: application/json;format=sheet-json" \
+  --output links-report.csv
+```
+
+---
+
+## Referrals Report
+
+Downloads a CSV file of all referral records for the promoter, optionally filtered by date range.
+
+### Method and Path
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/reports/referrals
+```
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="start_date" type="string (ISO 8601)">
+  Start of the date range for filtering referral records. Optional.
+</ParamField>
+
+<ParamField query="end_date" type="string (ISO 8601)">
+  End of the date range for filtering referral records. Optional.
+</ParamField>
+
+### Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/reports/referrals?start_date=2024-01-01&end_date=2024-03-31" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001" \
+  -H "x-accept-type: application/json;format=sheet-json" \
+  --output referrals-report.csv
+```
+
+---
+
+## Response
+
+All report endpoints stream a CSV file when the request is valid. Response headers will include:
+
+| Header | Value |
+|---|---|
+| `Content-Type` | `text/csv; charset=utf-8` |
+| `Content-Disposition` | `attachment; filename="<ReportType>_<timestamp>.csv"` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Cache-Control` | `no-store` |
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | CSV report streamed successfully. |
+| `400 Bad Request` | Missing or invalid `x-accept-type` header, or invalid date format. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated member lacks permission to download reports for this promoter. |
+| `500 Internal Server Error` | Report generation failed server-side. |

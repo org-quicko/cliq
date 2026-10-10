@@ -1,0 +1,78 @@
+---
+title: "Cliq Environment Variables: Complete Configuration Reference"
+sidebarTitle: "Environment Variables"
+description: "A complete reference for every environment variable Cliq reads at startup, with type, default value, and security guidance for production deployments."
+---
+
+Cliq reads its configuration exclusively from environment variables at startup. There are no config files to edit — set the variables in a `.env` file, in your shell, or directly in `docker-compose.yml`. This page documents every variable, its purpose, and whether it is required.
+
+## Variable Reference
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `PORT` | No | `3000` | The port the NestJS API process listens on. The Docker Compose file overrides this to `3001`. |
+| `DB_HOST` | **Yes** | — | Hostname or IP of the PostgreSQL server. Use `cliq-db` when running with the provided Docker Compose file. |
+| `DB_PORT` | No | `5432` | TCP port of the PostgreSQL server. |
+| `DB_USERNAME` | **Yes** | — | Username Cliq uses to connect to PostgreSQL. |
+| `DB_PASSWORD` | **Yes** | — | Password for the PostgreSQL user. |
+| `DB_NAME` | **Yes** | — | Name of the PostgreSQL database Cliq will read and write. |
+| `REDIS_HOST` | **Yes** | — | Hostname or IP of the Redis server. Use `cliq-redis` when running with the provided Docker Compose file. |
+| `REDIS_PORT` | No | `6379` | TCP port of the Redis server. |
+| `JWT_SECRET` | **Yes** | — | Secret key used to sign and verify JWT tokens. Must be a long, random string. See the security note below. |
+| `JWT_EXPIRES_IN` | **Yes** | — | Duration string for JWT expiry (e.g. `30d`, `12h`, `60m`). Controls how long a user or member session token remains valid. |
+| `SALT_ROUNDS` | No | `10` | Number of bcrypt salt rounds used when hashing passwords. Higher values are more secure but slower. The default in the compose file is `10`; the `.env.example` shows `2` for development speed only. |
+
+## Example `.env` File
+
+Copy this template and fill in your values before running `docker compose up -d`.
+
+```bash
+# .env — do NOT commit this file to version control
+
+# API server
+PORT=3001
+
+# PostgreSQL
+DB_HOST=cliq-db
+DB_PORT=5432
+DB_USERNAME=root
+DB_PASSWORD=change-me-in-production
+DB_NAME=cliq
+
+# Redis
+REDIS_HOST=cliq-redis
+REDIS_PORT=6379
+
+# Auth
+JWT_SECRET=replace-with-a-long-random-secret-at-least-32-chars
+JWT_EXPIRES_IN=30d
+SALT_ROUNDS=10
+```
+
+<Note>
+  **JWT_SECRET security:** This value is the single most sensitive secret in your Cliq deployment. Anyone who obtains it can forge valid session tokens for any user or member. Use a cryptographically random string of at least 32 characters. You can generate one with `openssl rand -hex 32` on any Unix system. Rotate it if you suspect it has been compromised — existing tokens will be immediately invalidated.
+</Note>
+
+## Applying Variables
+
+**Docker Compose (recommended):** The `docker-compose.yml` file reads `JWT_SECRET` and `JWT_EXPIRES_IN` from the host environment (or a `.env` file in the same directory). All other values are hard-coded in the compose file for convenience. Override any of them by editing the `environment:` block for the `cliq-app` service.
+
+```yaml
+# docker-compose.yml (excerpt)
+services:
+  cliq-app:
+    environment:
+      - PORT=3001
+      - DB_HOST=cliq-db
+      - DB_USERNAME=root
+      - DB_PASSWORD=admin          # change for production
+      - JWT_SECRET                 # read from host environment or .env
+      - JWT_EXPIRES_IN             # read from host environment or .env
+      - SALT_ROUNDS=10
+```
+
+**Direct process (development):** Set variables in your shell before running `npm run start:dev` inside the `api/` directory, or create a `.env` file in `api/` alongside the `.env.example` template.
+
+<Warning>
+  Never commit your `.env` file to version control. Add it to `.gitignore` before your first commit. The repository includes `.env.example` as a safe template — it contains no real secrets.
+</Warning>

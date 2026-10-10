@@ -1,0 +1,98 @@
+---
+title: "Cliq Webhooks: Real-Time Event Delivery via CloudEvents"
+sidebarTitle: "Overview"
+description: "Cliq emits CloudEvents webhook payloads when key referral actions occur. Receive real-time signup, purchase, commission, and contact events in your system."
+---
+
+Cliq publishes real-time events whenever a key action occurs within a referral program — a contact signs up, completes a purchase, earns a promoter a commission, or is created for the first time. Each event is delivered as a CloudEvents-compliant JSON payload POSTed to every webhook URL you have registered for that event type.
+
+## What Is a Cliq Event?
+
+An event is a structured message emitted by Cliq after a state change. Every event payload follows the [CloudEvents 1.0 specification](https://cloudevents.io/) and includes:
+
+- A unique `id` and `time` for traceability and deduplication
+- A `type` string that identifies what happened (e.g. `in.org.quicko.cliq.signup.created`)
+- A `program_id` that scopes the event to a specific referral program
+- A `promoter_id` that identifies the promoter whose referral link triggered the event
+- A `data` object containing the full details of the action
+- A `subject` field containing the primary entity ID (e.g. the `signup_id` or `purchase_id`)
+
+## Event Types
+
+Cliq emits the following event types:
+
+| Event type | Description |
+|---|---|
+| `in.org.quicko.cliq.signup.created` | A contact signed up via a referral link |
+| `in.org.quicko.cliq.purchase.created` | A contact completed a purchase via a referral link |
+| `in.org.quicko.cliq.commission.created` | A commission was generated for a promoter |
+| `in.org.quicko.cliq.contact.created` | A new contact was created (program webhooks only) |
+
+## Delivery
+
+When an event occurs, Cliq POSTs the JSON payload to every webhook URL registered for the matching event type. If your endpoint does not return a `2xx` HTTP status, Cliq retries the delivery up to **3 times** using exponential backoff.
+
+## Webhook Registration
+
+Webhooks are registered at two scopes:
+
+- **Program webhooks** — receive events across the entire program, for all promoters. Register via `POST /api/programs/:program_id/webhooks`. Program webhooks support all four event types, including `contact.created`.
+- **Promoter webhooks** — receive events scoped to a single promoter. Register via `POST /api/programs/:program_id/promoters/:promoter_id/webhooks`. Promoter webhooks support `signup.created`, `purchase.created`, and `commission.created`.
+
+Each webhook registration accepts a `url`, a `secret`, and an `events` array listing the event type strings you want to receive.
+
+## Security
+
+<Note>
+Always validate the `x-webhook-signature` header on every incoming request. Skipping this check allows anyone who knows your endpoint URL to send forged events to your system.
+</Note>
+
+Every event delivery includes an `x-webhook-signature` header. This value is an HMAC-SHA256 signature computed over the raw `data` payload, signed with the **webhook secret** you provided when registering the webhook.
+
+To validate a delivery on your server:
+
+1. Extract the raw request body (before any JSON parsing).
+2. Compute `HMAC-SHA256(secret, rawBody)`.
+3. Compare the result (hex-encoded) to the value in `x-webhook-signature`.
+4. Reject the request if they do not match.
+
+```text
+// Example — conceptual validation in pseudocode
+expectedSignature = HMAC_SHA256(webhookSecret, rawRequestBody)
+if (request.headers["x-webhook-signature"] !== expectedSignature) {
+  return 401 Unauthorized
+}
+```
+
+## Event Pages
+
+<CardGroup cols={2}>
+  <Card
+    title="signup.created"
+    icon="user-plus"
+    href="/events/signup-created"
+  >
+    Fired when a contact signs up via a referral link.
+  </Card>
+  <Card
+    title="purchase.created"
+    icon="cart-shopping"
+    href="/events/purchase-created"
+  >
+    Fired when a contact completes a purchase via a referral link.
+  </Card>
+  <Card
+    title="commission.created"
+    icon="circle-dollar-to-slot"
+    href="/events/commission-created"
+  >
+    Fired when a commission is generated for a promoter.
+  </Card>
+  <Card
+    title="contact.created"
+    icon="address-card"
+    href="/events/contact-created"
+  >
+    Fired when a new contact is created. Program webhooks only.
+  </Card>
+</CardGroup>

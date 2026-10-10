@@ -1,0 +1,105 @@
+---
+title: "Update a Program Webhook | Cliq API Reference"
+sidebarTitle: "Update Webhook"
+description: "Update the URL, secret, or subscribed events for an existing program webhook. All fields are optional — only supplied fields are changed."
+---
+
+Partially update an existing program webhook. All request body fields are optional — only the fields you include will be modified. Use this endpoint to rotate the webhook secret, change the delivery URL, or adjust which events the webhook subscribes to.
+
+## Endpoint
+
+```bash
+PATCH /api/programs/:program_id/webhooks/:webhook_id
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the webhook belongs to.
+</ParamField>
+
+<ParamField path="webhook_id" type="string" required>
+  The UUID of the webhook to update.
+</ParamField>
+
+## Request Body
+
+All fields are optional. At least one field should be provided.
+
+<ParamField body="url" type="string">
+  New endpoint URL for webhook delivery. Must be a non-empty string.
+</ParamField>
+
+<ParamField body="secret" type="string">
+  New signing secret. Use this to rotate credentials. Must be a non-empty string.
+</ParamField>
+
+<ParamField body="events" type="array">
+  Replacement list of event type strings to subscribe to. This replaces the existing events list entirely. Must be a non-empty array. Available events:
+
+  | Event | Description |
+  |-------|-------------|
+  | `in.org.quicko.cliq.signup.created` | A new signup conversion was recorded. |
+  | `in.org.quicko.cliq.purchase.created` | A new purchase conversion was recorded. |
+  | `in.org.quicko.cliq.commission.created` | A commission was generated. |
+  | `in.org.quicko.cliq.contact.created` | A new contact was created in the program. |
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully updated webhook {webhook_id} for Program {program_id}"`
+</ResponseField>
+
+## Examples
+
+### Rotate the webhook secret
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog_abc123/webhooks/wh_uuid_here \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "secret": "whsec_new_high_entropy_value..."
+  }'
+```
+
+### Update subscribed events
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog_abc123/webhooks/wh_uuid_here \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "events": [
+      "in.org.quicko.cliq.commission.created",
+      "in.org.quicko.cliq.contact.created"
+    ]
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully updated webhook wh_uuid_here for Program prog_abc123"
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | Webhook updated successfully. |
+| `400 Bad Request` | Validation error in the request body. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to update this webhook. |
+| `404 Not Found` | No webhook found with the given ID in this program. |

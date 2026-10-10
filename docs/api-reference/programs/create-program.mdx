@@ -1,0 +1,148 @@
+---
+title: "Create an Affiliate Program — Cliq API Reference"
+sidebarTitle: "Create Program"
+description: "POST /api/programs — Create a new affiliate or referral program. Requires Bearer Token. Supply name, currency, website, visibility, and referral key type."
+---
+
+Use this endpoint to create a new affiliate or referral program under the authenticated user's account. The user who creates the program is automatically assigned the `admin` role for that program.
+
+## Method and Path
+
+```http
+POST /api/programs
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Obtain one from `POST /api/users/login` and include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Body Parameters
+
+<ParamField body="name" type="string" required>
+  Display name for the program (e.g. `"Acme Referral Program"`).
+</ParamField>
+
+<ParamField body="currency" type="string" required>
+  ISO 4217 currency code used for commissions (e.g. `"USD"`, `"EUR"`).
+</ParamField>
+
+<ParamField body="website" type="string" required>
+  The canonical URL of the program's product or landing page. Must be a valid URL.
+</ParamField>
+
+<ParamField body="visibility" type="string" required>
+  Controls public discoverability of the program.
+
+  Accepted values: `public` | `private`
+</ParamField>
+
+<ParamField body="referral_key_type" type="string" required>
+  The identifier used to track referrals for each promoter.
+
+  Accepted values: `email` | `phone`
+</ParamField>
+
+<ParamField body="time_zone" type="string" required>
+  IANA time zone string used for reporting and date calculations (e.g. `"America/New_York"`, `"UTC"`).
+</ParamField>
+
+<ParamField body="logo_url" type="string">
+  Publicly accessible URL for the program logo image. Must be a valid URL.
+</ParamField>
+
+<ParamField body="theme_color" type="string">
+  Hex or CSS color string for the program's branded theme (e.g. `"#6366f1"`).
+</ParamField>
+
+<ParamField body="terms_and_conditions" type="string">
+  Plain text or Markdown string containing the program's terms and conditions.
+</ParamField>
+
+<ParamField body="date_format" type="string">
+  Format used when displaying dates in program reports.
+
+  Accepted values: `DD/MM/YYYY` | `YYYY/MM/DD` | `MM/DD/YYYY`
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `201 Created`.
+
+<ResponseField name="message" type="string">
+  `"Successfully created program."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="program_id" type="string (uuid)">
+      Unique identifier for the newly created program.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Display name of the program.
+    </ResponseField>
+    <ResponseField name="website" type="string">
+      Program website URL.
+    </ResponseField>
+    <ResponseField name="currency" type="string">
+      Currency code for commissions.
+    </ResponseField>
+    <ResponseField name="visibility" type="string">
+      `public` or `private`.
+    </ResponseField>
+    <ResponseField name="referral_key_type" type="string">
+      `email` or `phone`.
+    </ResponseField>
+    <ResponseField name="logo_url" type="string">
+      Program logo URL, if provided.
+    </ResponseField>
+    <ResponseField name="theme_color" type="string">
+      Brand theme color, if provided.
+    </ResponseField>
+    <ResponseField name="terms_and_conditions" type="string">
+      Program terms, if provided.
+    </ResponseField>
+    <ResponseField name="date_format" type="string">
+      Date format string, if provided.
+    </ResponseField>
+    <ResponseField name="time_zone" type="string">
+      IANA time zone string.
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the program was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp when the program was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Referral Program",
+    "currency": "USD",
+    "website": "https://acme.example.com",
+    "visibility": "public",
+    "referral_key_type": "email",
+    "time_zone": "America/New_York",
+    "logo_url": "https://acme.example.com/logo.png",
+    "theme_color": "#6366f1"
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `201 Created` | Program was successfully created. |
+| `400 Bad Request` | Validation failed — check required fields and enum values. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks permission to create programs. |

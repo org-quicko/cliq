@@ -1,0 +1,125 @@
+---
+title: "All Members — List All Members of a Promoter Team"
+sidebarTitle: "All Members"
+description: "Retrieve a paginated, filterable list of all members belonging to a specific promoter in a Cliq program. Supports filtering by role, status, and email."
+---
+
+The All Members endpoint returns a paginated list of all members who belong to a specific promoter's team within a program. You can filter results by role, status, or email address, and control the sort order and pagination. This endpoint is used by promoter admins to manage their team. A valid Bearer token with `read_all` permission on the `PromoterMember` resource is required.
+
+## Endpoint
+
+```bash
+GET /api/programs/:program_id/promoters/:promoter_id/members
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (UUID)" required>
+  The unique identifier of the promoter whose member list should be retrieved.
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="role" type="string">
+  Filter members by their role. One of: `admin`, `editor`, `viewer`.
+</ParamField>
+
+<ParamField query="email" type="string">
+  Filter members by email address (partial match supported).
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter members by status. One of: `active`, `inactive`.
+</ParamField>
+
+<ParamField query="sort_by" type="string" default="name">
+  Field to sort results by. Defaults to `name`.
+</ParamField>
+
+<ParamField query="sort_order" type="string" default="desc">
+  Sort direction. One of: `asc`, `desc`. Defaults to `desc`.
+</ParamField>
+
+<ParamField query="skip" type="number" default="0">
+  Number of records to skip for pagination.
+</ParamField>
+
+<ParamField query="take" type="number" default="10">
+  Maximum number of records to return per page.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully fetched members of promoter."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  Paginated list of promoter members.
+
+  <Expandable title="result fields">
+    <ResponseField name="data" type="array">
+      Array of member objects. Each entry includes `member_id`, `email`, `first_name`, `last_name`, `role`, `status`, `created_at`, and `updated_at`.
+    </ResponseField>
+    <ResponseField name="total" type="number">
+      Total number of members matching the filter criteria.
+    </ResponseField>
+    <ResponseField name="skip" type="number">
+      The current pagination offset.
+    </ResponseField>
+    <ResponseField name="take" type="number">
+      The current page size limit.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/promoters/prom-aaaa-bbbb-cccc-dddd/members?role=editor&status=active&sort_by=name&sort_order=asc&skip=0&take=10" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully fetched members of promoter.",
+  "result": {
+    "data": [
+      {
+        "member_id": "mem-9abc-def0-1234-5678",
+        "email": "alice.johnson@example.com",
+        "first_name": "Alice",
+        "last_name": "Johnson",
+        "role": "editor",
+        "status": "active",
+        "created_at": "2024-02-01T12:00:00.000Z",
+        "updated_at": "2024-02-01T12:00:00.000Z"
+      }
+    ],
+    "total": 1,
+    "skip": 0,
+    "take": 10
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `200`       | OK — list of members returned successfully.                            |
+| `401`       | Unauthorized — missing or invalid Bearer token.                        |
+| `403`       | Forbidden — caller does not have `read_all` access to promoter members. |
+| `404`       | Not Found — the specified `program_id` or `promoter_id` does not exist. |

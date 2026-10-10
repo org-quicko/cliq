@@ -1,0 +1,55 @@
+---
+title: "Delete an Affiliate Program — Cliq API"
+sidebarTitle: "Delete Program"
+description: "DELETE /api/programs/:program_id — Permanently delete an affiliate program and all its associated data. Requires Bearer Token with program admin role."
+---
+
+Permanently deletes an affiliate program. This action cascades to all associated data including promoters, commissions, purchases, and signups. The authenticated user must hold the `admin` role for the program.
+
+<Warning>
+  This action is **irreversible**. All program data — including commissions, purchases, promoter relationships, and analytics — will be permanently deleted.
+</Warning>
+
+## Method and Path
+
+```http
+DELETE /api/programs/:program_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required, and the authenticated user must have the **admin** role in the target program.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program to delete.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully deleted program."`
+</ResponseField>
+
+## Example
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/$PROGRAM_ID \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Program deleted successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user does not have admin role for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |

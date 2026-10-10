@@ -1,0 +1,100 @@
+---
+title: "Get Member — Retrieve a Member Profile by ID"
+sidebarTitle: "Get Member"
+description: "Retrieve the full profile of a specific member within a Cliq program using their member ID. Requires a valid Bearer token with read permission."
+---
+
+The Get Member endpoint fetches the profile of a specific member within a program, identified by their `member_id`. Members are users who belong to a promoter's team and participate in the affiliate program through the promoter portal. A valid Bearer token with read permission on the `Member` resource is required to call this endpoint.
+
+## Endpoint
+
+```bash
+GET /api/programs/:program_id/members/:member_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program to which the member belongs.
+</ParamField>
+
+<ParamField path="member_id" type="string (UUID)" required>
+  The unique identifier of the member to retrieve.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully fetched member."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The member profile object.
+
+  <Expandable title="result fields">
+    <ResponseField name="member_id" type="string (UUID)">
+      The unique identifier of the member.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The member's email address.
+    </ResponseField>
+    <ResponseField name="first_name" type="string">
+      The member's first name.
+    </ResponseField>
+    <ResponseField name="last_name" type="string">
+      The member's last name.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The member's role within their promoter team. One of: `admin`, `editor`, `viewer`.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The member's account status. One of: `active`, `inactive`.
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the member account was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp when the member account was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/members/mem-9abc-def0-1234-5678 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully fetched member.",
+  "result": {
+    "member_id": "mem-9abc-def0-1234-5678",
+    "email": "alice.johnson@example.com",
+    "first_name": "Alice",
+    "last_name": "Johnson",
+    "role": "admin",
+    "status": "active",
+    "created_at": "2024-02-01T12:00:00.000Z",
+    "updated_at": "2024-02-01T12:00:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                    |
+|-------------|----------------------------------------------------------------|
+| `200`       | OK — member data returned successfully.                        |
+| `401`       | Unauthorized — missing or invalid Bearer token.                |
+| `403`       | Forbidden — caller does not have read access to this member.   |
+| `404`       | Not Found — no member exists with the given `member_id` in the specified program. |

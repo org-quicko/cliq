@@ -1,1 +1,0 @@
-{"parameters":[{"name":"x-api-key","in":"header","description":"","required":true,"example":"{{api_key}}","schema":{"type":"string"}},{"name":"x-api-secret","in":"header","description":"","required":true,"example":"{{api_secret}}","schema":{"type":"string"}}]}

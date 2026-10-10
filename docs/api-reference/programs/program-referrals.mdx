@@ -1,0 +1,131 @@
+---
+title: "List Program Referrals — Cliq API Reference"
+sidebarTitle: "Referrals"
+description: "GET /api/programs/:program_id/referrals — Retrieve a paginated, sortable list of referral view records for an affiliate program. Requires Bearer Token."
+---
+
+Retrieve the referral view data for a program — a denormalized view that surfaces each referral alongside its attributed promoter, conversion status, and activity timestamps. Results can be searched, sorted, and paginated.
+
+## Method and Path
+
+```http
+GET /api/programs/:program_id/referrals
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program whose referrals you want to retrieve.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="query" type="string">
+  Free-text search string to filter referrals by name, email, or referral key.
+</ParamField>
+
+<ParamField query="sort_by" type="string">
+  Field to sort results by.
+
+  Accepted values: `updatedAt` | `createdAt`
+</ParamField>
+
+<ParamField query="sort_order" type="string" default="DESC">
+  Sort direction.
+
+  Accepted values: `ASC` | `DESC`
+</ParamField>
+
+<ParamField query="skip" type="number" default="0">
+  Number of records to skip. Use with `take` for pagination.
+</ParamField>
+
+<ParamField query="take" type="number" default="10">
+  Maximum number of referral records to return per page.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully got program referrals."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="items" type="array">
+      Array of referral view objects.
+      <Expandable title="referral view object">
+        <ResponseField name="referral_id" type="string (uuid)">
+          Unique identifier for the referral record.
+        </ResponseField>
+        <ResponseField name="program_id" type="string (uuid)">
+          Program the referral belongs to.
+        </ResponseField>
+        <ResponseField name="promoter_id" type="string (uuid)">
+          Promoter who generated this referral.
+        </ResponseField>
+        <ResponseField name="referral_key" type="string">
+          The referral key value (email address or phone number) used to identify this referral.
+        </ResponseField>
+        <ResponseField name="signup_count" type="number">
+          Number of signups attributed to this referral key.
+        </ResponseField>
+        <ResponseField name="purchase_count" type="number">
+          Number of purchases attributed to this referral key.
+        </ResponseField>
+        <ResponseField name="total_commission" type="number">
+          Total commission value earned from this referral.
+        </ResponseField>
+        <ResponseField name="created_at" type="string (ISO 8601)">
+          Timestamp when the referral was first recorded.
+        </ResponseField>
+        <ResponseField name="updated_at" type="string (ISO 8601)">
+          Timestamp when the referral was last updated.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      Total number of matching referrals (before pagination).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+```bash
+# All referrals sorted by most recently updated
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/referrals?sort_by=updatedAt&sort_order=DESC" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Search referrals by keyword
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/referrals?query=alice&skip=0&take=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Oldest referrals first
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/referrals?sort_by=createdAt&sort_order=ASC&take=25" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Referrals returned successfully. |
+| `400 Bad Request` | Invalid value supplied for `sort_by` or `sort_order`. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks read permission for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |

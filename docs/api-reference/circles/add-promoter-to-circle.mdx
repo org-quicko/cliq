@@ -1,0 +1,69 @@
+---
+title: "Add Promoters to a Circle — Cliq API Reference"
+sidebarTitle: "Add Promoters"
+description: "POST /api/programs/:program_id/circles/:circle_id/promoters — Assign one or more promoters to a circle to apply its commission rules to them."
+---
+
+Use this endpoint to add one or more promoters to a specific circle within a program. Supplying an array of promoter UUIDs moves those promoters into the target circle, which determines which commission function applies to their conversions. A promoter can belong to only one circle at a time — adding them to a new circle removes them from their previous one.
+
+## Method and Path
+
+```bash
+POST /api/programs/:program_id/circles/:circle_id/promoters
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it in every request as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program the circle belongs to.
+</ParamField>
+
+<ParamField path="circle_id" type="string (uuid)" required>
+  Unique identifier of the circle to which the promoters will be added.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="promoters" type="array of strings (uuid)" required>
+  List of promoter UUIDs to add to the circle. Must contain at least one UUID.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `201 Created`.
+
+<ResponseField name="message" type="string">
+  `"Successfully added promoters to circle."`
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/circles/c1d2e3f4-0000-0000-0000-000000000002/promoters \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "promoters": [
+      "p1a2b3c4-0000-0000-0000-000000000010",
+      "p1a2b3c4-0000-0000-0000-000000000011"
+    ]
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `201 Created` | Promoters were successfully added to the circle. |
+| `400 Bad Request` | Validation failed — ensure `promoters` is a non-empty array of valid UUIDs. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated caller lacks permission to modify circle membership. |
+| `404 Not Found` | The specified circle or one of the promoter IDs does not exist. |

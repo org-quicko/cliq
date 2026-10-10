@@ -1,0 +1,87 @@
+---
+title: "User Login — Authenticate a Cliq Admin User"
+sidebarTitle: "User Login"
+description: "Authenticate an existing Cliq admin user with email and password to receive a Bearer access token for subsequent API calls."
+---
+
+The User Login endpoint authenticates an existing admin user using their email and password. On success, it returns a signed JWT access token that must be included as a Bearer token in the `Authorization` header of all subsequent authenticated API requests.
+
+## Endpoint
+
+```bash
+POST /api/users/login
+```
+
+## Authentication
+
+<Note>
+  This endpoint is **public**. No authentication token is required.
+</Note>
+
+## Request Body
+
+<ParamField body="email" type="string" required>
+  The registered email address of the user.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The user's account password.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully logged in user."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  Authentication result containing the access token and user details.
+
+  <Expandable title="result fields">
+    <ResponseField name="access_token" type="string">
+      A signed JWT token. Pass this in the `Authorization: Bearer <token>` header for authenticated requests.
+    </ResponseField>
+    <ResponseField name="user_id" type="string (UUID)">
+      The unique identifier of the authenticated user.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The email address of the authenticated user.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The user's system role. One of: `super_admin`, `admin`, `editor`, `viewer`, `regular`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/users/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "jane.doe@example.com",
+    "password": "SuperSecure@123"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully logged in user.",
+  "result": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYTFiMmMzZDQtZTVmNi03ODkwLWFiY2QtZWYxMjM0NTY3ODkwIiwiaWF0IjoxNzA1MzEyMjAwLCJleHAiOjE3MDUzOTg2MDB9.signature",
+    "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "email": "jane.doe@example.com",
+    "role": "super_admin"
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                |
+|-------------|------------------------------------------------------------|
+| `200`       | OK — login successful, access token returned.              |
+| `400`       | Bad Request — missing or malformed request body.           |
+| `401`       | Unauthorized — invalid email or password combination.      |

@@ -1,0 +1,138 @@
+---
+title: "List All Program Functions | Cliq API Reference"
+sidebarTitle: "List Functions"
+description: "Retrieve a paginated list of commission functions for a program. Filter by circle, trigger type, or effect type to narrow results."
+---
+
+Use this endpoint to browse all functions configured for a program. Results can be filtered by `circle_id`, `trigger`, or `effect_type`, and paginated using `skip` and `take` query parameters. This is useful for building dashboards that display the commission rules currently in effect.
+
+## Endpoint
+
+```text
+GET /api/programs/:program_id/functions
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```text
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program whose functions you want to list.
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="circle_id" type="string">
+  Filter results to functions scoped to a specific circle UUID.
+</ParamField>
+
+<ParamField query="trigger" type="string">
+  Filter by trigger type. One of `signup` or `purchase`.
+</ParamField>
+
+<ParamField query="effect_type" type="string">
+  Filter by effect type. One of `generate_commission` or `switch_circle`.
+</ParamField>
+
+<ParamField query="skip" type="number">
+  Number of records to skip for pagination. Defaults to `0`.
+</ParamField>
+
+<ParamField query="take" type="number">
+  Maximum number of records to return. Defaults to `10`.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully fetched all functions."`
+</ResponseField>
+
+<ResponseField name="result" type="array">
+  Array of function objects matching the query filters.
+
+  <Expandable title="Each function object">
+    <ResponseField name="function_id" type="string">
+      UUID of the function.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Human-readable name of the function.
+    </ResponseField>
+    <ResponseField name="trigger" type="string">
+      The event that triggers this function: `signup` or `purchase`.
+    </ResponseField>
+    <ResponseField name="effect_type" type="string">
+      The type of effect applied: `generate_commission` or `switch_circle`.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current status: `active` or `inactive`.
+    </ResponseField>
+    <ResponseField name="effect" type="object">
+      Effect configuration object.
+    </ResponseField>
+    <ResponseField name="conditions" type="array">
+      Condition objects attached to this function, if any.
+    </ResponseField>
+    <ResponseField name="circle_id" type="string">
+      UUID of the circle this function is scoped to.
+    </ResponseField>
+    <ResponseField name="circle_name" type="string">
+      Display name of the circle.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 creation timestamp.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      ISO 8601 last-updated timestamp.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/prog_abc123/functions?trigger=purchase&skip=0&take=20" \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully fetched all functions.",
+  "result": [
+    {
+      "function_id": "fn_uuid_here",
+      "name": "Flat $20 on purchase",
+      "trigger": "purchase",
+      "effect_type": "generate_commission",
+      "status": "active",
+      "effect": {
+        "commission": {
+          "commission_type": "fixed",
+          "commission_value": 20
+        }
+      },
+      "conditions": [],
+      "circle_id": "circle_uuid_here",
+      "circle_name": "Default",
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | Functions fetched successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to list functions in this program. |

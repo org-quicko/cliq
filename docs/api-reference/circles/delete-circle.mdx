@@ -1,0 +1,60 @@
+---
+title: "Delete a Circle by ID — Cliq API Reference"
+sidebarTitle: "Delete Circle"
+description: "DELETE /api/programs/:program_id/circles/:circle_id — Permanently remove a promoter segment (circle) from a program in Cliq."
+---
+
+Use this endpoint to permanently delete a circle from a program. Once deleted, the circle and all its promoter associations are removed. Promoters that were members of the deleted circle should be reassigned to another circle before deletion to avoid losing their segment context.
+
+## Method and Path
+
+```bash
+DELETE /api/programs/:program_id/circles/:circle_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it in every request as `Authorization: Bearer <token>`.
+</Note>
+
+<Warning>
+  The default circle created automatically for every program cannot be deleted. Attempting to delete it will return a `400 Bad Request` error.
+</Warning>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program the circle belongs to.
+</ParamField>
+
+<ParamField path="circle_id" type="string (uuid)" required>
+  Unique identifier of the circle to delete.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `204 No Content`.
+
+<ResponseField name="message" type="string">
+  `"Successfully deleted circle."`
+</ResponseField>
+
+## Example
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/circles/c1d2e3f4-0000-0000-0000-000000000002 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `204 No Content` | Circle was successfully deleted. |
+| `400 Bad Request` | Deletion not allowed — for example, attempting to delete the default circle. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated caller lacks permission to delete this circle. |
+| `404 Not Found` | No circle exists with the provided `circle_id` in this program. |
