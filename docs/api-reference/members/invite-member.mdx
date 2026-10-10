@@ -1,0 +1,119 @@
+---
+title: "Invite Member — Add a Member to a Promoter's Team"
+sidebarTitle: "Invite Member"
+description: "Invite and add a new member to a promoter's team within a Cliq program. Sends an invitation and creates the member account. Requires Bearer token."
+---
+
+The Invite Member endpoint invites a new member and adds them to a specific promoter's team within a program. If the invitee does not yet have a Cliq member account, one is created on their behalf. This endpoint is used by promoter admins to grow their affiliate team. A valid Bearer token with `invite_member` permission on the `Promoter` resource is required.
+
+## Endpoint
+
+```bash
+POST /api/programs/:program_id/promoters/:promoter_id/members
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program in which the member invitation is being made.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (UUID)" required>
+  The unique identifier of the promoter team to which the member will be added.
+</ParamField>
+
+## Request Body
+
+<ParamField body="email" type="string" required>
+  The email address of the member to invite.
+</ParamField>
+
+<ParamField body="password" type="string">
+  Initial password for the new member account, if one needs to be created.
+</ParamField>
+
+<ParamField body="first_name" type="string" required>
+  The first name of the invited member.
+</ParamField>
+
+<ParamField body="last_name" type="string" required>
+  The last name of the invited member.
+</ParamField>
+
+<ParamField body="role" type="string">
+  The role to assign to the member within the promoter team. One of: `admin`, `editor`, `viewer`.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully added member to promoter."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The newly added promoter member relationship object.
+
+  <Expandable title="result fields">
+    <ResponseField name="promoter_id" type="string (UUID)">
+      The identifier of the promoter team.
+    </ResponseField>
+    <ResponseField name="member_id" type="string (UUID)">
+      The identifier of the invited member.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The assigned role of the member within the promoter team.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      The membership status. One of: `active`, `inactive`.
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the member was added to the team.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/promoters/prom-aaaa-bbbb-cccc-dddd/members \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "bob.martin@example.com",
+    "first_name": "Bob",
+    "last_name": "Martin",
+    "role": "editor"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully added member to promoter.",
+  "result": {
+    "promoter_id": "prom-aaaa-bbbb-cccc-dddd",
+    "member_id": "mem-1111-2222-3333-4444",
+    "role": "editor",
+    "status": "active",
+    "created_at": "2024-03-01T08:00:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `201`       | Created — member successfully invited and added to the promoter.       |
+| `400`       | Bad Request — missing or invalid fields in the request body.           |
+| `401`       | Unauthorized — missing or invalid Bearer token.                        |
+| `403`       | Forbidden — caller does not have `invite_member` permission on this promoter. |
+| `404`       | Not Found — the specified `program_id` or `promoter_id` does not exist. |
+| `409`       | Conflict — this member is already part of the promoter team.           |

@@ -1,0 +1,94 @@
+---
+title: "Update a Promoter's Information — Cliq API Reference"
+sidebarTitle: "Update Promoter"
+description: "PATCH /api/programs/:program_id/promoters/:promoter_id — Partially update a promoter's name or logo URL within a program. Requires a Bearer Token."
+---
+
+Use this endpoint to update one or more fields on an existing promoter within a program. All body fields are optional — only the fields you include will be updated, leaving the rest unchanged. This follows standard HTTP `PATCH` semantics.
+
+## Method and Path
+
+```http
+PATCH /api/programs/:program_id/promoters/:promoter_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program that contains the promoter.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter to update.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="name" type="string">
+  New display name for the promoter. Omit to keep the existing value.
+</ParamField>
+
+<ParamField body="logo_url" type="string">
+  New publicly accessible URL for the promoter's logo. Must be a valid URL string. Omit to keep the existing value.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully updated promoter."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="promoter_id" type="string (uuid)">
+      Unique identifier of the updated promoter.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Updated display name of the promoter.
+    </ResponseField>
+    <ResponseField name="logo_url" type="string">
+      Updated logo URL, if provided.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current status of the promoter: `active` | `archived`.
+    </ResponseField>
+    <ResponseField name="accepted_terms_and_conditions" type="boolean">
+      Whether the promoter has accepted the program's terms and conditions.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp reflecting the most recent update.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Smith (Updated)",
+    "logo_url": "https://example.com/promoters/jane-new-logo.png"
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Promoter updated successfully. |
+| `400 Bad Request` | Validation failed — check field types and URL format. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated member lacks permission to update this promoter. |
+| `404 Not Found` | No promoter found for the provided IDs. |

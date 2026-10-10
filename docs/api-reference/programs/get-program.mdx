@@ -1,0 +1,90 @@
+---
+title: "Get a Single Affiliate Program — Cliq API Reference"
+sidebarTitle: "Get Program"
+description: "GET /api/programs/:program_id — Fetch full details for a single program by its UUID. This is a public endpoint and requires no authentication."
+---
+
+Retrieve the full details of a single affiliate program by its unique identifier. This endpoint is public — no authentication is required — making it suitable for building public program landing pages.
+
+## Method and Path
+
+```http
+GET /api/programs/:program_id
+```
+
+## Authentication
+
+This endpoint is **public**. No `Authorization` header or API key is required.
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier (UUID v4) of the program to retrieve. Returns `404 Not Found` if the value is not a valid UUID or the program does not exist.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched program."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="program_id" type="string (uuid)">
+      Unique identifier for the program.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Display name of the program.
+    </ResponseField>
+    <ResponseField name="website" type="string">
+      Canonical URL of the program's product or landing page.
+    </ResponseField>
+    <ResponseField name="currency" type="string">
+      ISO 4217 currency code used for commissions.
+    </ResponseField>
+    <ResponseField name="visibility" type="string">
+      `public` or `private`.
+    </ResponseField>
+    <ResponseField name="referral_key_type" type="string">
+      `email` or `phone`.
+    </ResponseField>
+    <ResponseField name="logo_url" type="string">
+      Program logo image URL.
+    </ResponseField>
+    <ResponseField name="theme_color" type="string">
+      Brand theme color.
+    </ResponseField>
+    <ResponseField name="terms_and_conditions" type="string">
+      Program terms and conditions text.
+    </ResponseField>
+    <ResponseField name="date_format" type="string">
+      Date display format (e.g. `DD/MM/YYYY`).
+    </ResponseField>
+    <ResponseField name="time_zone" type="string">
+      IANA time zone string (e.g. `America/New_York`).
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the program was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp when the program was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X GET https://your-cliq-instance.com/api/programs/$PROGRAM_ID
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Program details returned successfully. |
+| `404 Not Found` | No program found for the given `program_id`, or the value is not a valid UUID. |

@@ -1,0 +1,86 @@
+---
+title: "Invite User — Add a User to a Cliq Program"
+sidebarTitle: "Invite User"
+description: "Invite an existing or new user to a Cliq program by program ID. The user receives access to the program with the specified role. Requires Bearer token."
+---
+
+The Invite User endpoint adds a user to a specific affiliate program. You can invite a brand-new user (by supplying their details) or add an already-registered user to an additional program. The invited user is assigned the role specified in the request body. This endpoint requires a valid Bearer token with `invite_user` permission on the target program.
+
+## Endpoint
+
+```bash
+POST /api/programs/:program_id/invite
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program to which the user will be invited.
+</ParamField>
+
+## Request Body
+
+<ParamField body="email" type="string" required>
+  The email address of the user to invite. If the user does not yet exist, a new account will be created.
+</ParamField>
+
+<ParamField body="password" type="string">
+  Password for the new user account, if one needs to be created.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  The first name of the user. Used when creating a new user account.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  The last name of the user. Used when creating a new user account.
+</ParamField>
+
+<ParamField body="role" type="string">
+  The role to assign to the user within this program. One of: `super_admin`, `admin`, `editor`, `viewer`, `regular`. Defaults to `viewer` if not specified.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully added user to program."`
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/invite \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.smith@example.com",
+    "first_name": "John",
+    "last_name": "Smith",
+    "role": "editor"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully added user to program."
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `201`       | Created — the user was successfully invited to the program.            |
+| `400`       | Bad Request — missing or invalid fields in the request body.           |
+| `401`       | Unauthorized — missing or invalid Bearer token.                        |
+| `403`       | Forbidden — caller does not have `invite_user` permission on this program. |
+| `404`       | Not Found — the specified `program_id` does not exist.                 |
+| `409`       | Conflict — the user is already a member of this program.               |

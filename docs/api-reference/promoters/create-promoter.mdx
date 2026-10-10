@@ -1,0 +1,102 @@
+---
+title: "Create a Promoter in a Program — Cliq API Reference"
+sidebarTitle: "Create Promoter"
+description: "POST /api/programs/:program_id/promoters — Create a new promoter affiliate inside a program. Requires a Bearer Token and member_id header."
+---
+
+Use this endpoint to create a new promoter (affiliate) within an existing program. The caller must supply a `member_id` header identifying which program member is performing the action. Once created, the promoter can generate referral links, earn commissions, and be tracked through the program dashboard.
+
+## Method and Path
+
+```http
+POST /api/programs/:program_id/promoters
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`. Additionally, pass the acting member's identifier as a `member_id` request header.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program in which the promoter will be created.
+</ParamField>
+
+### Headers
+
+<ParamField header="member_id" type="string (uuid)" required>
+  The UUID of the member performing this action on behalf of the program.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="name" type="string" required>
+  Display name of the promoter (e.g. `"Jane Smith"` or `"Acme Partners"`).
+</ParamField>
+
+<ParamField body="logo_url" type="string">
+  Publicly accessible URL for the promoter's logo image. Must be a valid URL string.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `201 Created`.
+
+<ResponseField name="message" type="string">
+  `"Successfully created promoter."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="promoter_id" type="string (uuid)">
+      Unique identifier for the newly created promoter.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Display name of the promoter.
+    </ResponseField>
+    <ResponseField name="logo_url" type="string">
+      URL of the promoter's logo, if provided.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Initial status of the promoter. One of `active` | `archived`.
+    </ResponseField>
+    <ResponseField name="accepted_terms_and_conditions" type="boolean">
+      Whether the promoter has accepted the program's terms and conditions.
+    </ResponseField>
+    <ResponseField name="admin_member_email" type="string">
+      Email address of the promoter's admin member, if available.
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the promoter was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp when the promoter was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "member_id: m9z8y7x6-0000-0000-0000-000000000001" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Smith",
+    "logo_url": "https://example.com/promoters/jane-logo.png"
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `201 Created` | Promoter was successfully created. |
+| `400 Bad Request` | Validation failed — check required fields and value formats. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated member lacks permission to create promoters in this program. |

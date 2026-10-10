@@ -1,0 +1,82 @@
+---
+title: "Update Member Role — Change a Member's Role in a Promoter"
+sidebarTitle: "Update Member Role"
+description: "Update the role or status of a member within a promoter's team in a Cliq program. Requires Bearer token with change_role permission on the promoter."
+---
+
+The Update Member Role endpoint changes the role or status of a member within a specific promoter's team. For example, you can promote a `viewer` to an `editor`, or deactivate a member's access by setting their status to `inactive`. The caller must hold `change_role` permission on the `PromoterMember` resource to perform this action.
+
+## Endpoint
+
+```bash
+PATCH /api/programs/:program_id/promoters/:promoter_id/members/:member_id/role
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (UUID)" required>
+  The unique identifier of the promoter team in which to update the member's role.
+</ParamField>
+
+<ParamField path="member_id" type="string (UUID)" required>
+  The unique identifier of the member whose role should be updated.
+</ParamField>
+
+## Request Body
+
+<ParamField body="role" type="string">
+  The new role to assign to the member within this promoter team. One of: `admin`, `editor`, `viewer`.
+</ParamField>
+
+<ParamField body="status" type="string">
+  The new status for the member's team membership. One of: `active`, `inactive`.
+</ParamField>
+
+<Note>
+  At least one of `role` or `status` must be provided in the request body.
+</Note>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully updated role of member."`
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/promoters/prom-aaaa-bbbb-cccc-dddd/members/mem-9abc-def0-1234-5678/role \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "role": "admin"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully updated role of member."
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `204`       | No Content — role updated successfully.                                |
+| `400`       | Bad Request — invalid role or status value.                            |
+| `401`       | Unauthorized — missing or invalid Bearer token.                        |
+| `403`       | Forbidden — caller does not have `change_role` permission on this promoter. |
+| `404`       | Not Found — the specified `promoter_id` or `member_id` does not exist. |

@@ -1,0 +1,104 @@
+---
+title: "Get Program Analytics — Cliq API Reference"
+sidebarTitle: "Analytics"
+description: "GET /api/programs/:program_id/analytics — Fetch aggregate performance metrics for an affiliate program over a configurable time period or custom date range."
+---
+
+Retrieve aggregate performance analytics for an affiliate program. By default the response covers the past 30 days, but you can specify any predefined period shorthand or provide an explicit `startDate`/`endDate` range for precise reporting.
+
+## Method and Path
+
+```http
+GET /api/programs/:program_id/analytics
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="period" type="string" default="30days">
+  Shorthand period selector. Common values include `7days`, `30days`, `90days`, `12months`. When `startDate` and `endDate` are both provided, this parameter is ignored.
+</ParamField>
+
+<ParamField query="startDate" type="string (ISO 8601 date)">
+  Start of the custom date range (e.g. `2024-01-01`). Must be used together with `endDate`.
+</ParamField>
+
+<ParamField query="endDate" type="string (ISO 8601 date)">
+  End of the custom date range (e.g. `2024-03-31`). Must be used together with `startDate`.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched program analytics."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="total_signups" type="number">
+      Total number of referral signups in the selected period.
+    </ResponseField>
+    <ResponseField name="total_purchases" type="number">
+      Total number of purchases attributed to referrals in the period.
+    </ResponseField>
+    <ResponseField name="total_commissions" type="number">
+      Aggregate commission value accrued in the period.
+    </ResponseField>
+    <ResponseField name="total_promoters" type="number">
+      Number of active promoters during the period.
+    </ResponseField>
+    <ResponseField name="period" type="string">
+      The resolved period string used for the query.
+    </ResponseField>
+    <ResponseField name="start_date" type="string (ISO 8601)">
+      Effective start date for the analytics window.
+    </ResponseField>
+    <ResponseField name="end_date" type="string (ISO 8601)">
+      Effective end date for the analytics window.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+```bash
+# Last 30 days (default)
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/analytics" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Last 7 days using period shorthand
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/analytics?period=7days" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Custom date range
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/analytics?startDate=2024-01-01&endDate=2024-03-31" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Analytics returned successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks read permission for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |

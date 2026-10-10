@@ -1,0 +1,195 @@
+---
+title: "Promoter Summary and Link Analytics — Cliq API Reference"
+sidebarTitle: "Link Analytics"
+description: "GET promoter summary and links-summary endpoints — Retrieve aggregated performance stats and per-link breakdowns for a promoter over a date range."
+---
+
+These two endpoints provide performance summary data for a promoter: one returns an overall aggregate view (total commissions, signups, purchases) and the other breaks that data down by individual referral links. Both support flexible date filtering via a preset `period` or explicit `startDate` / `endDate` parameters.
+
+## Endpoints
+
+### Promoter Summary
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/summary
+```
+
+### Links Summary
+
+```http
+GET /api/programs/:program_id/promoters/:promoter_id/links-summary
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required for both endpoints. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+---
+
+## Promoter Summary
+
+Retrieves aggregated performance metrics for a single promoter within a program. Use this to power a promoter dashboard showing their total earnings and conversion activity.
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="period" type="string">
+  Preset time window for analytics. Defaults to `30days`. Examples: `7days`, `30days`, `90days`.
+</ParamField>
+
+<ParamField query="startDate" type="string (ISO 8601)">
+  Start of a custom date range. Use together with `endDate` to override the `period` preset.
+</ParamField>
+
+<ParamField query="endDate" type="string (ISO 8601)">
+  End of a custom date range. Use together with `startDate` to override the `period` preset.
+</ParamField>
+
+### Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched promoter summary analytics."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="promoter_id" type="string (uuid)">
+      Unique identifier for the promoter.
+    </ResponseField>
+    <ResponseField name="total_signup_commission" type="number">
+      Total commission earned from signup conversions.
+    </ResponseField>
+    <ResponseField name="total_purchase_commission" type="number">
+      Total commission earned from purchase conversions.
+    </ResponseField>
+    <ResponseField name="total_signups" type="number">
+      Total number of referred signups.
+    </ResponseField>
+    <ResponseField name="total_purchases" type="number">
+      Total number of referred purchases.
+    </ResponseField>
+    <ResponseField name="total_revenue" type="number">
+      Total revenue attributed to the promoter.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/summary?period=30days" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+---
+
+## Links Summary
+
+Retrieves a paginated breakdown of performance metrics grouped by each individual referral link belonging to the promoter. Use this to identify which links are driving the most conversions.
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="period" type="string">
+  Preset time window for analytics. Defaults to `30days`. Examples: `7days`, `30days`, `90days`.
+</ParamField>
+
+<ParamField query="startDate" type="string (ISO 8601)">
+  Start of a custom date range. Use together with `endDate` to override the `period` preset.
+</ParamField>
+
+<ParamField query="endDate" type="string (ISO 8601)">
+  End of a custom date range. Use together with `startDate` to override the `period` preset.
+</ParamField>
+
+<ParamField query="sort_order" type="string">
+  Sort direction. Accepted values: `ASC` | `DESC`. Defaults to `DESC` (newest first).
+</ParamField>
+
+<ParamField query="skip" type="number">
+  Number of records to skip for pagination. Defaults to `0`.
+</ParamField>
+
+<ParamField query="take" type="number">
+  Maximum number of records to return per page. Defaults to `5`.
+</ParamField>
+
+### Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched promoter links summary."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="data" type="array">
+      Array of per-link analytics records.
+      <Expandable title="link summary entry">
+        <ResponseField name="link_id" type="string (uuid)">
+          Unique identifier for the referral link.
+        </ResponseField>
+        <ResponseField name="url" type="string">
+          The referral link URL.
+        </ResponseField>
+        <ResponseField name="signups" type="number">
+          Number of signups driven by this link.
+        </ResponseField>
+        <ResponseField name="purchases" type="number">
+          Number of purchases driven by this link.
+        </ResponseField>
+        <ResponseField name="commission" type="number">
+          Total commission earned through this link.
+        </ResponseField>
+        <ResponseField name="created_at" type="string (ISO 8601)">
+          Timestamp when the link was created.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      Total number of link records for this promoter.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/promoters/p5e6f7g8-0000-0000-0000-000000000002/links-summary?period=30days&sort_order=DESC&skip=0&take=5" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+---
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Summary or analytics data retrieved successfully. |
+| `400 Bad Request` | Invalid path or query parameters. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated member lacks access to this promoter's data. |
+| `404 Not Found` | Promoter or program not found. |

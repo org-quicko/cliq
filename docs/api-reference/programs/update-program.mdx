@@ -1,0 +1,103 @@
+---
+title: "Update an Affiliate Program — Cliq API Reference"
+sidebarTitle: "Update Program"
+description: "PATCH /api/programs/:program_id — Update one or more fields of an existing affiliate program. Requires Bearer Token with program admin role."
+---
+
+Partially update an existing affiliate program. All body fields are optional — only the fields you include will be modified. The authenticated user must hold the `admin` role within the program.
+
+## Method and Path
+
+```http
+PATCH /api/programs/:program_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required, and the authenticated user must have the **admin** role in the target program.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program to update.
+</ParamField>
+
+### Body Parameters
+
+All body fields are optional. Include only the fields you wish to change.
+
+<ParamField body="name" type="string">
+  New display name for the program.
+</ParamField>
+
+<ParamField body="currency" type="string">
+  Updated ISO 4217 currency code for commissions.
+</ParamField>
+
+<ParamField body="website" type="string">
+  Updated product or landing page URL. Must be a valid URL.
+</ParamField>
+
+<ParamField body="visibility" type="string">
+  Updated visibility setting.
+
+  Accepted values: `public` | `private`
+</ParamField>
+
+<ParamField body="logo_url" type="string">
+  Updated URL for the program logo image. Must be a valid URL.
+</ParamField>
+
+<ParamField body="theme_color" type="string">
+  Updated brand theme color (e.g. `"#6366f1"`).
+</ParamField>
+
+<ParamField body="terms_and_conditions" type="string">
+  Updated program terms and conditions text.
+</ParamField>
+
+<ParamField body="date_format" type="string">
+  Updated date display format.
+
+  Accepted values: `DD/MM/YYYY` | `YYYY/MM/DD` | `MM/DD/YYYY`
+</ParamField>
+
+<ParamField body="time_zone" type="string">
+  Updated IANA time zone string (e.g. `"Europe/London"`).
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`. The response does not include the updated program object — use `GET /api/programs/:program_id` to retrieve the latest state.
+
+<ResponseField name="message" type="string">
+  `"Successfully updated program."`
+</ResponseField>
+
+## Example
+
+```bash
+# Update the program name and theme color
+curl -X PATCH https://your-cliq-instance.com/api/programs/$PROGRAM_ID \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Rewards Program",
+    "theme_color": "#10b981",
+    "visibility": "private"
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Program updated successfully. |
+| `400 Bad Request` | Validation error on one or more supplied fields. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user does not have admin role for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |

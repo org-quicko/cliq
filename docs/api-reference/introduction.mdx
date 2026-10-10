@@ -1,0 +1,89 @@
+---
+title: "Cliq REST API Reference — Getting Started Guide"
+sidebarTitle: "Overview"
+description: "Base URLs, Bearer Token and API Key authentication, skip/take pagination, and the unified JSON response envelope for the Cliq REST API."
+---
+
+The Cliq REST API gives you programmatic access to every resource in your affiliate and referral management platform — programs, promoters, commissions, purchases, and more. All endpoints follow REST conventions, are mounted under the `/api` global prefix, and return a consistent JSON envelope of `{ message, result }`.
+
+## Base URL
+
+The API server listens on the port configured by the `PORT` environment variable (default `3000`). When running via the provided Docker Compose setup the host port is mapped to `3001`. All paths are prefixed with `/api`.
+
+```text
+http://localhost:3000/api   # direct / bare-metal dev
+http://localhost:3001/api   # Docker Compose default
+```
+
+All paths shown in this reference are relative to the base URL (e.g. `POST /api/programs` → `http://localhost:3001/api/programs`).
+
+## Authentication
+
+Cliq supports two authentication methods. Choose the one that best fits your integration.
+
+### Bearer Token
+
+Obtain a short-lived JWT by calling one of the login endpoints, then pass it in every subsequent request.
+
+```http
+Authorization: Bearer <token>
+```
+
+**How to obtain a token**
+
+| Endpoint | Use case |
+|---|---|
+| `POST /api/users/login` | Platform user (admin, editor, viewer) |
+| `POST /api/programs/:program_id/members/login` | Affiliate / promoter member |
+
+### API Key
+
+For server-to-server integrations use a long-lived API key pair. Both headers must be present on every request.
+
+```http
+x-api-key: <your-api-key>
+x-api-secret: <your-api-secret>
+```
+
+**How to obtain API keys**
+
+Generate a key pair by calling `POST /api/programs/:program_id/api-keys`. Store both values securely — the secret is shown only once.
+
+## Response Envelope
+
+Every response body follows the same structure:
+
+```json
+{
+  "message": "Human-readable status string.",
+  "result": { }
+}
+```
+
+`result` may be a single object, a paginated list `{ items, count }`, a primitive, or `null` depending on the endpoint.
+
+## Pagination
+
+List endpoints accept two query parameters:
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `skip` | number | `0` | Number of records to skip (offset) |
+| `take` | number | `10` | Maximum number of records to return |
+
+## Explore the API
+
+<CardGroup cols={2}>
+  <Card title="Programs" icon="layer-group" href="/api-reference/programs/create-program">
+    Create and manage affiliate programs, retrieve analytics, and export reports.
+  </Card>
+  <Card title="Create Program" icon="plus" href="/api-reference/programs/create-program">
+    `POST /api/programs` — Launch a new affiliate program.
+  </Card>
+  <Card title="Program Analytics" icon="chart-line" href="/api-reference/programs/program-analytics">
+    `GET /api/programs/:id/analytics` — Performance metrics over any period.
+  </Card>
+  <Card title="Program Report" icon="file-csv" href="/api-reference/programs/program-report">
+    `GET /api/programs/:id/report` — Download a CSV commissions report.
+  </Card>
+</CardGroup>

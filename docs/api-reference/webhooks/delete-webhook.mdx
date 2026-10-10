@@ -1,0 +1,65 @@
+---
+title: "Delete a Program Webhook | Cliq API Reference"
+sidebarTitle: "Delete Webhook"
+description: "Permanently delete a program webhook registration. Cliq will immediately stop sending event notifications to the previously registered endpoint URL."
+---
+
+Permanently removes a webhook from the program. Once deleted, Cliq will stop sending event notifications to the registered URL. In-flight deliveries that are already queued may still arrive at your endpoint briefly after deletion.
+
+<Warning>
+  This action is **irreversible**. The webhook registration and its secret will be permanently deleted. If you need to temporarily suspend deliveries, consider updating the `url` to a stub endpoint instead.
+</Warning>
+
+## Endpoint
+
+```bash
+DELETE /api/programs/:program_id/webhooks/:webhook_id
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the webhook belongs to.
+</ParamField>
+
+<ParamField path="webhook_id" type="string" required>
+  The UUID of the webhook to delete.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully deleted webhook {webhook_id} for Program {program_id}"`
+</ResponseField>
+
+## Example
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/prog_abc123/webhooks/wh_uuid_here \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully deleted webhook wh_uuid_here for Program prog_abc123"
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | Webhook deleted successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to delete this webhook. |
+| `404 Not Found` | No webhook found with the given ID in this program. |

@@ -1,0 +1,120 @@
+---
+title: "contact.created — New Contact Created Event Reference"
+sidebarTitle: "contact.created"
+description: "Fired when a new contact is created via a referral link. Available for program-level webhooks only. Payload includes full contact profile and external ID."
+---
+
+The `contact.created` event is published by Cliq whenever a brand-new contact is created via a referral link in a program. This event gives program owners full visibility into each new contact as they enter the referral funnel, including their profile details and external identifier.
+
+**Event type:** `in.org.quicko.cliq.contact.created`
+
+<Note>
+This event is available for **program-level webhooks only**. It is not emitted to promoter-level webhooks. Register your webhook via `POST /programs/:program_id/webhooks` and include `in.org.quicko.cliq.contact.created` in the `events` array to receive it.
+</Note>
+
+## Event Schema
+
+<ResponseField name="id" type="string (uuid)" required>
+  Unique identifier for this event. Use this field for deduplication.
+</ResponseField>
+
+<ResponseField name="time" type="string (ISO 8601)" required>
+  The timestamp at which the event was emitted.
+</ResponseField>
+
+<ResponseField name="specversion" type="string" required>
+  The CloudEvents specification version. Always `"1.0"`.
+</ResponseField>
+
+<ResponseField name="datacontenttype" type="string" required>
+  The content type of the `data` field. Always `"application/json"`.
+</ResponseField>
+
+<ResponseField name="program_id" type="string (uuid)" required>
+  The ID of the referral program this contact belongs to.
+</ResponseField>
+
+<ResponseField name="promoter_id" type="string (uuid)" required>
+  The ID of the promoter whose referral link the contact used when signing up.
+</ResponseField>
+
+<ResponseField name="source" type="string" required>
+  The originating endpoint that produced the event (e.g. `"urn:POST:/signups"`).
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  The event type identifier. Always `"in.org.quicko.cliq.contact.created"`.
+</ResponseField>
+
+<ResponseField name="subject" type="string (uuid)" required>
+  The ID of the contact that triggered this event.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  The full profile details of the newly created contact.
+
+  <Expandable title="data fields">
+    <ResponseField name="@entity" type="string" required>
+      The entity type identifier. Always `"in.org.quicko.cliq.contact"`.
+    </ResponseField>
+
+    <ResponseField name="contact_id" type="string (uuid)" required>
+      The unique ID of the created contact.
+    </ResponseField>
+
+    <ResponseField name="email" type="string" required>
+      The email address of the contact.
+    </ResponseField>
+
+    <ResponseField name="first_name" type="string">
+      The first name of the contact.
+    </ResponseField>
+
+    <ResponseField name="last_name" type="string">
+      The last name of the contact.
+    </ResponseField>
+
+    <ResponseField name="phone" type="string">
+      The phone number of the contact.
+    </ResponseField>
+
+    <ResponseField name="external_id" type="string">
+      An external identifier supplied by your system when the signup or purchase was posted.
+    </ResponseField>
+
+    <ResponseField name="created_at" type="string (ISO 8601)" required>
+      The timestamp when the contact record was created.
+    </ResponseField>
+
+    <ResponseField name="updated_at" type="string (ISO 8601)" required>
+      The timestamp when the contact record was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Payload
+
+```json
+{
+  "id": "ab95cb64-454a-4727-aa28-ecd65428e012",
+  "time": "2026-04-13T05:04:35.324Z",
+  "specversion": "1.0",
+  "datacontenttype": "application/json",
+  "program_id": "000966a7-e8f9-4a1f-9521-ba52ec0f4b47",
+  "promoter_id": "0c3f134d-3c93-4ecd-b7df-5feb97c0cdc8",
+  "source": "urn:POST:/signups",
+  "type": "in.org.quicko.cliq.contact.created",
+  "data": {
+    "@entity": "in.org.quicko.cliq.contact",
+    "contact_id": "19ec1355-2fd3-47f6-957b-c893f814ff3f",
+    "email": "Emmet_Satterfield78@hotmail.com",
+    "first_name": "Ayush",
+    "last_name": "Pandita",
+    "phone": "1284892354",
+    "external_id": "1da19dc5-860e-408b-844f-bbd16813bf83",
+    "created_at": "2026-04-13T05:04:35.251Z",
+    "updated_at": "2026-04-13T05:04:35.251Z"
+  },
+  "subject": "19ec1355-2fd3-47f6-957b-c893f814ff3f"
+}
+```

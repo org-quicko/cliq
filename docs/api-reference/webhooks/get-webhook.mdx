@@ -1,0 +1,98 @@
+---
+title: "Get a Program Webhook | Cliq API Reference"
+sidebarTitle: "Get Webhook"
+description: "Retrieve the full details of a single program webhook by its ID, including the registered endpoint URL and all subscribed event types."
+---
+
+Fetch the full details of a specific webhook registered for a program. The response includes the endpoint URL and the list of events it subscribes to. The `secret` is never returned by any read endpoint — if you've lost it, you'll need to update the webhook with a new secret.
+
+## Endpoint
+
+```bash
+GET /api/programs/:program_id/webhooks/:webhook_id
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the webhook belongs to.
+</ParamField>
+
+<ParamField path="webhook_id" type="string" required>
+  The UUID of the webhook to retrieve.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully fetched webhook {webhook_id} for Program {program_id}"`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The webhook object.
+
+  <Expandable title="result fields">
+    <ResponseField name="webhook_id" type="string">
+      UUID of the webhook.
+    </ResponseField>
+    <ResponseField name="program_id" type="string">
+      UUID of the program this webhook belongs to.
+    </ResponseField>
+    <ResponseField name="url" type="string">
+      The registered endpoint URL.
+    </ResponseField>
+    <ResponseField name="events" type="array">
+      List of subscribed event type strings.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 creation timestamp.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">
+      ISO 8601 last-updated timestamp.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X GET https://your-cliq-instance.com/api/programs/prog_abc123/webhooks/wh_uuid_here \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully fetched webhook wh_uuid_here for Program prog_abc123",
+  "result": {
+    "webhook_id": "wh_uuid_here",
+    "program_id": "prog_abc123",
+    "url": "https://yourapp.com/webhooks/cliq",
+    "events": [
+      "in.org.quicko.cliq.signup.created",
+      "in.org.quicko.cliq.purchase.created",
+      "in.org.quicko.cliq.commission.created"
+    ],
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | Webhook returned successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to read this webhook. |
+| `404 Not Found` | No webhook found with the given ID in this program. |

@@ -1,0 +1,134 @@
+---
+title: "Update an Existing Function | Cliq API Reference"
+sidebarTitle: "Update Function"
+description: "Update an existing commission function's name, trigger, effect, status, conditions, or circle assignment. All request body fields are optional."
+---
+
+Update any combination of fields on an existing function. All fields in the request body are optional — only the fields you include will be changed. This is useful for toggling a function's status between `active` and `inactive`, adjusting commission values, or reassigning a function to a different circle.
+
+## Endpoint
+
+```text
+PATCH /api/programs/:program_id/functions/:function_id
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```text
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the function belongs to.
+</ParamField>
+
+<ParamField path="function_id" type="string" required>
+  The UUID of the function to update.
+</ParamField>
+
+## Request Body
+
+All fields are optional. Only supplied fields are updated.
+
+<ParamField body="name" type="string">
+  New name for the function.
+</ParamField>
+
+<ParamField body="trigger" type="string">
+  New trigger type. One of `signup` or `purchase`.
+</ParamField>
+
+<ParamField body="effect_type" type="string">
+  New effect type. One of `generate_commission` or `switch_circle`.
+</ParamField>
+
+<ParamField body="status" type="string">
+  New status. One of `active` or `inactive`.
+</ParamField>
+
+<ParamField body="effect" type="object">
+  New effect configuration. Shape must match the `effect_type` value.
+
+  <Expandable title="When effect_type is generate_commission">
+    <ParamField body="effect.commission.commission_type" type="string">
+      `fixed` or `percentage`.
+    </ParamField>
+    <ParamField body="effect.commission.commission_value" type="number">
+      The new commission amount or percentage.
+    </ParamField>
+  </Expandable>
+
+  <Expandable title="When effect_type is switch_circle">
+    <ParamField body="effect.target_circle_id" type="string">
+      UUID of the new target circle.
+    </ParamField>
+    <ParamField body="effect.target_circle_name" type="string">
+      Display name of the new target circle. Optional.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="conditions" type="array">
+  Replacement conditions array. Providing this replaces all existing conditions.
+</ParamField>
+
+<ParamField body="circle_id" type="string">
+  UUID of the circle to reassign the function to.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully updated function."`
+</ResponseField>
+
+## Examples
+
+### Deactivate a function
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog_abc123/functions/fn_uuid_here \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "inactive"
+  }'
+```
+
+### Update commission value
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog_abc123/functions/fn_uuid_here \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "effect": {
+      "commission": {
+        "commission_type": "percentage",
+        "commission_value": 15
+      }
+    }
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully updated function."
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | Function updated successfully. |
+| `400 Bad Request` | Validation error — check your request body. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to update this function. |
+| `404 Not Found` | No function found with the given ID in this program. |

@@ -1,0 +1,97 @@
+---
+title: "Download Program Commissions Report — Cliq API"
+sidebarTitle: "Report"
+description: "GET /api/programs/:program_id/report — Download a CSV commissions report for a date range. Requires Bearer Token and x-accept-type: application/json;format=sheet-json."
+---
+
+Download a CSV commissions report for an affiliate program. The file is streamed directly in the response and contains all commission records within the optional date range. This endpoint is designed for data exports and spreadsheet integrations.
+
+<Warning>
+  You **must** include the request header `x-accept-type: application/json;format=sheet-json`. The server will return `400 Bad Request` if this header is absent or set to any other value.
+</Warning>
+
+<Note>
+  The response is a **file download**, not a JSON body. The `Content-Type` is `text/csv; charset=utf-8` and the `Content-Disposition` header carries a dynamically generated filename (e.g. `Commission_2024-06-01T12:00:00.csv`). Use `--output` in curl or handle the binary stream in your HTTP client.
+</Note>
+
+## Method and Path
+
+```http
+GET /api/programs/:program_id/report
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program for which to generate the report.
+</ParamField>
+
+### Required Request Header
+
+<ParamField header="x-accept-type" type="string" required>
+  Must be set to exactly `application/json;format=sheet-json`. Any other value results in a `400 Bad Request` error.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="start_date" type="string (ISO 8601 date)">
+  Start of the date range to include in the report (e.g. `2024-01-01`). When omitted, the report starts from the earliest available commission record.
+</ParamField>
+
+<ParamField query="end_date" type="string (ISO 8601 date)">
+  End of the date range (e.g. `2024-06-30`). When omitted, the report includes records up to the current date.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK` with the following response headers:
+
+| Header | Value |
+|---|---|
+| `Content-Type` | `text/csv; charset=utf-8` |
+| `Content-Disposition` | `attachment; filename="Commission_<timestamp>.csv"` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Cache-Control` | `no-store` |
+
+The response body is a UTF-8 encoded CSV stream. The first row contains column headers; subsequent rows contain one commission record each.
+
+## Examples
+
+```bash
+# Download report for a specific date range
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/report?start_date=2024-01-01&end_date=2024-06-30" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-accept-type: application/json;format=sheet-json" \
+  --output "commissions_report.csv"
+```
+
+```bash
+# Download full report (no date filter)
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/report" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-accept-type: application/json;format=sheet-json" \
+  --output "commissions_full.csv"
+```
+
+<Tip>
+  In JavaScript/TypeScript, handle the response as a `Blob` or pipe the `ReadableStream` to a file writer. Do not call `.json()` on the response — the body is CSV text.
+</Tip>
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | CSV report stream returned successfully. |
+| `400 Bad Request` | `x-accept-type` header is missing or has an incorrect value. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks read permission for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |
+| `500 Internal Server Error` | Error occurred while generating the CSV stream. |

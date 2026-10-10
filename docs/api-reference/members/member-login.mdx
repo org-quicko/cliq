@@ -1,0 +1,94 @@
+---
+title: "Member Login — Authenticate a Promoter Portal Member"
+sidebarTitle: "Member Login"
+description: "Authenticate a member of a Cliq affiliate program using email and password. Returns a Bearer access token scoped to the program. No prior auth required."
+---
+
+The Member Login endpoint authenticates an existing member within a specific program using their email and password. On success, it returns a signed JWT access token scoped to that program. Members use this token to make authenticated requests to the promoter portal API. This endpoint is public and does not require a pre-existing token.
+
+## Endpoint
+
+```bash
+POST /api/programs/:program_id/members/login
+```
+
+## Authentication
+
+<Note>
+  This endpoint is **public**. No authentication token is required.
+</Note>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program the member is logging into.
+</ParamField>
+
+## Request Body
+
+<ParamField body="email" type="string" required>
+  The registered email address of the member.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The member's account password.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully logged in member."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  Authentication result containing the access token and member details.
+
+  <Expandable title="result fields">
+    <ResponseField name="access_token" type="string">
+      A signed JWT token. Pass this in the `Authorization: Bearer <token>` header for authenticated member requests.
+    </ResponseField>
+    <ResponseField name="member_id" type="string (UUID)">
+      The unique identifier of the authenticated member.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The email address of the authenticated member.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The member's role within their promoter team. One of: `admin`, `editor`, `viewer`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/members/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "alice.johnson@example.com",
+    "password": "MemberPass@456"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully logged in member.",
+  "result": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZW1iZXJfaWQiOiJtZW0tOWFiYy1kZWYwLTEyMzQtNTY3OCIsImlhdCI6MTcwNTMxMjIwMCwiZXhwIjoxNzA1Mzk4NjAwfQ.signature",
+    "member_id": "mem-9abc-def0-1234-5678",
+    "email": "alice.johnson@example.com",
+    "role": "admin"
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                    |
+|-------------|----------------------------------------------------------------|
+| `200`       | OK — login successful, access token returned.                  |
+| `400`       | Bad Request — missing or malformed request body.               |
+| `401`       | Unauthorized — invalid email or password combination.          |
+| `404`       | Not Found — the specified `program_id` does not exist.         |

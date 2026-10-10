@@ -1,0 +1,117 @@
+---
+title: "List Program Commissions — Cliq API Reference"
+sidebarTitle: "Commissions"
+description: "GET /api/programs/:program_id/commissions — Retrieve paginated commissions for an affiliate program, filtered by conversion type. Requires Bearer Token."
+---
+
+Retrieve all commissions earned within a specific affiliate program. Optionally filter by conversion type — `signup` for sign-up commissions or `purchase` for purchase-based commissions. Results are paginated.
+
+## Method and Path
+
+```http
+GET /api/programs/:program_id/commissions
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program whose commissions you want to retrieve.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="conversion_type" type="string">
+  Filter commissions by the event type that triggered them.
+
+  Accepted values: `signup` | `purchase`
+
+  When omitted, commissions of all types are returned.
+</ParamField>
+
+<ParamField query="skip" type="number" default="0">
+  Number of records to skip. Use with `take` for pagination.
+</ParamField>
+
+<ParamField query="take" type="number" default="10">
+  Maximum number of commission records to return per page.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched all commissions of program."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="items" type="array">
+      Array of commission objects.
+      <Expandable title="commission object">
+        <ResponseField name="commission_id" type="string (uuid)">
+          Unique identifier for the commission record.
+        </ResponseField>
+        <ResponseField name="program_id" type="string (uuid)">
+          Program the commission belongs to.
+        </ResponseField>
+        <ResponseField name="promoter_id" type="string (uuid)">
+          Promoter who earned this commission.
+        </ResponseField>
+        <ResponseField name="conversion_type" type="string">
+          `signup` or `purchase` — the event that generated this commission.
+        </ResponseField>
+        <ResponseField name="amount" type="number">
+          Commission value in the program's configured currency.
+        </ResponseField>
+        <ResponseField name="status" type="string">
+          Commission status (e.g. `active` or `inactive`).
+        </ResponseField>
+        <ResponseField name="created_at" type="string (ISO 8601)">
+          Timestamp when the commission was recorded.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      Total number of matching commissions (before pagination).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+```bash
+# All commissions for a program
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/commissions?skip=0&take=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Only purchase commissions
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/commissions?conversion_type=purchase&take=20" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Only signup commissions
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/commissions?conversion_type=signup&take=20" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Commissions returned successfully. |
+| `400 Bad Request` | Invalid value supplied for `conversion_type`. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks read permission for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |

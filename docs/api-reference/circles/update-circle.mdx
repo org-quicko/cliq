@@ -1,0 +1,74 @@
+---
+title: "Update a Circle by ID — Cliq API Reference"
+sidebarTitle: "Update Circle"
+description: "PATCH /api/programs/:program_id/circles/:circle_id — Update the name or properties of an existing promoter segment (circle) within a program."
+---
+
+Use this endpoint to update properties of an existing circle within a program. The `name` and `is_default_circle` fields can be updated. All fields in the request body are optional — only the fields you include will be changed, leaving any omitted fields unchanged.
+
+## Method and Path
+
+```bash
+PATCH /api/programs/:program_id/circles/:circle_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it in every request as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program the circle belongs to.
+</ParamField>
+
+<ParamField path="circle_id" type="string (uuid)" required>
+  Unique identifier of the circle to update.
+</ParamField>
+
+### Body Parameters
+
+<ParamField body="name" type="string">
+  New display name for the circle. If omitted, the existing name is preserved.
+</ParamField>
+
+<ParamField body="is_default_circle" type="boolean">
+  When `true`, designates this circle as the default circle for the program. If omitted, the existing value is preserved.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully updated circle."`
+</ResponseField>
+
+<Tip>
+  This endpoint returns a confirmation message only. Fetch the circle with `GET /api/programs/:program_id/circles/:circle_id` to see the updated fields.
+</Tip>
+
+## Example
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/circles/c1d2e3f4-0000-0000-0000-000000000002 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Premium Affiliates"
+  }'
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Circle was successfully updated. |
+| `400 Bad Request` | Validation failed — check field types and values. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated caller lacks permission to update this circle. |
+| `404 Not Found` | No circle exists with the provided `circle_id` in this program. |

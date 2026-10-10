@@ -1,0 +1,109 @@
+---
+title: "User Sign Up — Create a Super Admin Account"
+sidebarTitle: "User Sign Up"
+description: "Register a new user and create a Super Admin account in Cliq. This is the first step to setting up your affiliate program management dashboard."
+---
+
+The User Sign Up endpoint creates a brand-new Super Admin account in Cliq. A Super Admin is the top-level administrator who owns and manages the affiliate program. This endpoint is public and does not require any prior authentication — it is the entry point for self-hosted Cliq deployments.
+
+## Endpoint
+
+```bash
+POST /api/users/signup
+```
+
+## Authentication
+
+<Note>
+  This endpoint is **public**. No authentication token is required.
+</Note>
+
+## Request Body
+
+<ParamField body="email" type="string" required>
+  The email address for the new user account. Must be a valid email format and unique across all users.
+</ParamField>
+
+<ParamField body="password" type="string">
+  The password for the new user account.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  The user's first name.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  The user's last name.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully signed up user."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The newly created user object.
+
+  <Expandable title="result fields">
+    <ResponseField name="user_id" type="string (UUID)">
+      The unique identifier of the created user.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The email address of the user.
+    </ResponseField>
+    <ResponseField name="first_name" type="string">
+      The user's first name.
+    </ResponseField>
+    <ResponseField name="last_name" type="string">
+      The user's last name.
+    </ResponseField>
+    <ResponseField name="role" type="string">
+      The user's system role. One of: `super_admin`, `admin`, `editor`, `viewer`, `regular`.
+    </ResponseField>
+    <ResponseField name="created_at" type="string (ISO 8601)">
+      Timestamp when the user was created.
+    </ResponseField>
+    <ResponseField name="updated_at" type="string (ISO 8601)">
+      Timestamp when the user was last updated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST https://your-cliq-instance.com/api/users/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "jane.doe@example.com",
+    "password": "SuperSecure@123",
+    "first_name": "Jane",
+    "last_name": "Doe"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully signed up user.",
+  "result": {
+    "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "email": "jane.doe@example.com",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "role": "super_admin",
+    "created_at": "2024-01-15T10:30:00.000Z",
+    "updated_at": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                           |
+|-------------|-------------------------------------------------------|
+| `201`       | Created — the user account was successfully created.  |
+| `400`       | Bad Request — missing or invalid fields in the body.  |
+| `409`       | Conflict — a user with that email already exists.     |

@@ -1,0 +1,91 @@
+---
+title: "Get a Promoter API Key | Cliq API Reference"
+sidebarTitle: "Get Promoter Key"
+description: "Retrieve the existing API key for a specific promoter within a program. Returns the api_key identifier only — the secret is never returned."
+---
+
+Retrieve the API key currently associated with a specific promoter. The response includes the public `api_key` identifier and the key record's UUID (useful for deletion). The `api_secret` is never returned by this or any other read endpoint.
+
+## Endpoint
+
+```bash
+GET /api/programs/:program_id/promoters/:promoter_id/api-keys
+```
+
+## Authentication
+
+All requests require a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <your_token>
+```
+
+## Path Parameters
+
+<ParamField path="program_id" type="string" required>
+  The UUID of the program the promoter belongs to.
+</ParamField>
+
+<ParamField path="promoter_id" type="string" required>
+  The UUID of the promoter whose API key you want to retrieve.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Confirmation message — `"Successfully fetched API key for Promoter {promoter_id} in Program {program_id}."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The API key record.
+
+  <Expandable title="result fields">
+    <ResponseField name="api_key_id" type="string">
+      UUID identifier of the API key record. Use this when calling the delete endpoint.
+    </ResponseField>
+    <ResponseField name="api_key" type="string">
+      The public API key identifier used in the `x-api-key` request header.
+    </ResponseField>
+    <ResponseField name="program_id" type="string">
+      UUID of the program this key is associated with.
+    </ResponseField>
+    <ResponseField name="promoter_id" type="string">
+      UUID of the promoter this key is scoped to.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 timestamp of when the key was generated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X GET https://your-cliq-instance.com/api/programs/prog_abc123/promoters/promo_xyz789/api-keys \
+  -H "Authorization: Bearer <your_token>"
+```
+
+### Example Response
+
+```json
+{
+  "message": "Successfully fetched API key for Promoter promo_xyz789 in Program prog_abc123.",
+  "result": {
+    "api_key_id": "key_record_uuid",
+    "api_key": "cliq_key_p1r2o3m4o5...",
+    "program_id": "prog_abc123",
+    "promoter_id": "promo_xyz789",
+    "created_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status | Description |
+|--------|-------------|
+| `200 OK` | API key returned successfully. |
+| `400 Bad Request` | Invalid program or promoter ID. |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `403 Forbidden` | Token does not have permission to view API keys for this promoter. |
+| `404 Not Found` | No API key found for this promoter. |

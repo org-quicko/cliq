@@ -1,0 +1,60 @@
+---
+title: "Remove a Promoter from a Circle — Cliq API Reference"
+sidebarTitle: "Remove Promoter"
+description: "DELETE /api/programs/:program_id/circles/:circle_id/promoters/:promoter_id — Remove a promoter from a circle, returning them to the default segment."
+---
+
+Use this endpoint to remove a specific promoter from a circle. After removal, the promoter is no longer associated with that circle's commission rules. If your program relies on circles to gate commission functions, ensure you reassign the promoter to another circle after removing them to prevent them from falling back to default-circle behavior unintentionally.
+
+## Method and Path
+
+```bash
+DELETE /api/programs/:program_id/circles/:circle_id/promoters/:promoter_id
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it in every request as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  Unique identifier of the program the circle belongs to.
+</ParamField>
+
+<ParamField path="circle_id" type="string (uuid)" required>
+  Unique identifier of the circle from which the promoter will be removed.
+</ParamField>
+
+<ParamField path="promoter_id" type="string (uuid)" required>
+  Unique identifier of the promoter to remove from the circle.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `204 No Content`.
+
+<ResponseField name="message" type="string">
+  `"Successfully removed promoter from circle."`
+</ResponseField>
+
+## Example
+
+```bash
+curl -X DELETE https://your-cliq-instance.com/api/programs/a1b2c3d4-0000-0000-0000-000000000001/circles/c1d2e3f4-0000-0000-0000-000000000002/promoters/p1a2b3c4-0000-0000-0000-000000000010 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `204 No Content` | Promoter was successfully removed from the circle. |
+| `400 Bad Request` | Invalid parameters — check that all IDs are valid UUIDs. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated caller lacks permission to modify circle membership. |
+| `404 Not Found` | The specified circle or promoter does not exist in this program. |

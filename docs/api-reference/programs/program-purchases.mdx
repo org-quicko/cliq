@@ -1,0 +1,106 @@
+---
+title: "List Program Purchases — Cliq API Reference"
+sidebarTitle: "Purchases"
+description: "GET /api/programs/:program_id/purchases — Retrieve paginated purchases attributed to an affiliate program, with optional item_id filter. Requires Bearer Token."
+---
+
+Retrieve all purchases attributed to a specific affiliate program. You can optionally filter results to a single product or SKU using the `item_id` parameter. Results are paginated.
+
+## Method and Path
+
+```http
+GET /api/programs/:program_id/purchases
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Path Parameters
+
+<ParamField path="program_id" type="string (uuid)" required>
+  The unique identifier of the program whose purchases you want to retrieve.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="item_id" type="string">
+  Filter results to purchases for a specific product or SKU identifier. When omitted, all purchases for the program are returned.
+</ParamField>
+
+<ParamField query="skip" type="number" default="0">
+  Number of records to skip. Use with `take` for pagination.
+</ParamField>
+
+<ParamField query="take" type="number" default="10">
+  Maximum number of purchase records to return per page.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched all purchases of program."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="items" type="array">
+      Array of purchase objects.
+      <Expandable title="purchase object">
+        <ResponseField name="purchase_id" type="string (uuid)">
+          Unique identifier for the purchase event.
+        </ResponseField>
+        <ResponseField name="program_id" type="string (uuid)">
+          Program the purchase belongs to.
+        </ResponseField>
+        <ResponseField name="promoter_id" type="string (uuid)">
+          Promoter whose referral link drove this purchase.
+        </ResponseField>
+        <ResponseField name="item_id" type="string">
+          Product or SKU identifier for the purchased item.
+        </ResponseField>
+        <ResponseField name="amount" type="number">
+          Purchase amount in the program's configured currency.
+        </ResponseField>
+        <ResponseField name="referral_key" type="string">
+          The referral key value used to attribute this purchase.
+        </ResponseField>
+        <ResponseField name="created_at" type="string (ISO 8601)">
+          Timestamp when the purchase was recorded.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      Total number of matching purchases (before pagination).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+```bash
+# All purchases for a program
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/purchases?skip=0&take=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Filter purchases for a specific item
+curl -X GET "https://your-cliq-instance.com/api/programs/$PROGRAM_ID/purchases?item_id=pro-plan&skip=0&take=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Purchases returned successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks read permission for this program. |
+| `404 Not Found` | No program found with the given `program_id`. |

@@ -1,0 +1,103 @@
+---
+title: "Update Member — Modify a Member's Profile Information"
+sidebarTitle: "Update Member"
+description: "Update a member's profile details such as name, email, or password within a Cliq program. All fields are optional. Requires Bearer token."
+---
+
+The Update Member endpoint modifies the profile of an existing member within a program. All fields are optional — only the fields you include in the request body will be updated. To change the member's password, supply both `current_password` and `new_password`. A valid Bearer token with update permission on the `Member` resource is required.
+
+## Endpoint
+
+```bash
+PATCH /api/programs/:program_id/members/:member_id
+```
+
+## Authentication
+
+<Warning>
+  This endpoint requires authentication. Include a valid Bearer token in the `Authorization` header.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="program_id" type="string (UUID)" required>
+  The unique identifier of the program to which the member belongs.
+</ParamField>
+
+<ParamField path="member_id" type="string (UUID)" required>
+  The unique identifier of the member to update.
+</ParamField>
+
+## Request Body
+
+All fields are optional. Include only the fields you wish to change.
+
+<ParamField body="email" type="string">
+  A new email address for the member.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  A new first name for the member.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  A new last name for the member.
+</ParamField>
+
+<ParamField body="current_password" type="string">
+  The member's current password. Required when changing the password.
+</ParamField>
+
+<ParamField body="new_password" type="string">
+  The new password to set for the member. Requires `current_password` to also be provided.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  A human-readable confirmation message. Example: `"Successfully updated member information."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  The updated member object reflecting the new values.
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X PATCH https://your-cliq-instance.com/api/programs/prog-1234-abcd-5678-efgh/members/mem-9abc-def0-1234-5678 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Alicia",
+    "current_password": "OldPass@789",
+    "new_password": "NewPass@321"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "message": "Successfully updated member information.",
+  "result": {
+    "member_id": "mem-9abc-def0-1234-5678",
+    "email": "alice.johnson@example.com",
+    "first_name": "Alicia",
+    "last_name": "Johnson",
+    "role": "admin",
+    "status": "active",
+    "updated_at": "2024-02-10T15:30:00.000Z"
+  }
+}
+```
+
+## Status Codes
+
+| Status Code | Description                                                       |
+|-------------|-------------------------------------------------------------------|
+| `200`       | OK — member information updated successfully.                     |
+| `400`       | Bad Request — invalid field values or mismatched password.        |
+| `401`       | Unauthorized — missing or invalid Bearer token.                   |
+| `403`       | Forbidden — caller does not have update access to this member.    |
+| `404`       | Not Found — no member exists with the given `member_id`.          |

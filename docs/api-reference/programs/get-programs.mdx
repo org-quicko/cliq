@@ -1,0 +1,82 @@
+---
+title: "List Affiliate Programs — Cliq API Reference"
+sidebarTitle: "Get Programs"
+description: "GET /api/programs — Retrieve a paginated list of affiliate programs the authenticated user belongs to, with optional name and visibility filters."
+---
+
+Fetch all affiliate programs that the authenticated user is a member of. Results can be filtered by name or visibility and are paginated using `skip` and `take`.
+
+## Method and Path
+
+```http
+GET /api/programs
+```
+
+## Authentication
+
+<Note>
+  A valid **Bearer Token** is required. Include it as `Authorization: Bearer <token>`.
+</Note>
+
+## Request
+
+### Query Parameters
+
+<ParamField query="name" type="string">
+  Filter programs whose name contains this string (case-insensitive partial match).
+</ParamField>
+
+<ParamField query="visibility" type="string">
+  Filter by visibility.
+
+  Accepted values: `public` | `private`
+</ParamField>
+
+<ParamField query="skip" type="number" default="0">
+  Number of records to skip. Use with `take` for pagination.
+</ParamField>
+
+<ParamField query="take" type="number" default="10">
+  Maximum number of programs to return per page.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200 OK`.
+
+<ResponseField name="message" type="string">
+  `"Successfully fetched all programs of user <user_id>."`
+</ResponseField>
+
+<ResponseField name="result" type="object">
+  <Expandable title="result">
+    <ResponseField name="items" type="array">
+      Array of program objects. Each item contains the same fields as the single-program response from `GET /api/programs/:program_id`.
+    </ResponseField>
+    <ResponseField name="count" type="number">
+      Total number of programs that match the applied filters (before pagination).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Examples
+
+```bash
+# Fetch the first 10 public programs
+curl -X GET "https://your-cliq-instance.com/api/programs?visibility=public&skip=0&take=10" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+# Search programs by name
+curl -X GET "https://your-cliq-instance.com/api/programs?name=acme&take=5" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Status Codes
+
+| Code | Meaning |
+|---|---|
+| `200 OK` | Programs returned successfully. |
+| `401 Unauthorized` | Missing or invalid Bearer Token. |
+| `403 Forbidden` | Authenticated user lacks read permission. |
