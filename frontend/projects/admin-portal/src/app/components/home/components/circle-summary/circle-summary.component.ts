@@ -1,3 +1,13 @@
+import { FunctionActionsComponent } from './function-actions/function-actions.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { CirclesService } from '../../../../services/circles.service';
+import { SnackbarService } from '@org.quicko.cliq/ngx-core';
+import { DeleteDialogComponent } from '../../../common/delete-dialog/delete-dialog.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AbilityServiceSignal } from '@casl/angular';
+import { UserAbility } from '../../../../permissions/ability';
+import { CircleDto } from '@org.quicko.cliq/ngx-core';
+import { EditCircleFunctionDialogComponent } from './edit-circle-function-dialog/edit-circle-function-dialog.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -20,6 +30,9 @@ import { CirclePromotersStore } from './store/circle.promoters.store';
     standalone: true,
     imports: [
         CommonModule,
+        FunctionActionsComponent,
+        MatDialogModule,
+        MatMenuModule,
         ReactiveFormsModule,
         MatDividerModule,
         MatIconModule,
@@ -41,6 +54,25 @@ export class CircleSummaryComponent implements OnInit {
     readonly programStore = inject(ProgramStore);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
+
+    private readonly circlesService = inject(CirclesService);
+    private readonly snackbar = inject(SnackbarService);
+    deletingCircle = false;
+    private readonly dialog = inject(MatDialog);
+    private readonly ability = inject<AbilityServiceSignal<UserAbility>>(AbilityServiceSignal);
+    readonly can = this.ability.can;
+    readonly CircleDto = CircleDto;
+    readonly FunctionDto = FunctionDto;
+
+    editFunction(func: FunctionDto) {
+        if (!this.can('update', FunctionDto)) return;
+        this.router.navigate(['/', this.programId, 'circles', this.circleId, 'functions', func.functionId, 'edit']);
+    }
+
+    createFunction() {
+        if (!this.can('create', FunctionDto)) return;
+        this.router.navigate(['/', this.programId, 'circles', this.circleId, 'functions', 'create']);
+    }
 
     programId!: string;
     circleId!: string;
@@ -78,6 +110,41 @@ export class CircleSummaryComponent implements OnInit {
         this.loadCircle();
         this.loadFunctions();
         this.loadPromoters();
+    }
+
+    editCircle() {
+        const circle = this.circle();
+        if (!circle || !this.can('update', CircleDto)) return;
+        this.dialog.open(EditCircleFunctionDialogComponent, {
+            width: '516px', maxWidth: '95vw', autoFocus: false, data: { programId: this.programId, circle },
+        }).afterClosed().subscribe(saved => { if (saved) this.loadCircle(); });
+    }
+
+    deleteCircle() {
+        const circle = this.circle();
+        if (!circle || this.deletingCircle || !this.can('delete', CircleDto)) return;
+        this.dialog.open(DeleteDialogComponent, {
+            width: '448px', maxWidth: '95vw', autoFocus: false,
+            data: {
+                title: 'Delete circle?',
+                message: `Delete "${circle.name}"? This action cannot be undone.`,
+                confirmButtonText: 'Delete', cancelButtonText: 'Cancel',
+                onSubmit: () => {
+                    if (this.deletingCircle || !this.can('delete', CircleDto)) return;
+                    this.deletingCircle = true;
+                    this.circlesService.deleteCircle(this.programId, circle.circleId).subscribe({
+                        next: () => {
+                            this.snackbar.openSnackBar('Circle deleted successfully', '');
+                            this.goBack();
+                        },
+                        error: () => {
+                            this.deletingCircle = false;
+                            this.snackbar.openSnackBar('Unable to delete circle. Please try again.', '');
+                        },
+                    });
+                },
+            },
+        });
     }
 
     loadCircle() {

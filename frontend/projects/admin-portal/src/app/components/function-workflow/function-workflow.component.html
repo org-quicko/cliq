@@ -1,0 +1,112 @@
+<div class="h-screen flex flex-col bg-surface-container-lowest">
+  <header class="fixed top-0 left-0 w-full z-20 h-[72px] bg-surface-container-lowest">
+    <div class="flex justify-between items-center px-8 py-4">
+      <span class="mat-title-medium text-on-surface">{{ editing ? 'Edit function' : 'Create function' }}</span>
+      <button mat-stroked-button class="rounded-full" (click)="exit()" [disabled]="saving">Exit</button>
+    </div>
+    <mat-divider class="border-outline-variant"></mat-divider>
+  </header>
+
+  <main class="flex-1 min-h-0 pt-[72px] pb-[88px]" [class.overflow-y-auto]="step !== 2" [class.overflow-hidden]="step === 2" [class.conditions-step]="step === 2">
+    <div class="workflow-content flex flex-col items-center justify-center min-h-full py-8 px-6">
+      @if (loading) {
+        <mat-spinner [diameter]="32" aria-label="Loading function"></mat-spinner>
+      } @else if (loadError) {
+        <div class="flex flex-col gap-4 items-center"><p class="mat-body-large text-error" role="alert">Unable to load this function.</p><button mat-stroked-button class="rounded-full" (click)="loadFunction()">Retry</button></div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="next()" class="workflow-form flex flex-col w-full gap-8">
+          <div class="shrink-0 flex flex-col gap-2">
+            <div class="flex justify-between items-center gap-4">
+              <h1 class="mat-headline-small m-0 text-on-surface">{{ steps[step] }}</h1>
+              @if (step === 2) {
+                <button mat-stroked-button type="button" class="rounded-full shrink-0" (click)="addCondition()"><mat-icon>add</mat-icon>Add condition</button>
+              }
+            </div>
+            <p class="mat-body-medium text-on-surface-variant m-0">
+              @switch (step) {
+                @case (0) { Give your function a name and choose when it runs. }
+                @case (1) { Choose what happens when this function runs. }
+                @case (2) { Add the conditions that must be met. Leave empty to run on every matching trigger. }
+                @case (3) { Review your function before {{ editing ? 'saving changes' : 'creating it' }}. }
+              }
+            </p>
+          </div>
+          @switch (step) {
+            @case (0) {
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic"><mat-label>Function name</mat-label><input matInput formControlName="name" /><mat-error>Function name is required</mat-error></mat-form-field>
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic"><mat-label>Trigger</mat-label><mat-select formControlName="trigger">@for (option of ['signup', 'purchase']; track option) { <mat-option [value]="option">{{ option | titlecase }}</mat-option> }</mat-select></mat-form-field>
+            }
+            @case (1) {
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic"><mat-label>Effect</mat-label><mat-select formControlName="effectType"><mat-option value="generate_commission">Generate commission</mat-option><mat-option value="switch_circle">Switch circle</mat-option></mat-select></mat-form-field>
+              @if (form.controls.effectType.value === 'generate_commission') {
+                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic"><mat-label>Commission type</mat-label><mat-select formControlName="commissionType"><mat-option value="percentage">Percentage</mat-option><mat-option value="fixed">Fixed</mat-option></mat-select></mat-form-field>
+                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic"><mat-label>Commission value</mat-label><input matInput type="number" min="0.01" [max]="form.controls.commissionType.value === 'percentage' ? 100 : null" formControlName="commissionValue" /></mat-form-field>
+              } @else {
+                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic"><mat-label>Target circle</mat-label><mat-select formControlName="targetCircleId">@for (circle of circles; track circle.id) { <mat-option [value]="circle.id">{{ circle.name }}</mat-option> }</mat-select></mat-form-field>
+                @if (circlesLoading) { <p class="mat-body-medium text-on-surface-variant m-0">Loading circles…</p> }
+                @if (circlesError) { <p role="alert" class="mat-body-medium text-error m-0">Unable to load circles.</p><button mat-button type="button" (click)="loadCircles()">Retry</button> }
+              }
+            }
+            @case (2) {
+              <div formArrayName="conditions" class="conditions-list flex flex-col gap-6" role="region" aria-label="Conditions" tabindex="0">
+                @for (condition of conditions.controls; track condition; let i = $index) {
+                  <div [formGroupName]="i" class="flex items-center gap-3 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-[1.5fr_1.4fr_1fr] gap-3 flex-1 min-w-0">
+                      <mat-form-field appearance="outline" class="w-full min-w-0" subscriptSizing="dynamic"><mat-label>Parameter</mat-label><mat-select formControlName="parameter" (selectionChange)="changeParameter(i)">@for (option of parameters; track option) { <mat-option [value]="option">{{ parameterLabels[option] }}</mat-option> }</mat-select></mat-form-field>
+                      <mat-form-field appearance="outline" class="w-full min-w-0" subscriptSizing="dynamic"><mat-label>Comparison</mat-label><mat-select formControlName="operator">@for (option of availableOperators(condition.value.parameter); track option) { <mat-option [value]="option">{{ operatorLabels[option] }}</mat-option> }</mat-select></mat-form-field>
+                      <mat-form-field appearance="outline" class="w-full min-w-0" subscriptSizing="dynamic"><mat-label>Value</mat-label><input matInput [type]="condition.value.parameter === 'item_id' ? 'text' : 'number'" formControlName="value" /><mat-error>Enter a value</mat-error></mat-form-field>
+                    </div>
+                    <button mat-icon-button type="button" (click)="conditions.removeAt(i)" [attr.aria-label]="'Remove condition ' + (i + 1)"><mat-icon class="material-symbols-outlined">delete</mat-icon></button>
+                  </div>
+                }
+              </div>
+            }
+            @case (3) {
+              <div class="flex flex-col gap-6 border border-outline-variant rounded-[5px] p-6">
+                <div class="flex justify-between items-start"><div class="flex flex-col gap-2"><span class="mat-body-medium text-on-surface-variant">Details</span><span class="mat-title-medium text-on-surface">{{ form.controls.name.value }}</span><span class="mat-body-large text-on-surface">{{ form.controls.trigger.value | titlecase }}</span></div><button mat-icon-button type="button" (click)="step = 0" aria-label="Edit details"><mat-icon class="material-symbols-outlined">edit</mat-icon></button></div>
+                <mat-divider></mat-divider>
+                <div class="flex justify-between items-start"><div class="flex flex-col gap-2"><span class="mat-body-medium text-on-surface-variant">Effect</span><span class="mat-body-large text-on-surface">@if (form.controls.effectType.value === 'generate_commission') { {{ form.controls.commissionValue.value }}{{ form.controls.commissionType.value === 'percentage' ? '%' : ' ' + programStoreCurrency }} commission } @else { Switch to {{ targetCircleName() }} }</span></div><button mat-icon-button type="button" (click)="step = 1" aria-label="Edit effect"><mat-icon class="material-symbols-outlined">edit</mat-icon></button></div>
+                <mat-divider></mat-divider>
+                <div class="flex flex-col gap-4">
+                  <div class="flex justify-between items-center">
+                    <span class="mat-body-medium text-on-surface-variant">Conditions</span>
+                    <button mat-icon-button type="button" (click)="step = 2" aria-label="Edit conditions" [disabled]="saving"><mat-icon class="material-symbols-outlined">edit</mat-icon></button>
+                  </div>
+                  <div class="flex flex-col">
+                    @for (condition of conditions.controls; track condition; let i = $index) {
+                      @if (i > 0) { <span class="mat-label-medium text-on-surface-variant px-3 py-2">AND</span> }
+                      <div class="flex items-start gap-2">
+                        <mat-icon class="material-symbols-outlined text-on-surface-variant shrink-0">filter_alt</mat-icon>
+                        <span class="mat-body-large text-on-surface break-words">{{ conditionText(condition.value) }}</span>
+                      </div>
+                    } @empty { <span class="mat-body-large text-on-surface">Runs on every matching trigger.</span> }
+                  </div>
+                </div>
+              </div>
+            }
+          }
+          @if (error) { <p role="alert" class="shrink-0 mat-body-medium text-error m-0">{{ error }}</p> }
+        </form>
+      }
+    </div>
+  </main>
+
+  <footer class="fixed bottom-0 left-0 right-0 w-full z-20 bg-surface-container-lowest h-[88px] flex flex-col justify-center">
+    <div class="flex gap-2" role="progressbar" aria-label="Function workflow progress" aria-valuemin="0" [attr.aria-valuemax]="steps.length" [attr.aria-valuenow]="step + 1" [attr.aria-valuetext]="steps[step]">
+      @for (label of steps; track label; let i = $index) {
+        <div class="flex-1 h-[5px] bg-surface-container-high overflow-hidden">
+          <div class="workflow-progress-fill h-full bg-primary" [style.transform]="'scaleX(' + (i <= step ? 1 : 0) + ')'"></div>
+        </div>
+      }
+    </div>
+    <div class="flex justify-between items-center px-8 pt-2">
+      <div class="flex items-center gap-4">
+        @if (step > 0) { <button mat-stroked-button class="rounded-full" (click)="back()" [disabled]="saving || loading || loadError">Back</button> }
+        <span class="mat-body-medium text-on-surface-variant">Step {{ step + 1 }} of {{ steps.length }} · {{ steps[step] }}</span>
+      </div>
+      <button mat-flat-button class="rounded-full" (click)="next()" [disabled]="saving || loading || loadError || !allowed()">
+        @if (saving) { <mat-spinner [diameter]="16" strokeWidth="2" aria-label="Saving function"></mat-spinner> } @else { {{ step === 3 ? (editing ? 'Save changes' : 'Create function') : 'Continue' }} }
+      </button>
+    </div>
+  </footer>
+</div>
