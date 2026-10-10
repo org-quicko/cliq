@@ -2,7 +2,7 @@
 
     <!-- Breadcrumb + Header -->
     <header class="flex justify-between items-center">
-        <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-6 w-full">
             <div class="flex items-center gap-1 text-on-surface-variant mat-body-medium">
                 <span class="cursor-pointer hover:underline" (click)="goToCircles()">Circles</span>
                 <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
@@ -16,8 +16,11 @@
                 <mat-icon class="text-sm !w-4 !h-4">chevron_right</mat-icon>
                 <span class="text-on-surface">Functions</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-on-surface mat-headline-medium">Functions</span>
+            <div class="flex justify-between items-center gap-4">
+                <span class="text-on-surface mat-headline-medium m-0">Functions</span>
+                @if (can('create', FunctionDto)) {
+                    <button mat-flat-button class="rounded-full" (click)="createFunction()"><mat-icon>add</mat-icon>Create function</button>
+                }
             </div>
         </div>
     </header>
@@ -27,15 +30,17 @@
         <div class="w-full border border-outline-variant rounded-[5px] overflow-hidden">
 
             <!-- Table Header -->
-            <div class="grid grid-cols-[2fr_1fr_1fr] items-center bg-surface-container-lowest px-6 py-4">
+            <div class="grid grid-cols-[2fr_1fr_1fr_1fr_48px] items-center bg-surface-container-lowest px-6 py-4">
                 <div class="mat-body-medium text-on-surface-variant text-left">Function Name</div>
                 <div class="mat-body-medium text-on-surface-variant text-left">Triggers</div>
                 <div class="mat-body-medium text-on-surface-variant text-center">Effect</div>
+        <div class="mat-body-medium text-on-surface-variant text-center">Status</div>
+        <div aria-label="Function actions"></div>
             </div>
 
             @if (isFunctionsLoading()) {
             @for (item of [].constructor(10); track $index) {
-            <div class="grid grid-cols-[2fr_1.3fr_0.7fr] items-center px-6 py-4 border-t border-outline-variant">
+            <div class="grid grid-cols-[2fr_1fr_1fr_1fr_48px] items-center px-6 py-4 border-t border-outline-variant">
                 <div class="flex flex-col gap-1">
                     <ngx-skeleton-loader [theme]="{ height: '1em', width: '150px', margin: '0' }"></ngx-skeleton-loader>
                 </div>
@@ -50,9 +55,10 @@
             } @else {
             @for (func of functions(); track func.functionId) {
             <div
-                class="grid grid-cols-[2fr_1fr_1fr] items-center px-6 py-5 border-t border-outline-variant transition-colors">
+                class="grid grid-cols-[2fr_1fr_1fr_1fr_48px] items-center px-6 py-5 border-t border-outline-variant transition-colors">
                 <div class="mat-body-large text-on-surface text-left">
                     {{ func.name }}
+
                 </div>
                 <div class="mat-body-large text-on-surface text-left">
                     <span class="mat-label-small px-2 py-1 inline-flex items-center justify-center rounded-sm" [ngClass]="{
@@ -82,7 +88,9 @@
                 }
               }
             </div>
-            </div>
+            <div class="flex justify-center"><span class="mat-label-small px-2 py-1 rounded-sm" [ngClass]="func.status === 'inactive' ? 'bg-surface-container text-on-surface' : 'bg-secondary-container text-on-secondary-container'">{{ func.status === 'inactive' ? 'Inactive' : 'Active' }}</span></div>
+            <app-function-actions [func]="func" [programId]="programId" (editRequested)="editFunction(func)" (changed)="onFunctionsChanged($event)"></app-function-actions>
+          </div>
             }
 
             @if (functions().length === 0) {
