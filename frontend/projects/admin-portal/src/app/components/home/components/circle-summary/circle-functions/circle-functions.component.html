@@ -19,7 +19,10 @@
             <div class="flex justify-between items-center gap-4">
                 <span class="text-on-surface mat-headline-medium m-0">Functions</span>
                 @if (can('create', FunctionDto)) {
-                    <button mat-flat-button class="rounded-full" (click)="createFunction()"><mat-icon>add</mat-icon>Create function</button>
+                    <button mat-flat-button class="bg-primary w-auto rounded-[100px]" (click)="createFunction()">
+                        <mat-icon class="material-symbols-outlined text-on-primary left-[3px]">add</mat-icon>
+                        <span class="mat-label-large text-on-primary">Create function</span>
+                    </button>
                 }
             </div>
         </div>

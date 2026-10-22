@@ -1,0 +1,34 @@
+<div class="h-screen flex flex-col bg-surface-container-lowest">
+  <header class="fixed top-0 left-0 w-full z-20 h-[72px] bg-surface-container-lowest">
+    <div class="flex justify-between items-center px-8 py-4">
+      <span class="mat-title-large text-on-surface">Create circle</span>
+      <button mat-stroked-button class="rounded-full" (click)="exit()" [disabled]="saving">Exit</button>
+    </div>
+    <mat-divider class="border-outline-variant"></mat-divider>
+  </header>
+
+  <main class="flex-1 min-h-0 pt-[72px] pb-[72px] overflow-y-auto">
+    <div class="flex flex-col items-center justify-center min-h-full py-8 px-4">
+      <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col w-full max-w-[560px] gap-8">
+        <div class="flex flex-col gap-2">
+          <h1 class="mat-headline-small m-0 text-on-surface">Details</h1>
+          <p class="mat-body-medium text-on-surface-variant m-0">Give your circle a name.</p>
+        </div>
+        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+          <mat-label>Circle name</mat-label>
+          <input matInput formControlName="name" />
+          <mat-error>Circle name is required</mat-error>
+        </mat-form-field>
+        @if (error) { <p role="alert" class="mat-body-medium text-error m-0">{{ error }}</p> }
+      </form>
+    </div>
+  </main>
+
+  <footer class="fixed bottom-0 left-0 right-0 w-full z-20 bg-surface-container-lowest h-[72px] flex flex-col justify-center">
+    <div class="flex justify-end items-center px-8">
+      <button mat-flat-button class="rounded-full" (click)="save()" [disabled]="saving || !allowed()">
+        @if (saving) { <mat-spinner [diameter]="16" strokeWidth="2" aria-label="Creating circle"></mat-spinner> } @else { Create circle }
+      </button>
+    </div>
+  </footer>
+</div>

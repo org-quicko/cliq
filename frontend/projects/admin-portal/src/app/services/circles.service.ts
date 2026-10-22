@@ -44,6 +44,10 @@ export class CirclesService {
         return this.httpClient.get<ApiResponse<CircleDto>>(url);
     }
 
+    createCircle(programId: string, body: { name: string }): Observable<ApiResponse<CircleDto>> {
+        return this.httpClient.post<ApiResponse<CircleDto>>(`${this.endpoint}/${programId}/circles`, body);
+    }
+
     updateCircle(programId: string, circleId: string, body: { name: string }): Observable<ApiResponse<void>> {
         return this.httpClient.patch<ApiResponse<void>>(`${this.endpoint}/${programId}/circles/${circleId}`, body);
     }

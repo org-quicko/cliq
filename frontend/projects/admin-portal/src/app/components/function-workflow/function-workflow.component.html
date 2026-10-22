@@ -1,25 +1,25 @@
 <div class="h-screen flex flex-col bg-surface-container-lowest">
   <header class="fixed top-0 left-0 w-full z-20 h-[72px] bg-surface-container-lowest">
     <div class="flex justify-between items-center px-8 py-4">
-      <span class="mat-title-medium text-on-surface">{{ editing ? 'Edit function' : 'Create function' }}</span>
+      <span class="mat-title-large text-on-surface">{{ editing ? 'Edit function' : 'Create function' }}</span>
       <button mat-stroked-button class="rounded-full" (click)="exit()" [disabled]="saving">Exit</button>
     </div>
     <mat-divider class="border-outline-variant"></mat-divider>
   </header>
 
   <main class="flex-1 min-h-0 pt-[72px] pb-[88px]" [class.overflow-y-auto]="step !== 2" [class.overflow-hidden]="step === 2" [class.conditions-step]="step === 2">
-    <div class="workflow-content flex flex-col items-center justify-center min-h-full py-8 px-6">
+    <div class="workflow-content flex flex-col items-center justify-center min-h-full py-8 px-4">
       @if (loading) {
         <mat-spinner [diameter]="32" aria-label="Loading function"></mat-spinner>
       } @else if (loadError) {
-        <div class="flex flex-col gap-4 items-center"><p class="mat-body-large text-error" role="alert">Unable to load this function.</p><button mat-stroked-button class="rounded-full" (click)="loadFunction()">Retry</button></div>
+        <div class="flex flex-col gap-4 items-center"><p class="mat-body-large text-error" role="alert">Unable to load this function.</p><button mat-stroked-button (click)="loadFunction()">Retry</button></div>
       } @else {
         <form [formGroup]="form" (ngSubmit)="next()" class="workflow-form flex flex-col w-full gap-8">
           <div class="shrink-0 flex flex-col gap-2">
             <div class="flex justify-between items-center gap-4">
               <h1 class="mat-headline-small m-0 text-on-surface">{{ steps[step] }}</h1>
-              @if (step === 2) {
-                <button mat-stroked-button type="button" class="rounded-full shrink-0" (click)="addCondition()"><mat-icon>add</mat-icon>Add condition</button>
+              @if (step === 2 && conditions.length > 0) {
+                <button mat-stroked-button type="button" class="rounded-full text-primary shrink-0" (click)="addCondition()"><mat-icon>add</mat-icon>Add condition</button>
               }
             </div>
             <p class="mat-body-medium text-on-surface-variant m-0">
@@ -57,6 +57,16 @@
                       <mat-form-field appearance="outline" class="w-full min-w-0" subscriptSizing="dynamic"><mat-label>Value</mat-label><input matInput [type]="condition.value.parameter === 'item_id' ? 'text' : 'number'" formControlName="value" /><mat-error>Enter a value</mat-error></mat-form-field>
                     </div>
                     <button mat-icon-button type="button" (click)="conditions.removeAt(i)" [attr.aria-label]="'Remove condition ' + (i + 1)"><mat-icon class="material-symbols-outlined">delete</mat-icon></button>
+                  </div>
+                } @empty {
+                  <div class="flex flex-col items-center gap-4 w-full py-8 my-auto">
+                    <div class="bg-surface-container rounded-full flex justify-center items-center p-3">
+                      <mat-icon class="text-on-surface-variant material-symbols-outlined h-[48px] w-[48px] text-[48px]">filter_alt</mat-icon>
+                    </div>
+                    <div class="flex flex-col justify-center items-center gap-1 text-center">
+                      <div class="mat-title-large text-on-surface">No conditions added</div>
+                    </div>
+                    <button mat-flat-button type="button" class="rounded-full mt-1" (click)="addCondition()"><mat-icon class="material-symbols-outlined">add</mat-icon>Add condition</button>
                   </div>
                 }
               </div>
