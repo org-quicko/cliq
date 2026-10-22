@@ -12,6 +12,25 @@ export interface Program {
   website: string;
 }
 
+export interface Circle {
+  circle_id: string;
+  name: string;
+}
+
+export interface ProgramFunction {
+  function_id: string;
+  circle_id: string;
+  name: string;
+  trigger: string;
+  status: 'active' | 'inactive';
+  effect_type: string;
+  effect: {
+    commission?: { commission_type: string; commission_value: number };
+    target_circle_id?: string;
+  };
+  conditions: { condition_id: string; condition: { parameter: string; operator: string; value: number | string } }[];
+}
+
 export interface Promoter {
   promoterId: string;
   name: string;
@@ -103,6 +122,29 @@ export class CliqApi {
 
   async deleteProgram(programId: string): Promise<void> {
     await unwrap(`delete program ${programId}`, this.request.delete(`${env.apiURL}/programs/${programId}`, {
+      headers: this.auth(),
+    }));
+  }
+
+  async createCircle(programId: string, name: string): Promise<Circle> {
+    return unwrap<Circle>(`create circle ${name}`, this.request.post(`${env.apiURL}/programs/${programId}/circles`, {
+      headers: this.auth(), data: { name },
+    }));
+  }
+
+  async createFunction(programId: string, circleId: string, name: string, overrides: Record<string, unknown> = {}): Promise<ProgramFunction> {
+    return unwrap<ProgramFunction>(`create function ${name}`, this.request.post(`${env.apiURL}/programs/${programId}/functions`, {
+      headers: this.auth(),
+      data: {
+        name, circle_id: circleId, trigger: 'purchase', effect_type: 'generate_commission',
+        effect: { commission: { commission_type: 'percentage', commission_value: 10 } },
+        conditions: [], ...overrides,
+      },
+    }));
+  }
+
+  async getFunction(programId: string, functionId: string): Promise<ProgramFunction> {
+    return unwrap<ProgramFunction>(`get function ${functionId}`, this.request.get(`${env.apiURL}/programs/${programId}/functions/${functionId}`, {
       headers: this.auth(),
     }));
   }

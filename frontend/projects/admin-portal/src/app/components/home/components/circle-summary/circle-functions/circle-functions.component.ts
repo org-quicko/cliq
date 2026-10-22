@@ -1,3 +1,7 @@
+import { FunctionActionsComponent } from '../function-actions/function-actions.component';
+import { AbilityServiceSignal } from '@casl/angular';
+import { UserAbility } from '../../../../../permissions/ability';
+import { CircleDto } from '@org.quicko.cliq/ngx-core';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -17,6 +21,7 @@ import { CircleFunctionsStore } from '../store/circle-functions.store';
     standalone: true,
     imports: [
         CommonModule,
+        FunctionActionsComponent,
         MatIconModule,
         MatButtonModule,
         MatMenuModule,
@@ -35,6 +40,21 @@ export class CircleFunctionsComponent implements OnInit {
     readonly programStore = inject(ProgramStore);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
+
+    private readonly ability = inject<AbilityServiceSignal<UserAbility>>(AbilityServiceSignal);
+    readonly can = this.ability.can;
+    readonly CircleDto = CircleDto;
+    readonly FunctionDto = FunctionDto;
+
+    editFunction(func: FunctionDto) {
+        if (!this.can('update', FunctionDto)) return;
+        this.router.navigate(['/', this.programId, 'circles', this.circleId, 'functions', func.functionId, 'edit']);
+    }
+
+    createFunction() {
+        if (!this.can('create', FunctionDto)) return;
+        this.router.navigate(['/', this.programId, 'circles', this.circleId, 'functions', 'create']);
+    }
 
     programId!: string;
     circleId!: string;
@@ -59,6 +79,13 @@ export class CircleFunctionsComponent implements OnInit {
 
         this.programId = this.programStore.program()?.programId!;
         this.circleSummaryStore.fetchCircle({ programId: this.programId, circleId: this.circleId });
+        this.loadFunctions();
+    }
+
+    onFunctionsChanged(deleted: boolean) {
+        if (deleted && this.functions().length === 1 && this.paginationOptions().pageIndex > 0) {
+            this.paginationOptions.update(options => ({ ...options, pageIndex: options.pageIndex - 1 }));
+        }
         this.loadFunctions();
     }
 

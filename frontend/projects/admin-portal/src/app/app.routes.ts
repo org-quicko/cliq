@@ -1,3 +1,5 @@
+import { FunctionWorkflowComponent } from './components/function-workflow/function-workflow.component';
+import { CircleWorkflowComponent } from './components/circle-workflow/circle-workflow.component';
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './components/layout/layout.component';
 import { HomeComponent } from './components/home/home.component';
@@ -69,6 +71,9 @@ export const routes: Routes = [
                  },
                 children: [
                     { path: '', pathMatch: 'full', redirectTo: 'home/dashboard' },
+                    { path: 'circles/create', component: CircleWorkflowComponent },
+                    { path: 'circles/:circle_id/functions/create', component: FunctionWorkflowComponent },
+                    { path: 'circles/:circle_id/functions/:function_id/edit', component: FunctionWorkflowComponent },
                     {
                         path: 'home',
                         component: HomeComponent,

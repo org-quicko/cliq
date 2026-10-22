@@ -1,0 +1,23 @@
+<mat-dialog-content class="rounded-[5px] p-6 bg-surface-container-lowest info-dialog-shadow h-auto max-h-[468px]">
+  <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
+    <div class="flex justify-between items-start mb-1">
+      <div class="flex flex-col gap-2">
+        <mat-icon class="material-symbols-outlined text-on-surface">edit</mat-icon>
+        <div class="text-on-surface mat-title-large">Edit circle</div>
+      </div>
+      <button type="button" mat-icon-button (click)="close()" aria-label="Close" [disabled]="saving"><mat-icon>close</mat-icon></button>
+    </div>
+    <div class="flex flex-col gap-4">
+    <mat-form-field appearance="outline" class="w-full"><mat-label>Name</mat-label><input matInput formControlName="name" /><mat-error>Enter a name</mat-error></mat-form-field>
+    @if (error) { <p role="alert" class="mat-body-medium text-error m-0">{{ error }}</p> }
+    </div>
+    <mat-dialog-actions class="!p-0 flex justify-end gap-2 -mt-3">
+      <button mat-button mat-dialog-close type="button" class="min-w-[70px]" [disabled]="saving">Cancel</button>
+      @if (!saving) {
+        <button mat-flat-button color="primary" type="submit" class="min-w-[93px] rounded-full" [disabled]="form.invalid">Save</button>
+      } @else {
+        <button mat-flat-button disabled type="button" class="min-w-[93px] rounded-full flex items-center gap-2" aria-label="Saving"><mat-spinner [diameter]="16" strokeWidth="2"></mat-spinner></button>
+      }
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>

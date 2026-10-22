@@ -105,7 +105,8 @@
 					"options": {
 						"polyfills": [
 							"zone.js",
-							"zone.js/testing"
+							"zone.js/testing",
+							"reflect-metadata"
 						],
 						"tsConfig": "projects/admin-portal/tsconfig.spec.json",
 						"inlineStyleLanguage": "css",

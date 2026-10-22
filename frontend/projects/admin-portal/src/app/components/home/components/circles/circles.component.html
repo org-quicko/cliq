@@ -5,6 +5,12 @@
     <p class="mat-headline-medium text-on-surface m-0">
       Circles ({{ total() ?? 0 | number }})
     </p>
+    @if (can('create', CircleDto)) {
+      <button mat-flat-button class="bg-primary w-auto rounded-[100px]" (click)="createCircle()">
+        <mat-icon class="material-symbols-outlined text-on-primary left-[3px]">add</mat-icon>
+        <span class="mat-label-large text-on-primary">Create circle</span>
+      </button>
+    }
   </div>
 
   <!-- Search Bar -->
