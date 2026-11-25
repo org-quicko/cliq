@@ -10,6 +10,7 @@ import { useIsolatedTransaction } from '../support/transaction';
 import {
 	addUserToProgram,
 	createProgram,
+	createPromoter,
 	createUser,
 	seedSuperAdmin,
 	unique,
@@ -107,6 +108,35 @@ describe('ProgramService', () => {
 					userId: caller.userId,
 				});
 			expect(membership?.role).toBe(userRoleEnum.SUPER_ADMIN);
+		});
+	});
+
+
+	describe('getAllPromoters', () => {
+		it('lists newly onboarded promoters without analytics and scopes search and counts to the program', async () => {
+			const { program, defaultCircle } = await createProgram(dataSource);
+			const { promoter, member } = await createPromoter(dataSource, program, defaultCircle, { name: 'Alpha newcomer' });
+			await createPromoter(dataSource, program, defaultCircle, { name: 'Beta newcomer' });
+			const other = await createProgram(dataSource);
+			await createPromoter(dataSource, other.program, other.defaultCircle, { name: 'Alpha outsider' });
+
+			const result = await service.getAllPromoters(program.programId, undefined, 0, 1);
+			const sheet = result.getPromoterAnalyticsSheet();
+			const row = sheet.getPromoterAnalyticsTable().getRow(0);
+			expect(row.getPromoterId()).toBe(promoter.promoterId);
+			expect(row.getMemberEmail()).toBe(member.email);
+			expect(row.getTotalSignups()).toBe(0);
+			expect(row.getTotalPurchases()).toBe(0);
+			expect(row.getTotalRevenue()).toBe(0);
+			expect(row.getTotalCommission()).toBe(0);
+			expect(result.getMetadata().get('total')).toBe(2);
+			expect(result.getMetadata().get('hasMore')).toBe(true);
+			expect(Number(sheet.getPromoterAnalyticsList().valueOfTotalPromoters())).toBe(2);
+			expect(Number(sheet.getPromoterAnalyticsList().valueOfActivePromoters())).toBe(2);
+
+			const searched = await service.getAllPromoters(program.programId, 'Alpha');
+			expect(searched.getMetadata().get('total')).toBe(1);
+			expect(searched.getPromoterAnalyticsSheet().getPromoterAnalyticsTable().getRow(0).getPromoterId()).toBe(promoter.promoterId);
 		});
 	});
 
