@@ -507,12 +507,13 @@ export class ProgramService {
 	) {
 		this.logger.info(`START: getAllPromoters service`);
 
-		const baseQuery = this.promoterAnalyticsViewRepository
-			.createQueryBuilder('pav')
-			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = pav.promoterId')
-			.leftJoin(PromoterMember, 'pm', 'pm.promoterId = pav.promoterId AND pm.role = :adminRole', { adminRole: memberRoleEnum.ADMIN })
+		const baseQuery = this.programPromoterRepository
+			.createQueryBuilder('pp')
+			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = pp.promoterId')
+			.leftJoin(PromoterAnalyticsView, 'pav', 'pav.promoterId = pp.promoterId AND pav.programId = pp.programId')
+			.leftJoin(PromoterMember, 'pm', 'pm.promoterId = pp.promoterId AND pm.role = :adminRole', { adminRole: memberRoleEnum.ADMIN })
 			.leftJoin(Member, 'adminMember', 'adminMember.memberId = pm.memberId')
-			.where('pav.programId = :programId', { programId });
+			.where('pp.programId = :programId', { programId });
 		if (name?.trim()) {
 
 			const tsQuery = buildPrefixTsQuery(name);
@@ -531,7 +532,7 @@ export class ProgramService {
 		const total = await baseQuery.getCount();
 
 		const promotersAnalytics = await baseQuery
-			.select('pav.promoterId', 'promoterId')
+			.select('pp.promoterId', 'promoterId')
 			.addSelect('pav.totalRevenue', 'totalRevenue')
 			.addSelect('pav.totalCommission', 'totalCommission')
 			.addSelect('pav.signupCommission', 'signupCommission')
@@ -545,12 +546,12 @@ export class ProgramService {
 			.limit(take)
 			.getRawMany();
 
-		const statusCounts = await this.promoterAnalyticsViewRepository
-			.createQueryBuilder('pav')
-			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = pav.promoterId')
+		const statusCounts = await this.programPromoterRepository
+			.createQueryBuilder('pp')
+			.innerJoin(Promoter, 'promoter', 'promoter.promoterId = pp.promoterId')
 			.select('promoter.status', 'status')
 			.addSelect('COUNT(*)', 'count')
-			.where('pav.programId = :programId', { programId })
+			.where('pp.programId = :programId', { programId })
 			.groupBy('promoter.status')
 			.getRawMany();
 
