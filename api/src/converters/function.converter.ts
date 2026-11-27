@@ -16,6 +16,7 @@ export class FunctionConverter {
 
       functionDto.functionId = func.functionId;
       functionDto.name = func.name;
+      functionDto.status = func.status;
       functionDto.circleId = func.circle.circleId;
       functionDto.circleName = func.circle.name;
       functionDto.effectType = func.effectType;

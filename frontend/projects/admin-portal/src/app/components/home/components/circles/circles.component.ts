@@ -14,6 +14,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { AbilityServiceSignal } from '@casl/angular';
+import { CircleDto } from '@org.quicko.cliq/ngx-core';
+import { UserAbility } from '../../../../permissions/ability';
 import { CirclesStore } from './store/circles.store';
 
 @Component({
@@ -49,7 +52,16 @@ export class CirclesComponent implements OnInit {
   isLoading = this.circlesStore.isLoading;
   error = this.circlesStore.error;
 
+  private readonly ability = inject<AbilityServiceSignal<UserAbility>>(AbilityServiceSignal);
+  readonly can = this.ability.can;
+  readonly CircleDto = CircleDto;
+
   programId!: string;
+
+  createCircle() {
+    if (!this.can('create', CircleDto)) return;
+    this.router.navigate(['/', this.programId, 'circles', 'create']);
+  }
 
   ngOnInit(): void {
     this.route.parent?.parent?.params.subscribe((params: Params) => {

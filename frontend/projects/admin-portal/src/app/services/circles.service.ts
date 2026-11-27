@@ -44,6 +44,30 @@ export class CirclesService {
         return this.httpClient.get<ApiResponse<CircleDto>>(url);
     }
 
+    createCircle(programId: string, body: { name: string }): Observable<ApiResponse<CircleDto>> {
+        return this.httpClient.post<ApiResponse<CircleDto>>(`${this.endpoint}/${programId}/circles`, body);
+    }
+
+    updateCircle(programId: string, circleId: string, body: { name: string }): Observable<ApiResponse<void>> {
+        return this.httpClient.patch<ApiResponse<void>>(`${this.endpoint}/${programId}/circles/${circleId}`, body);
+    }
+
+    deleteCircle(programId: string, circleId: string): Observable<ApiResponse<void>> {
+        return this.httpClient.delete<ApiResponse<void>>(`${this.endpoint}/${programId}/circles/${circleId}`);
+    }
+
+    getFunction(programId: string, functionId: string): Observable<ApiResponse<FunctionDto>> {
+        return this.httpClient.get<ApiResponse<FunctionDto>>(`${this.endpoint}/${programId}/functions/${functionId}`);
+    }
+
+    createFunction(programId: string, body: Record<string, unknown>): Observable<ApiResponse<FunctionDto>> {
+        return this.httpClient.post<ApiResponse<FunctionDto>>(`${this.endpoint}/${programId}/functions`, body);
+    }
+
+    updateFunction(programId: string, functionId: string, body: Record<string, unknown>): Observable<ApiResponse<void>> {
+        return this.httpClient.patch<ApiResponse<void>>(`${this.endpoint}/${programId}/functions/${functionId}`, body);
+    }
+
     getCircleFunctions(
         programId: string,
         circleId: string,
@@ -62,6 +86,10 @@ export class CirclesService {
         }
 
         return this.httpClient.get<ApiResponse<PaginatedList<FunctionDto>>>(url, { params });
+    }
+
+    deleteFunction(programId: string, functionId: string): Observable<ApiResponse<void>> {
+        return this.httpClient.delete<ApiResponse<void>>(`${this.endpoint}/${programId}/functions/${functionId}`);
     }
 
     getCirclePromoters(

@@ -21,17 +21,15 @@ import {
 } from '../src/enums';
 
 /**
- * Realistic demo data for local/dev environments: a couple of affiliate
- * programs, each with a default circle plus an upgraded tier, wired up with
- * commission/tier-upgrade functions and the conditions that gate them, owned
- * by a single platform super admin (mirrors what ProgramService.createProgram
- * does for a real program creator, linking them in via ProgramUser).
+ * Realistic PulseFit demo data for local/dev environments: a default circle
+ * plus an upgraded tier, with commission and tier-upgrade functions and their
+ * conditions. A single platform super admin owns the program (mirroring how
+ * ProgramService.createProgram links a creator through ProgramUser).
  *
  * The app only ever allows one platform-wide super admin (`User.role`;
  * UserService.superAdminExists()/isFirstUserSignUp() enforce this at
- * signup), so this script seeds exactly one and reuses it as the owning
- * ProgramUser (role SUPER_ADMIN, scoped to each program) for every program
- * below, instead of inventing a separate "super admin" per program.
+ * signup), so this script seeds exactly one and links it to PulseFit through
+ * ProgramUser (role SUPER_ADMIN, scoped to the program).
  *
  * Idempotent: re-running this script skips any program whose name already
  * exists instead of creating duplicates, reuses the admin user by email if
@@ -82,119 +80,6 @@ interface SeedProgram {
 }
 
 const seedPrograms: SeedProgram[] = [
-	{
-		name: 'Glow & Co Skincare',
-		website: 'https://www.glowandco.com',
-		visibility: visibilityEnum.PUBLIC,
-		currency: 'USD',
-		referralKeyType: referralKeyTypeEnum.EMAIL,
-		themeColor: '#D46A9F',
-		termsAndConditions:
-			'Promoters earn commission on completed, non-refunded orders placed through their referral link. Commissions are voided if the order is returned within 30 days.',
-		dateFormat: dateFormatEnum.MM_DD_YYYY,
-		timeZone: 'America/New_York',
-		circles: [
-			{
-				name: 'DEFAULT_CIRCLE',
-				isDefaultCircle: true,
-				functions: [
-					{
-						name: 'Standard Purchase Commission',
-						trigger: triggerEnum.PURCHASE,
-						status: functionStatusEnum.ACTIVE,
-						conditions: [
-							{
-								parameter: conditionParameterEnum.REVENUE,
-								operator: conditionOperatorEnum.GREATER_THAN_OR_EQUAL_TO,
-								value: '25',
-							},
-						],
-						effect: {
-							type: effectEnum.GENERATE_COMMISSION,
-							commissionType: commissionTypeEnum.PERCENTAGE,
-							commissionValue: 12,
-						},
-					},
-					{
-						name: 'New Referral Signup Bonus',
-						trigger: triggerEnum.SIGNUP,
-						status: functionStatusEnum.ACTIVE,
-						effect: {
-							type: effectEnum.GENERATE_COMMISSION,
-							commissionType: commissionTypeEnum.FIXED,
-							commissionValue: 3,
-						},
-					},
-					{
-						name: 'Promote to VIP Partners',
-						trigger: triggerEnum.PURCHASE,
-						status: functionStatusEnum.ACTIVE,
-						conditions: [
-							{
-								parameter: conditionParameterEnum.NUM_OF_PURCHASES,
-								operator: conditionOperatorEnum.GREATER_THAN_OR_EQUAL_TO,
-								value: '10',
-							},
-						],
-						effect: {
-							type: effectEnum.SWITCH_CIRCLE,
-							targetCircleName: 'VIP Partners',
-						},
-					},
-					{
-						name: 'Holiday 2025 Bundle Bonus',
-						trigger: triggerEnum.PURCHASE,
-						status: functionStatusEnum.INACTIVE,
-						conditions: [
-							{
-								parameter: conditionParameterEnum.ITEM_ID,
-								operator: conditionOperatorEnum.CONTAINS,
-								value: 'holiday-bundle',
-							},
-						],
-						effect: {
-							type: effectEnum.GENERATE_COMMISSION,
-							commissionType: commissionTypeEnum.FIXED,
-							commissionValue: 5,
-						},
-					},
-				],
-			},
-			{
-				name: 'VIP Partners',
-				isDefaultCircle: false,
-				functions: [
-					{
-						name: 'VIP Purchase Commission',
-						trigger: triggerEnum.PURCHASE,
-						status: functionStatusEnum.ACTIVE,
-						conditions: [
-							{
-								parameter: conditionParameterEnum.REVENUE,
-								operator: conditionOperatorEnum.GREATER_THAN_OR_EQUAL_TO,
-								value: '25',
-							},
-						],
-						effect: {
-							type: effectEnum.GENERATE_COMMISSION,
-							commissionType: commissionTypeEnum.PERCENTAGE,
-							commissionValue: 18,
-						},
-					},
-					{
-						name: 'VIP Signup Bonus',
-						trigger: triggerEnum.SIGNUP,
-						status: functionStatusEnum.ACTIVE,
-						effect: {
-							type: effectEnum.GENERATE_COMMISSION,
-							commissionType: commissionTypeEnum.FIXED,
-							commissionValue: 6,
-						},
-					},
-				],
-			},
-		],
-	},
 	{
 		name: 'PulseFit',
 		website: 'https://www.pulsefit.app',
